@@ -1,0 +1,15 @@
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+
+# POSTGRESQL #
+database
+
+
+# Environments #
+.env
+.venv
+env/ 
+venv/
