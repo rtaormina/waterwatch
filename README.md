@@ -11,6 +11,12 @@ Requirements before install:
 - python
 - docker
 
+install GDAL:
+```bash
+sudo apt-get install binutils libproj-dev gdal-bin
+```
+
+
 Linux:
 ```bash
 python -m venv .venv
