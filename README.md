@@ -1,22 +1,46 @@
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
-#  WaterWatch
-WaterWatch is global citizen science platform for tracking water temperatures and climate change impacts.
+#  WATERWATCH
+WATERWATCH is global citizen science platform for tracking water temperatures and climate change impacts.
 ## Live website
-The live production version of [WaterWatch](https://waterwatch.tudelft.nl)
+The live production version of [WATERWATCH](https://waterwatch.tudelft.nl)
 
 ## Installation
+Requirements before install:
+- python
+- docker
+
 Linux:
 ```bash
-python3 -m venv .venv
+python -m venv .venv
+
 source .venv/bin/activate
 
 pip install --no-cache-dir -r requirements.txt
 
 docker compose up -d
 
-python ./backend/manage.py runserver
+python manage.py makemigrations &&
+python manage.py migrate
+
+python manage.py runserver
+```
+
+Windows:
+```bash
+python -m venv .venv
+
+.venv\Scripts\activate
+
+pip install --no-cache-dir -r requirements.txt
+
+docker compose up -d
+
+python manage.py makemigrations &&
+python manage.py migrate
+
+python manage.py runserver
 ```
 
 
@@ -28,7 +52,7 @@ After installation the project will run at [localhost:8000](http://127.0.0.1:800
 ## Support
 
 ### Troubleshooting common issues
-
+- If it cannot find the database make sure no other instance of postgres is currently running
 
 ## Contributing
 
