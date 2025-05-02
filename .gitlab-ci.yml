@@ -1,0 +1,34 @@
+workflow:
+ rules:
+   - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+     when: always
+
+stages:
+ - lint
+ - test
+
+# Linting & Formatting
+lint:
+ stage: lint
+ image: python:3.13-slim
+ script:
+   - pip install --no-cache-dir -r backend/requirements.txt
+   - ruff format
+   - ruff check
+   - python backend/manage.py check
+ # Run only if files in folder backend changed
+ rules:
+   - changes:
+       - backend/**/*
+
+# Unit Tests - Backend
+backend_unit_tests:
+ stage: test
+ image: python:3.13-slim
+ script:
+   - pip install --no-cache-dir -r backend/requirements.txt
+   - python backend/manage.py test
+ # Run only if files in folder backend changed
+ rules:
+   - changes:
+       - backend/**/*
