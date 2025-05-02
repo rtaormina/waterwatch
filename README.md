@@ -13,7 +13,7 @@ Requirements before install:
 
 install GDAL:
 ```bash
-sudo apt-get install binutils libproj-dev gdal-bin
+apt-get install binutils libproj-dev gdal-bin
 ```
 
 

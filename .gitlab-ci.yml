@@ -12,7 +12,7 @@ lint:
  stage: lint
  image: python:3.13-slim
  script:
-   - sudo apt-get install binutils libproj-dev gdal-bin
+   - apt-get install binutils libproj-dev gdal-bin
    - pip install --no-cache-dir -r backend/requirements.txt
    - pip install ruff==0.11.8
    - ruff format
@@ -28,7 +28,7 @@ backend_unit_tests:
  stage: test
  image: python:3.13-slim
  script:
-   - sudo apt-get install binutils libproj-dev gdal-bin
+   - apt-get install binutils libproj-dev gdal-bin
    - pip install --no-cache-dir -r backend/requirements.txt
    - python backend/manage.py test
  # Run only if files in folder backend changed
