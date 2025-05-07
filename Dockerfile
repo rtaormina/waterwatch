@@ -1,4 +1,4 @@
-FROM python:3.13-slim
+FROM python:3.10-slim-buster
 
 WORKDIR /home/requirements
 
@@ -24,5 +24,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY requirements/dev-requirements.txt .
 RUN pip install --no-cache-dir -r dev-requirements.txt
 
-# Default command when running the container without any arguments
-CMD [ "python3" ]
