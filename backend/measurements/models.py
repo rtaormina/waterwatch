@@ -61,7 +61,7 @@ class Metric(models.Model):
         "hardness": "hardness",
     }
     metric_type = models.CharField(max_length=255, choices=type_choices)
-    measurement = models.ForeignKey(Measurement, on_delete=models.CASCADE)
+    measurement = models.ForeignKey(Measurement, on_delete=models.CASCADE, null=True)
 
     class Meta:
         abstract = True

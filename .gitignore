@@ -4,6 +4,12 @@
 *.pyc
 __pycache__
 
+# Vue #
+node_modules
+dist
+dist-ssr
+*.local
+
 # POSTGRESQL #
 database
 
