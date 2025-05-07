@@ -1,0 +1,531 @@
+openapi: 3.0.0
+info:
+  title: WATERWATCH API
+  description: |-
+    WATERWATCH is a citizen‑science platform for recording and analyzing drinking‑water temperature (and future sensor data like pH or turbidity).
+    Public endpoints allow anyone to query measurements and campaigns.
+    Protected operations (delete/update) require an API key or user credentials.
+  contact:
+    name: WATERWATCH
+    url: https://www.waterwatch.tudelft.nl
+    email: waterwatch@tudelft.nl
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 0.1.0
+servers:
+- url: https://virtserver.swaggerhub.com/nicohammer-072/WATERWATCH_API/0.1.0
+  description: SwaggerHub API Auto Mocking
+- url: https://api.waterwatch.tudelft.nl/api
+  description: Production server (public API for all users)
+- url: https://staging.waterwatch.tudelft.nl/api
+  description: Staging server (for testing new features)
+- url: http://localhost:8000/api
+  description: Local development
+tags:
+- name: measurements
+  description: "Upload, query, and delete water‑temperature (and other sensor) data"
+- name: users
+  description: "User account operations (self‑registration, profile, delete own account)"
+- name: campaigns
+  description: Manage and explore data‑collection campaigns
+- name: admins
+  description: "Admin‑only endpoints (full CRUD on users, measurements, and campaigns)"
+paths:
+  /measurements:
+    get:
+      tags:
+      - measurements
+      summary: Retrieve all measurements.
+      description: |
+        Returns a list of all measurements. Supports optional filtering by date, location, campaign, etc.
+      parameters:
+      - name: startDate
+        in: query
+        description: ISO-8601 start date of range to filter.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: ISO-8601 end date of range to filter.
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: campaignId
+        in: query
+        description: UUID of a campaign to filter measurements by.
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: continent
+        in: query
+        description: Continent name to filter by (e.g. “Europe”). Optional.
+        required: false
+        schema:
+          type: string
+      - name: country
+        in: query
+        description: Country name to filter by (e.g. “Netherlands”). Optional.
+        required: false
+        schema:
+          type: string
+      - name: city
+        in: query
+        description: "City name to filter by (e.g. “Delft”). Optional. If you specify `city`, you **must** also supply `country` and `continent`. Omitting them will yield a 400 Bad Request."
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: Maximum number of records to return.
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+          default: 100
+      - name: offset
+        in: query
+        description: Pagination offset.
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      responses:
+        "200":
+          description: A page of measurements.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Measurement'
+        "400":
+          description: Bad input parameter.
+        "404":
+          description: Not found.
+    post:
+      tags:
+      - measurements
+      summary: Submit a new measurement.
+      description: |
+        Creates a new measurement. No auth required for guest submissions.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Measurement'
+        required: true
+      responses:
+        "201":
+          description: Measurement created.
+        "400":
+          description: Invalid payload.
+  /measurements/{measurementId}:
+    get:
+      tags:
+      - measurements
+      summary: Retrieve a single measurement.
+      parameters:
+      - name: measurementId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: A single measurement.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Measurement'
+        "400":
+          description: Bad input parameter.
+        "404":
+          description: Not found.
+    delete:
+      tags:
+      - measurements
+      summary: Delete a measurement.
+      description: |
+        Deletes the specified measurement. Only the submitting user or an admin may delete.
+      parameters:
+      - name: measurementId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Deleted successfully
+        "400":
+          description: Bad input parameter
+        "403":
+          description: Not authorized
+        "404":
+          description: Not found
+      security:
+      - BearerAuth: []
+  /users:
+    get:
+      tags:
+      - users
+      - admins
+      summary: Retrieve all registered users.
+      responses:
+        "200":
+          description: A list of users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        "403":
+          description: Not authorized.
+        "404":
+          description: Not found.
+      security:
+      - BearerAuth: []
+    post:
+      tags:
+      - users
+      summary: Create a new user account.
+      description: Public endpoint to register.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "201":
+          description: Account created.
+        "400":
+          description: Invalid input.
+        "404":
+          description: Not found.
+  /users/{userId}:
+    get:
+      tags:
+      - users
+      summary: Retrieve a user profile.
+      description: Public—anyone can view a user’s public profile..
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: User profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "404":
+          description: Not found.
+    put:
+      tags:
+      - users
+      summary: Update your own user profile.
+      description: A user may update only their own profile.
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "200":
+          description: Updated successfully.
+        "403":
+          description: Can only update your own account.
+        "404":
+          description: Not found.
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+      - users
+      summary: Delete your own user account.
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Account deleted.
+        "403":
+          description: Can only delete your own account.
+        "404":
+          description: Not found.
+      security:
+      - BearerAuth: []
+  /campaigns:
+    get:
+      tags:
+      - campaigns
+      summary: Retrieve all campaigns.
+      responses:
+        "200":
+          description: Campaigns found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Campaign'
+        "404":
+          description: Campaigns not found.
+    post:
+      tags:
+      - admins
+      summary: Create a campaign.
+      requestBody:
+        description: Campaign object to add.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+      responses:
+        "201":
+          description: Campaign created.
+        "400":
+          description: "Invalid input, object invalid"
+        "409":
+          description: An existing campaign already exists.
+      security:
+      - BearerAuth: []
+  /campaigns/{campaignId}:
+    get:
+      tags:
+      - campaigns
+      summary: Return a single campaign.
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Campaign found.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Campaign'
+        "400":
+          description: Bad input parameter.
+        "404":
+          description: Campaign not found.
+    put:
+      tags:
+      - admins
+      summary: Update an existing campaign.
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+        required: true
+      responses:
+        "200":
+          description: Campaign updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+        "400":
+          description: "Invalid input, object invalid."
+        "404":
+          description: Campaign not found.
+      security:
+      - BearerAuth: []
+    delete:
+      tags:
+      - admins
+      summary: Delete a campaign.
+      parameters:
+      - name: campaignId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Campaign deleted (no content).
+        "400":
+          description: Bad input parameter.
+        "404":
+          description: Campaign not found.
+      security:
+      - BearerAuth: []
+components:
+  schemas:
+    Measurement:
+      required:
+      - flag
+      - lat
+      - lon
+      - metrics
+      - timestamp
+      - water_source
+      type: object
+      properties:
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metric'
+        timestamp:
+          type: string
+          format: date-time
+        lat:
+          maximum: 90
+          minimum: -90
+          type: number
+          format: double
+        lon:
+          maximum: 180
+          minimum: -180
+          type: number
+          format: double
+        flag:
+          type: boolean
+        water_source:
+          type: string
+          enum:
+          - well
+          - tap
+        user:
+          $ref: '#/components/schemas/User'
+        campaigns:
+          type: array
+          items:
+            $ref: '#/components/schemas/Campaign'
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+    User:
+      required:
+      - email
+      - role
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+        measurements:
+          type: array
+          items:
+            $ref: '#/components/schemas/Measurement'
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+    Campaign:
+      required:
+      - description
+      - end_date
+      - name
+      - region
+      - start_date
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        start_date:
+          type: string
+          format: date-time
+        end_date:
+          type: string
+          format: date-time
+        region:
+          $ref: '#/components/schemas/MultiPolygon'
+    Metric:
+      oneOf:
+      - $ref: '#/components/schemas/Temperature'
+    Temperature:
+      required:
+      - metric_type
+      - sensor
+      - time_waited
+      - value
+      type: object
+      properties:
+        metric_type:
+          type: string
+        sensor:
+          type: string
+        value:
+          type: number
+          format: float
+        time_waited:
+          type: integer
+          description: Duration in seconds
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+    MultiPolygon:
+      required:
+      - coordinates
+      type: object
+      properties:
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              minItems: 4
+              type: array
+              items:
+                maxItems: 2
+                minItems: 2
+                type: array
+                items:
+                  type: number
+                  format: double
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
