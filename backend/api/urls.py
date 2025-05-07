@@ -1,4 +1,6 @@
-from django.urls import path, re_path
+"""Define endpoints."""
+
+from django.urls import path
 
 from . import views
 

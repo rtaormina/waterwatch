@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -66,7 +66,7 @@ ROOT_URLCONF = "backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR,"..","frontend","dist")],
+        "DIRS": [Path(BASE_DIR) / ".." / "frontend" / "dist"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -124,8 +124,8 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [
-    BASE_DIR / 'dist',
-    os.path.join(BASE_DIR,"..","frontend","dist")
+    BASE_DIR / "dist",
+    Path(BASE_DIR) / ".." / "frontend" / "dist"
 ]
 
 # Default primary key field type

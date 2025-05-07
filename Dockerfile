@@ -4,7 +4,7 @@ WORKDIR /home/requirements
 
 # Install GeoDjango dependencies
 COPY requirements/packages.txt .
-RUN apt-get update && apt-get install -y < packages.txt 
+RUN apt-get update && xargs apt-get install -y < packages.txt 
 
 # Install backend dependencies
 COPY requirements/requirements.txt .

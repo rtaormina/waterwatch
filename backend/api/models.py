@@ -1,3 +1,3 @@
-from django.db import models
+"""Define models associated with API."""
 
 # Create your models here.
