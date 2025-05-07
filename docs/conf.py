@@ -8,7 +8,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path('..', 'backend').resolve()))
+sys.path.insert(0, str(Path("..", "backend").resolve()))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -42,9 +42,9 @@ html_static_path = ["_static"]
 # -- Options for MyST parser -------------------------------------------------
 # https://myst-parser.readthedocs.io/en/latest/syntax/optional.html
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.txt': 'markdown',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".txt": "markdown",
+    ".md": "markdown",
 }
 
 myst_enable_extensions = [

@@ -1,4 +1,5 @@
 """Config for Measurement Analysis app."""
+
 from django.apps import AppConfig
 
 
@@ -12,6 +13,6 @@ class MeasurementAnalysisConfig(AppConfig):
     name : str
         The full Python path to the application.
     """
-    
+
     default_auto_field = "django.db.models.BigAutoField"
     name = "measurement_analysis"
