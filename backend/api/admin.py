@@ -1,3 +1,2 @@
-from django.contrib import admin
-
+"""Add API models to Admin view."""
 # Register your models here.

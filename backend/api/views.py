@@ -1,3 +1,5 @@
+"""Create views associated with API."""
+
 import json
 
 from django.contrib.auth import authenticate, login, logout
@@ -8,11 +10,13 @@ from django.views.decorators.http import require_POST
 
 
 def index_view(request):
+    """Render the index page."""
     return render(request, "index.html", {})
 
 
 @require_POST
 def login_view(request):
+    """Handle user login."""
     data = json.loads(request.body)
     username = data.get("username")
     password = data.get("password")
@@ -31,6 +35,7 @@ def login_view(request):
 
 @require_POST
 def logout_view(request):
+    """Handle user logout."""
     if not request.user.is_authenticated:
         return JsonResponse({"detail": "You're not logged in."}, status=400)
 
@@ -40,6 +45,7 @@ def logout_view(request):
 
 @ensure_csrf_cookie
 def session_view(request):
+    """Verify if the user is authenticated."""
     if not request.user.is_authenticated:
         return JsonResponse({"isAuthenticated": False})
 
@@ -47,6 +53,7 @@ def session_view(request):
 
 
 def whoami_view(request):
+    """Return the username of the authenticated user."""
     if not request.user.is_authenticated:
         return JsonResponse({"isAuthenticated": False})
 

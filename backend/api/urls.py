@@ -1,4 +1,6 @@
-from django.urls import path, re_path
+"""Specify the URL patterns for the API views."""
+
+from django.urls import path
 
 from . import views
 
