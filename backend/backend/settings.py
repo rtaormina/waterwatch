@@ -10,22 +10,29 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load environment variables from .env file
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*(2*8li723)p6oy_gdbsd7q8r#cwk-nbjm@+k2nj%o)fd36)s+"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DJANGO_DEBUG", default=0)
 
-ALLOWED_HOSTS = []
+# should be a list of host/domain names that this Django site can serve.
+ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="localhost").split(",")
 
 # Application definition
 
@@ -36,6 +43,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "measurements",
+    "measurement_collection",
+    "measurement_analysis",
+    "measurement_export",
+    "campaigns",
+    "api",
 ]
 
 MIDDLEWARE = [
@@ -53,7 +66,7 @@ ROOT_URLCONF = "backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [Path(BASE_DIR) / "dist"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -73,12 +86,12 @@ WSGI_APPLICATION = "backend.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "mydb",
-        "USER": "postgres",
-        "PASSWORD": "password",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": os.getenv("POSTGRES_DB", default="mydb"),
+        "USER": os.getenv("POSTGRES_USER", default="myuser"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="mypassword"),
+        "HOST": os.getenv("POSTGRES_HOST", default="localhost"),
+        "PORT": os.getenv("POSTGRES_PORT", default="5432"),
     }
 }
 
@@ -99,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "CET"
+TIME_ZONE = os.getenv("DJANGO_TIME_ZONE", default="UTC")
 
 USE_I18N = True
 
@@ -110,6 +123,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [Path(BASE_DIR) / "dist"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

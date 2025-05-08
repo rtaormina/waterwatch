@@ -11,38 +11,47 @@ Requirements before install:
 - python
 - docker
 
+Install required packages:
+```bash
+sudo apt-get update && sudo xargs apt-get install -y < packages.txt
+```
+
+
 Linux:
 ```bash
 python -m venv .venv
-
 source .venv/bin/activate
 
-pip install --no-cache-dir -r requirements.txt
-
+pip install --no-cache-dir -r requirements/requirements.txt 
 docker compose up -d
 
-python manage.py makemigrations &&
-python manage.py migrate
+python backend/manage.py makemigrations && python backend/manage.py migrate
+python backend/manage.py runserver
 
-python manage.py runserver
+cd frontend
+npm install
+npm run build
+
+cd ..
 ```
 
 Windows:
 ```bash
 python -m venv .venv
+.venv/Scripts/activate
 
-.venv\Scripts\activate
-
-pip install --no-cache-dir -r requirements.txt
-
+pip install --no-cache-dir -r requirements/requirements.txt 
 docker compose up -d
 
-python manage.py makemigrations &&
-python manage.py migrate
+python backend/manage.py makemigrations && python backend/manage.py migrate
+python backend/manage.py runserver
 
-python manage.py runserver
+cd frontend
+npm install
+npm run build
+
+cd ..
 ```
-
 
 
 ## Usage

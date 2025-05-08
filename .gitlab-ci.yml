@@ -4,16 +4,34 @@ workflow:
      when: always
 
 stages:
+ - build_image
  - lint
  - test
+
+# Build Docker Image
+build_image:
+  stage: build_image
+  image: docker:latest
+  services: 
+    - docker:dind
+  # Only if requirements files changed
+  rules:
+    - changes:
+        - requirements/**/*
+        - Dockerfile
+        - .gitlab-ci.yml
+  # Log in to Docker registry and build the image
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE:v0.1 .
+    - docker push $CI_REGISTRY_IMAGE:v0.1
+
 
 # Linting & Formatting
 lint:
  stage: lint
- image: python:3.13-slim
+ image: $CI_REGISTRY_IMAGE:v0.1
  script:
-   - pip install --no-cache-dir -r backend/requirements.txt
-   - pip install ruff==0.11.8
    - ruff format
    - ruff check
    - python backend/manage.py check
@@ -25,9 +43,8 @@ lint:
 # Unit Tests - Backend
 backend_unit_tests:
  stage: test
- image: python:3.13-slim
+ image: $CI_REGISTRY_IMAGE:v0.1
  script:
-   - pip install --no-cache-dir -r backend/requirements.txt
    - python backend/manage.py test
  # Run only if files in folder backend changed
  rules:

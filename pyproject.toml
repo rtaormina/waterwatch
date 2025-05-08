@@ -73,6 +73,7 @@ select = [
 ignore = [
     "RUF012",
     "TRY003",
+    "D105",
 ]
 fixable = ["ALL"]
 unfixable = []
@@ -85,7 +86,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 "**/*serializer*.py" = ["N815"]
 "**/views.py" = ["N815"]
 "**/__init__.py" = ["D104"]
-"**/models.py" = ["COM819"]
+"**/models.py" = ["COM819", "D106"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
