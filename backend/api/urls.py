@@ -1,4 +1,4 @@
-"""Define endpoints."""
+"""Specify the URL patterns for the API views."""
 
 from django.urls import path
 
