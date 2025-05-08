@@ -1,20 +1,24 @@
-FROM python:3.10-slim-buster
+FROM python:3.12-bookworm
 
-WORKDIR /home/requirements
+WORKDIR /app
 
-# Install GeoDjango dependencies
-COPY requirements/packages.txt .
-RUN apt-get update && xargs apt-get install -y < packages.txt 
-
-# Install GDAL
 RUN apt-get update \
-    && apt-get install -y binutils libproj-dev gdal-bin \
-    && apt-get install -y software-properties-common \
-    && add-apt-repository ppa:ubuntugis/ppa \
-    && apt-get install -y libgeos++-dev \
-    && apt-get install -y proj-bin \
-    && apt-get install -y gdal-bin \
-    && apt-get install -y libgdal-dev
+    && apt-get install -y \
+        binutils \
+        libproj-dev \
+        gdal-bin \
+        libgdal-dev \
+        postgresql-client \
+    && rm -rf /var/lib/apt/lists/* \
+
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN python -m pip install --upgrade pip
 
 # Install backend dependencies
 COPY requirements/requirements.txt .
@@ -23,4 +27,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install backend dev dependencies
 COPY requirements/dev-requirements.txt .
 RUN pip install --no-cache-dir -r dev-requirements.txt
-
