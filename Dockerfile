@@ -1,10 +1,24 @@
-FROM python:3.13-slim
+FROM python:3.12-bookworm
 
-WORKDIR /home/requirements
+WORKDIR /app
 
-# Install GeoDjango dependencies
-COPY requirements/packages.txt .
-RUN apt-get update && apt-get install -y < packages.txt 
+RUN apt-get update \
+    && apt-get install -y \
+        binutils \
+        libproj-dev \
+        gdal-bin \
+        libgdal-dev \
+        postgresql-client \
+    && rm -rf /var/lib/apt/lists/* \
+
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN python -m pip install --upgrade pip
 
 # Install backend dependencies
 COPY requirements/requirements.txt .
@@ -13,6 +27,3 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install backend dev dependencies
 COPY requirements/dev-requirements.txt .
 RUN pip install --no-cache-dir -r dev-requirements.txt
-
-# Default command when running the container without any arguments
-CMD [ "python3" ]
