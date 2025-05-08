@@ -13,6 +13,9 @@ dist-ssr
 # POSTGRESQL #
 database
 
+# Spinx documentation #
+docs/_build/
+
 # Ruff #
 .ruff_cache
 
