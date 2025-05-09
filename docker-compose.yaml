@@ -37,7 +37,7 @@ services:
         condition: service_healthy
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dockerfile.backend
     image: djangoapp
     command: python manage.py runserver 0.0.0.0:8000
     ports:
@@ -52,7 +52,7 @@ services:
     container_name: frontend
     build:
       context: ./frontend
-      dockerfile: dockerfile
+      dockerfile: dockerfile.backend
     image: vuenginx
     ports:
       - "80:80"
