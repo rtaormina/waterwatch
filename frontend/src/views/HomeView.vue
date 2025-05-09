@@ -8,7 +8,7 @@ const router = useRouter()
 const name = ref('')
 
 const logoutView = () => {
-  fetch("/logout/", {
+  fetch("api/logout/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -27,7 +27,7 @@ const logoutView = () => {
 }
 
 const whoamiView = () => {
-  fetch("/whoami/", {
+  fetch("api/whoami/", {
     credentials: "same-origin",
   })
     .then((res) => res.json())

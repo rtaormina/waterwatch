@@ -19,43 +19,25 @@ sudo apt-get update && sudo xargs apt-get install -y < packages.txt
 
 Linux:
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-
-pip install --no-cache-dir -r requirements/requirements.txt 
 docker compose up -d
-
-python backend/manage.py makemigrations && python backend/manage.py migrate
-python backend/manage.py runserver
-
-cd frontend
-npm install
-npm run build
-
-cd ..
 ```
 
-Windows:
+The first time after running execute the following to setup the database and create an admin user.
 ```bash
-python -m venv .venv
-.venv/Scripts/activate
-
-pip install --no-cache-dir -r requirements/requirements.txt 
-docker compose up -d
-
-python backend/manage.py makemigrations && python backend/manage.py migrate
-python backend/manage.py runserver
-
-cd frontend
-npm install
-npm run build
-
-cd ..
+docker exec backend python manage.py makemigrations
+docker exec backend python manage.py migrate
+docker exec -it backend python manage.py createsuperuser
 ```
+
+For development run in a different terminal:
+```bash
+npm run build -w
+```
+This makes sure that the frontend pages of the Nginx server are updated whenever there are changes.
 
 
 ## Usage
-After installation the project will run at [localhost:8000](http://127.0.0.1:8000/).
+After installation the project will run at [localhost](http://127.0.0.1/).
 
 
 ## Support
@@ -64,6 +46,11 @@ After installation the project will run at [localhost:8000](http://127.0.0.1:800
 - If it cannot find the database make sure no other instance of postgres is currently running
 
 ## Contributing
+
+### Pre-commit
+For contributing to ensure a consitent formatting and quality of the code make sure that [pre-commit](https://pre-commit.com/) is installed. This can be done via the installation of `dev-requirements`. Or by running `python -m pip install pre-commit`.
+After pre-commit is installed. run `pre-commit install` to create the commit hook. This makes sure that the pre-commit hooks will be run before commiting.
+
 
 ## License
 [MIT](./LICENSE)
