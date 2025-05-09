@@ -18,15 +18,17 @@ services:
       start_period: 30s
       timeout: 10s
 
-  # pgadmin:
-  #   container_name: pgadmin
-  #   image: dpage/pgadmin4:latest
-  #   environment:
-  #     - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
-  #     - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
-  #   ports:
-  #     - "5050:80"
-  #   restart: always
+  pgadmin:
+    profiles:
+      - dev
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
+    ports:
+      - "5050:80"
+    restart: always
   
   backend:
     container_name: backend
@@ -37,11 +39,11 @@ services:
       context: .
       dockerfile: Dockerfile
     image: djangoapp
-    command: python backend/manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     volumes:
-      - ./:/app/
+      - ./backend:/app/
     env_file:
       - ./.env
     restart: always
@@ -51,11 +53,12 @@ services:
     build:
       context: ./frontend
       dockerfile: dockerfile
-    image: frontend
+    image: vuenginx
     ports:
       - "80:80"
     volumes:
       - ./frontend/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/dist:/app
     env_file:
       - ./.env
     restart: always
