@@ -47,6 +47,11 @@ After installation the project will run at [localhost](http://127.0.0.1/).
 
 ## Contributing
 
+### Pre-commit
+For contributing to ensure a consitent formatting and quality of the code make sure that [pre-commit](https://pre-commit.com/) is installed. This can be done via the installation of `dev-requirements`. Or by running `python -m pip install pre-commit`.
+After pre-commit is installed. run `pre-commit install` to create the commit hook. This makes sure that the pre-commit hooks will be run before commiting.
+
+
 ## License
 [MIT](./LICENSE)
 
