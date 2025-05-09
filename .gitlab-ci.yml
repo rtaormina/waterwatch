@@ -12,7 +12,7 @@ stages:
 build_image:
   stage: build_image
   image: docker:latest
-  services: 
+  services:
     - docker:dind
   # Only if requirements files changed
   rules:
@@ -30,11 +30,10 @@ build_image:
 # Linting & Formatting
 lint:
  stage: lint
- image: $CI_REGISTRY_IMAGE:v0.1
+ image: ghcr.io/astral-sh/ruff:0.11.8-alpine
  script:
-   - ruff format
-   - ruff check
-   - python backend/manage.py check
+  - ruff check
+  - ruff format --diff
  # Run only if files in folder backend changed
  rules:
    - changes:
