@@ -52,7 +52,7 @@ services:
     container_name: frontend
     build:
       context: ./frontend
-      dockerfile: dockerfile.backend
+      dockerfile: dockerfile
     image: vuenginx
     ports:
       - "80:80"
