@@ -32,10 +32,10 @@ class Measurement(models.Model):
         "well": "well",
     }
     timestamp = models.DateTimeField(auto_now_add=True)
-    location = geomodels.PointField()
+    location = geomodels.PointField(srid=4326)
     flag = models.BooleanField(default=False)
     water_source = models.CharField(max_length=255, choices=list(water_source_choices.items()))
-    campaigns = models.ManyToManyField(Campaign)
+    campaigns = models.ManyToManyField(Campaign, blank=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
