@@ -39,7 +39,7 @@ class Measurement(models.Model):
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return f"<Measurement: {self.timestamp}; {self.location}; {self.water_source}>"
+        return f"Measurement: {self.timestamp} - {self.location} - {self.water_source}"
 
 
 class Metric(models.Model):
@@ -88,4 +88,4 @@ class Temperature(Metric):
     time_waited = models.DurationField()
 
     def __str__(self):
-        return f"<Temperature: {self.sensor}; {self.value}; {self.time_waited}>"
+        return f"Temperature: {self.value} - {self.sensor} - {self.time_waited}"
