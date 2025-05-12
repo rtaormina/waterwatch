@@ -148,15 +148,15 @@ function getLocation() {
 
 <template>
     <div class="min-h-screen bg-white p-4 md:p-8">
-        <h1 class="text-2xl font-bold text-white px-4 py-3 rounded mb-6" style="background-color: #00A6D6;">Record Measurement</h1>
-        <div class=" rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto" style="background-color: #D7E9F4;">
+        <h1 class="bg-main text-2xl font-bold text-white px-4 py-3 rounded mb-6">Record Measurement</h1>
+        <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
             <h3 class="text-lg font-semibold mb-4">Measurement</h3>
 
             <div class="mb-4">
                 <label for="location" class="block text-sm font-medium text-gray-700">Location:</label>
                 <input ref="loc" type="text" id="location" class="w-full border border-gray-300 rounded px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-primary">
             </div>
-            <button type="button" @click="getLocation"  :disabled="locating" style="background-color: #00A6D6;" class="mb-4 text-white px-4 py-2 rounded disabled:bg-gray-400 disabled:cursor-not-allowed">{{ locating ? "Locating…" : "Use Current Location" }}</button>
+            <button type="button" @click="getLocation"  :disabled="locating" class="bg-main mb-4 text-white px-4 py-2 rounded disabled:bg-gray-400 disabled:cursor-not-allowed">{{ locating ? "Locating…" : "Use Current Location" }}</button>
 
             <div class="flex items-center gap-4 mb-3">
                 <label for="water_source" class="block text-sm font-medium text-gray-700">Water Source: </label>
@@ -167,7 +167,7 @@ function getLocation() {
 
         </div>
 
-        <div class="rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto" style="background-color: #D7E9F4;">
+        <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
             <h3 class="text-lg font-semibold mb-2">Metric</h3>
             <label for="metric_choice" class="block text-sm font-medium text-gray-700 mb-1">Metric Type</label>
             <div class="flex flex-col gap-2">
@@ -180,7 +180,7 @@ function getLocation() {
 
         </div>
 
-        <div v-if="selectedMetrics.includes('temperature')" class="rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto" style="background-color: #D7E9F4;">
+        <div v-if="selectedMetrics.includes('temperature')" class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
             <h3 class="text-lg font-semibold mb-4">Temperature</h3>
 
             <div class="flex items-center gap-4 mb-4">
