@@ -50,7 +50,7 @@ backend_unit_tests:
        - backend/**/*
 
 # Unit Tests - Frontend
-frontend_test:
+.frontend_test: &frontend_test_setup
   image: mcr.microsoft.com/playwright:v1.52.0-noble
   before_script:
     - cd frontend
@@ -60,20 +60,18 @@ frontend_test:
     - changes:
         - frontend/**/*
 frontend_unit_tests:
- extend:
-   - frontend_test
- stage: testing
- script:
-   - npm run test
- # Run only if files in folder frontend changed
- rules:
-   - changes:
-       - frontend/**/*
+  <<: *frontend_test_setup
+  stage: testing
+  script:
+    - npm run test
+  # Run only if files in folder frontend changed
+  rules:
+    - changes:
+        - frontend/**/*
 
 # E2E Tests - Frontend
 frontend_e2e_tests:
-  extend:
-    - frontend_tests
+  <<: *frontend_test_setup
   stage: e2e_tests
   script:
     - npm run e2e
