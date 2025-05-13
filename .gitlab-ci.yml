@@ -26,23 +26,6 @@ build_backend_image:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v0.1-backend .
     - docker push $CI_REGISTRY_IMAGE:v0.1-backend
-
-# Build Docker Image for Frontend
-build_frontend_image:
-  stage: build_image
-  image: docker:latest
-  services:
-    - docker:dind
-  rules:
-    - changes:
-        - frontend/package.json
-        - dockerfile.frontend
-        - .gitlab-ci.yml
-  script:
-    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker build -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v0.1-frontend .
-    - docker push $CI_REGISTRY_IMAGE:v0.1-frontend
-
 # Linting & Formatting
 lint:
  stage: lint
@@ -67,11 +50,20 @@ backend_unit_tests:
        - backend/**/*
 
 # Unit Tests - Frontend
+frontend_test:
+  image: mcr.microsoft.com/playwright:v1.52.0-noble
+  before_script:
+    - cd frontend
+    - npm ci
+  # Run only if files in folder frontend changed
+  rules:
+    - changes:
+        - frontend/**/*
 frontend_unit_tests:
+ extend:
+   - frontend_test
  stage: testing
- image: $CI_REGISTRY_IMAGE:v0.1-frontend
  script:
-   - cd frontend
    - npm run test
  # Run only if files in folder frontend changed
  rules:
@@ -80,10 +72,10 @@ frontend_unit_tests:
 
 # E2E Tests - Frontend
 frontend_e2e_tests:
+  extend:
+    - frontend_tests
   stage: e2e_tests
-  image: $CI_REGISTRY_IMAGE:v0.1-frontend
   script:
-    - cd frontend
     - npm run e2e
   # Run only if files in folder frontend changed
   rules:
