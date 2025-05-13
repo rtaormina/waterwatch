@@ -153,18 +153,24 @@ LOGGING = {
         },
     },
     "handlers": {
-        "debug_file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "logs/debug.log",
-            "formatter": "verbose",
-        },
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": "logs/info.log",
-            "formatter": "verbose",
-        },
+        **(
+            {
+                "debug_file": {
+                    "level": "DEBUG",
+                    "class": "logging.FileHandler",
+                    "filename": "logs/debug.log",
+                    "formatter": "verbose",
+                },
+                "file": {
+                    "level": "INFO",
+                    "class": "logging.FileHandler",
+                    "filename": "logs/info.log",
+                    "formatter": "verbose",
+                },
+            }
+            if os.getenv("DJANGO_LOG_TO_FILE", default="0") == "1"
+            else {}
+        ),
         "console": {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
@@ -173,7 +179,9 @@ LOGGING = {
     },
     "loggers": {
         "WATERWATCH": {
-            "handlers": ["debug_file", "console"],
+            "handlers": ["console", "debug_file"]
+            if os.getenv("DJANGO_LOG_TO_FILE", default="0") == "1"
+            else ["console"],
             "level": "DEBUG",
             "propagate": True,
         },
