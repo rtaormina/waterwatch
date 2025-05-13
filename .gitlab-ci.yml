@@ -6,10 +6,11 @@ workflow:
 stages:
  - build_image
  - lint
- - test
+ - backend_tests
+ - frontend_tests
 
-# Build Docker Image
-build_image:
+# Build Docker Image for Backend
+build_backend_image:
   stage: build_image
   image: docker:latest
   services:
@@ -18,14 +19,29 @@ build_image:
   rules:
     - changes:
         - requirements/**/*
-        - Dockerfile
+        - dockerfile.backend
         - .gitlab-ci.yml
   # Log in to Docker registry and build the image
   script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker build -t $CI_REGISTRY_IMAGE:v0.1 .
-    - docker push $CI_REGISTRY_IMAGE:v0.1
+    - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v0.1-backend .
+    - docker push $CI_REGISTRY_IMAGE:v0.1-backend
 
+# Build Docker Image for Frontend
+build_frontend_image:
+  stage: build_image
+  image: docker:latest
+  services:
+    - docker:dind
+  rules:
+    - changes:
+        - frontend/package.json
+        - dockerfile.frontend
+        - .gitlab-ci.yml
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker build -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v0.1-frontend .
+    - docker push $CI_REGISTRY_IMAGE:v0.1-frontend
 
 # Linting & Formatting
 lint:
@@ -41,11 +57,33 @@ lint:
 
 # Unit Tests - Backend
 backend_unit_tests:
- stage: test
- image: $CI_REGISTRY_IMAGE:v0.1
+ stage: backend_tests
+ image: $CI_REGISTRY_IMAGE:v0.1-backend
  script:
    - python backend/manage.py test
  # Run only if files in folder backend changed
  rules:
    - changes:
        - backend/**/*
+
+# Unit Tests - Frontend
+frontend_unit_tests:
+ stage: frontend_tests
+ image: $CI_REGISTRY_IMAGE:v0.1-frontend
+ script:
+   - npm run test
+ # Run only if files in folder frontend changed
+ rules:
+   - changes:
+       - frontend/**/*
+
+# E2E Tests - Frontend
+frontend_e2e_tests:
+  stage: frontend_tests
+  image: $CI_REGISTRY_IMAGE:v0.1-frontend
+  script:
+    - npm run e2e
+  # Run only if files in folder frontend changed
+  rules:
+    - changes:
+        - frontend/**/*

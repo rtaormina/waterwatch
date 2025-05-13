@@ -9,7 +9,7 @@ RUN apt-get update \
         gdal-bin \
         libgdal-dev \
         postgresql-client \
-    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
