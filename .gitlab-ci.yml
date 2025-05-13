@@ -71,6 +71,7 @@ frontend_unit_tests:
  stage: testing
  image: $CI_REGISTRY_IMAGE:v0.1-frontend
  script:
+   - cd frontend
    - npm run test
  # Run only if files in folder frontend changed
  rules:
@@ -82,6 +83,7 @@ frontend_e2e_tests:
   stage: e2e_tests
   image: $CI_REGISTRY_IMAGE:v0.1-frontend
   script:
+    - cd frontend
     - npm run e2e
   # Run only if files in folder frontend changed
   rules:
