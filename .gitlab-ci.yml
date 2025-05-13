@@ -6,8 +6,8 @@ workflow:
 stages:
  - build_image
  - lint
- - backend_tests
- - frontend_tests
+ - testing
+ - e2e_tests
 
 # Build Docker Image for Backend
 build_backend_image:
@@ -57,7 +57,7 @@ lint:
 
 # Unit Tests - Backend
 backend_unit_tests:
- stage: backend_tests
+ stage: testing
  image: $CI_REGISTRY_IMAGE:v0.1-backend
  script:
    - python backend/manage.py test
@@ -68,7 +68,7 @@ backend_unit_tests:
 
 # Unit Tests - Frontend
 frontend_unit_tests:
- stage: frontend_tests
+ stage: testing
  image: $CI_REGISTRY_IMAGE:v0.1-frontend
  script:
    - npm run test
@@ -79,11 +79,11 @@ frontend_unit_tests:
 
 # E2E Tests - Frontend
 frontend_e2e_tests:
-  stage: frontend_tests
+  stage: e2e_tests
   image: $CI_REGISTRY_IMAGE:v0.1-frontend
   script:
     - npm run e2e
   # Run only if files in folder frontend changed
   rules:
-    - changes:
-        - frontend/**/*
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: on_success
