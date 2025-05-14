@@ -1,5 +1,8 @@
 """Tests for Temperature class."""
 
+from datetime import timedelta
+
+from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -33,7 +36,7 @@ class MeasurementTest(TestCase):
         )
 
         cls.measurement_100 = Measurement(
-            location=None,
+            location=Point(1, 1),
             flag=True,
             water_source="well",
         )
@@ -106,3 +109,20 @@ class MeasurementTest(TestCase):
         """Tests that the clean method does not set the flag field incorrectly."""
         self.temp_not_flagged.clean()
         assert self.temp_not_flagged.measurement.flag is False
+
+    def test_temperature_persistance(self):
+        """Tests that the temperature instance is saved correctly."""
+        self.measurement_100.save()
+        temp = Temperature.objects.create(
+            measurement=self.measurement_100,
+            sensor="Persistent Sensor",
+            value=25.5,
+            time_waited=timedelta(minutes=1, seconds=30),
+        )
+
+        retrieved_temp = Temperature.objects.get(id=temp.id)
+
+        assert retrieved_temp.sensor == "Persistent Sensor"
+        assert retrieved_temp.value == 25.5
+        assert retrieved_temp.time_waited == timedelta(minutes=1, seconds=30)
+        assert retrieved_temp.measurement == self.measurement_100
