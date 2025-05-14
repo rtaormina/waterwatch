@@ -12,7 +12,7 @@ const formData = reactive({
 })
 
 const sessionView = () => {
-  fetch("/session/", {
+  fetch("api/session/", {
     credentials: "same-origin",
   })
     .then((res) => res.json())
@@ -25,7 +25,7 @@ const sessionView = () => {
 }
 
 const handleSubmit = () => {
-  fetch("/login/", {
+  fetch("api/login/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

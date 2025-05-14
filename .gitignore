@@ -22,5 +22,5 @@ docs/_build/
 # Environments #
 .env
 .venv
-env/ 
+env/
 venv/
