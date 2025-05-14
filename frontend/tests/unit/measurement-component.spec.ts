@@ -56,7 +56,6 @@ describe("validateTemp Tests", () => {
     });
 });
 
-
 describe("onSensorInput Tests", () => {
   it("onSensorInput should set sensor error to null if sensor is not empty", () => {
     const errors = {
@@ -98,11 +97,11 @@ describe("createPayload Tests", () => {
         type: "Point",
         coordinates: [100, 110],
       },
-      waterSource: "well",
+      water_source: "well",
       temperature: {
         sensor: "thermometer",
         value: 15.5,
-        timeWaited: "00:01:15",
+        time_waited: "00:01:15",
       },
     });
   }),
@@ -123,11 +122,11 @@ describe("createPayload Tests", () => {
           type: "Point",
           coordinates: [100, 110],
         },
-        waterSource: "well",
+        water_source: "well",
         temperature: {
           sensor: "thermometer",
           value: 8.9,
-          timeWaited: "00:01:15",
+          time_waited: "00:01:15",
         },
       });
     }),
@@ -148,11 +147,11 @@ describe("createPayload Tests", () => {
           type: "Point",
           coordinates: [100, 110],
         },
-        waterSource: "well",
+        water_source: "well",
         temperature: {
           sensor: "thermometer",
           value: 8.9,
-          timeWaited: "00:01:05",
+          time_waited: "00:01:05",
         },
       });
     });
@@ -166,6 +165,10 @@ describe("validateInputs Tests", () => {
       temp: null,
       sensor: null,
     };
+    const time = {
+      mins: "0",
+      sec: "1",
+    };
     const result = validateInputs(
       undefined,
       10,
@@ -173,7 +176,8 @@ describe("validateInputs Tests", () => {
       "sensor",
       "20",
       ["temperature"],
-      errors
+      errors,
+      time
     );
     expect(result).toBe(false);
   }),
@@ -184,6 +188,10 @@ describe("validateInputs Tests", () => {
         temp: null,
         sensor: null,
       };
+      const time = {
+        mins: "0",
+        sec: "1",
+      };
       const result = validateInputs(
         10,
         10,
@@ -191,7 +199,8 @@ describe("validateInputs Tests", () => {
         "sensor",
         "20",
         ["temperature"],
-        errors
+        errors,
+        time
       );
       expect(result).toBe(false);
     }),
@@ -202,6 +211,10 @@ describe("validateInputs Tests", () => {
         temp: null,
         sensor: null,
       };
+      const time = {
+        mins: "0",
+        sec: "1",
+      };
       const result = validateInputs(
         10,
         10,
@@ -209,7 +222,8 @@ describe("validateInputs Tests", () => {
         "",
         "20",
         ["temperature"],
-        errors
+        errors,
+        time
       );
       expect(result).toBe(false);
     }),
@@ -220,6 +234,10 @@ describe("validateInputs Tests", () => {
         temp: null,
         sensor: null,
       };
+      const time = {
+        mins: "0",
+        sec: "1",
+      };
       const result = validateInputs(
         10,
         10,
@@ -227,7 +245,8 @@ describe("validateInputs Tests", () => {
         "sensor",
         "",
         ["temperature"],
-        errors
+        errors,
+        time
       );
       expect(result).toBe(false);
     }),
@@ -238,6 +257,10 @@ describe("validateInputs Tests", () => {
         temp: null,
         sensor: null,
       };
+      const time = {
+        mins: "0",
+        sec: "1",
+      };
       const result = validateInputs(
         10,
         10,
@@ -245,43 +268,8 @@ describe("validateInputs Tests", () => {
         "sensor",
         "abc",
         ["temperature"],
-        errors
-      );
-      expect(result).toBe(false);
-    }),
-    it("returns false if there are errors - mins", () => {
-      const errors = {
-        mins: "error",
-        sec: null,
-        temp: null,
-        sensor: null,
-      };
-      const result = validateInputs(
-        10,
-        10,
-        "well",
-        "sensor",
-        "20",
-        ["temperature"],
-        errors
-      );
-      expect(result).toBe(false);
-    }),
-    it("returns false if there are errors - sec", () => {
-      const errors = {
-        mins: null,
-        sec: "error",
-        temp: null,
-        sensor: null,
-      };
-      const result = validateInputs(
-        10,
-        10,
-        "well",
-        "sensor",
-        "20",
-        ["temperature"],
-        errors
+        errors,
+        time
       );
       expect(result).toBe(false);
     }),
@@ -292,6 +280,10 @@ describe("validateInputs Tests", () => {
         temp: "error",
         sensor: null,
       };
+      const time = {
+        mins: "0",
+        sec: "1",
+      };
       const result = validateInputs(
         10,
         10,
@@ -299,7 +291,8 @@ describe("validateInputs Tests", () => {
         "sensor",
         "20",
         ["temperature"],
-        errors
+        errors,
+        time
       );
       expect(result).toBe(false);
     }),
@@ -310,6 +303,10 @@ describe("validateInputs Tests", () => {
         temp: null,
         sensor: "error",
       };
+      const time = {
+        mins: "0",
+        sec: "1",
+      };
       const result = validateInputs(
         10,
         10,
@@ -317,7 +314,54 @@ describe("validateInputs Tests", () => {
         "sensor",
         "20",
         ["temperature"],
-        errors
+        errors,
+        time
+      );
+      expect(result).toBe(false);
+    }),
+    it("returns false if zero time", () => {
+      const errors = {
+        mins: null,
+        sec: null,
+        temp: null,
+        sensor: "error",
+      };
+      const time = {
+        mins: "0",
+        sec: "",
+      };
+      const result = validateInputs(
+        10,
+        10,
+        "well",
+        "sensor",
+        "20",
+        ["temperature"],
+        errors,
+        time
+      );
+      expect(result).toBe(false);
+    }),
+    it("returns false if zero time empty fields", () => {
+      const errors = {
+        mins: null,
+        sec: null,
+        temp: null,
+        sensor: "error",
+      };
+      const time = {
+        mins: "",
+        sec: "",
+      };
+      const result = validateInputs(
+        10,
+        10,
+        "well",
+        "sensor",
+        "20",
+        ["temperature"],
+        errors,
+        time
       );
       expect(result).toBe(false);
     });
