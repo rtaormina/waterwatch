@@ -18,6 +18,22 @@ const routes = [
    requiresAuth: false,
   }
  },
+ {
+    path: '/measurements',
+    name: 'Measurement',
+    component: () => import('@/components/MeasurementComponent.vue'),
+    meta: {
+     requiresAuth: false,
+    }
+   },
+  {
+  path: '/export',
+  name: 'Export',
+  component: () => import('@/views/ExportView.vue'),
+  meta: {
+    requiresAuth: false,
+  }
+ },
 ]
 
 const router = createRouter({
@@ -26,7 +42,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
- if (!to.meta.requiresAuth && to.name !== 'Login') {
+ if (to.meta.requiresAuth) {
   return { name: 'Login' }
  }
 })

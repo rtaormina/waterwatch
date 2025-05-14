@@ -3,6 +3,7 @@
 *.pot
 *.pyc
 __pycache__
+**/migrations/
 
 # Vue #
 node_modules
@@ -22,5 +23,5 @@ docs/_build/
 # Environments #
 .env
 .venv
-env/ 
+env/
 venv/

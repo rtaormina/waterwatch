@@ -20,4 +20,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-urlpatterns = [path("admin/", admin.site.urls), path("", include("api.urls"))]
+# from measurement_collection.views import (LocationSet, MeasurementSet)
+# from rest_framework import routers
+
+# router = routers.DefaultRouter()
+# router.register(r'location',LocationSet)
+# router.register(r'measurement',MeasurementSet)
+
+urlpatterns = [path("admin/", admin.site.urls), path("api/", include("api.urls"))]
