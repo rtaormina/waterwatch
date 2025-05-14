@@ -1,29 +1,29 @@
-import { useLogin } from '../../src/composables/LoginLogic.ts'
+import { useLogin } from '../../src/composables/LoginLogic'
 import { nextTick } from 'vue'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { useRouter } from 'vue-router'
-import Cookies from 'universal-cookie'
-// Mock dependencies
+
 vi.mock('vue-router', () => ({
     useRouter: vi.fn()
 }))
+
 vi.mock('universal-cookie', () => {
-    return vi.fn().mockImplementation(() => ({
-        get: () => 'mocked-csrf-token',
-    }))
+    return {
+        default: vi.fn().mockImplementation(() => ({
+            get: () => 'mocked-csrf-token',
+        }))
+    }
 })
 
 describe('useLogin composable', () => {
     const push = vi.fn()
 
     beforeEach(() => {
-        // Reset mocks before each test
         vi.clearAllMocks()
             ; (useRouter as unknown as any).mockReturnValue({ push })
     })
 
     it('successfully logs in and navigates to Home', async () => {
-        // Mock a successful fetch
         global.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => ({ detail: 'Successfully logged in.' }),
