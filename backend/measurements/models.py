@@ -3,6 +3,7 @@
 from campaigns.models import Campaign
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -41,6 +42,13 @@ class Measurement(models.Model):
     def __str__(self):
         return f"Measurement: {self.timestamp} - {self.location} - {self.water_source}"
 
+    def clean(self):
+        """Validate the values in this model."""
+        if self.location is None:
+            raise ValidationError("Location must be provided.")
+
+        self.water_source = self.water_source.lower()
+
 
 class Temperature(models.Model):
     """Model for recording temperature measurements in the database.
@@ -64,3 +72,16 @@ class Temperature(models.Model):
 
     def __str__(self):
         return f"Temperature: {self.value} - {self.sensor} - {self.time_waited}"
+
+    def clean(self):
+        """Validate the values in this model."""
+        if self.value < 0 or self.value > 100:
+            raise ValidationError(
+                """The temperature value must be between 0 and 100 degrees Celsius.
+                Alternatively, are you using the correct unit?"""
+            )
+        if self.time_waited.total_seconds() < 0:
+            raise ValidationError("The time waited must be a positive value.")
+
+        if self.value > 40:
+            self.measurement.flag = True

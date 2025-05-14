@@ -52,12 +52,14 @@ class TemperatureAdmin(admin.ModelAdmin):
     """Admin view for Temperature."""
 
     list_display = (
-        "metric_type",
+        "measurement",
         "value",
         "sensor",
+        "time_waited",
     )
     list_display_links = ("value",)
     search_fields = [
+        "measurement",
         "value",
         "sensor",
     ]
