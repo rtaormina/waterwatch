@@ -20,31 +20,31 @@ class MeasurementTest(TestCase):
             measurement=None,
             sensor="Test Sensor",
             value=-0.1,
-            time_waited=5,
+            time_waited=timedelta(seconds=1),
         )
         cls.temp_above_100 = Temperature(
             measurement=None,
             sensor="Test Sensor",
             value=100.1,
-            time_waited=5,
+            time_waited=timedelta(seconds=1),
         )
         cls.temp_0 = Temperature(
             measurement=None,
             sensor="Test Sensor",
             value=-0.0,
-            time_waited=5,
+            time_waited=timedelta(seconds=1),
         )
 
         cls.measurement_100 = Measurement(
             location=Point(1, 1),
-            flag=True,
+            flag=False,
             water_source="well",
         )
         cls.temp_100 = Temperature(
             measurement=cls.measurement_100,
             sensor="Test Sensor",
             value=100.0,
-            time_waited=5,
+            time_waited=timedelta(seconds=1),
         )
 
         # Temperature instances to test time_waited
@@ -52,7 +52,7 @@ class MeasurementTest(TestCase):
             measurement=None,
             sensor="Test Sensor",
             value=25.0,
-            time_waited=-1,
+            time_waited=timedelta(seconds=-1),
         )
 
         # Measurement and Temperature instances to test flagging
@@ -70,13 +70,13 @@ class MeasurementTest(TestCase):
             measurement=cls.measurement_not_flagged,
             sensor="Test Sensor",
             value=40.0,
-            time_waited=5,
+            time_waited=timedelta(seconds=1),
         )
         cls.temp_flagged = Temperature(
             measurement=cls.measurement_flagged,
             sensor="Test Sensor",
             value=40.1,
-            time_waited=0,
+            time_waited=timedelta(seconds=1),
         )
 
     def test_temperature_lower_bound(self):
@@ -110,7 +110,7 @@ class MeasurementTest(TestCase):
         self.temp_not_flagged.clean()
         assert self.temp_not_flagged.measurement.flag is False
 
-    def test_temperature_persistance(self):
+    def test_temperature_persistance_correct_values(self):
         """Tests that the temperature instance is saved correctly."""
         self.measurement_100.save()
         temp = Temperature.objects.create(

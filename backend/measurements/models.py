@@ -1,5 +1,7 @@
 """Define models associated with Measurements."""
 
+from datetime import timedelta
+
 from campaigns.models import Campaign
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
@@ -70,16 +72,6 @@ class Temperature(models.Model):
     value = models.DecimalField(max_digits=4, decimal_places=1)
     time_waited = models.DurationField()
 
-    class Meta:
-        """Meta class for Temperature model."""
-
-        constraints = [
-            models.CheckConstraint(
-                condition=models.Q(time_waited__gte=0),
-                name="time_waited_not_negative",
-            ),
-        ]
-
     def __str__(self):
         return f"Temperature: {self.value} - {self.sensor} - {self.time_waited}"
 
@@ -90,8 +82,11 @@ class Temperature(models.Model):
                 """The temperature value must be between 0 and 100 degrees Celsius.
                 Alternatively, are you using the correct unit?"""
             )
-        if self.time_waited < 0:
-            raise ValidationError("The time waited must be a positive value.")
+
+        if not isinstance(self.time_waited, timedelta):
+            raise ValidationError("The time waited must be a timedelta object.")
+        if self.time_waited < timedelta(seconds=0):
+            raise ValidationError("The time waited must be a positive timedelta object.")
 
         if self.value > 40.0:
             self.measurement.flag = True
