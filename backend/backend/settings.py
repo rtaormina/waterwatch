@@ -49,6 +49,9 @@ INSTALLED_APPS = [
     "measurement_export",
     "campaigns",
     "api",
+    "django.contrib.gis",
+    "rest_framework",
+    "rest_framework_gis",
 ]
 
 MIDDLEWARE = [
@@ -129,3 +132,58 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Setup Logger
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{name}] {levelname:8} {asctime} {module:10} {name}.{funcName}:{lineno}: {message}",
+            "style": "{",
+        },
+        "default": {
+            "format": "[{name}] {levelname:8} {asctime} {module}: {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "[{name}] {levelname:8}: {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        **(
+            {
+                "debug_file": {
+                    "level": "DEBUG",
+                    "class": "logging.FileHandler",
+                    "filename": "logs/debug.log",
+                    "formatter": "verbose",
+                },
+                "file": {
+                    "level": "INFO",
+                    "class": "logging.FileHandler",
+                    "filename": "logs/info.log",
+                    "formatter": "verbose",
+                },
+            }
+            if os.getenv("DJANGO_LOG_TO_FILE", default="0") == "1"
+            else {}
+        ),
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        },
+    },
+    "loggers": {
+        "WATERWATCH": {
+            "handlers": ["console", "debug_file"]
+            if os.getenv("DJANGO_LOG_TO_FILE", default="0") == "1"
+            else ["console"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}

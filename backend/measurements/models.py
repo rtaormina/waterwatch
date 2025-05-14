@@ -32,57 +32,32 @@ class Measurement(models.Model):
         "well": "well",
     }
     timestamp = models.DateTimeField(auto_now_add=True)
-    location = geomodels.PointField()
+    location = geomodels.PointField(srid=4326)
     flag = models.BooleanField(default=False)
     water_source = models.CharField(max_length=255, choices=list(water_source_choices.items()))
-    campaigns = models.ManyToManyField(Campaign)
+    campaigns = models.ManyToManyField(Campaign, blank=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return f"<Measurement: {self.timestamp}; {self.location}; {self.water_source}>"
 
 
-class Metric(models.Model):
-    """Model for Metric table in database.
-
-    Attributes
-    ----------
-    type_choice : dict
-        A dictionary defining the possible metric types
-    metric_type : str
-        Type of measurement predefined by 'type_choices'
-    measurement : Measurement
-        Associated Measurement for metric
-    """
-
-    type_choices = {
-        "temperature": "temperature",
-        "turbidity": "turbidity",
-        "hardness": "hardness",
-    }
-    metric_type = models.CharField(max_length=255, choices=type_choices)
-    measurement = models.ForeignKey(Measurement, on_delete=models.CASCADE, null=True)
-
-    class Meta:
-        abstract = True
-
-
-class Temperature(Metric):
+class Temperature(models.Model):
     """Model for recording temperature measurements in the database.
 
     Attributes
     ----------
-    metric_type : str
-        Set to "temperature" to indicate the type
+    measurement : Measurement
+        Associated Measurement for metric
     sensor : str
         The type of the sensor that was used to record the temperature
     value : float
         The temperature recorded temperature with single decimal place precision
     time_waited : datetime.timedelta
-        The time duration between placing the sensor into the water and reading the ttemperature
+        The time duration between placing the sensor into the water and reading the temperature
     """
 
-    metric_type = "temperature"
+    measurement = models.OneToOneField(Measurement, on_delete=models.CASCADE, null=True)
     sensor = models.CharField(max_length=255)
     value = models.DecimalField(max_digits=4, decimal_places=1)
     time_waited = models.DurationField()

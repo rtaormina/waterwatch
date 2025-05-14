@@ -2,6 +2,7 @@
 import Cookies from "universal-cookie"
 import { useRouter } from 'vue-router'
 import { ref, onMounted } from 'vue'
+import NavBar from "../components/NavBar.vue"
 
 const cookies = new Cookies()
 const router = useRouter()
@@ -46,14 +47,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="row">
-    <div class="col-md-8 mx-auto">
-      <div class="flex justify-content-between mb-5 bg-red-509">
-        <h1>Hello, {{ name }}</h1>
-        <button type="submit" class="btn btn-outline-primary" @click="logoutView">
-          Logout
-        </button>
-      </div>
-    </div>
-  </div>
+        <NavBar />
+        <h1>Homepage</h1>
 </template>
