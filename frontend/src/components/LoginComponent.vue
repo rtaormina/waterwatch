@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import NavBar from './NavBar.vue'
-import { useLogin } from '@/composables/useLogin'
+import { useLogin } from '@/composables/LoginLogic.ts'
 
 const {
   formData,

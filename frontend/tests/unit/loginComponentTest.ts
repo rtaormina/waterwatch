@@ -1,15 +1,79 @@
-import sessionView from "../../src/components/LoginComponent.vue"
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-import { nextTick, ref, type Ref } from "vue";
+import { useLogin } from '../../src/composables/LoginLogic.ts'
+import { nextTick } from 'vue'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { useRouter } from 'vue-router'
+import Cookies from 'universal-cookie'
+// Mock dependencies
+vi.mock('vue-router', () => ({
+    useRouter: vi.fn()
+}))
+vi.mock('universal-cookie', () => {
+    return vi.fn().mockImplementation(() => ({
+        get: () => 'mocked-csrf-token',
+    }))
+})
 
-describe("sessionView Tests", () => {
+describe('useLogin composable', () => {
+    const push = vi.fn()
+
     beforeEach(() => {
-        // Mock the global fetch function
-        global.fetch = vi.fn()
-
-        // Spy on console.log
-        vi.spyOn(console, 'log')
+        // Reset mocks before each test
+        vi.clearAllMocks()
+            ; (useRouter as unknown as any).mockReturnValue({ push })
     })
-    it("sets an error and focuses input if val is not a number", async () => {
-    });
-});
+
+    it('successfully logs in and navigates to Home', async () => {
+        // Mock a successful fetch
+        global.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({ detail: 'Successfully logged in.' }),
+        }) as any
+
+        const { formData, handleSubmit, errorMessage, showError } = useLogin()
+
+        formData.username = 'testuser'
+        formData.password = 'password'
+
+        await handleSubmit()
+        await nextTick()
+
+        expect(fetch).toHaveBeenCalledOnce()
+        expect(push).toHaveBeenCalledWith({ name: 'Home' })
+        expect(showError.value).toBe(false)
+        expect(errorMessage.value).toBe('')
+    })
+
+    it('shows error on failed login (invalid credentials)', async () => {
+        global.fetch = vi.fn().mockResolvedValue({
+            ok: false,
+            json: async () => ({ detail: 'Invalid username or password.' }),
+        }) as any
+
+        const { formData, handleSubmit, errorMessage, showError } = useLogin()
+
+        formData.username = 'wronguser'
+        formData.password = 'wrongpass'
+
+        await handleSubmit()
+        await nextTick()
+
+        expect(fetch).toHaveBeenCalledOnce()
+        expect(showError.value).toBe(true)
+        expect(errorMessage.value).toBe('Invalid username or password.')
+    })
+
+    it('shows error on network failure', async () => {
+        global.fetch = vi.fn().mockRejectedValue(new Error('Failed to fetch'))
+
+        const { formData, handleSubmit, errorMessage, showError } = useLogin()
+
+        formData.username = 'any'
+        formData.password = 'any'
+
+        await handleSubmit()
+        await nextTick()
+
+        expect(showError.value).toBe(true)
+        expect(errorMessage.value).toBe('Network error. Please try again later.')
+    })
+})
