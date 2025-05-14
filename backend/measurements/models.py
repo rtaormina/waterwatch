@@ -80,8 +80,8 @@ class Temperature(models.Model):
                 """The temperature value must be between 0 and 100 degrees Celsius.
                 Alternatively, are you using the correct unit?"""
             )
-        if self.time_waited.total_seconds() < 0:
+        if self.time_waited < 0:
             raise ValidationError("The time waited must be a positive value.")
 
-        if self.value > 40:
+        if self.value > 40.0:
             self.measurement.flag = True
