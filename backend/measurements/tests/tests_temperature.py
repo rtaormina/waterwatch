@@ -9,7 +9,7 @@ from django.test import TestCase
 from measurements.models import Measurement, Temperature
 
 
-class MeasurementTest(TestCase):
+class TemperatureTest(TestCase):
     """Test cases for Temperature class."""
 
     @classmethod
