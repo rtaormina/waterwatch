@@ -31,8 +31,14 @@ class MeasurementTest(TestCase):
             value=-0.0,
             time_waited=5,
         )
+
+        cls.measurement_100 = Measurement(
+            location=None,
+            flag=True,
+            water_source="well",
+        )
         cls.temp_100 = Temperature(
-            measurement=None,
+            measurement=cls.measurement_100,
             sensor="Test Sensor",
             value=100.0,
             time_waited=5,
@@ -49,12 +55,12 @@ class MeasurementTest(TestCase):
         # Measurement and Temperature instances to test flagging
         cls.measurement_flagged = Measurement(
             location=None,
-            flag=True,
+            flag=False,
             water_source="well",
         )
         cls.measurement_not_flagged = Measurement(
             location=None,
-            flag=True,
+            flag=False,
             water_source="well",
         )
         cls.temp_not_flagged = Temperature(
