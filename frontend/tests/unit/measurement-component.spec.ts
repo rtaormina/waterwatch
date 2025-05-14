@@ -1,5 +1,4 @@
 import {
-  validateTime,
   validateInputs,
   validateTemp,
   onSensorInput,
@@ -57,189 +56,6 @@ describe("validateTemp Tests", () => {
     });
 });
 
-describe("validateTime Tests", () => {
-  it("sets an error and focuses input if min val is negative", async () => {
-    const errors = {
-      mins: null,
-      sec: null,
-      temp: null,
-      sensor: null,
-    };
-    const time = {
-      mins: "-1",
-      sec: "0",
-    };
-    const focusMock = vi.fn();
-    const secRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-    const minRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-    secRef.value = {
-      focus: focusMock,
-    } as unknown as HTMLInputElement;
-    minRef.value = {
-      focus: focusMock,
-    } as unknown as HTMLInputElement;
-
-    validateTime(errors, time, { mins: minRef, sec: secRef });
-    expect(errors.mins).toBe("Enter a number 0-59");
-    await nextTick();
-    expect(focusMock).toHaveBeenCalled();
-  }),
-    it("sets an error and focuses input if sec val is negative", async () => {
-      const errors = {
-        mins: null,
-        sec: null,
-        temp: null,
-        sensor: null,
-      };
-      const time = {
-        mins: "0",
-        sec: "-1",
-      };
-      const focusMock = vi.fn();
-      const secRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-      const minRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-      secRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-      minRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-
-      validateTime(errors, time, { mins: minRef, sec: secRef });
-      expect(errors.sec).toBe("Enter a number 0-59");
-      await nextTick();
-      expect(focusMock).toHaveBeenCalled();
-    }),
-    it("sets an error and focuses input if time waited is 0", async () => {
-      const errors = {
-        mins: null,
-        sec: null,
-        temp: null,
-        sensor: null,
-      };
-      const time = {
-        mins: "0",
-        sec: "0",
-      };
-      const focusMock = vi.fn();
-      const secRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-      const minRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-      secRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-      minRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-
-      validateTime(errors, time, { mins: minRef, sec: secRef });
-      expect(errors.sec).toBe("Must wait at least 1 second");
-      expect(errors.mins).toBe("Must wait at least 1 second");
-      await nextTick();
-      expect(focusMock).toHaveBeenCalled();
-    }),
-    it("sets an error and focuses input if min is not number", async () => {
-      const errors = {
-        mins: null,
-        sec: null,
-        temp: null,
-        sensor: null,
-      };
-      const time = {
-        mins: "abc",
-        sec: "0",
-      };
-      const focusMock = vi.fn();
-      const secRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-      const minRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-      secRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-      minRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-
-      validateTime(errors, time, { mins: minRef, sec: secRef });
-      expect(errors.mins).toBe("Enter a number 0-59");
-      await nextTick();
-      expect(focusMock).toHaveBeenCalled();
-    }),
-    it("sets an error and focuses input if sec is not number", async () => {
-      const errors = {
-        mins: null,
-        sec: null,
-        temp: null,
-        sensor: null,
-      };
-      const time = {
-        mins: "0",
-        sec: "abc",
-      };
-      const focusMock = vi.fn();
-      const secRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-      const minRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-      secRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-      minRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-
-      validateTime(errors, time, { mins: minRef, sec: secRef });
-      expect(errors.sec).toBe("Enter a number 0-59");
-      await nextTick();
-      expect(focusMock).toHaveBeenCalled();
-    }),
-    it("sets an error and focuses input if value above 59", async () => {
-      const errors = {
-        mins: null,
-        sec: null,
-        temp: null,
-        sensor: null,
-      };
-      const time = {
-        mins: "60",
-        sec: "0",
-      };
-      const focusMock = vi.fn();
-      const secRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-      const minRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-      secRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-      minRef.value = {
-        focus: focusMock,
-      } as unknown as HTMLInputElement;
-
-      validateTime(errors, time, { mins: minRef, sec: secRef });
-      expect(errors.mins).toBe("Enter a number 0-59");
-      await nextTick();
-      expect(focusMock).toHaveBeenCalled();
-    }),
-    it("no errors valid input", async () => {
-      const errors = {
-        mins: null,
-        sec: null,
-        temp: null,
-        sensor: null,
-      };
-      const time = {
-        mins: "1",
-        sec: "0",
-      };
-      const secRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-      const minRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-      validateTime(errors, time, { mins: minRef, sec: secRef });
-      expect(errors.sec).toBe(null);
-      expect(errors.mins).toBe(null);
-    });
-});
 
 describe("onSensorInput Tests", () => {
   it("onSensorInput should set sensor error to null if sensor is not empty", () => {
@@ -270,7 +86,7 @@ describe("createPayload Tests", () => {
       createPayload(
         "C",
         ["temperature"],
-        { sensor: "thermometer", value: 0, timeWaited: "" },
+        { sensor: "thermometer", value: 0, time_waited: "" },
         "15.5",
         { mins: "1", sec: "15" },
         "well",
@@ -295,7 +111,7 @@ describe("createPayload Tests", () => {
         createPayload(
           "F",
           ["temperature"],
-          { sensor: "thermometer", value: 0, timeWaited: "" },
+          { sensor: "thermometer", value: 0, time_waited: "" },
           "48",
           { mins: "1", sec: "15" },
           "well",
@@ -320,7 +136,7 @@ describe("createPayload Tests", () => {
         createPayload(
           "F",
           ["temperature"],
-          { sensor: "thermometer", value: 0, timeWaited: "" },
+          { sensor: "thermometer", value: 0, time_waited: "" },
           "48",
           { mins: "1", sec: "5" },
           "well",

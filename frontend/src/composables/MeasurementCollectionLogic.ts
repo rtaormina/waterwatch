@@ -1,74 +1,9 @@
 import { nextTick, type Ref } from "vue";
 
-export function validateTime(
-  errors: {
-    mins: string | null;
-    sec: string | null;
-    temp: string | null;
-    sensor: string | null;
-  },
-  time: {
-    mins: string;
-    sec: string;
-  },
-  refs: {
-    mins: Ref<HTMLInputElement | undefined>;
-    sec: Ref<HTMLInputElement | undefined>;
-  }
-) {
-  const isValidNum = (val: string) =>
-    /^\d+$/.test(val) && +val >= 0 && +val <= 59;
-
-  const minsValid = isValidNum(time.mins);
-  const secValid = isValidNum(time.sec);
-
-  if (!minsValid && time.mins !== "") {
-    errors.mins = "Enter a number 0-59";
-    nextTick(() => refs.mins.value?.focus());
-    return;
-  } else if (secValid && time.mins == "") {
-    errors.mins = null;
-  } else if (!minsValid ) {
-    errors.mins = "Enter a number 0-59";
-    nextTick(() => refs.mins.value?.focus());
-    return;
-  }
-
-  if (!secValid && time.sec !== "") {
-    errors.sec = "Enter a number 0-59";
-    nextTick(() => refs.sec.value?.focus());
-    return;
-  } else if (minsValid && time.sec == "") {
-    errors.sec = null;
-  } else if (!secValid) {
-    errors.sec = "Enter a number 0-59";
-    nextTick(() => refs.sec.value?.focus());
-    return;
-  }
-
-  if (minsValid && secValid && +time.mins === 0 && +time.sec === 0) {
-    errors.mins = "Must wait at least 1 second";
-    errors.sec = "Must wait at least 1 second";
-    nextTick(() => refs.sec.value?.focus());
-  }else if(minsValid && +time.mins==0 && time.sec == ""){
-    errors.mins = "Must wait at least 1 second";
-    errors.sec = "Must wait at least 1 second";
-    nextTick(() => refs.sec.value?.focus());
-  }else if(secValid && +time.sec==0 && time.mins == ""){
-    errors.mins = "Must wait at least 1 second";
-    errors.sec = "Must wait at least 1 second";
-    nextTick(() => refs.sec.value?.focus());
-  }else{
-    errors.mins = null;
-    errors.sec = null;
-  }
-}
 
 export function validateTemp(
   val: string,
   errors: {
-    mins: string | null;
-    sec: string | null;
     temp: string | null;
     sensor: string | null;
   },
@@ -85,8 +20,6 @@ export function validateTemp(
 export function onSensorInput(
   sensor: string,
   errors: {
-    mins: string | null;
-    sec: string | null;
     temp: string | null;
     sensor: string | null;
   }
@@ -106,8 +39,6 @@ export function validateInputs(
   tempVal: string,
   selectedMetrics: string[],
   errors: {
-    mins: string | null;
-    sec: string | null;
     temp: string | null;
     sensor: string | null;
   }
@@ -125,8 +56,6 @@ export function validateInputs(
       sensor === "" ||
       tempVal === "" ||
       isNaN(Number(tempVal)) ||
-      errors.mins !== null ||
-      errors.sec !== null ||
       errors.temp !== null ||
       errors.sensor !== null
     ) {
@@ -142,7 +71,7 @@ export function createPayload(
   temperature: {
     sensor: string;
     value: number;
-    timeWaited: string;
+    time_waited: string;
   },
   tempVal: string,
   time: {
@@ -163,7 +92,7 @@ export function createPayload(
     const secs = time.sec;
     const mm = String(mins).padStart(2, "0");
     const ss = String(secs).padStart(2, "0");
-    temperature.timeWaited = `00:${mm}:${ss}`;
+    temperature.time_waited = `00:${mm}:${ss}`;
   }
 
   return {
@@ -171,7 +100,7 @@ export function createPayload(
       type: "Point",
       coordinates: [longitude, latitude],
     },
-    waterSource: waterSource,
+    water_source: waterSource,
     temperature: temperature,
   };
 }

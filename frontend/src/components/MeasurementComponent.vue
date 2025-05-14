@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
-import { ref, computed, reactive, nextTick, watch } from "vue";
+
+import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
 import {
   validateTemp,
-  validateTime,
   onSensorInput,
   validateInputs,
   createPayload,
@@ -15,11 +15,11 @@ const router = useRouter();
 
 const formData = reactive({
   location: "",
-  waterSource: "",
+  water_source: "",
   temperature: {
     sensor: "",
     value: 0.0,
-    timeWaited: "",
+    time_waited: "",
   },
 });
 
@@ -29,13 +29,9 @@ const time = reactive({
 });
 
 const errors = reactive<{
-  mins: string | null;
-  sec: string | null;
   temp: string | null;
   sensor: string | null;
 }>({
-  mins: null,
-  sec: null,
   temp: null,
   sensor: null,
 });
@@ -55,10 +51,10 @@ const locating = ref(false);
 const locAvail = ref(true);
 
 const validated = computed(() => {
-    return validateInputs(
+  return validateInputs(
     userLoc.value?.longitude,
     userLoc.value?.latitude,
-    formData.waterSource,
+    formData.water_source,
     formData.temperature.sensor,
     tempVal.value,
     selectedMetrics.value,
@@ -73,16 +69,10 @@ watch(
 function onTempInput() {
   validateTemp(tempVal.value, errors, tempRef);
 }
-function onSecInput() {
-  validateTime(errors, time, { mins: minsRef, sec: secRef });
-}
-function onMinsInput() {
-  validateTime(errors, time, { mins: minsRef, sec: secRef });
-}
 
 function clear() {
   formData.location = "";
-  formData.waterSource = "";
+  formData.water_source = "";
   formData.temperature.sensor = "";
   formData.temperature.value = 0.0;
   time.mins = "";
@@ -91,8 +81,6 @@ function clear() {
   tempUnit.value = "C";
   selectedMetrics.value = [];
   userLoc.value = null;
-  errors.mins = null;
-  errors.sec = null;
   errors.temp = null;
   errors.sensor = null;
 }
@@ -124,6 +112,31 @@ function getLocation() {
     }
   );
 }
+
+defineProps<{
+  modelValue?: string;
+}>();
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void;
+}>();
+
+const handleKeyPress = (event: KeyboardEvent) => {
+  const key = event.key;
+  if (key.length === 1 && isNaN(Number(key))) {
+    event.preventDefault();
+  }
+};
+const handlePaste = (event: ClipboardEvent) => {
+  const pastedText = event.clipboardData?.getData("text");
+  if (pastedText && !/^\d+$/.test(pastedText)) {
+    event.preventDefault();
+  }
+};
+const handleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  emit("update:modelValue", target.value.replace(/[^0-9]/g, ""));
+};
 const locationMode = ref<"auto" | "manual" | null>(null);
 
 watch(locAvail, (avail) => {
@@ -136,7 +149,7 @@ function handleLocationModeChange() {
   if (locationMode.value === "auto") {
     getLocation();
   }
-  if(locationMode.value === "manual") {
+  if (locationMode.value === "manual") {
     userLoc.value = null;
   }
 }
@@ -148,10 +161,11 @@ const postData = () => {
     formData.temperature,
     tempVal.value,
     time,
-    formData.waterSource,
+    formData.water_source,
     userLoc.value?.longitude,
     userLoc.value?.latitude
   );
+  console.log("Payload:", payload);
 
   fetch("/api/measurements/", {
     method: "POST",
@@ -185,7 +199,6 @@ const postData = () => {
     <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
       <h3 class="text-lg font-semibold mb-4">Measurement</h3>
 
-
       <label class="flex items-center gap-2">
         <input
           type="radio"
@@ -199,7 +212,12 @@ const postData = () => {
       </label>
 
       <label class="flex items-center gap-2">
-        <input type="radio" value="manual" v-model="locationMode" @change="handleLocationModeChange"/>
+        <input
+          type="radio"
+          value="manual"
+          v-model="locationMode"
+          @change="handleLocationModeChange"
+        />
         Select Location Manually
       </label>
 
@@ -210,7 +228,7 @@ const postData = () => {
 
         <select
           id="water_source"
-          v-model="formData.waterSource"
+          v-model="formData.water_source"
           class="self-center border border-gray-300 rounded px-3 py-2"
         >
           <option disabled value="">Select a source</option>
@@ -320,46 +338,39 @@ const postData = () => {
         <div class="flex flex-col">
           <label class="block text-sm font-medium text-gray-700"
             >Time waited</label
-          >
-          <p class="mt-1 h-4"></p>
-        </div>
-
+          >        </div>
 
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
               id="time-waited_min"
-              @input="onMinsInput"
+              @input="handleInput"
+              @keypress="handleKeyPress"
+              @paste="handlePaste"
               v-model="time.mins"
               placeholder="00"
               type="number"
               ref="minsRef"
-              :class="[
-                'w-16 border border-gray-300 rounded px-2 py-1',
-                errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
-              ]"
+              class="w-16 border border-gray-300 rounded px-2 py-1 border-gray-300"
             />
             <label for="time-waited_min">Min</label>
           </div>
-          <p class="mt-1 h-4 text-red-600 text-xs">{{ errors.mins || " " }}</p>
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
               id="time-waited_sec"
-              @input="onSecInput"
+              @input="handleInput"
+              @keypress="handleKeyPress"
+              @paste="handlePaste"
               v-model="time.sec"
               placeholder="00"
               type="number"
               ref="secRef"
-              :class="[
-                'w-16 border border-gray-300 rounded px-2 py-1',
-                errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
-              ]"
+              class="w-16 border border-gray-300 rounded px-2 py-1 border-gray-300"
             />
             <label for="time-waited_sec">Sec</label>
           </div>
-          <p class="mt-1 h-4 text-red-600 text-xs">{{ errors.sec || " " }}</p>
         </div>
       </div>
     </div>
@@ -379,9 +390,11 @@ const postData = () => {
         @click="postData"
         style="background-color: #00a6d6"
         :class="[
-  'flex-1 px-4 py-2 rounded text-white',
-  !validated ? 'bg-gray-400 opacity-50 cursor-not-allowed' : 'bg-[#00a6d6]'
-]"
+          'flex-1 px-4 py-2 rounded text-white',
+          !validated
+            ? 'bg-gray-400 opacity-50 cursor-not-allowed'
+            : 'bg-[#00a6d6]',
+        ]"
       >
         Submit
       </button>
