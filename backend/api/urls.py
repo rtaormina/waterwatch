@@ -16,4 +16,5 @@ urlpatterns = [
     path("", include(router.urls)),
     path("home/", views.index_view, name="index"),
     path("measurements/", include("measurement_collection.urls")),
+    path("user-permissions/", views.user_permissions_view, name="user-permissions"),
 ]
