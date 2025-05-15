@@ -209,6 +209,7 @@ const postData = () => {
 
       <label class="flex items-center gap-2 ">
         <input
+        data-testid="radio-auto"
           type="radio"
           value="auto"
           v-model="locationMode"
@@ -221,6 +222,7 @@ const postData = () => {
 
       <label class="flex items-center gap-2 mb-3">
         <input
+        data-testid="radio-manual"
           type="radio"
           value="manual"
           v-model="locationMode"
@@ -235,6 +237,7 @@ const postData = () => {
         >
 
         <select
+        data-testid="select-water-source"
           id="water_source"
           v-model="formData.water_source"
           class="self-center border border-gray-300 rounded px-3 py-2"
@@ -259,7 +262,7 @@ const postData = () => {
         >Metric Type</label
       >
       <div class="flex flex-col gap-2">
-        <label
+        <label data-testid="metric-checkbox"
           v-for="opt in metricOptions"
           :key="opt.value"
           class="flex items-center space-x-2"
@@ -290,6 +293,7 @@ const postData = () => {
               >Sensor Type</label
             >
             <input
+              data-testid="sensor-type"
               id="sensor-type"
               v-model="formData.temperature.sensor"
               placeholder="thermometer"
@@ -316,6 +320,7 @@ const postData = () => {
                 <span class="inline sm:hidden">Temp. Value</span>
               </label>
               <input
+                data-testid="temp-val"
                 id="temp-val"
                 v-model="tempVal"
                 type="number"
@@ -328,10 +333,10 @@ const postData = () => {
                 ]"
               />
               <label class="items-center gap-1">
-                <input name="temp" type="radio" value="C" v-model="tempUnit" />
+                <input data-testid="celsius" name="temp" type="radio" value="C" v-model="tempUnit" />
                 <span>°C</span>
               </label>
-              <label class="items-center gap-1">
+              <label data-testid="fahrenheit" class="items-center gap-1">
                 <input name="temp" type="radio" value="F" v-model="tempUnit" />
                 <span>°F</span>
               </label>
@@ -351,6 +356,7 @@ const postData = () => {
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
+            data-testid="time-waited-mins"
               id="time-waited_min"
               @input="handleInput"
               @keypress="handleKeyPress"
@@ -367,6 +373,7 @@ const postData = () => {
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
+            data-testid="time-waited-sec"
               id="time-waited_sec"
               @input="handleInput"
               @keypress="handleKeyPress"

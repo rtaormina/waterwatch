@@ -69,6 +69,9 @@ export function validateInputs(
       return false;
     }
   }
+  if((+time.mins > 59 || +time.sec > 59) || (+time.mins < 0 && +time.sec === 0)){
+
+  }
   return true;
 }
 
