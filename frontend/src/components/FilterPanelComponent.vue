@@ -304,13 +304,13 @@ function search() {
     <div class="flex justify-center space-x-4 mt-auto shrink-0">
       <button
         @click="resetFilters"
-        class="cursor-pointer px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-100 font-semibold text-lg"
+        class="cursor-pointer px-6 py-2 border border-gray-300 rounded-2xl hover:bg-gray-100 font-semibold text-lg"
       >
         Reset
       </button>
       <button
         @click="search"
-        class="cursor-pointer px-12 py-2 bg-main text-white rounded-full hover:bg-[#0098c4] font-semibold text-lg"
+        class="cursor-pointer px-12 py-2 bg-main text-white rounded-2xl hover:bg-[#0098c4] font-semibold text-lg"
       >
         Search
       </button>

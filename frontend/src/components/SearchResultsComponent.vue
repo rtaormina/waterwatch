@@ -24,8 +24,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
-    <div class="space-y-4 px-4 md:pt-6 md:mt-[54px]">
+  <div class="flex flex-col flex-grow min-h-0">
+    <div class="md:overflow-y-auto space-y-4 px-4 md:pt-6 md:mt-[54px]">
       <h3 class="font-bold text-lg mb-4 hidden md:block">Search Results</h3>
       <h4 class="font-semibold text-lg hidden md:block">Summary</h4>
       <div class="mt-2 space-y-1">
@@ -39,9 +39,9 @@ onMounted(async () => {
       </div>
     </div>
     <div class="flex-grow"></div>
-    <div class="flex flex-col items-center mb-4 md:mb-8">
+    <div class="md:overflow-y-auto flex flex-col items-center mb-4 md:mb-8">
       <ArrowDownTrayIcon
-        class="cursor-pointer h-25 w-25 text-gray-800 stroke-current stroke-[1.25] mb-4"
+        class="cursor-pointer md:min-h-12 md:min-w-12 max-h-25 max-w-25 text-gray-800 stroke-current stroke-[1.25] mb-4"
         @click="exportData"
       />
       <div
@@ -62,7 +62,7 @@ onMounted(async () => {
       </div>
       <button
         @click="exportData"
-        class="cursor-pointer w-11/12 md:w-9/12 py-3 bg-main text-white rounded-full font-semibold text-lg"
+        class="cursor-pointer w-11/12 md:w-9/12 py-3 bg-main text-white rounded-2xl font-semibold text-lg"
       >
         Download
       </button>
