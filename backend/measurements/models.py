@@ -32,10 +32,10 @@ class Measurement(models.Model):
         "well": "well",
     }
     timestamp = models.DateTimeField(auto_now_add=True)
-    location = geomodels.PointField(srid=4326)
+    location = geomodels.PointField()
     flag = models.BooleanField(default=False)
     water_source = models.CharField(max_length=255, choices=list(water_source_choices.items()))
-    campaigns = models.ManyToManyField(Campaign, blank=True)
+    campaigns = models.ManyToManyField(Campaign)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
@@ -54,10 +54,10 @@ class Temperature(models.Model):
     value : float
         The temperature recorded temperature with single decimal place precision
     time_waited : datetime.timedelta
-        The time duration between placing the sensor into the water and reading the temperature
+        The time duration between placing the sensor into the water and reading the ttemperature
     """
 
-    measurement = models.OneToOneField(Measurement, on_delete=models.CASCADE, null=True)
+    measurement = models.OneToOneField(Measurement, on_delete=models.CASCADE, null=False)
     sensor = models.CharField(max_length=255)
     value = models.DecimalField(max_digits=4, decimal_places=1)
     time_waited = models.DurationField()
