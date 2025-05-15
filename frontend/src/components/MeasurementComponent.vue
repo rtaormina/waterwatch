@@ -178,16 +178,6 @@ const postData = () => {
     userLoc.value?.longitude,
     userLoc.value?.latitude
   );
-  if (formData.temperature.value < 0 || formData.temperature.value > 40) {
-    showModal.value = true;
-    modalMessage.value =
-      "Are you sure you would like to submit the temperature value " +
-      tempVal.value +
-      "°" +
-      tempUnit.value +
-      "?";
-    return;
-  }
 
   fetch("/api/measurements/", {
     method: "POST",
@@ -209,6 +199,18 @@ const postData = () => {
       console.error(err);
     });
 };
+
+const postDataCheck = () => {
+  if(+tempVal.value < 0 || +tempVal.value > 40) {
+    console.log("Temperature value out of range");
+    showModal.value = true;
+    modalMessage.value = "Are you sure you would like to submit the temperature value " + tempVal.value +"°" + tempUnit.value +"?";
+    return;
+  }else{
+    postData();
+  }
+
+}
 </script>
 
 <template>
@@ -430,7 +432,7 @@ const postData = () => {
       <button
         :disabled="!validated"
         type="submit"
-        @click="postData"
+        @click="postDataCheck"
         style="background-color: #00a6d6"
         :class="[
           'flex-1 px-4 py-2 rounded text-white ',

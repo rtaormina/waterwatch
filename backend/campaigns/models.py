@@ -29,4 +29,8 @@ class Campaign(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return f"<Campaign: {self.name}; {self.start_time}; {self.end_time}>"
+        return f"Campaign: {self.name} ({self.format_time()})"
+
+    def format_time(self):
+        """Format the start and end time of the campaign."""
+        return f"{self.start_time.strftime('%Y-%m-%d %H:%M')} - {self.end_time.strftime('%Y-%m-%d %H:%M')}"
