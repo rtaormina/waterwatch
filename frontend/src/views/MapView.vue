@@ -1,10 +1,13 @@
 <template>
-  <div>
-    <h1 class="text-center">Map View</h1>
-    <div class="mx-auto my-6 w-2/3 h-[600px]">
-      <LocationFallback v-model:location="location" :auto-locate="false" />
-    </div>
-    <div class="flex align-center justify-center">
+  <div class="w-full h-screen">
+    <LocationFallback v-model:location="location" :auto-locate="false" />
+    <div class="fixed bottom-5 z-[1000] flex align-center justify-center gap-4">
+      <button
+        class="bg-main rounded-md p-2 text-white"
+        @click="router.push({ name: 'Measurement' })"
+      >
+        Add measurement
+      </button>
       <div>({{ location.lat }}, {{ location.lng }})</div>
     </div>
   </div>
@@ -14,6 +17,9 @@
 import LocationFallback from "@/components/LocationFallback.vue";
 import { ref } from "vue";
 import L from "leaflet";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const location = ref<L.LatLng>(L.latLng(52.3824, 4.8995)); // Default to Amsterdam
 </script>
