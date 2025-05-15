@@ -22,7 +22,6 @@ class MeasurementAdmin(admin.ModelAdmin):
     search_fields = [
         "flag",
         "water_source",
-        "campaigns",
         "timestamp",
         "location",
     ]
@@ -59,7 +58,6 @@ class TemperatureAdmin(admin.ModelAdmin):
     )
     list_display_links = ("value",)
     search_fields = [
-        "measurement",
         "value",
         "sensor",
     ]

@@ -52,6 +52,29 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         fields = ["location", "water_source", "temperature"]
         geo_field = "location"
 
+    def validate(self, data):
+        """Validate the data before creating a Measurement object.
+
+        Parameters
+        ----------
+        data : dict
+            The data to validate.
+
+        Returns
+        -------
+        dict
+            The validated data.
+        """
+        # Set flag if temperature is out of range
+        temperature_data = data.get("temperature")
+        if temperature_data and (temperature_data.get("value") < 0 or temperature_data.get("value") > 40.0):
+            data["flag"] = True
+
+        # Make water_source lowercase
+        data["water_source"] = data["water_source"].lower()
+
+        return data
+
     def create(self, validated_data):
         """Create a Measurement object and nested metric objects if the data is provided.
 
