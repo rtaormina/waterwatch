@@ -188,9 +188,9 @@ onUnmounted(() => {
   <!-- main navbar mobile -->
   <div v-else>
     <div class="font-custom bg-[#00A6D6] text-white p-2 w-screen flex justify-between">
-      <div class="text-2xl">WATERWATCH</div>
+      <div class="text-4xl text-white font-custom mt-1 mb-3 ml-4">WATERWATCH</div>
       <div>
-        <button @click="openOverlay"><img :src="burgerBar" alt="Menu icon" class="w-8  object-contain"></button>
+        <button @click="openOverlay"><img :src="burgerBar" alt="Menu icon" class="w-12 mt-1 mr-1  object-contain"></button>
       </div>
     </div>
   </div>
