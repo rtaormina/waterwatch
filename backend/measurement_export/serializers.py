@@ -42,6 +42,8 @@ class MeasurementSerializer(serializers.ModelSerializer):
     metrics = serializers.SerializerMethodField()
 
     class Meta:
+        """Meta class for MeasurementSerializer."""
+
         model = Measurement
         fields = [
             "id",
