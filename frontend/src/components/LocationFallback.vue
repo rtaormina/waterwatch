@@ -3,9 +3,12 @@
 </template>
 
 <script setup lang="ts">
-import { getLocateControl } from "@/composables/LocationFallback";
+import {
+  getLocateControl,
+  initializeMap,
+} from "@/composables/LocationFallback";
 import L from "leaflet";
-import { onMounted, useTemplateRef, watch } from "vue";
+import { onMounted, useTemplateRef } from "vue";
 
 const location = defineModel<L.LatLng>("location", {
   required: true,
@@ -18,60 +21,33 @@ const props = defineProps({
   },
 });
 
-watch(location, (newLocation) => {
-  marker.setLatLng(newLocation);
-});
-
-const marker = L.marker(location.value, {
-  draggable: true,
-  autoPan: true,
-});
-marker.on("dragend", (ev: L.DragEndEvent) => {
-  const marker = ev.target;
-  location.value = marker.getLatLng();
-});
-
-const layer = L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  {
-    maxZoom: 19,
-    attribution:
-      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }
-);
 
 const mapElement = useTemplateRef("mapElement");
 
 onMounted(() => {
+  // Check if the mapElement is properly mounted
   if (!mapElement.value) {
     throw new Error("mapElement is not defined");
   }
   // Initialize the map
-  const map: L.Map = L.map(mapElement.value, {
-    center: location.value,
-    zoom: 4,
-  });
-  layer.addTo(map);
-  marker.addTo(map);
-  map.on("click", setMarkerLocation);
+  const map: L.Map = initializeMap(mapElement.value, location);
 
+  // Allow the user to click on the map to set the location
+  map.on("click", (ev: L.LeafletMouseEvent) => {
+    location.value = ev.latlng;
+  });
+
+  // Add the locate control
   const locateControl = getLocateControl(location, {
     position: "topleft",
   });
   locateControl.addTo(map);
 
+  // Locate the user on load if autoLocate is set true
   if (props.autoLocate) {
-    map.locate({
-      setView: true,
-      maxZoom: 16,
-    });
-    locateControl._startSpinner();
+    locateControl._getGeoLocation(map);
   }
 });
-
-function setMarkerLocation(ev: L.LeafletMouseEvent) {
-  location.value = ev.latlng;
-}
 </script>
 
 <style scoped>
