@@ -33,13 +33,13 @@ class Measurement(models.Model):
     }
     timestamp = models.DateTimeField(auto_now_add=True)
     location = geomodels.PointField(srid=4326)
-    flag = models.BooleanField(default=False)
+    flag = models.BooleanField(default=True)
     water_source = models.CharField(max_length=255, choices=list(water_source_choices.items()))
     campaigns = models.ManyToManyField(Campaign, blank=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return f"<Measurement: {self.timestamp}; {self.location}; {self.water_source}>"
+        return f"Measurement: {self.timestamp} - {self.location} - {self.water_source}"
 
 
 class Temperature(models.Model):
@@ -63,4 +63,4 @@ class Temperature(models.Model):
     time_waited = models.DurationField()
 
     def __str__(self):
-        return f"<Temperature: {self.sensor}; {self.value}; {self.time_waited}>"
+        return f"Temperature: {self.value} - {self.sensor} - {self.time_waited}"
