@@ -57,7 +57,7 @@ class Temperature(models.Model):
         The time duration between placing the sensor into the water and reading the temperature
     """
 
-    measurement = models.OneToOneField(Measurement, on_delete=models.CASCADE, null=False)
+    measurement = models.OneToOneField(Measurement, on_delete=models.CASCADE, null=False, default=None)
     sensor = models.CharField(max_length=255)
     value = models.DecimalField(max_digits=4, decimal_places=1)
     time_waited = models.DurationField()

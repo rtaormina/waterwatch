@@ -34,6 +34,14 @@ const routes = [
       requiresAuth: false,
     },
   },
+  {
+    path: "/export",
+    name: "Export",
+    component: () => import("@/views/ExportView.vue"),
+    meta: {
+      requiresAuth: false,
+    },
+  },
 ];
 
 const router = createRouter({
