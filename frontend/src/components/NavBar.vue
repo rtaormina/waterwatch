@@ -163,7 +163,7 @@ onUnmounted(() => {
           </a>
         </div>
 
-        <div class="border-b-2" :class="page == 'About' ? 'border-white' : 'border-transparent'">
+        <div class="border-b-2" :class="page == 'Export' ? 'border-white' : 'border-transparent'">
           <a href="/export" class="text-white text-2xl hover:border-white">
             Data
           </a>
