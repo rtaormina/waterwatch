@@ -1,5 +1,6 @@
 <template>
   <div class="w-full h-screen">
+    <NavBar />
     <LocationFallback v-model:location="location" :auto-locate="false" />
     <div class="fixed bottom-5 z-[1000] flex align-center justify-center gap-4">
       <button
@@ -15,6 +16,7 @@
 
 <script setup lang="ts">
 import LocationFallback from "@/components/LocationFallback.vue";
+import NavBar from "@/components/NavBar.vue";
 import { ref } from "vue";
 import L from "leaflet";
 import { useRouter } from "vue-router";
