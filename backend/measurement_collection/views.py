@@ -9,7 +9,7 @@ from .serializers import MeasurementSerializer
 
 
 @api_view(["POST"])
-def measurement_view(request):
+def add_measurement_view(request):
     """View to handle incoming measurement data.
 
     Attributes

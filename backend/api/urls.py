@@ -1,11 +1,9 @@
 """Specify the URL patterns for the API views."""
 
 from django.urls import include, path
-from rest_framework import routers
 
 from . import views
 
-router = routers.DefaultRouter()
 app_name = "api"
 
 urlpatterns = [
@@ -13,8 +11,7 @@ urlpatterns = [
     path("logout/", views.logout_view, name="api-logout"),
     path("session/", views.session_view, name="api-session"),
     path("whoami/", views.whoami_view, name="api-whoami"),
-    path("", include(router.urls)),
     path("home/", views.index_view, name="index"),
-    path("measurements/", include("measurement_collection.urls")),
     path("user-permissions/", views.user_permissions_view, name="user-permissions"),
+    path("measurements/", include("measurements.urls")),
 ]
