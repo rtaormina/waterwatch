@@ -12,6 +12,9 @@ export function validateTemp(
   if (!/^-?\d+(\.\d+)?$/.test(val)) {
     errors.temp = "Enter a number";
     nextTick(() => tempRef?.value?.focus());
+  } else if (Number(val) > 100){
+    errors.temp = "Temperature too large";
+    nextTick(() => tempRef?.value?.focus());
   } else {
     errors.temp = null;
   }
@@ -41,6 +44,10 @@ export function validateInputs(
   errors: {
     temp: string | null;
     sensor: string | null;
+  },
+  time: {
+    mins: string;
+    sec: string;
   }
 ) {
   if (
@@ -57,7 +64,7 @@ export function validateInputs(
       tempVal === "" ||
       isNaN(Number(tempVal)) ||
       errors.temp !== null ||
-      errors.sensor !== null
+      errors.sensor !== null || ((time.mins === "" || time.mins === "0") && (time.sec === "" || time.sec === "0"))
     ) {
       return false;
     }

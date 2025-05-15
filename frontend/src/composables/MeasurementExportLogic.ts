@@ -1,14 +1,17 @@
 import Cookies from "universal-cookie";
 import { ref } from "vue";
-import { saveAs } from "file-saver"
+import { saveAs } from "file-saver";
 
 const format = ref<"csv" | "xml" | "xlsx" | "json" | "geojson">("csv");
 const cookies = new Cookies();
 
-export { format }
+export { format };
 
 export async function exportData() {
-  const url = `/api/export/?format=${format.value}`;
+  const params = new URLSearchParams();
+  params.append("format", format.value);
+
+  const url = `/api/measurements/?${params.toString()}`;
   try {
     const res = await fetch(url, {
       method: "GET",

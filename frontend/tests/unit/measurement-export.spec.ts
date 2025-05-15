@@ -78,14 +78,14 @@ describe("exportData", () => {
     format.value = "csv";
     await exportData();
     expect(mockFetch).toHaveBeenLastCalledWith(
-      "/api/export/?format=csv",
+      "/api/measurements/?format=csv",
       expect.objectContaining({ method: "GET" })
     );
 
     format.value = "xlsx";
     await exportData();
     expect(mockFetch).toHaveBeenLastCalledWith(
-      "/api/export/?format=xlsx",
+      "/api/measurements/?format=xlsx",
       expect.objectContaining({ method: "GET" })
     );
   }),
@@ -98,7 +98,7 @@ describe("exportData", () => {
       await exportData();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        "/api/export/?format=csv",
+        "/api/measurements/?format=csv",
         expect.objectContaining({
           method: "GET",
           credentials: "same-origin",

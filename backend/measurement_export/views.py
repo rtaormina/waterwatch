@@ -36,6 +36,7 @@ def export_all_view(request):
     #     return JsonResponse({"detail": "You must be a researcher or admin to export all measurements."}, status=400)
 
     fmt = request.GET.get("format", "json").lower()
+
     measurements = Measurement.objects.all()
     data = MeasurementSerializer(measurements, many=True).data
 
