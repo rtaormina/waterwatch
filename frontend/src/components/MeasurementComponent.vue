@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
-import Modal from './Modal.vue'
+import Modal from "./Modal.vue";
 import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
 import {
   validateTemp,
@@ -9,6 +9,8 @@ import {
   validateInputs,
   createPayload,
 } from "@/composables/MeasurementCollectionLogic";
+import LocationFallback from "./LocationFallback.vue";
+import L from "leaflet";
 
 const cookies = new Cookies();
 const router = useRouter();
@@ -46,14 +48,14 @@ const waterSourceOptions = [
   { label: "Well", value: "well" },
   { label: "Tap", value: "tap" },
 ];
-const userLoc = ref<{ latitude: number; longitude: number } | null>(null);
+const userLoc = ref<L.LatLng>(L.latLng(0, 0));
 const locating = ref(false);
 const locAvail = ref(true);
 
 const validated = computed(() => {
- return validateInputs(
-    userLoc.value?.longitude,
-    userLoc.value?.latitude,
+  return validateInputs(
+    userLoc.value?.lng,
+    userLoc.value?.lat,
     formData.water_source,
     formData.temperature.sensor,
     tempVal.value,
@@ -81,7 +83,6 @@ function clear() {
   tempVal.value = "";
   tempUnit.value = "C";
   selectedMetrics.value = [];
-  userLoc.value = null;
   errors.temp = null;
   errors.sensor = null;
   locationMode.value = null;
@@ -96,10 +97,7 @@ function getLocation() {
   locAvail.value = true;
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      userLoc.value = {
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-      };
+      userLoc.value = L.latLng(pos.coords.latitude, pos.coords.longitude);
       locAvail.value = true;
       locating.value = false;
     },
@@ -147,17 +145,8 @@ watch(locAvail, (avail) => {
   }
 });
 
-function handleLocationModeChange() {
-  if (locationMode.value === "auto") {
-    getLocation();
-  }
-  if (locationMode.value === "manual") {
-    userLoc.value = null;
-  }
-}
-
-const showModal = ref(false)
-const modalMessage = ref("")
+const showModal = ref(false);
+const modalMessage = ref("");
 const postData = () => {
   const payload = createPayload(
     tempUnit.value,
@@ -166,12 +155,17 @@ const postData = () => {
     tempVal.value,
     time,
     formData.water_source,
-    userLoc.value?.longitude,
-    userLoc.value?.latitude
+    userLoc.value?.lng,
+    userLoc.value?.lat
   );
-  if(formData.temperature.value < 0 || formData.temperature.value > 40) {
+  if (formData.temperature.value < 0 || formData.temperature.value > 40) {
     showModal.value = true;
-    modalMessage.value = "Are you sure you would like to submit the temperature value " + tempVal.value +"°" + tempUnit.value +"?";
+    modalMessage.value =
+      "Are you sure you would like to submit the temperature value " +
+      tempVal.value +
+      "°" +
+      tempUnit.value +
+      "?";
     return;
   }
 
@@ -207,27 +201,10 @@ const postData = () => {
     <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
       <h3 class="text-lg font-semibold mb-4">Measurement</h3>
 
-      <label class="flex items-center gap-2 ">
-        <input
-          type="radio"
-          value="auto"
-          v-model="locationMode"
-          :disabled="!locAvail"
-          @change="handleLocationModeChange"
-        />
-        Use Current Location
-        <span v-if="locating" class="text-sm text-gray-500">(Locating...)</span>
-      </label>
 
-      <label class="flex items-center gap-2 mb-3">
-        <input
-          type="radio"
-          value="manual"
-          v-model="locationMode"
-          @change="handleLocationModeChange"
-        />
-        Select Location Manually
-      </label>
+      <div class="w-full h-48">
+        <LocationFallback v-model:location="userLoc" />
+      </div>
 
       <div class="flex-start min-w-0 flex items-center gap-2">
         <label class="self-center text-sm font-medium text-gray-700"
@@ -346,7 +323,8 @@ const postData = () => {
         <div class="flex flex-col">
           <label class="block text-sm font-medium text-gray-700"
             >Time waited</label
-          >        </div>
+          >
+        </div>
 
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
@@ -406,19 +384,24 @@ const postData = () => {
       >
         Submit
       </button>
-          <Modal :visible="showModal" @close="showModal = false">
-            <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
-            <p>{{ modalMessage }}</p>
-            <div class="flex items-center mt-4 gap-2">
-                <button @click="showModal = false" class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer">
-                Cancel
-                </button>
-                <button @click="postData" class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer">
-                Submit
-                </button>
-            </div>
-            </Modal>
-
+      <Modal :visible="showModal" @close="showModal = false">
+        <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
+        <p>{{ modalMessage }}</p>
+        <div class="flex items-center mt-4 gap-2">
+          <button
+            @click="showModal = false"
+            class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            @click="postData"
+            class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+          >
+            Submit
+          </button>
+        </div>
+      </Modal>
     </div>
   </div>
 </template>
