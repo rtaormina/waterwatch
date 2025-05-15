@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
-import Modal from './Modal.vue'
+import Modal from "./Modal.vue";
 import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
 import {
   validateTemp,
   onSensorInput,
   validateInputs,
   createPayload,
+  validateTime,
 } from "@/composables/MeasurementCollectionLogic";
 
 const cookies = new Cookies();
@@ -31,10 +32,15 @@ const time = reactive({
 const errors = reactive<{
   temp: string | null;
   sensor: string | null;
+  mins: string | null;
+  sec: string | null;
 }>({
   temp: null,
   sensor: null,
+  mins: null,
+  sec: null,
 });
+
 const minsRef = ref<HTMLInputElement>();
 const secRef = ref<HTMLInputElement>();
 const tempRef = ref<HTMLInputElement>();
@@ -51,7 +57,7 @@ const locating = ref(false);
 const locAvail = ref(true);
 
 const validated = computed(() => {
- return validateInputs(
+  return validateInputs(
     userLoc.value?.longitude,
     userLoc.value?.latitude,
     formData.water_source,
@@ -128,16 +134,19 @@ const handleKeyPress = (event: KeyboardEvent) => {
   if (key.length === 1 && isNaN(Number(key))) {
     event.preventDefault();
   }
+  validateTime(errors, time);
 };
 const handlePaste = (event: ClipboardEvent) => {
   const pastedText = event.clipboardData?.getData("text");
   if (pastedText && !/^\d+$/.test(pastedText)) {
     event.preventDefault();
   }
+  validateTime(errors, time);
 };
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
   emit("update:modelValue", target.value.replace(/[^0-9]/g, ""));
+  validateTime(errors, time);
 };
 const locationMode = ref<"auto" | "manual" | null>(null);
 
@@ -156,8 +165,8 @@ function handleLocationModeChange() {
   }
 }
 
-const showModal = ref(false)
-const modalMessage = ref("")
+const showModal = ref(false);
+const modalMessage = ref("");
 const postData = () => {
   const payload = createPayload(
     tempUnit.value,
@@ -169,9 +178,14 @@ const postData = () => {
     userLoc.value?.longitude,
     userLoc.value?.latitude
   );
-  if(formData.temperature.value < 0 || formData.temperature.value > 40) {
+  if (formData.temperature.value < 0 || formData.temperature.value > 40) {
     showModal.value = true;
-    modalMessage.value = "Are you sure you would like to submit the temperature value " + tempVal.value +"°" + tempUnit.value +"?";
+    modalMessage.value =
+      "Are you sure you would like to submit the temperature value " +
+      tempVal.value +
+      "°" +
+      tempUnit.value +
+      "?";
     return;
   }
 
@@ -207,9 +221,9 @@ const postData = () => {
     <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
       <h3 class="text-lg font-semibold mb-4">Measurement</h3>
 
-      <label class="flex items-center gap-2 ">
+      <label class="flex items-center gap-2">
         <input
-        data-testid="radio-auto"
+          data-testid="radio-auto"
           type="radio"
           value="auto"
           v-model="locationMode"
@@ -222,7 +236,7 @@ const postData = () => {
 
       <label class="flex items-center gap-2 mb-3">
         <input
-        data-testid="radio-manual"
+          data-testid="radio-manual"
           type="radio"
           value="manual"
           v-model="locationMode"
@@ -237,7 +251,7 @@ const postData = () => {
         >
 
         <select
-        data-testid="select-water-source"
+          data-testid="select-water-source"
           id="water_source"
           v-model="formData.water_source"
           class="self-center border border-gray-300 rounded px-3 py-2"
@@ -262,7 +276,8 @@ const postData = () => {
         >Metric Type</label
       >
       <div class="flex flex-col gap-2">
-        <label data-testid="metric-checkbox"
+        <label
+          data-testid="metric-checkbox"
           v-for="opt in metricOptions"
           :key="opt.value"
           class="flex items-center space-x-2"
@@ -333,7 +348,13 @@ const postData = () => {
                 ]"
               />
               <label class="items-center gap-1">
-                <input data-testid="celsius" name="temp" type="radio" value="C" v-model="tempUnit" />
+                <input
+                  data-testid="celsius"
+                  name="temp"
+                  type="radio"
+                  value="C"
+                  v-model="tempUnit"
+                />
                 <span>°C</span>
               </label>
               <label data-testid="fahrenheit" class="items-center gap-1">
@@ -351,12 +372,13 @@ const postData = () => {
         <div class="flex flex-col">
           <label class="block text-sm font-medium text-gray-700"
             >Time waited</label
-          >        </div>
+          >
+        </div>
 
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
-            data-testid="time-waited-mins"
+              data-testid="time-waited-mins"
               id="time-waited_min"
               @input="handleInput"
               @keypress="handleKeyPress"
@@ -365,7 +387,10 @@ const postData = () => {
               placeholder="00"
               type="number"
               ref="minsRef"
-              class="w-16 border border-gray-300 rounded px-2 py-1 border-gray-300"
+              :class="[
+                'w-16 rounded px-2 py-1',
+                errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
+              ]"
             />
             <label for="time-waited_min">Min</label>
           </div>
@@ -373,7 +398,7 @@ const postData = () => {
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
-            data-testid="time-waited-sec"
+              data-testid="time-waited-sec"
               id="time-waited_sec"
               @input="handleInput"
               @keypress="handleKeyPress"
@@ -382,7 +407,10 @@ const postData = () => {
               placeholder="00"
               type="number"
               ref="secRef"
-              class="w-16 border border-gray-300 rounded px-2 py-1 border-gray-300"
+              :class="[
+                'w-16 rounded px-2 py-1',
+                errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
+              ]"
             />
             <label for="time-waited_sec">Sec</label>
           </div>
@@ -413,19 +441,24 @@ const postData = () => {
       >
         Submit
       </button>
-          <Modal :visible="showModal" @close="showModal = false">
-            <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
-            <p>{{ modalMessage }}</p>
-            <div class="flex items-center mt-4 gap-2">
-                <button @click="showModal = false" class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer">
-                Cancel
-                </button>
-                <button @click="postData" class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer">
-                Submit
-                </button>
-            </div>
-            </Modal>
-
+      <Modal :visible="showModal" @close="showModal = false">
+        <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
+        <p>{{ modalMessage }}</p>
+        <div class="flex items-center mt-4 gap-2">
+          <button
+            @click="showModal = false"
+            class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            @click="postData"
+            class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+          >
+            Submit
+          </button>
+        </div>
+      </Modal>
     </div>
   </div>
 </template>
