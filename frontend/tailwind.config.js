@@ -6,7 +6,7 @@ module.exports = {
             colors: {
                 'light': '#D7E9F4',
                 'main': '#00A6D6',
-            }
+            },
         },
     },
     variants: {

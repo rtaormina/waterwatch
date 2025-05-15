@@ -50,11 +50,13 @@ INSTALLED_APPS = [
     "measurement_export",
     "campaigns",
     "api",
+    "corsheaders",
     "rest_framework",
     "rest_framework_gis",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -187,3 +189,5 @@ LOGGING = {
         },
     },
 }
+
+APPEND_SLASH = False
