@@ -44,19 +44,25 @@ onMounted(async () => {
         class="cursor-pointer h-25 w-25 text-gray-800 stroke-current stroke-[1.25] mb-4"
         @click="exportData"
       />
-      <div class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4">
-        <label for="format" class="font-medium">Download as</label>
+      <div
+        class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4"
+      >
+        <label for="format" class="font-semibold">Download as</label>
         <select
           id="format"
           v-model="format"
           class="flex-1 border rounded bg-white px-3 py-2"
         >
           <option value="csv">CSV File</option>
+          <option value="xml">XML</option>
+          <option value="xlsx">Excel (.xlsx)</option>
+          <option value="json">JSON</option>
+          <option value="geojson">GeoJSON</option>
         </select>
       </div>
       <button
         @click="exportData"
-        class="cursor-pointer w-11/12 md:w-9/12 py-3 bg-main text-white rounded-full"
+        class="cursor-pointer w-11/12 md:w-9/12 py-3 bg-main text-white rounded-full font-semibold text-lg"
       >
         Download
       </button>

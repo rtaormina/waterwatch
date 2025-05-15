@@ -34,7 +34,7 @@ const presets = [
   },
 ];
 
-// Function to handle search with server communication
+// function to handle search with server communication
 async function onSearch(payload) {
   console.log("Search with:", payload);
   hasSearched.value = true;

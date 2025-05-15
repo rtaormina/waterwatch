@@ -109,17 +109,17 @@ function search() {
 <template>
   <div class="bg-light p-6 rounded-lg flex flex-col h-full max-h-full">
     <!-- Filter Header (fixed at top) -->
-    <div class="font-bold text-lg mb-1 shrink-0">Filter By:</div>
+    <div class="font-bold text-lg mb-1 shrink-0">Filter By</div>
 
     <!-- Scrollable Filter Content Area -->
     <div class="overflow-y-scroll flex-grow flex flex-col pr-6 mb-4">
       <!-- Location: two‑column grid -->
       <div class="mb-2">
-        <div class="font-medium mb-1">Location:</div>
+        <div class="font-semibold mb-1">Location</div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Continent multi‑select -->
           <div>
-            <label class="block text-sm font-medium mb-1">Continent:</label>
+            <label class="block text-sm font-medium mb-1">Continent</label>
             <Multiselect
               v-model="selectedContinents"
               :options="continentOptions"
@@ -136,7 +136,7 @@ function search() {
 
           <!-- Country multi‑select -->
           <div>
-            <label class="block text-sm font-medium mb-1">Country:</label>
+            <label class="block text-sm font-medium mb-1">Country</label>
             <Multiselect
               v-model="selectedCountries"
               :options="availableCountries"
@@ -156,7 +156,7 @@ function search() {
 
       <!-- Measurement Type -->
       <div class="mb-2">
-        <div class="font-medium mb-1">Measurement Type:</div>
+        <div class="font-semibold mb-1">Measurement Type</div>
 
         <!-- Temperature checkbox -->
         <div class="flex items-center justify-between mb-2">
@@ -195,7 +195,7 @@ function search() {
         >
           <!-- From -->
           <div>
-            <label class="block text-sm mb-1">From:</label>
+            <label class="block text-sm mb-1">From</label>
             <input
               type="number"
               v-model.number="temp.from"
@@ -205,7 +205,7 @@ function search() {
 
           <!-- To -->
           <div>
-            <label class="block text-sm mb-1">To:</label>
+            <label class="block text-sm mb-1">To</label>
             <input
               type="number"
               v-model.number="temp.to"
@@ -217,10 +217,10 @@ function search() {
 
       <!-- Date -->
       <div class="mb-2">
-        <div class="font-medium mb-1">Date:</div>
+        <div class="font-semibold mb-1">Date</div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm mb-1">From:</label>
+            <label class="block text-sm mb-1">From</label>
             <input
               type="date"
               v-model="dateRange.from"
@@ -228,7 +228,7 @@ function search() {
             />
           </div>
           <div>
-            <label class="block text-sm mb-1">To:</label>
+            <label class="block text-sm mb-1">To</label>
             <input
               type="date"
               v-model="dateRange.to"
@@ -240,12 +240,12 @@ function search() {
 
       <!-- Time -->
       <div class="mb-2">
-        <div class="font-medium mb-1">Time:</div>
+        <div class="font-semibold mb-1">Time</div>
         <div class="space-y-2">
           <div v-for="(slot, i) in times" :key="i" class="mb-2">
             <!-- Mobile: Remove button above From field -->
             <div class="flex items-center justify-between md:hidden mb-1">
-              <label class="block text-sm">From:</label>
+              <label class="block text-sm">From</label>
               <button
                 @click="removeSlot(i)"
                 class="p-1 text-gray-700 hover:text-gray-900"
@@ -304,13 +304,13 @@ function search() {
     <div class="flex justify-center space-x-4 mt-auto shrink-0">
       <button
         @click="resetFilters"
-        class="cursor-pointer px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-100"
+        class="cursor-pointer px-6 py-2 border border-gray-300 rounded-full hover:bg-gray-100 font-semibold text-lg"
       >
         Reset
       </button>
       <button
         @click="search"
-        class="cursor-pointer px-12 py-2 bg-main text-white rounded-full hover:bg-[#0098c4]"
+        class="cursor-pointer px-12 py-2 bg-main text-white rounded-full hover:bg-[#0098c4] font-semibold text-lg"
       >
         Search
       </button>

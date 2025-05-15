@@ -28,8 +28,9 @@ def export_all_view(request):
         - On successful logout:
             JSON with {"detail": "Successfully retrieved all measurements."}, status 200.
     """
+    # Since authentication is currently not integrated into the project, authenticating this request
+    # is commented out for now.
     # user = request.user
-
     # is_researcher = user.groups.filter(name="researcher").exists()
     # if not (user.is_staff or is_researcher):
     #     return JsonResponse({"detail": "You must be a researcher or admin to export all measurements."}, status=400)
