@@ -41,7 +41,7 @@ onUnmounted(() => {
     enter-from-class="translate-x-full" enter-to-class="translate-x-0"
     leave-active-class="transform transition-transform duration-200 ease-in" leave-from-class="translate-x-0"
     leave-to-class="translate-x-full">
-    <div v-if="showOverlay" class="fixed inset-0 bg-[#00A6D6] ">
+    <div v-if="showOverlay" class="fixed inset-0 bg-[#00A6D6] z-50">
       <div class="flex">
         <div class="text-4xl text-white font-custom mt-6 ml-6">WATERWATCH</div>
       </div>
@@ -147,7 +147,7 @@ onUnmounted(() => {
   </transition>
 
   <!-- main navbar desktop -->
-  <div v-if="!isMobile">
+  <div v-if="!isMobile" class="relative z-30">
     <div class="font-custom bg-[#00A6D6] text-white p-4 w-screen text-3xl flex flex-row justify-between">
       <div>WATERWATCH</div>
       <div class="flex flex-row space-x-6">
@@ -164,7 +164,7 @@ onUnmounted(() => {
         </div>
 
         <div class="border-b-2" :class="page == 'About' ? 'border-white' : 'border-transparent'">
-          <a href="/home" class="text-white text-2xl hover:border-white">
+          <a href="/export" class="text-white text-2xl hover:border-white">
             Data
           </a>
         </div>
@@ -186,7 +186,7 @@ onUnmounted(() => {
   </div>
 
   <!-- main navbar mobile -->
-  <div v-else>
+  <div v-else class="relative z-30">
     <div class="font-custom bg-[#00A6D6] text-white p-2 w-screen flex justify-between">
       <div class="text-4xl text-white font-custom mt-4 mb-3 ml-4">WATERWATCH</div>
       <div>
