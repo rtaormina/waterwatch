@@ -55,7 +55,7 @@ onMounted(() => {
   marker.addTo(map);
   map.on("click", setMarkerLocation);
 
-  const locateControl = getLocateControl(location, props.autoLocate, {
+  const locateControl = getLocateControl(location, {
     position: "topleft",
   });
   locateControl.addTo(map);

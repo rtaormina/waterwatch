@@ -1,11 +1,10 @@
 import L from "leaflet";
 import { Spinner } from "spin.js";
 import "spin.js/spin.css";
-import type { MaybeRefOrGetter, Ref } from "vue";
+import type { Ref } from "vue";
 
 export function getLocateControl(
   location: Ref<L.LatLng>,
-  autoLocate: MaybeRefOrGetter<boolean>,
   opts: L.ControlOptions
 ) {
   const LocateControl = L.Control.extend({
