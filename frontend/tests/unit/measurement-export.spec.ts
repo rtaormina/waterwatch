@@ -82,10 +82,10 @@ describe("exportData", () => {
       expect.objectContaining({ method: "GET" })
     );
 
-    format.value = "xlsx";
+    format.value = "json";
     await exportData();
     expect(mockFetch).toHaveBeenLastCalledWith(
-      "/api/measurements/?format=xlsx",
+      "/api/measurements/?format=json",
       expect.objectContaining({ method: "GET" })
     );
   }),
