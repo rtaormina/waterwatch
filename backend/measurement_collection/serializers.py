@@ -68,7 +68,7 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         # Set flag if temperature is out of range
         temperature_data = data.get("temperature")
         if temperature_data and (temperature_data.get("value") < 0 or temperature_data.get("value") > 40.0):
-            data["flag"] = True
+            data["flag"] = False
 
         # Make water_source lowercase
         data["water_source"] = data["water_source"].lower()

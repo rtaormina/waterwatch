@@ -33,7 +33,7 @@ class Measurement(models.Model):
     }
     timestamp = models.DateTimeField(auto_now_add=True)
     location = geomodels.PointField(srid=4326)
-    flag = models.BooleanField(default=False)
+    flag = models.BooleanField(default=True)
     water_source = models.CharField(max_length=255, choices=list(water_source_choices.items()))
     campaigns = models.ManyToManyField(Campaign, blank=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
