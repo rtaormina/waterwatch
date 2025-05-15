@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     "measurement_export",
     "campaigns",
     "api",
-    "corsheaders",
     "rest_framework",
     "rest_framework_gis",
 ]
