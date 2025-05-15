@@ -2,7 +2,7 @@ import Cookies from "universal-cookie";
 import { ref } from "vue";
 import { saveAs } from "file-saver";
 
-const format = ref<"csv" | "xml" | "xlsx" | "json" | "geojson">("csv");
+const format = ref<"csv" | "xml" | "json" | "geojson">("csv");
 const cookies = new Cookies();
 
 export { format };

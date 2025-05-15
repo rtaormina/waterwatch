@@ -55,7 +55,6 @@ onMounted(async () => {
         >
           <option value="csv">CSV File</option>
           <option value="xml">XML</option>
-          <option value="xlsx">Excel (.xlsx)</option>
           <option value="json">JSON</option>
           <option value="geojson">GeoJSON</option>
         </select>
