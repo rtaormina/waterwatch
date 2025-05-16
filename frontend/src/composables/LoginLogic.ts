@@ -39,7 +39,13 @@ export function useLogin() {
             }
 
             if (data.detail === 'Successfully logged in.') {
-                router.push({ name: 'Home' })
+                const groups = data.groups || []
+
+                if (groups.includes('researcher')) {
+                    router.push({ name: 'Export' }) // Replace with your route name
+                } else {
+                    router.push({ name: 'Home' }) // Default or non-researcher route
+                }
             }
 
         } catch (err: any) {
