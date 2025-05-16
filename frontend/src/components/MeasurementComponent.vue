@@ -8,6 +8,7 @@ import {
   onSensorInput,
   validateInputs,
   createPayload,
+  validateTime,
 } from "@/composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import L from "leaflet";
@@ -33,10 +34,15 @@ const time = reactive({
 const errors = reactive<{
   temp: string | null;
   sensor: string | null;
+  mins: string | null;
+  sec: string | null;
 }>({
   temp: null,
   sensor: null,
+  mins: null,
+  sec: null,
 });
+
 const minsRef = ref<HTMLInputElement>();
 const secRef = ref<HTMLInputElement>();
 const tempRef = ref<HTMLInputElement>();
@@ -126,16 +132,19 @@ const handleKeyPress = (event: KeyboardEvent) => {
   if (key.length === 1 && isNaN(Number(key))) {
     event.preventDefault();
   }
+  validateTime(errors, time);
 };
 const handlePaste = (event: ClipboardEvent) => {
   const pastedText = event.clipboardData?.getData("text");
   if (pastedText && !/^\d+$/.test(pastedText)) {
     event.preventDefault();
   }
+  validateTime(errors, time);
 };
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
   emit("update:modelValue", target.value.replace(/[^0-9]/g, ""));
+  validateTime(errors, time);
 };
 const locationMode = ref<"auto" | "manual" | null>(null);
 
@@ -189,6 +198,37 @@ const postData = () => {
       console.error(err);
     });
 };
+
+const postDataCheck = () => {
+  let tempCheck;
+  if (selectedMetrics.value.includes("temperature")) {
+    if (tempUnit.value === "F") {
+      tempCheck = Math.round((+tempVal.value - 32) * (5 / 9) * 10) / 10;
+    } else {
+      tempCheck = Math.round(+tempVal.value * 10) / 10;
+    }
+    if (tempCheck < 0 || tempCheck > 40) {
+      showModal.value = true;
+      modalMessage.value =
+        "Are you sure you would like to submit the temperature value " +
+        tempVal.value +
+        "°" +
+        tempUnit.value +
+        "?";
+      return;
+    } else {
+      showModal.value = true;
+      modalMessage.value =
+        "Are you sure you would like to submit this measurement?";
+      return;
+    }
+  } else {
+    showModal.value = true;
+    modalMessage.value =
+      "Are you sure you would like to submit this measurement?";
+    return;
+  }
+};
 </script>
 
 <template>
@@ -212,9 +252,10 @@ const postData = () => {
         >
 
         <select
+          data-testid="select-water-source"
           id="water_source"
           v-model="formData.water_source"
-          class="self-center border border-gray-300 rounded px-3 py-2"
+          class="bg-white self-center border border-gray-300 rounded px-3 py-2"
         >
           <option disabled value="">Select a source</option>
           <option
@@ -237,6 +278,7 @@ const postData = () => {
       >
       <div class="flex flex-col gap-2">
         <label
+          data-testid="metric-checkbox"
           v-for="opt in metricOptions"
           :key="opt.value"
           class="flex items-center space-x-2"
@@ -267,12 +309,13 @@ const postData = () => {
               >Sensor Type</label
             >
             <input
+              data-testid="sensor-type"
               id="sensor-type"
               v-model="formData.temperature.sensor"
               placeholder="thermometer"
               type="text"
               :class="[
-                'flex-grow border border-gray-300 rounded px-3 py-2 mt-1',
+                'flex-grow bg-white border border-gray-300 rounded px-3 py-2 mt-1',
                 errors.sensor ? 'border-red-500 border-2' : 'border-gray-300',
               ]"
             />
@@ -293,6 +336,7 @@ const postData = () => {
                 <span class="inline sm:hidden">Temp. Value</span>
               </label>
               <input
+                data-testid="temp-val"
                 id="temp-val"
                 v-model="tempVal"
                 type="number"
@@ -300,15 +344,21 @@ const postData = () => {
                 ref="tempRef"
                 placeholder="e.g. 24.3"
                 :class="[
-                  'flex-1 min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
+                  'flex-1 bg-white min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
                   errors.temp ? 'border-red-500 border-2' : 'border-gray-300',
                 ]"
               />
               <label class="items-center gap-1">
-                <input name="temp" type="radio" value="C" v-model="tempUnit" />
+                <input
+                  data-testid="celsius"
+                  name="temp"
+                  type="radio"
+                  value="C"
+                  v-model="tempUnit"
+                />
                 <span>°C</span>
               </label>
-              <label class="items-center gap-1">
+              <label data-testid="fahrenheit" class="items-center gap-1">
                 <input name="temp" type="radio" value="F" v-model="tempUnit" />
                 <span>°F</span>
               </label>
@@ -329,6 +379,7 @@ const postData = () => {
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
+              data-testid="time-waited-mins"
               id="time-waited_min"
               @input="handleInput"
               @keypress="handleKeyPress"
@@ -337,7 +388,10 @@ const postData = () => {
               placeholder="00"
               type="number"
               ref="minsRef"
-              class="w-16 border border-gray-300 rounded px-2 py-1 border-gray-300"
+              :class="[
+                'w-16 rounded px-2 py-1 bg-white',
+                errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
+              ]"
             />
             <label for="time-waited_min">Min</label>
           </div>
@@ -345,6 +399,7 @@ const postData = () => {
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
+              data-testid="time-waited-sec"
               id="time-waited_sec"
               @input="handleInput"
               @keypress="handleKeyPress"
@@ -353,7 +408,10 @@ const postData = () => {
               placeholder="00"
               type="number"
               ref="secRef"
-              class="w-16 border border-gray-300 rounded px-2 py-1 border-gray-300"
+              :class="[
+                'w-16 rounded px-2 py-1 bg-white',
+                errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
+              ]"
             />
             <label for="time-waited_sec">Sec</label>
           </div>
@@ -373,7 +431,7 @@ const postData = () => {
       <button
         :disabled="!validated"
         type="submit"
-        @click="postData"
+        @click="postDataCheck"
         style="background-color: #00a6d6"
         :class="[
           'flex-1 px-4 py-2 rounded text-white ',

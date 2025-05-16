@@ -3,10 +3,11 @@
 import json
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 
 def index_view(request):
@@ -61,7 +62,14 @@ def login_view(request):
         return JsonResponse({"detail": "Invalid credentials."}, status=400)
 
     login(request, user)
-    return JsonResponse({"detail": "Successfully logged in."})
+    groups = list(request.user.groups.values_list("name", flat=True))
+
+    return JsonResponse(
+        {
+            "detail": "Successfully logged in.",
+            "groups": groups,
+        }
+    )
 
 
 @require_POST
@@ -134,3 +142,38 @@ def whoami_view(request):
         return JsonResponse({"isAuthenticated": False})
 
     return JsonResponse({"username": request.user.username})
+
+
+@require_GET
+@login_required
+def user_permissions_view(request):
+    """Return the authenticated user's groups and permissions.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object.
+
+    Returns
+    -------
+    JsonResponse
+        - If user is authenticated:
+            JSON with {
+                "username": <str>,
+                "groups": [<str>, ...],
+                "permissions": [<str>, ...],
+                "is_superuser": <bool>
+            }
+        - If not authenticated:
+            Returns 403 automatically due to @login_required
+    """
+    user = request.user
+
+    return JsonResponse(
+        {
+            "username": user.username,
+            "groups": list(user.groups.values_list("name", flat=True)),
+            "permissions": list(user.get_all_permissions()),
+            "is_superuser": user.is_superuser,
+        }
+    )

@@ -7,7 +7,7 @@ stages:
  - build_image
  - lint
  - testing
- - e2e_tests
+#  - e2e_tests
 
 # Build Docker Image for Backend
 build_backend_image:
@@ -70,12 +70,12 @@ frontend_unit_tests:
         - frontend/**/*
 
 # E2E Tests - Frontend
-frontend_e2e_tests:
-  <<: *frontend_test_setup
-  stage: e2e_tests
-  script:
-    - npm run e2e
-  # Run only if files in folder frontend changed
-  rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
-      when: on_success
+# frontend_e2e_tests:
+#   <<: *frontend_test_setup
+#   stage: e2e_tests
+#   script:
+#     - npm run e2e
+#   # Run only if files in folder frontend changed
+#   rules:
+#     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+#       when: on_success

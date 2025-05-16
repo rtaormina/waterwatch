@@ -39,6 +39,7 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="localhost").split(","
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
+    "django.contrib.gis",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -49,14 +50,11 @@ INSTALLED_APPS = [
     "measurement_export",
     "campaigns",
     "api",
-    "corsheaders",
-    "django.contrib.gis",
     "rest_framework",
     "rest_framework_gis",
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -65,6 +63,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+APPEND_SLASH = True
 
 ROOT_URLCONF = "backend.urls"
 
@@ -189,5 +189,3 @@ LOGGING = {
         },
     },
 }
-
-APPEND_SLASH = False
