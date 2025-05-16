@@ -62,6 +62,7 @@ services:
     restart: always
 
   nginx:
+    container_name: waterwatch
     image: nginx
     ports:
       - "80:80"
