@@ -2,19 +2,19 @@
   <div class="w-full h-screen">
     <NavBar />
     <LocationFallback v-model:location="location" :auto-locate="false" />
-    <div class="fixed bottom-5 z-[1000] flex align-center justify-center gap-4">
+    <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4">
       <button
-        class="bg-main rounded-md p-2 text-white"
+        class="bg-main rounded-md p-1 text-white"
         @click="router.push({ name: 'Measurement' })"
       >
-        Add measurement
+        <PlusCircleIcon class="w-10 h-10" />
       </button>
-      <div>({{ location.lat }}, {{ location.lng }})</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 import LocationFallback from "@/components/LocationFallback.vue";
 import NavBar from "@/components/NavBar.vue";
 import { ref } from "vue";
