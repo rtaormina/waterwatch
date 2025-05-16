@@ -201,16 +201,36 @@ const postData = () => {
 };
 
 const postDataCheck = () => {
-  if(+tempVal.value < 0 || +tempVal.value > 40) {
-    console.log("Temperature value out of range");
+  let tempCheck;
+  if (selectedMetrics.value.includes("temperature")) {
+    if (tempUnit.value === "F") {
+      tempCheck = Math.round((+tempVal.value - 32) * (5 / 9) * 10) / 10;
+    } else {
+      tempCheck = Math.round(+tempVal.value * 10) / 10;
+    }
+    if (tempCheck < 0 || tempCheck > 40) {
+      console.log("Temperature value out of range");
+      showModal.value = true;
+      modalMessage.value =
+        "Are you sure you would like to submit the temperature value " +
+        tempVal.value +
+        "°" +
+        tempUnit.value +
+        "?";
+      return;
+    } else {
+      showModal.value = true;
+      modalMessage.value =
+        "Are you sure you would like to submit this measurement?";
+      return;
+    }
+  } else {
     showModal.value = true;
-    modalMessage.value = "Are you sure you would like to submit the temperature value " + tempVal.value +"°" + tempUnit.value +"?";
+    modalMessage.value =
+      "Are you sure you would like to submit this measurement?";
     return;
-  }else{
-    postData();
   }
-
-}
+};
 </script>
 
 <template>

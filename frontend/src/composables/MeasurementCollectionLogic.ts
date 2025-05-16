@@ -45,7 +45,6 @@ export function validateTime(
     sec: string;
   }
 ) {
-  console.log("called");
   if (+time.mins > 59 || +time.mins < 0) {
     errors.mins = "Time must be between 0 and 59";
     console.log("mins error");
