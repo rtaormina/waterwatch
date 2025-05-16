@@ -7,6 +7,22 @@ const props = defineProps({ results: Object });
 const wrapperRef = ref<HTMLElement | null>(null);
 const totalWidth = ref(0);
 
+import { permissionsLogic } from '@/composables/PermissionsLogic.ts'
+import { all } from "axios";
+
+const canDownload = ref(false);
+const perms = ref<string[]>([]);
+
+const {
+  fetchPermissions,
+  hasPermission,
+  inGroup,
+  loaded,
+  allPermissions
+} = permissionsLogic()
+
+
+
 onMounted(async () => {
   // wait for DOM
   await nextTick();
@@ -20,6 +36,11 @@ onMounted(async () => {
   onBeforeUnmount(() => {
     window.removeEventListener("resize", measure);
   });
+  await fetchPermissions()
+  canDownload.value = hasPermission("measurement_export.can_export")
+  perms.value = allPermissions()
+  console.log("canDownload", canDownload.value)
+  console.log("permissions", perms.value);
 });
 </script>
 
@@ -33,26 +54,19 @@ onMounted(async () => {
           <span>Number of Results:</span><span>{{ results?.count }}</span>
         </div>
         <div class="hidden md:flex md:justify-between">
-          <span>Average Temperature:</span
-          ><span>{{ results?.avgTemp }} °C</span>
+          <span>Average Temperature:</span><span>{{ results?.avgTemp }} °C</span>
         </div>
       </div>
     </div>
     <div class="flex-grow"></div>
     <div class="flex flex-col items-center mb-4 md:mb-8">
-      <ArrowDownTrayIcon
-        class="cursor-pointer h-25 w-25 text-gray-800 stroke-current stroke-[1.25] mb-4"
-        @click="exportData"
-      />
-      <div
-        class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4"
-      >
+      <ArrowDownTrayIcon :class="[
+        'h-25 w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200',
+        canDownload ? 'cursor-pointer text-gray-800 hover:text-gray-600' : 'cursor-not-allowed text-gray-400'
+      ]" @click="canDownload ? exportData() : null" />
+      <div class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4">
         <label for="format" class="font-semibold">Download as</label>
-        <select
-          id="format"
-          v-model="format"
-          class="flex-1 border rounded bg-white px-3 py-2"
-        >
+        <select id="format" v-model="format" class="flex-1 border rounded bg-white px-3 py-2">
           <option value="csv">CSV File</option>
           <option value="xml">XML</option>
           <option value="xlsx">Excel (.xlsx)</option>
@@ -60,10 +74,9 @@ onMounted(async () => {
           <option value="geojson">GeoJSON</option>
         </select>
       </div>
-      <button
-        @click="exportData"
-        class="cursor-pointer w-11/12 md:w-9/12 py-3 bg-main text-white rounded-full font-semibold text-lg"
-      >
+      <button @click="exportData" :disabled="!canDownload"
+        class=" w-11/12 md:w-9/12 py-3 text-white rounded-full font-semibold text-lg"
+        :class="canDownload ? 'bg-main cursor-pointer' : 'bg-gray-300 cursor-not-allowed'">
         Download
       </button>
     </div>

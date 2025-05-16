@@ -1,4 +1,5 @@
 // src/composables/PermissionsLogic.ts
+import { all } from 'axios'
 import { ref } from 'vue'
 
 const userPermissions = ref<Set<string>>(new Set())
@@ -28,6 +29,10 @@ export function permissionsLogic() {
         return isSuperuser.value || userPermissions.value.has(perm)
     }
 
+    const allPermissions = () => {
+        return Array.from(userPermissions.value)
+    }
+
     const inGroup = (group: string) => {
         return userGroups.value.has(group)
     }
@@ -38,6 +43,7 @@ export function permissionsLogic() {
         inGroup,
         isSuperuser,
         loaded,
+        allPermissions,
     }
 }
 
