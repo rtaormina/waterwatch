@@ -4,7 +4,7 @@ test.describe('Temperature Tests', () => {
   let tempBox;
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost/measurements');
+    await page.goto('http://waterwatch/measurements');
     const checkboxes = page.getByTestId('metric-checkbox');
     tempBox = checkboxes.filter({ hasText: 'Temperature' });
     await tempBox.check();
@@ -76,7 +76,7 @@ test.describe('Temperature Tests', () => {
 
 test.describe('Record Measurement Page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http:localhost/measurements');
+    await page.goto('http:waterwatch/measurements');
   });
 
   test('should display the correct page title', async ({ page }) => {
