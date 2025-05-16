@@ -2,7 +2,7 @@ import Cookies from "universal-cookie";
 import { ref } from "vue";
 import { saveAs } from "file-saver";
 
-const format = ref<"csv" | "xml" | "xlsx" | "json" | "geojson">("csv");
+const format = ref<"csv" | "xml" | "json" | "geojson">("csv");
 const cookies = new Cookies();
 
 export { format };
@@ -21,7 +21,8 @@ export async function exportData() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const blob = await res.blob();
     saveAs(blob, `water-data.${format.value}`);
+    return true;
   } catch (e) {
-    alert("Export failed.");
+    return false;
   }
 }
