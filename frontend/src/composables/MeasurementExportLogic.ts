@@ -21,7 +21,8 @@ export async function exportData() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const blob = await res.blob();
     saveAs(blob, `water-data.${format.value}`);
+    return true;
   } catch (e) {
-    alert("Export failed.");
+    return false;
   }
 }

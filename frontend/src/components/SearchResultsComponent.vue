@@ -2,10 +2,19 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, defineProps } from "vue";
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
 import { exportData, format } from "@/composables/MeasurementExportLogic";
+import Modal from "./Modal.vue"
 
 const props = defineProps({ results: Object });
 const wrapperRef = ref<HTMLElement | null>(null);
 const totalWidth = ref(0);
+
+const showModal = ref(false);
+
+const getData = async () => {
+  const exportSuccessful = await exportData();
+  showModal.value = !exportSuccessful
+  console.log(showModal.value)
+};
 
 onMounted(async () => {
   // wait for DOM
@@ -42,7 +51,7 @@ onMounted(async () => {
     <div class="md:overflow-y-auto flex flex-col items-center mb-4 md:mb-8">
       <ArrowDownTrayIcon
         class="cursor-pointer md:min-h-12 md:min-w-12 max-h-25 max-w-25 text-gray-800 stroke-current stroke-[1.25] mb-4"
-        @click="exportData"
+        @click="getData"
       />
       <div
         class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4"
@@ -60,11 +69,22 @@ onMounted(async () => {
         </select>
       </div>
       <button
-        @click="exportData"
+        @click="getData"
         class="cursor-pointer w-11/12 md:w-9/12 py-3 bg-main text-white rounded-2xl font-semibold text-lg"
       >
         Download
       </button>
+      <Modal :visible="showModal" @close="showModal = false">
+        <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
+        <div class="flex items-center mt-4 gap-2">
+          <button
+            @click="showModal = false"
+            class="flex-1 bg-main text-white mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
+          >
+            Okay
+          </button>
+        </div>
+      </Modal>
     </div>
   </div>
 </template>
