@@ -209,7 +209,6 @@ const postDataCheck = () => {
       tempCheck = Math.round(+tempVal.value * 10) / 10;
     }
     if (tempCheck < 0 || tempCheck > 40) {
-      console.log("Temperature value out of range");
       showModal.value = true;
       modalMessage.value =
         "Are you sure you would like to submit the temperature value " +
@@ -276,7 +275,7 @@ const postDataCheck = () => {
           data-testid="select-water-source"
           id="water_source"
           v-model="formData.water_source"
-          class="self-center border border-gray-300 rounded px-3 py-2"
+          class="bg-white self-center border border-gray-300 rounded px-3 py-2"
         >
           <option disabled value="">Select a source</option>
           <option
@@ -336,7 +335,7 @@ const postDataCheck = () => {
               placeholder="thermometer"
               type="text"
               :class="[
-                'flex-grow border border-gray-300 rounded px-3 py-2 mt-1',
+                'flex-grow bg-white border border-gray-300 rounded px-3 py-2 mt-1',
                 errors.sensor ? 'border-red-500 border-2' : 'border-gray-300',
               ]"
             />
@@ -365,7 +364,7 @@ const postDataCheck = () => {
                 ref="tempRef"
                 placeholder="e.g. 24.3"
                 :class="[
-                  'flex-1 min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
+                  'flex-1 bg-white min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
                   errors.temp ? 'border-red-500 border-2' : 'border-gray-300',
                 ]"
               />
@@ -410,7 +409,7 @@ const postDataCheck = () => {
               type="number"
               ref="minsRef"
               :class="[
-                'w-16 rounded px-2 py-1',
+                'w-16 rounded px-2 py-1 bg-white',
                 errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
               ]"
             />
@@ -430,7 +429,7 @@ const postDataCheck = () => {
               type="number"
               ref="secRef"
               :class="[
-                'w-16 rounded px-2 py-1',
+                'w-16 rounded px-2 py-1 bg-white',
                 errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
               ]"
             />
