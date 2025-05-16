@@ -11,7 +11,7 @@ export function validateTemp(
   if (!/^-?\d+(\.\d+)?$/.test(val)) {
     errors.temp = "Enter a number";
     nextTick(() => tempRef?.value?.focus());
-  } else if (Number(val) > 100) {
+  } else if (Number(val) > 500) {
     errors.temp = "Temperature too large";
     nextTick(() => tempRef?.value?.focus());
   } else {
@@ -47,13 +47,11 @@ export function validateTime(
 ) {
   if (+time.mins > 59 || +time.mins < 0) {
     errors.mins = "Time must be between 0 and 59";
-    console.log("mins error");
   } else {
     errors.mins = null;
   }
   if (+time.sec > 59 && +time.sec < 0) {
     errors.sec = "Time must be between 0 and 59";
-    console.log("sec error");
   } else {
     errors.sec = null;
   }
