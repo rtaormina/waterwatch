@@ -23,3 +23,6 @@ class Location(models.Model):
     class Meta:
         managed = False
         db_table = "locations"
+        permissions = [
+            ("can_export", "can export measurements"),
+        ]
