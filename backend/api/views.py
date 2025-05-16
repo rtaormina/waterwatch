@@ -62,7 +62,14 @@ def login_view(request):
         return JsonResponse({"detail": "Invalid credentials."}, status=400)
 
     login(request, user)
-    return JsonResponse({"detail": "Successfully logged in."})
+    groups = list(request.user.groups.values_list("name", flat=True))
+
+    return JsonResponse(
+        {
+            "detail": "Successfully logged in.",
+            "groups": groups,
+        }
+    )
 
 
 @require_POST
