@@ -2,7 +2,20 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, defineProps } from "vue";
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
 import { exportData, format } from "@/composables/MeasurementExportLogic";
-import Modal from "./Modal.vue"
+import Modal from "./Modal.vue";
+import { permissionsLogic } from "@/composables/PermissionsLogic.ts";
+import { all } from "axios";
+
+const canDownload = ref(false);
+const perms = ref<string[]>([]);
+
+const {
+  fetchPermissions,
+  hasPermission,
+  inGroup,
+  loaded,
+  allPermissions,
+} = permissionsLogic();
 
 const props = defineProps({ results: Object });
 const wrapperRef = ref<HTMLElement | null>(null);
@@ -12,8 +25,8 @@ const showModal = ref(false);
 
 const getData = async () => {
   const exportSuccessful = await exportData();
-  showModal.value = !exportSuccessful
-  console.log(showModal.value)
+  showModal.value = !exportSuccessful;
+  console.log(showModal.value);
 };
 
 onMounted(async () => {
@@ -29,6 +42,11 @@ onMounted(async () => {
   onBeforeUnmount(() => {
     window.removeEventListener("resize", measure);
   });
+  await fetchPermissions();
+  canDownload.value = hasPermission("measurement_export.can_export");
+  perms.value = allPermissions();
+  console.log("canDownload", canDownload.value);
+  console.log("permissions", perms.value);
 });
 </script>
 
@@ -42,20 +60,22 @@ onMounted(async () => {
           <span>Number of Results:</span><span>{{ results?.count }}</span>
         </div>
         <div class="hidden md:flex md:justify-between">
-          <span>Average Temperature:</span
-          ><span>{{ results?.avgTemp }} °C</span>
+          <span>Average Temperature:</span><span>{{ results?.avgTemp }} °C</span>
         </div>
       </div>
     </div>
     <div class="flex-grow"></div>
     <div class="md:overflow-y-auto flex flex-col items-center mb-4 md:mb-8">
       <ArrowDownTrayIcon
-        class="cursor-pointer md:min-h-12 md:min-w-12 max-h-25 max-w-25 text-gray-800 stroke-current stroke-[1.25] mb-4"
-        @click="getData"
+        :class="[
+          'md:min-h-12 md:min-w-12 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200',
+          canDownload
+            ? 'cursor-pointer text-gray-800 hover:text-gray-600'
+            : 'cursor-not-allowed text-gray-400',
+        ]"
+        @click="canDownload ? getData() : null"
       />
-      <div
-        class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4"
-      >
+      <div class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4">
         <label for="format" class="font-semibold">Download as</label>
         <select
           id="format"
@@ -70,7 +90,9 @@ onMounted(async () => {
       </div>
       <button
         @click="getData"
-        class="cursor-pointer w-11/12 md:w-9/12 py-3 bg-main text-white rounded-2xl font-semibold text-lg"
+        :disabled="!canDownload"
+        class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
+        :class="canDownload ? 'bg-main cursor-pointer' : 'bg-gray-300 cursor-not-allowed'"
       >
         Download
       </button>
