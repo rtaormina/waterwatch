@@ -7,7 +7,7 @@ import {
   getLocateControl,
   initializeMap,
 } from "@/composables/LocationFallback";
-import L from "leaflet";
+import * as L from "leaflet";
 import { onMounted, useTemplateRef } from "vue";
 
 const location = defineModel<L.LatLng>("location", {

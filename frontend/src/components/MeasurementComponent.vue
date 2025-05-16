@@ -11,7 +11,7 @@ import {
   validateTime,
 } from "@/composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
-import L from "leaflet";
+import * as L from "leaflet";
 
 const cookies = new Cookies();
 const router = useRouter();

@@ -1,4 +1,4 @@
-import L from "leaflet";
+import * as L from "leaflet";
 import { Spinner, type SpinnerOptions } from "spin.js";
 import "spin.js/spin.css";
 import { toValue, watch, type MaybeRefOrGetter, type Ref } from "vue";
@@ -35,6 +35,7 @@ export function createMap(
   return L.map(element, {
     center: toValue(location),
     zoom: 4,
+    worldCopyJump: true,
   });
 }
 
@@ -55,11 +56,18 @@ type LocateControl = L.Control & {
   _endSpinner: () => void;
   _getIpLocation: () => void;
   _getGeoLocation: (map: L.Map) => void;
+  _handleLocationError: (e: L.ErrorEvent) => void;
+  _handleLocationFound: (ev: L.LocationEvent) => void;
+  map: L.Map | null;
+  container: HTMLElement | null;
+  icon: HTMLElement | null;
+  spinner: Spinner | null;
+  locateIcon: HTMLElement | null;
 };
 
 export function getLocateControl(
   location: Ref<L.LatLng>,
-  opts: L.ControlOptions
+  opts?: L.ControlOptions
 ): LocateControl {
   const LocateControl = L.Control.extend({
     container: null as HTMLElement | null,
@@ -145,11 +153,14 @@ export function getLocateControl(
     _handleLocationError: function (e: L.ErrorEvent) {
       this._endSpinner();
       console.error(e);
-      alert("Location could not be found, set a location manually.");
+      alert("Location could not be found, set a location manually." + e.message);
     },
     _handleLocationFound: function (ev: L.LocationEvent) {
       this._endSpinner();
       location.value = ev.latlng;
+      if (this.map) {
+        this.map.setView(ev.latlng, 14);
+      }
     },
 
     _getIpLocation: function () {
@@ -174,6 +185,7 @@ export function getLocateControl(
     onAdd: function (map: L.Map): HTMLElement {
       this.map = map;
 
+      // this.container should never be null as container is setup during initialize, but in case it is, we create a new container
       if (!this.container) {
         this.container = this._setupContainer();
       }
