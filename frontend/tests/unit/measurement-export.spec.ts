@@ -21,13 +21,8 @@ class MockResponse {
 }
 
 describe("exportData", () => {
-  let alertSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    // define alert on globalThis so we can spy on it
-    globalThis.alert = () => {};
-    alertSpy = vi.spyOn(globalThis, "alert").mockImplementation(() => {});
-
     // reset format
     format.value = "csv";
   });
@@ -44,29 +39,27 @@ describe("exportData", () => {
       Promise.resolve(new MockResponse(true, blob))
     ) as any;
 
-    await exportData();
+    const successful = await exportData();
 
+    expect(successful).toBe(true);
     expect(fileSaver.saveAs).toHaveBeenCalledOnce();
     expect(fileSaver.saveAs).toHaveBeenCalledWith(blob, "water-data.csv");
-    expect(alertSpy).not.toHaveBeenCalled();
   });
 
   it("alerts on non-ok response", async () => {
     global.fetch = vi.fn(() =>
       Promise.resolve(new MockResponse(false, new Blob(), 500))
     ) as any;
-    await exportData();
+    const successful = await exportData();
+    expect(successful).toBe(false);
     expect(fileSaver.saveAs).not.toHaveBeenCalled();
-    expect(alertSpy).toHaveBeenCalledOnce();
-    expect(alertSpy).toHaveBeenCalledWith("Export failed.");
   });
 
   it("alerts on fetch error", async () => {
     global.fetch = vi.fn(() => Promise.reject(new Error("Network"))) as any;
-    await exportData();
+    const successful = await exportData();
+    expect(successful).toBe(false);
     expect(fileSaver.saveAs).not.toHaveBeenCalled();
-    expect(alertSpy).toHaveBeenCalledOnce();
-    expect(alertSpy).toHaveBeenCalledWith("Export failed.");
   });
   it("incorporates format.value into the fetch URL", async () => {
     const blob = new Blob(["dummy"], { type: "text/csv" });
@@ -76,16 +69,20 @@ describe("exportData", () => {
     global.fetch = mockFetch as any;
 
     format.value = "csv";
-    await exportData();
+    let successful = await exportData();
+    expect(successful).toBe(true);
+    expect(mockFetch).toHaveBeenCalledOnce();
     expect(mockFetch).toHaveBeenLastCalledWith(
       "/api/measurements/?format=csv",
       expect.objectContaining({ method: "GET" })
     );
 
-    format.value = "xlsx";
-    await exportData();
+    format.value = "json";
+    successful = await exportData();
+    expect(successful).toBe(true);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
     expect(mockFetch).toHaveBeenLastCalledWith(
-      "/api/measurements/?format=xlsx",
+      "/api/measurements/?format=json",
       expect.objectContaining({ method: "GET" })
     );
   }),
@@ -95,8 +92,9 @@ describe("exportData", () => {
         .mockResolvedValue(new MockResponse(true, new Blob()));
       global.fetch = mockFetch as any;
 
-      await exportData();
-
+      const successful = await exportData();
+      expect(successful).toBe(true);
+      expect(mockFetch).toHaveBeenCalledOnce();
       expect(mockFetch).toHaveBeenCalledWith(
         "/api/measurements/?format=csv",
         expect.objectContaining({
@@ -105,22 +103,24 @@ describe("exportData", () => {
         })
       );
     }),
-    it("still calls saveAs when format is xlsx", async () => {
-      format.value = "xlsx";
+    it("still calls saveAs when format is xml", async () => {
+      format.value = "xml";
       const blob = new Blob(
         [
           /* binary data */
         ],
         {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          type: "application/xml",
         }
       );
       global.fetch = vi.fn(() =>
         Promise.resolve(new MockResponse(true, blob))
       ) as any;
 
-      await exportData();
-      expect(fileSaver.saveAs).toHaveBeenCalledWith(blob, "water-data.xlsx");
+      const successful = await exportData();
+      expect(successful).toBe(true);
+      expect(fileSaver.saveAs).toHaveBeenCalledOnce();
+      expect(fileSaver.saveAs).toHaveBeenCalledWith(blob, "water-data.xml");
     }),
     it("calls saveAs even if blob.type is incorrect", async () => {
       const blob = new Blob(["<html>oops</html>"], { type: "text/html" });
@@ -128,7 +128,9 @@ describe("exportData", () => {
         Promise.resolve(new MockResponse(true, blob))
       ) as any;
 
-      await exportData();
+      const successful = await exportData();
+      expect(successful).toBe(true);
+      expect(fileSaver.saveAs).toHaveBeenCalledOnce();
       expect(fileSaver.saveAs).toHaveBeenCalledWith(blob, "water-data.csv");
     }),
     it("supports multiple sequential calls", async () => {
@@ -139,8 +141,9 @@ describe("exportData", () => {
         .mockResolvedValueOnce(new MockResponse(true, blob1))
         .mockResolvedValueOnce(new MockResponse(true, blob2)) as any;
 
-      await exportData();
-      await exportData();
+      const successful = await exportData() && await exportData();
+      expect(successful).toBe(true);
+      expect(fileSaver.saveAs).toHaveBeenCalledTimes(2);
 
       expect(fileSaver.saveAs).toHaveBeenNthCalledWith(
         1,
@@ -166,8 +169,10 @@ describe("exportData", () => {
       // simulate delay
       await new Promise((r) => setTimeout(r, 50));
       resolveFetch(new MockResponse(true, new Blob(["delayed"])));
-      await promise;
+      const successful = await promise;
+      expect(successful).toBe(true);
 
+      expect(fileSaver.saveAs).toHaveBeenCalledOnce();
       expect(fileSaver.saveAs).toHaveBeenCalled();
     }),
     it("handles large CSV payloads", async () => {
@@ -177,7 +182,8 @@ describe("exportData", () => {
         Promise.resolve(new MockResponse(true, blob))
       ) as any;
 
-      await exportData();
+      const successful = await exportData();
+      expect(successful).toBe(true);
       expect(fileSaver.saveAs).toHaveBeenCalled();
     });
 });

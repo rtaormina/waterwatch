@@ -1,11 +1,8 @@
 """Create views associated with measurement export."""
 
-import csv
-import json
-
-from django.http import HttpResponse, JsonResponse
 from measurements.models import Measurement
 
+from .factories import get_strategy
 from .serializers import MeasurementSerializer
 
 
@@ -36,23 +33,8 @@ def export_all_view(request):
     #     return JsonResponse({"detail": "You must be a researcher or admin to export all measurements."}, status=400)
 
     fmt = request.GET.get("format", "json").lower()
+    qs = Measurement.objects.all()
+    data = MeasurementSerializer(qs, many=True).data
 
-    measurements = Measurement.objects.all()
-    data = MeasurementSerializer(measurements, many=True).data
-
-    if fmt == "csv":
-        response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = 'attachment; filename="measurements.csv"'
-        writer = csv.writer(response)
-
-        headers = list(data[0].keys()) if data else []
-        writer.writerow(headers)
-
-        for item in data:
-            # JSON-encode the metrics list
-            item["metrics"] = json.dumps(item.get("metrics", []))
-            writer.writerow(item.values())
-
-        return response
-
-    return JsonResponse({"detail": "Successfully retrieved all measurements.", "data": data}, status=200, safe=False)
+    strategy = get_strategy(fmt)
+    return strategy.export(data)

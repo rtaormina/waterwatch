@@ -1,7 +1,7 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { computed } from "vue";
-import NavBar from '@/components/NavBar.vue';
+import NavBar from "@/components/NavBar.vue";
 import SearchBar from "@/components/SearchBarComponent.vue";
 import FilterPanel from "@/components/FilterPanelComponent.vue";
 import SearchResults from "@/components/SearchResultsComponent.vue";
@@ -74,7 +74,7 @@ function applyPreset(presetIndex) {
   <div class="h-screen bg-white flex flex-col">
     <NavBar />
     <div
-      class="w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow md:overflow-hidden relative z-10"
+      class="w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow md:overflow-y-auto relative z-10"
     >
       <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
 
@@ -85,9 +85,7 @@ function applyPreset(presetIndex) {
           <div class="mb-4 shrink-0">
             <SearchBar v-model:query="query" @search="onSearch" />
           </div>
-          <div
-            class="flex-grow bg-light min-h-0 mb-[14px]"
-          >
+          <div class="flex-grow bg-light min-h-0 mb-[14px]">
             <FilterPanel @search="onSearch" />
           </div>
         </div>
