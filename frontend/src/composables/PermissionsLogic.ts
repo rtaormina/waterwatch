@@ -1,11 +1,26 @@
 // src/composables/PermissionsLogic.ts
-import { all } from 'axios'
 import { ref } from 'vue'
 
 const userPermissions = ref<Set<string>>(new Set())
 const userGroups = ref<Set<string>>(new Set())
 const isSuperuser = ref(false)
 const loaded = ref(false)
+
+/*
+========  Usage example ========
+
+import { permissionsLogic } from '@/composables/PermissionsLogic.ts'
+const {
+    fetchPermissions,
+    hasPermission,
+    inGroup,
+    loaded
+} = permissionsLogic()
+onMounted(async () => {
+  await fetchPermissions()
+})
+*/
+
 
 export function permissionsLogic() {
 
@@ -46,17 +61,3 @@ export function permissionsLogic() {
         allPermissions,
     }
 }
-
-//Usage example
-// import { permissionsLogic } from '@/composables/PermissionsLogic.ts'
-//
-// const {
-//     fetchPermissions,
-//     hasPermission,
-//     inGroup,
-//     loaded
-// } = permissionsLogic()
-//
-// onMounted(async () => {
-//   await fetchPermissions()
-// })
