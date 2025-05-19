@@ -20,7 +20,7 @@ build_backend_image:
     - changes:
         - requirements/**/*
         - dockerfile.backend
-        - .gitlab-ci.yml
+        # - .gitlab-ci.yml
   # Log in to Docker registry and build the image
   script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
@@ -43,9 +43,9 @@ backend_unit_tests:
   stage: testing
   image: $CI_REGISTRY_IMAGE:v0.1-backend
   script:
-    - python -m coverage run --source='backend/' backend/manage.py test
-    - python -m coverage report
-    - python -m coverage xml
+    - coverage run --source='backend/' backend/manage.py test
+    - coverage report
+    - coverage xml
   coverage: '/TOTAL.*\s+(\d+%)$/'
   artifacts:
     # https://docs.gitlab.com/ee/ci/yaml/index.html#artifactsexpire_in
