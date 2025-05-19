@@ -21,7 +21,6 @@ const props = defineProps({
   },
 });
 
-
 const mapElement = useTemplateRef("mapElement");
 
 onMounted(() => {

@@ -189,7 +189,9 @@ const postData = () => {
   })
     .then((res) => {
       if (res.status === 201) {
-        router.push({ name: "Home" });
+        router.push({ name: "Map" });
+        showModal.value = false;
+        clear();
       } else {
         console.error("error with adding measurement");
       }
