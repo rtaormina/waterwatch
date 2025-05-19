@@ -51,6 +51,7 @@ class MeasurementTest(TestCase):
 
     def test_measurement_timezone(self):
         """Test timezone data persistance."""
+        self.timezone1.save()
         retrieved_meas1 = Measurement.objects.get(id=self.timezone1.id)
 
         assert retrieved_meas1.timestamp == self.timezone1.timestamp
