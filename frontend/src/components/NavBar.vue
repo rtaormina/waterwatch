@@ -60,12 +60,12 @@ onUnmounted(() => {
             <!-- Menu items -->
             <div class="flex flex-col justify-right space-y-6 text-4xl">
               <div v-if="page == 'Map'" class="text-white  underline">
-                <a href="/map">
+                <a href="/">
                   Map
                 </a>
               </div>
               <div v-else>
-                <a href="/map" class="text-white hover:underline">
+                <a href="/" class="text-white hover:underline">
                   Map
                 </a>
               </div>
@@ -152,7 +152,7 @@ onUnmounted(() => {
       <div>WATERWATCH</div>
       <div class="flex flex-row space-x-6">
         <div class="border-b-2" :class="page == 'Map' ? 'border-white' : 'border-transparent'">
-          <a href="/map" class="text-white text-2xl hover:border-white">
+          <a href="/" class="text-white text-2xl hover:border-white">
             Map
           </a>
         </div>
