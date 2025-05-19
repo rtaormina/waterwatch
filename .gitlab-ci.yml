@@ -20,12 +20,12 @@ build_backend_image:
     - changes:
         - requirements/**/*
         - dockerfile.backend
-        # - .gitlab-ci.yml
+        - .gitlab-ci.yml
   # Log in to Docker registry and build the image
   script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v0.1-backend .
-    - docker push $CI_REGISTRY_IMAGE:v0.1-backend
+    - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v0.2-backend .
+    - docker push $CI_REGISTRY_IMAGE:v0.2-backend
 # Linting & Formatting
 lint:
   stage: lint
@@ -41,11 +41,11 @@ lint:
 # Unit Tests - Backend
 backend_unit_tests:
   stage: testing
-  image: $CI_REGISTRY_IMAGE:v0.1-backend
+  image: $CI_REGISTRY_IMAGE:v0.2-backend
   script:
-    - coverage run --source='backend/' backend/manage.py test
-    - coverage report
-    - coverage xml
+    - python -m coverage run --source='backend/' backend/manage.py test
+    - python -m coverage report
+    - python -m coverage xml
   coverage: '/TOTAL.*\s+(\d+%)$/'
   artifacts:
     # https://docs.gitlab.com/ee/ci/yaml/index.html#artifactsexpire_in
@@ -55,7 +55,7 @@ backend_unit_tests:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: backend/coverage.xml
+        path: coverage.xml
   # Run only if files in folder backend changed
   rules:
     - changes:
