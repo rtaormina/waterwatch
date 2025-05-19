@@ -232,9 +232,9 @@ const postDataCheck = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-white p-4 md:p-8">
+  <div class="bg-white">
     <h1
-      class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto"
+      class="bg-main text-lg font-bold text-white rounded-b-lg p-4 mb-6 shadow max-w-screen-md mx-auto"
     >
       Record Measurement
     </h1>

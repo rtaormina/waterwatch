@@ -11,7 +11,7 @@ const routes = [
     },
   },
   {
-    path: "/",
+    path: "/login",
     name: "Login",
     component: () => import("@/components/LoginComponent.vue"),
     meta: {
@@ -19,7 +19,7 @@ const routes = [
     },
   },
   {
-    path: "/map",
+    path: "/",
     name: "Map",
     component: () => import("@/views/MapView.vue"),
     meta: {
