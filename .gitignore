@@ -19,6 +19,10 @@ docs/_build/
 # Ruff #
 .ruff_cache
 
+# Coverage #
+coverage
+.coverage
+
 # Environments #
 .env
 .venv

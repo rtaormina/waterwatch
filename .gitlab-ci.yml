@@ -1,12 +1,12 @@
 workflow:
- rules:
-   - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-     when: always
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: always
 
 stages:
- - build_image
- - lint
- - testing
+  - build_image
+  - lint
+  - testing
 #  - e2e_tests
 
 # Build Docker Image for Backend
@@ -28,26 +28,38 @@ build_backend_image:
     - docker push $CI_REGISTRY_IMAGE:v0.1-backend
 # Linting & Formatting
 lint:
- stage: lint
- image: ghcr.io/astral-sh/ruff:0.11.8-alpine
- script:
-  - ruff check
-  - ruff format --diff
- # Run only if files in folder backend changed
- rules:
-   - changes:
-       - backend/**/*
+  stage: lint
+  image: ghcr.io/astral-sh/ruff:0.11.8-alpine
+  script:
+    - ruff check
+    - ruff format --diff
+  # Run only if files in folder backend changed
+  rules:
+    - changes:
+        - backend/**/*
 
 # Unit Tests - Backend
 backend_unit_tests:
- stage: testing
- image: $CI_REGISTRY_IMAGE:v0.1-backend
- script:
-   - python backend/manage.py test
- # Run only if files in folder backend changed
- rules:
-   - changes:
-       - backend/**/*
+  stage: testing
+  image: $CI_REGISTRY_IMAGE:v0.1-backend
+  script:
+    - python -m coverage run --source='backend/' backend/manage.py test
+    - python -m coverage report
+    - python -m coverage xml
+  coverage: '/TOTAL.*\s+(\d+%)$/'
+  artifacts:
+    # https://docs.gitlab.com/ee/ci/yaml/index.html#artifactsexpire_in
+    expire_in: 1 week
+
+    # https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+  # Run only if files in folder backend changed
+  rules:
+    - changes:
+        - backend/**/*
 
 # Unit Tests - Frontend
 .frontend_test: &frontend_test_setup
@@ -63,12 +75,21 @@ frontend_unit_tests:
   <<: *frontend_test_setup
   stage: testing
   script:
-    - npm run test
+    - npm run test:coverage
+  coverage: '/All files(?:[^|]*\|){4}\s*(\S+)/'
+  artifacts:
+    # https://docs.gitlab.com/ee/ci/yaml/index.html#artifactsexpire_in
+    expire_in: 1 week
+
+    # https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: frontend/coverage/cobertura-coverage.xml
   # Run only if files in folder frontend changed
   rules:
     - changes:
         - frontend/**/*
-
 # E2E Tests - Frontend
 # frontend_e2e_tests:
 #   <<: *frontend_test_setup
