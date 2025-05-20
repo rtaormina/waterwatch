@@ -1,6 +1,11 @@
 <template>
   <div class="w-full h-screen flex flex-col">
     <NavBar />
+
+  <CampaignBannerComponent
+      v-if="campaigns.length"
+    :campaigns="campaigns"/>
+
     <div class="w-full h-full flex flex-row">
       <div
         class="left-0 bottom-0 w-3/5 relative"
@@ -35,10 +40,35 @@
 import { PlusCircleIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import HexMap from "@/components/HexMap.vue";
 import NavBar from "@/components/NavBar.vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
-
+import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 
 const addingMeasurement = ref(false);
+const campaignActive = ref(false);
+const campaigns = ref([])
+onMounted(async () => {
+  const now = new Date().toISOString()
+
+  try {
+    const now = new Date().toISOString()
+    const res = await fetch(`/api/campaigns/active/?datetime=${encodeURIComponent(now)}`, {
+      method: 'GET',
+      credentials: 'same-origin',
+    })
+
+    if (!res.ok) throw new Error(`Status: ${res.status}`)
+
+    const data = await res.json()
+    if (Array.isArray(data.campaigns) && data.campaigns.length > 0) {
+      campaigns.value = data.campaigns
+    } else {
+      campaigns.value = []
+    }
+  } catch (err) {
+    console.error('Error fetching active campaigns:', err)
+    campaigns.value = []
+  }
+})
 
 </script>
