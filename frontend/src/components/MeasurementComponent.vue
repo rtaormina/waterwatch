@@ -94,31 +94,6 @@ function clear() {
   locationMode.value = null;
 }
 
-function getLocation() {
-  if (!navigator.geolocation) {
-    locAvail.value = false;
-    return;
-  }
-  locating.value = true;
-  locAvail.value = true;
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      userLoc.value = L.latLng(pos.coords.latitude, pos.coords.longitude);
-      locAvail.value = true;
-      locating.value = false;
-    },
-    (err) => {
-      locAvail.value = true;
-      locating.value = false;
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0,
-    }
-  );
-}
-
 defineProps<{
   modelValue?: string;
 }>();

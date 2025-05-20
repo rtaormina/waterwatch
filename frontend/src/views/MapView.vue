@@ -45,30 +45,51 @@ import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 
 const addingMeasurement = ref(false);
-const campaignActive = ref(false);
 const campaigns = ref([])
-onMounted(async () => {
+
+const fetchCampaigns = async (lat: number, lng: number) => {
   const now = new Date().toISOString()
 
-  try {
-    const now = new Date().toISOString()
-    const res = await fetch(`/api/campaigns/active/?datetime=${encodeURIComponent(now)}`, {
+  const res = await fetch(
+    `/api/campaigns/active/?datetime=${encodeURIComponent(now)}&lat=${lat}&lng=${lng}`,
+    {
       method: 'GET',
       credentials: 'same-origin',
+    }
+  )
+
+  if (!res.ok) throw new Error(`Status: ${res.status}`)
+
+  const data = await res.json()
+  campaigns.value = data.campaigns || []
+}
+
+const getLocation = (): Promise<GeolocationPosition> => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      reject(new Error('Geolocation not supported'))
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    })
+  })
+}
+
+onMounted(async () => {
+    getLocation().then((position) => {
+        const lat = position.coords.latitude
+        const lng = position.coords.longitude
+
+        fetchCampaigns(lat, lng)
+    }).catch((err) => {
+            console.error('Error getting location or fetching campaigns:', err)
+    campaigns.value = []
     })
 
-    if (!res.ok) throw new Error(`Status: ${res.status}`)
-
-    const data = await res.json()
-    if (Array.isArray(data.campaigns) && data.campaigns.length > 0) {
-      campaigns.value = data.campaigns
-    } else {
-      campaigns.value = []
-    }
-  } catch (err) {
-    console.error('Error fetching active campaigns:', err)
-    campaigns.value = []
-  }
 })
 
 </script>
