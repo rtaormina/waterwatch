@@ -19,17 +19,17 @@ Requirements before install:
 
 Linux:
 ```bash
-docker compose up -d
+./setup.sh
 ```
 After installation the project will run at [localhost](http://127.0.0.1/).
 
-> [!note]
-> The first time after running execute the following to setup the database and create an admin user:
-> ```bash
-> docker exec backend python manage.py makemigrations
-> docker exec backend python manage.py migrate
-> docker exec -it backend python manage.py createsuperuser
-> ```
+There are two standard users
+Admin
+    -username: admin
+    -password: admin
+Researcher
+    -username: researcher
+    -password: researcher
 
 ### Production
 TODO
