@@ -3,17 +3,17 @@ import { createRouter, createWebHistory } from "vue-router";
 
 const routes = [
   {
-    path: "/home",
-    name: "Home",
-    component: () => import("@/views/HomeView.vue"),
+    path: "/login",
+    name: "Login",
+    component: () => import("@/components/LoginComponent.vue"),
     meta: {
       requiresAuth: false,
     },
   },
   {
     path: "/",
-    name: "Login",
-    component: () => import("@/components/LoginComponent.vue"),
+    name: "Map",
+    component: () => import("@/views/MapView.vue"),
     meta: {
       requiresAuth: false,
     },
@@ -42,7 +42,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
-  if (to.meta.requiresAuth) {
+  if (to.meta.requiresAuth && !cookies.get("sessionid")) {
     return { name: "Login" };
   }
 });

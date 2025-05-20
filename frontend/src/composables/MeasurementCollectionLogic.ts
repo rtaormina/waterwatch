@@ -1,4 +1,5 @@
 import { nextTick, type Ref } from "vue";
+import { DateTime } from "luxon";
 
 export function validateTemp(
   val: string,
@@ -133,13 +134,16 @@ export function createPayload(
     const ss = String(secs).padStart(2, "0");
     temperature.time_waited = `00:${mm}:${ss}`;
   }
-
+  const longitudeRounded = longitude !== undefined ? Number(longitude.toFixed(3)) : undefined;
+  const latitudeRounded = latitude !== undefined ? Number(latitude.toFixed(3)) : undefined;
+  const localISO = DateTime.local().toISO();
   return {
+    timestamp_local: localISO,
     location: {
       type: "Point",
-      coordinates: [longitude, latitude],
+      coordinates: [longitudeRounded, latitudeRounded],
     },
     water_source: waterSource,
-    temperature: temperature,
+    temperature: temperature
   };
 }

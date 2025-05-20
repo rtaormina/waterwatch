@@ -6,6 +6,7 @@ import {
 } from "../../src/composables/MeasurementCollectionLogic.ts";
 import { vi, describe, it, expect } from "vitest";
 import { nextTick, ref, type Ref } from "vue";
+import { DateTime } from "luxon";
 
 describe("validateTemp Tests", () => {
   it("sets an error and focuses input if val is not a number", async () => {
@@ -81,6 +82,12 @@ describe("onSensorInput Tests", () => {
 
 describe("createPayload Tests", () => {
   it("creates correct celsius payload", () => {
+    vi.spyOn(DateTime, "local").mockImplementation(
+      () =>
+        DateTime.fromISO("2025-01-01T12:00:00.000-00:00").setZone(
+          "America/New_York"
+        ) as DateTime<true>
+    );
     expect(
       createPayload(
         "C",
@@ -93,6 +100,7 @@ describe("createPayload Tests", () => {
         110
       )
     ).toStrictEqual({
+      timestamp_local: "2025-01-01T07:00:00.000-05:00",
       location: {
         type: "Point",
         coordinates: [100, 110],
@@ -105,7 +113,45 @@ describe("createPayload Tests", () => {
       },
     });
   }),
+    it("rounds location to 3 decimals", () => {
+      vi.spyOn(DateTime, "local").mockImplementation(
+        () =>
+          DateTime.fromISO("2025-01-01T13:00:00.000-00:00").setZone(
+            "America/New_York"
+          ) as DateTime<true>
+      );
+      expect(
+        createPayload(
+          "C",
+          ["temperature"],
+          { sensor: "thermometer", value: 0, time_waited: "" },
+          "15.5",
+          { mins: "1", sec: "15" },
+          "well",
+          100.3423,
+          110.23491
+        )
+      ).toStrictEqual({
+        timestamp_local: "2025-01-01T08:00:00.000-05:00",
+        location: {
+          type: "Point",
+          coordinates: [100.342, 110.235],
+        },
+        water_source: "well",
+        temperature: {
+          sensor: "thermometer",
+          value: 15.5,
+          time_waited: "00:01:15",
+        },
+      });
+    }),
     it("creates correct fahrenheit payload", () => {
+      vi.spyOn(DateTime, "local").mockImplementation(
+        () =>
+          DateTime.fromISO("2025-01-01T13:00:00.000-00:00").setZone(
+            "America/New_York"
+          ) as DateTime<true>
+      );
       expect(
         createPayload(
           "F",
@@ -118,6 +164,8 @@ describe("createPayload Tests", () => {
           110
         )
       ).toStrictEqual({
+        timestamp_local: "2025-01-01T08:00:00.000-05:00",
+
         location: {
           type: "Point",
           coordinates: [100, 110],
@@ -131,6 +179,12 @@ describe("createPayload Tests", () => {
       });
     }),
     it("pads minutes and seconds", () => {
+      vi.spyOn(DateTime, "local").mockImplementation(
+        () =>
+          DateTime.fromISO("2025-01-01T13:00:00.000-00:00").setZone(
+            "America/New_York"
+          ) as DateTime<true>
+      );
       expect(
         createPayload(
           "F",
@@ -143,6 +197,8 @@ describe("createPayload Tests", () => {
           110
         )
       ).toStrictEqual({
+        timestamp_local: "2025-01-01T08:00:00.000-05:00",
+
         location: {
           type: "Point",
           coordinates: [100, 110],
