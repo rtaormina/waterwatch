@@ -82,6 +82,12 @@ docker exec backend python manage.py test
     docker stop {container_name}
     docker rm {container_name}
     ```
+- If bash cannot find setup.sh, run the following:
+    ```bash
+    sudo apt-get install dos2unix
+    dos2unix setup.sh
+    ./setup.sh
+    ```
 
 ## Contributing
 To avoid having to run individual installation commands, run:
