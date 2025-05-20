@@ -4,6 +4,7 @@ from campaigns.models import Campaign
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
 from django.db import models
+from django.utils import timezone
 
 
 # Create your models here.
@@ -32,6 +33,7 @@ class Measurement(models.Model):
         "well": "well",
     }
     timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp_local = models.DateTimeField(default=timezone.now)
     location = geomodels.PointField(srid=4326)
     flag = models.BooleanField(default=True)
     water_source = models.CharField(max_length=255, choices=list(water_source_choices.items()))

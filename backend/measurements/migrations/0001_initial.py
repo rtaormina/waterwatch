@@ -7,35 +7,71 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('campaigns', '0001_initial'),
+        ("campaigns", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Measurement',
+            name="Measurement",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('location', django.contrib.gis.db.models.fields.PointField(srid=4326)),
-                ('flag', models.BooleanField(default=False)),
-                ('water_source', models.CharField(choices=[('well', 'well')], max_length=255)),
-                ('campaigns', models.ManyToManyField(blank=True, to='campaigns.campaign')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("location", django.contrib.gis.db.models.fields.PointField(srid=4326)),
+                ("flag", models.BooleanField(default=False)),
+                (
+                    "water_source",
+                    models.CharField(choices=[("well", "well")], max_length=255),
+                ),
+                (
+                    "campaigns",
+                    models.ManyToManyField(blank=True, to="campaigns.campaign"),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Temperature',
+            name="Temperature",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sensor', models.CharField(max_length=255)),
-                ('value', models.DecimalField(decimal_places=1, max_digits=4)),
-                ('time_waited', models.DurationField()),
-                ('measurement', models.OneToOneField(default=None, on_delete=django.db.models.deletion.CASCADE, to='measurements.measurement')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("sensor", models.CharField(max_length=255)),
+                ("value", models.DecimalField(decimal_places=1, max_digits=4)),
+                ("time_waited", models.DurationField()),
+                (
+                    "measurement",
+                    models.OneToOneField(
+                        default=None,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="measurements.measurement",
+                    ),
+                ),
             ],
         ),
     ]

@@ -154,7 +154,10 @@ class GeoJsonExport(ExportStrategy):
                     "properties": {k: v for k, v in item.items() if k != "location"},
                     "geometry": {
                         "type": "Point",
-                        "coordinates": [item["location"]["longitude"], item["location"]["latitude"]],
+                        "coordinates": [
+                            item["location"]["longitude"],
+                            item["location"]["latitude"],
+                        ],
                     },
                 }
             )

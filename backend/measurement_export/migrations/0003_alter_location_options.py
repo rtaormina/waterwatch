@@ -4,14 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('measurement_export', '0002_alter_location_table'),
+        ("measurement_export", "0002_alter_location_table"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='location',
-            options={'managed': False, 'permissions': [('can_export', 'can export measurements')]},
+            name="location",
+            options={
+                "managed": False,
+                "permissions": [("can_export", "can export measurements")],
+            },
         ),
     ]
