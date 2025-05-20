@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-VOLUME=$(docker volume ls -f name=waterwatch_waterwatch_data --format '{{.Name}}')
+VOLUME=$(docker volume ls -f name=waterwatch_data --format '{{.Name}}')
 if [ -z "$VOLUME" ];
 then
     echo "Volume does not exist, creating a new one and importing data."

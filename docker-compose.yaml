@@ -75,4 +75,5 @@ services:
 
 volumes:
   waterwatch_data:
+    name: waterwatch_data
     driver: local
