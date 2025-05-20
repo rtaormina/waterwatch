@@ -1,5 +1,6 @@
 """Serializers for Measurement and Temperature models."""
 
+from django.contrib.gis.geos import Point
 from measurements.models import Measurement, Temperature
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -67,8 +68,12 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         """
         # Set flag if temperature is out of range
         temperature_data = data.get("temperature")
-        if temperature_data and (temperature_data.get("value") < 0 or temperature_data.get("value") > 40.0):
+        if temperature_data and temperature_data.get("value") > 40.0:
             data["flag"] = False
+
+        location = data.get("location")
+        if isinstance(location, Point):
+            data["location"] = Point(round(location.x, 3), round(location.y, 3), srid=location.srid)
 
         # Make water_source lowercase
         data["water_source"] = data["water_source"].lower()
