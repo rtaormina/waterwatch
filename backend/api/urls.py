@@ -14,4 +14,5 @@ urlpatterns = [
     path("home/", views.index_view, name="index"),
     path("user-permissions/", views.user_permissions_view, name="user-permissions"),
     path("measurements/", include("measurements.urls")),
+    path("campaigns/", include("campaigns.urls")),
 ]
