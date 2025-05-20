@@ -35,6 +35,14 @@ const routes = [
       requiresAuth: true,
     },
   },
+  {
+    path: "/tutorial",
+    name: "Tutorial",
+    component: () => import("@/views/TutorialView.vue"),
+    meta: {
+      requiresAuth: false,
+    },
+  },
 ];
 
 const router = createRouter({
