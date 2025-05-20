@@ -1,7 +1,5 @@
-## Summary of Changes
+**Summary of Changes**
 - Change and related file
 
-## Issues Related
+**Issues Related**
 #issue
-
-%{all_commits}

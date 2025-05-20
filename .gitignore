@@ -1,0 +1,31 @@
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+
+# Vue #
+node_modules
+dist
+dist-ssr
+*.local
+
+# POSTGRESQL #
+database
+
+# Spinx documentation #
+docs/_build/
+
+# Ruff #
+.ruff_cache
+
+# Coverage #
+coverage/
+.coverage
+coverage.xml
+
+# Environments #
+.env
+.venv
+env/
+venv/
