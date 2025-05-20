@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
         # === Assign Permissions to Researcher Group ===
         group = Group.objects.get(name="researcher")
-        perms = Permission.objects.filter(codename__in=["measurement_export.can_export"])
+        perms = Permission.objects.filter(codename__in=["can_export"])
         group.permissions.add(*perms)
 
         # === Create Researcher User and Assign Group ===
