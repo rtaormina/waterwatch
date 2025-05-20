@@ -3,6 +3,7 @@ import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
 import Modal from "./Modal.vue";
 import { ref, defineProps, onMounted, onUnmounted } from "vue";
+import { formatDateTime, updateCountdown } from "@/composables/CampaignLogic";
 
 const cookies = new Cookies();
 const router = useRouter();
@@ -23,32 +24,16 @@ const timeLeft = ref<string>("");
 const hasEnded = ref<boolean>(false);
 let timer: number | undefined;
 
-function updateCountdown(endTime: string) {
-  const now = new Date().getTime();
-  const end = new Date(endTime).getTime();
-  const diffMs = now - end;
-
-  if (diffMs > 0) {
-    hasEnded.value = true;
-    timeLeft.value = "Campaign has ended!";
-    clearInterval(timer);
-    return;
-  }
-
-  const totalSeconds = Math.floor(diffMs / 1000);
-  const days = Math.abs(Math.floor(totalSeconds / (3600 * 24)));
-  const hours = Math.abs(Math.floor((totalSeconds % (3600 * 24)) / 3600));
-  const minutes = Math.abs(Math.floor((totalSeconds % 3600) / 60));
-  const seconds = Math.abs(totalSeconds % 60);
-
-  timeLeft.value = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-}
 
 onMounted(() => {
   if (props.campaigns.length > 0) {
-    updateCountdown(props.campaigns[0].end_time);
+    const output = updateCountdown(props.campaigns[0].end_time);
+    hasEnded.value = output.hasEnded;
+    timeLeft.value = output.timeLeft;
     timer = window.setInterval(() => {
-      updateCountdown(props.campaigns[0].end_time);
+      const output = updateCountdown(props.campaigns[0].end_time);
+      hasEnded.value = output.hasEnded;
+      timeLeft.value = output.timeLeft;
     }, 1000);
   }
 });
@@ -56,21 +41,6 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(timer);
 });
-
-function formatDateTime(isoString: string): string {
-  const date = new Date(isoString);
-
-  const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  };
-
-  return date.toLocaleString(undefined, options);
-}
 </script>
 
 <template>
