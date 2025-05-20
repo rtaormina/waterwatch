@@ -1,8 +1,10 @@
 """Create views associated with measurement export."""
 
+from django.http import JsonResponse
 from measurements.models import Measurement
 
 from .factories import get_strategy
+from .models import Location
 from .serializers import MeasurementSerializer
 
 
@@ -38,3 +40,30 @@ def export_all_view(request):
 
     strategy = get_strategy(fmt)
     return strategy.export(data)
+
+
+def location_list(_request):
+    """Get a list of countries by continent.
+
+    Returns JSON of:
+    {
+      "Africa":   ["Algeria", "Egypt", …],
+      "Asia":     ["China",  "India", …],
+      …
+    }
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object.
+
+    Returns
+    -------
+    JsonResponse
+        JSON response containing a dictionary of continents and their respective countries.
+    """
+    qs = Location.objects.values_list("continent", "country_name").order_by("continent", "country_name")
+    result = {}
+    for continent, country in qs:
+        result.setdefault(continent, []).append(country)
+    return JsonResponse(result)

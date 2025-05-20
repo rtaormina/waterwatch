@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, nextTick, defineProps } from "vue";
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
-import { exportData, format } from "@/composables/MeasurementExportLogic";
+import { exportData, format } from "@/composables/ExportDownloadLogic";
 import Modal from "./Modal.vue";
 import { permissionsLogic } from "@/composables/PermissionsLogic.ts";
 import { all } from "axios";

@@ -1,94 +1,139 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from "vue";
-import { PlusIcon, MinusIcon } from "@heroicons/vue/24/solid";
-import Multiselect from "vue-multiselect";
-import "vue-multiselect/dist/vue-multiselect.min.css";
+import {
+  ref,
+  reactive,
+  watch,
+  onMounted,
+  onUpdated,
+  onBeforeUnmount,
+} from "vue";
+import {
+  PlusIcon,
+  MinusIcon,
+  ChevronDownIcon,
+  CheckIcon,
+} from "@heroicons/vue/24/solid";
+import { useLocations } from "@/composables/ExportLocationLogic";
+import { temp, tempRangeValid } from "@/composables/ExportTemperatureLogic";
+import {
+  dateRange,
+  dateRangeValid,
+  times,
+  slotsNonOverlapping,
+  allSlotsValid,
+  slotValid,
+  addSlot,
+  removeSlot,
+} from "@/composables/ExportTimeLogic";
 
 const emit = defineEmits(["search"]);
+const filterPanelRef = ref<HTMLElement | null>(null);
+const scrollableAreaRef = ref<HTMLElement | null>(null);
 
-type ContinentName =
-  | "Africa"
-  | "Antarctica"
-  | "Asia"
-  | "Australia"
-  | "Europe"
-  | "North America"
-  | "South America";
+const {
+  continents,
+  countriesByContinent,
+  selectedContinents,
+  selectedCountries,
+  allCountries,
+  continentPlaceholder,
+  countryPlaceholder,
+  toggleContinent,
+  toggleCountry,
+  toggleAllContinents,
+  toggleAllCountries,
+  formatContinentSelectionText,
+  formatCountrySelectionText,
+} = useLocations();
 
-const continentOptions = [
-  "Africa",
-  "Antarctica",
-  "Asia",
-  "Australia",
-  "Europe",
-  "North America",
-  "South America",
-] as const;
+// Dropdown state
+const continentDropdownOpen = ref(false);
+const countryDropdownOpen = ref(false);
+const continentWrapperRef = ref<HTMLElement | null>(null);
+const countryWrapperRef = ref<HTMLElement | null>(null);
 
-type CountryMap = Record<ContinentName, string[]>;
-const countryOptions: CountryMap = {
-  Africa: ["Algeria", "Egypt", "Kenya", "Nigeria", "South Africa"],
-  Antarctica: ["Antarctic Treaty Area"],
-  Asia: ["China", "India", "Japan", "Russia", "South Korea"],
-  Australia: ["Australia", "New Zealand", "Papua New Guinea"],
-  Europe: ["France", "Germany", "Italy", "Spain", "United Kingdom"],
-  "North America": ["Canada", "Mexico", "United States"],
-  "South America": ["Argentina", "Brazil", "Chile", "Colombia", "Peru"],
+// Refs for click outside detection
+const dropdownMaxHeight = ref(250);
+const calculateDropdownHeight = () => {
+  if (scrollableAreaRef.value) {
+    const scrollableHeight = scrollableAreaRef.value.clientHeight;
+    dropdownMaxHeight.value = Math.max(Math.floor(scrollableHeight * 0.5), 120);
+  }
 };
 
-// v-model arrays for multi‑select
-const selectedContinents = ref<ContinentName[]>([]);
-const selectedCountries = ref<string[]>([]);
+// Handle clicks outside the dropdowns
+const handleClickOutside = (event: MouseEvent) => {
+  // Only process if we have a click outside our components
+  if (
+    continentWrapperRef.value &&
+    !continentWrapperRef.value.contains(event.target as Node) &&
+    countryWrapperRef.value &&
+    !countryWrapperRef.value.contains(event.target as Node)
+  ) {
+    continentDropdownOpen.value = false;
+    countryDropdownOpen.value = false;
+  }
+};
 
-// compute all countries for the selected continents
-const availableCountries = computed(() => {
-  if (selectedContinents.value.length === 0) return [];
-  // flatten the arrays from each chosen continent
-  return (
-    selectedContinents.value
-      .flatMap((cont) => countryOptions[cont])
-      // remove duplicates (just in case)
-      .filter((v, i, a) => a.indexOf(v) === i)
+// Toggle dropdown visibility
+function toggleContinentDropdown() {
+  continentDropdownOpen.value = !continentDropdownOpen.value;
+
+  // Close the other dropdown if it's open
+  if (continentDropdownOpen.value) {
+    countryDropdownOpen.value = false;
+  }
+}
+
+function toggleCountryDropdown() {
+  countryDropdownOpen.value = !countryDropdownOpen.value;
+
+  // Close the other dropdown if it's open
+  if (countryDropdownOpen.value) {
+    continentDropdownOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  calculateDropdownHeight();
+  window.addEventListener("resize", calculateDropdownHeight);
+  document.addEventListener("mousedown", handleClickOutside);
+});
+
+onUpdated(() => {
+  calculateDropdownHeight();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", calculateDropdownHeight);
+  document.removeEventListener("mousedown", handleClickOutside);
+});
+
+watch(selectedContinents, (newList) => {
+  selectedCountries.value = Array.from(
+    new Set(newList.flatMap((c) => countriesByContinent.value[c] || []))
   );
 });
 
 // Measurement type
-const temp = reactive({ from: 10, to: 30, unit: "C" });
 const measurements = reactive({
-  temperature: true,
+  temperature: false,
 });
-
-// Date range
-const dateRange = reactive({ from: "", to: "" });
-
-// Time slots
-const times = ref<{ from: string; to: string }[]>([]);
-
-// Add and remove time slots
-function addSlot() {
-  if (times.value.length < 3) {
-    times.value.push({ from: "", to: "" });
-  }
-}
-
-function removeSlot(index: number) {
-  times.value.splice(index, 1);
-}
 
 // Reset filters
 function resetFilters() {
   selectedContinents.value = [];
   selectedCountries.value = [];
-  temp.from = 10;
-  temp.to = 30;
+  temp.from = "";
+  temp.to = "";
   temp.unit = "C";
-  measurements.temperature = true;
+  measurements.temperature = false;
   dateRange.from = "";
   dateRange.to = "";
   times.value = [];
 }
 
-// Search action
+// Search function
 function search() {
   emit("search", {
     location: {
@@ -107,12 +152,18 @@ function search() {
 </script>
 
 <template>
-  <div class="bg-light p-6 rounded-lg flex flex-col h-full max-h-full">
+  <div
+    class="bg-light p-6 rounded-lg flex flex-col h-full max-h-full"
+    ref="filterPanelRef"
+  >
     <!-- Filter Header (fixed at top) -->
-    <div class="font-bold text-lg mb-1 shrink-0">Filter By</div>
+    <div class="font-bold text-lg mb-2 shrink-0">Filter By</div>
 
     <!-- Scrollable Filter Content Area -->
-    <div class="overflow-y-scroll flex-grow flex flex-col pr-6 mb-4">
+    <div
+      class="overflow-y-scroll flex-grow flex flex-col pr-6 mb-4"
+      ref="scrollableAreaRef"
+    >
       <!-- Location: two‑column grid -->
       <div class="mb-2">
         <div class="font-semibold mb-1">Location</div>
@@ -120,36 +171,138 @@ function search() {
           <!-- Continent multi‑select -->
           <div>
             <label class="block text-sm font-medium mb-1">Continent</label>
-            <Multiselect
-              v-model="selectedContinents"
-              :options="continentOptions"
-              placeholder="Select continents"
-              track-by="this"
-              :multiple="true"
-              :close-on-select="false"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :custom-label="(option: ContinentName) => option"
-              class="bg-white"
-            />
+            <div class="relative" ref="continentWrapperRef">
+              <div
+                class="multiselect-custom-wrapper"
+                @click="toggleContinentDropdown"
+              >
+                <span
+                  class="multiselect-placeholder"
+                  v-if="selectedContinents.length === 0"
+                >
+                  {{ continentPlaceholder }}
+                </span>
+                <span class="multiselect-display-text" v-else>
+                  {{ formatContinentSelectionText() }}
+                </span>
+                <span class="multiselect-arrow">
+                  <ChevronDownIcon class="w-5 h-5" />
+                </span>
+              </div>
+              <div
+                v-show="continentDropdownOpen"
+                class="multiselect-custom-dropdown"
+                :style="{ 'max-height': `${dropdownMaxHeight}px` }"
+              >
+                <div
+                  class="multiselect-select-all"
+                  @click.stop="toggleAllContinents"
+                >
+                  {{
+                    selectedContinents.length > 0
+                      ? "Deselect All"
+                      : "Select All"
+                  }}
+                </div>
+
+                <div class="multiselect-options">
+                  <div
+                    v-for="continent in continents"
+                    :key="continent"
+                    class="multiselect-option"
+                    :class="{
+                      'multiselect-option-selected':
+                        selectedContinents.includes(continent),
+                    }"
+                    @click.stop="toggleContinent(continent)"
+                  >
+                    <span class="multiselect-option-checkbox">
+                      <CheckIcon
+                        v-if="selectedContinents.includes(continent)"
+                        class="w-5 h-5"
+                        fill="currentColor"
+                      />
+                    </span>
+                    <span>{{ continent }}</span>
+                  </div>
+                </div>
+
+                <div
+                  v-if="continents.length === 0"
+                  class="multiselect-no-options"
+                >
+                  No continents found.
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Country multi‑select -->
           <div>
             <label class="block text-sm font-medium mb-1">Country</label>
-            <Multiselect
-              v-model="selectedCountries"
-              :options="availableCountries"
-              placeholder="Select countries"
-              track-by="this"
-              :multiple="true"
-              :close-on-select="false"
-              :clear-on-select="false"
-              :preserve-search="true"
-              :custom-label="(option: string) => option"
-              class="bg-white"
-              :disabled="selectedContinents.length === 0"
-            />
+            <div class="relative" ref="countryWrapperRef">
+              <div
+                class="multiselect-custom-wrapper"
+                @click="toggleCountryDropdown"
+              >
+                <span
+                  class="multiselect-placeholder"
+                  v-if="selectedCountries.length === 0"
+                >
+                  {{ countryPlaceholder }}
+                </span>
+                <span class="multiselect-display-text" v-else>
+                  {{ formatCountrySelectionText() }}
+                </span>
+                <span class="multiselect-arrow">
+                  <ChevronDownIcon class="w-5 h-5" />
+                </span>
+              </div>
+
+              <div
+                v-show="countryDropdownOpen"
+                class="multiselect-custom-dropdown"
+                :style="{ 'max-height': `${dropdownMaxHeight}px` }"
+              >
+                <div
+                  class="multiselect-select-all"
+                  @click.stop="toggleAllCountries"
+                >
+                  {{
+                    selectedCountries.length > 0 ? "Deselect All" : "Select All"
+                  }}
+                </div>
+
+                <div
+                  v-if="allCountries.length === 0"
+                  class="multiselect-no-options"
+                >
+                  No countries available.<br />Please select a continent first.
+                </div>
+
+                <div v-else class="multiselect-options">
+                  <div
+                    v-for="country in allCountries"
+                    :key="country"
+                    class="multiselect-option"
+                    :class="{
+                      'multiselect-option-selected':
+                        selectedCountries.includes(country),
+                    }"
+                    @click.stop="toggleCountry(country)"
+                  >
+                    <span class="multiselect-option-checkbox">
+                      <CheckIcon
+                        v-if="selectedCountries.includes(country)"
+                        class="w-5 h-5"
+                        fill="currentColor"
+                      />
+                    </span>
+                    <span>{{ country }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -169,7 +322,7 @@ function search() {
             <span>Temperature</span>
           </label>
 
-          <!-- Units moved up here -->
+          <!-- Units -->
           <div v-if="measurements.temperature" class="flex space-x-2">
             <button
               @click="temp.unit = 'C'"
@@ -191,14 +344,17 @@ function search() {
         <!-- Temperature range fields with equal widths -->
         <div
           v-if="measurements.temperature"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end relative"
         >
           <!-- From -->
           <div>
             <label class="block text-sm mb-1">From</label>
             <input
               type="number"
-              v-model.number="temp.from"
+              v-model="temp.from"
+              min="0"
+              max="100"
+              placeholder="Min temperature"
               class="w-full border rounded bg-white px-3 py-2"
             />
           </div>
@@ -208,10 +364,20 @@ function search() {
             <label class="block text-sm mb-1">To</label>
             <input
               type="number"
-              v-model.number="temp.to"
+              v-model="temp.to"
+              min="0"
+              max="100"
+              placeholder="Max temperature"
               class="w-full border rounded bg-white px-3 py-2"
             />
           </div>
+
+          <p
+            v-if="!tempRangeValid"
+            class="text-red-600 text-sm col-span-1 md:col-span-2 -mt-2"
+          >
+            Temperature range is invalid.
+          </p>
         </div>
       </div>
 
@@ -235,6 +401,12 @@ function search() {
               class="w-full border rounded bg-white px-3 py-2"
             />
           </div>
+          <p
+            v-if="!dateRangeValid"
+            class="text-red-600 text-sm col-span-1 md:col-span-2 -mt-2"
+          >
+            Date range is invalid.
+          </p>
         </div>
       </div>
 
@@ -242,6 +414,9 @@ function search() {
       <div class="mb-2">
         <div class="font-semibold mb-1">Time</div>
         <div class="space-y-2">
+          <p v-if="!slotsNonOverlapping" class="text-red-600 text-sm">
+            Time slots must not overlap.
+          </p>
           <div v-for="(slot, i) in times" :key="i" class="mb-2">
             <!-- Mobile: Remove button above From field -->
             <div class="flex items-center justify-between md:hidden mb-1">
@@ -285,6 +460,9 @@ function search() {
                   </button>
                 </div>
               </div>
+              <p v-if="!slotValid(slot)" class="text-red-600 text-sm">
+                Time range is invalid.
+              </p>
             </div>
           </div>
 
@@ -310,7 +488,21 @@ function search() {
       </button>
       <button
         @click="search"
-        class="cursor-pointer px-12 py-2 bg-main text-white rounded-2xl hover:bg-[#0098c4] font-semibold text-lg"
+        :disabled="
+          !tempRangeValid ||
+          !dateRangeValid ||
+          !allSlotsValid ||
+          !slotsNonOverlapping
+        "
+        :class="
+          tempRangeValid &&
+          dateRangeValid &&
+          allSlotsValid &&
+          slotsNonOverlapping
+            ? 'bg-main cursor-pointer hover:bg-[#0098c4]'
+            : 'bg-gray-300 cursor-not-allowed'
+        "
+        class="px-12 py-2 text-white rounded-2xl font-semibold text-lg"
       >
         Search
       </button>
@@ -318,4 +510,107 @@ function search() {
   </div>
 </template>
 
-<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style>
+.multiselect-custom-wrapper {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  background-color: white;
+  user-select: none;
+}
+
+.multiselect-custom-wrapper:hover {
+  border-color: #cbd5e0;
+}
+
+.multiselect-placeholder {
+  color: #a0aec0;
+}
+
+.multiselect-display-text {
+  color: #4a5568;
+}
+
+.multiselect-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #718096;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.multiselect-custom-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  margin-top: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 50;
+  overflow-y: auto;
+}
+
+.multiselect-select-all {
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #2c3e50;
+  font-weight: 600;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.multiselect-select-all:hover {
+  background-color: #f8f8f8;
+}
+
+.multiselect-options {
+  max-height: 250px;
+}
+
+.multiselect-option {
+  padding: 8px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.multiselect-option:hover {
+  background-color: #f7fafc;
+}
+
+.multiselect-option-selected {
+  background-color: #ebf8ff;
+}
+
+.multiselect-option-checkbox {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3182ce;
+}
+
+.multiselect-no-options {
+  padding: 16px;
+  text-align: center;
+  color: #718096;
+  font-style: italic;
+}
+</style>
