@@ -23,7 +23,7 @@ describe('useLogin composable', () => {
             ; (useRouter as unknown as any).mockReturnValue({ push })
     })
 
-    it('successfully logs in and navigates to Home', async () => {
+    it('successfully logs in and navigates to Map', async () => {
         global.fetch = vi.fn().mockResolvedValue({
             ok: true,
             json: async () => ({ detail: 'Successfully logged in.' }),
@@ -38,7 +38,7 @@ describe('useLogin composable', () => {
         await nextTick()
 
         expect(fetch).toHaveBeenCalledOnce()
-        expect(push).toHaveBeenCalledWith({ name: 'Home' })
+        expect(push).toHaveBeenCalledWith({ name: 'Map' })
         expect(showError.value).toBe(false)
         expect(errorMessage.value).toBe('')
     })
