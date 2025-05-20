@@ -5,24 +5,33 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Location',
+            name="Location",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('country_name', models.CharField(max_length=100)),
-                ('continent', models.CharField(max_length=50)),
-                ('geom', django.contrib.gis.db.models.fields.MultiPolygonField(srid=4326)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("country_name", models.CharField(max_length=100)),
+                ("continent", models.CharField(max_length=50)),
+                (
+                    "geom",
+                    django.contrib.gis.db.models.fields.MultiPolygonField(srid=4326),
+                ),
             ],
             options={
-                'db_table': 'countries',
-                'managed': False,
+                "db_table": "countries",
+                "managed": False,
             },
         ),
     ]

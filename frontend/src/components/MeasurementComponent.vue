@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
-import Modal from './Modal.vue'
+import Modal from "./Modal.vue";
 import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
 import {
   validateTemp,
   onSensorInput,
   validateInputs,
   createPayload,
+  validateTime,
 } from "@/composables/MeasurementCollectionLogic";
+import LocationFallback from "./LocationFallback.vue";
+import * as L from "leaflet";
 
 const cookies = new Cookies();
 const router = useRouter();
@@ -31,10 +34,15 @@ const time = reactive({
 const errors = reactive<{
   temp: string | null;
   sensor: string | null;
+  mins: string | null;
+  sec: string | null;
 }>({
   temp: null,
   sensor: null,
+  mins: null,
+  sec: null,
 });
+
 const minsRef = ref<HTMLInputElement>();
 const secRef = ref<HTMLInputElement>();
 const tempRef = ref<HTMLInputElement>();
@@ -46,14 +54,14 @@ const waterSourceOptions = [
   { label: "Well", value: "well" },
   { label: "Tap", value: "tap" },
 ];
-const userLoc = ref<{ latitude: number; longitude: number } | null>(null);
+const userLoc = ref<L.LatLng>(L.latLng(0, 0));
 const locating = ref(false);
 const locAvail = ref(true);
 
 const validated = computed(() => {
- return validateInputs(
-    userLoc.value?.longitude,
-    userLoc.value?.latitude,
+  return validateInputs(
+    userLoc.value?.lng,
+    userLoc.value?.lat,
     formData.water_source,
     formData.temperature.sensor,
     tempVal.value,
@@ -81,7 +89,6 @@ function clear() {
   tempVal.value = "";
   tempUnit.value = "C";
   selectedMetrics.value = [];
-  userLoc.value = null;
   errors.temp = null;
   errors.sensor = null;
   locationMode.value = null;
@@ -96,10 +103,7 @@ function getLocation() {
   locAvail.value = true;
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      userLoc.value = {
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-      };
+      userLoc.value = L.latLng(pos.coords.latitude, pos.coords.longitude);
       locAvail.value = true;
       locating.value = false;
     },
@@ -128,16 +132,19 @@ const handleKeyPress = (event: KeyboardEvent) => {
   if (key.length === 1 && isNaN(Number(key))) {
     event.preventDefault();
   }
+  validateTime(errors, time);
 };
 const handlePaste = (event: ClipboardEvent) => {
   const pastedText = event.clipboardData?.getData("text");
   if (pastedText && !/^\d+$/.test(pastedText)) {
     event.preventDefault();
   }
+  validateTime(errors, time);
 };
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
   emit("update:modelValue", target.value.replace(/[^0-9]/g, ""));
+  validateTime(errors, time);
 };
 const locationMode = ref<"auto" | "manual" | null>(null);
 
@@ -147,17 +154,8 @@ watch(locAvail, (avail) => {
   }
 });
 
-function handleLocationModeChange() {
-  if (locationMode.value === "auto") {
-    getLocation();
-  }
-  if (locationMode.value === "manual") {
-    userLoc.value = null;
-  }
-}
-
-const showModal = ref(false)
-const modalMessage = ref("")
+const showModal = ref(false);
+const modalMessage = ref("");
 const postData = () => {
   const payload = createPayload(
     tempUnit.value,
@@ -166,10 +164,19 @@ const postData = () => {
     tempVal.value,
     time,
     formData.water_source,
-    userLoc.value?.longitude,
-    userLoc.value?.latitude
+    userLoc.value?.lng,
+    userLoc.value?.lat
   );
-
+  if (formData.temperature.value < 0 || formData.temperature.value > 40) {
+    showModal.value = true;
+    modalMessage.value =
+      "Are you sure you would like to submit the temperature value " +
+      tempVal.value +
+      "°" +
+      tempUnit.value +
+      "?";
+    return;
+  }
 
   fetch("/api/measurements/", {
     method: "POST",
@@ -182,7 +189,9 @@ const postData = () => {
   })
     .then((res) => {
       if (res.status === 201) {
-        router.push({ name: "Home" });
+        router.push({ name: "Map" });
+        showModal.value = false;
+        clear();
       } else {
         console.error("error with adding measurement");
       }
@@ -193,51 +202,51 @@ const postData = () => {
 };
 
 const postDataCheck = () => {
-      console.log("entered function :3");
-  console.log(tempVal.value);
-  if(+tempVal.value < 0 || +tempVal.value > 40) {
-    console.log("Temperature value out of range");
+  let tempCheck;
+  if (selectedMetrics.value.includes("temperature")) {
+    if (tempUnit.value === "F") {
+      tempCheck = Math.round((+tempVal.value - 32) * (5 / 9) * 10) / 10;
+    } else {
+      tempCheck = Math.round(+tempVal.value * 10) / 10;
+    }
+    if (tempCheck < 0 || tempCheck > 40) {
+      showModal.value = true;
+      modalMessage.value =
+        "Are you sure you would like to submit the temperature value " +
+        tempVal.value +
+        "°" +
+        tempUnit.value +
+        "?";
+      return;
+    } else {
+      showModal.value = true;
+      modalMessage.value =
+        "Are you sure you would like to submit this measurement?";
+      return;
+    }
+  } else {
     showModal.value = true;
-    modalMessage.value = "Are you sure you would like to submit the temperature value " + tempVal.value +"°" + tempUnit.value +"?";
+    modalMessage.value =
+      "Are you sure you would like to submit this measurement?";
     return;
-  }else{
-    postData();
   }
-
-}
+};
 </script>
 
 <template>
-  <div class="min-h-screen bg-white p-4 md:p-8">
+  <div class="bg-white">
     <h1
-      class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto"
+      class="bg-main text-lg font-bold text-white rounded-b-lg p-4 mb-6 shadow max-w-screen-md mx-auto"
     >
       Record Measurement
     </h1>
     <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
       <h3 class="text-lg font-semibold mb-4">Measurement</h3>
 
-      <label class="flex items-center gap-2 ">
-        <input
-          type="radio"
-          value="auto"
-          v-model="locationMode"
-          :disabled="!locAvail"
-          @change="handleLocationModeChange"
-        />
-        Use Current Location
-        <span v-if="locating" class="text-sm text-gray-500">(Locating...)</span>
-      </label>
 
-      <label class="flex items-center gap-2 mb-3">
-        <input
-          type="radio"
-          value="manual"
-          v-model="locationMode"
-          @change="handleLocationModeChange"
-        />
-        Select Location Manually
-      </label>
+      <div class="w-full h-48">
+        <LocationFallback v-model:location="userLoc" />
+      </div>
 
       <div class="flex-start min-w-0 flex items-center gap-2">
         <label class="self-center text-sm font-medium text-gray-700"
@@ -245,9 +254,10 @@ const postDataCheck = () => {
         >
 
         <select
+          data-testid="select-water-source"
           id="water_source"
           v-model="formData.water_source"
-          class="self-center border border-gray-300 rounded px-3 py-2"
+          class="bg-white self-center border border-gray-300 rounded px-3 py-2"
         >
           <option disabled value="">Select a source</option>
           <option
@@ -270,6 +280,7 @@ const postDataCheck = () => {
       >
       <div class="flex flex-col gap-2">
         <label
+          data-testid="metric-checkbox"
           v-for="opt in metricOptions"
           :key="opt.value"
           class="flex items-center space-x-2"
@@ -300,12 +311,13 @@ const postDataCheck = () => {
               >Sensor Type</label
             >
             <input
+              data-testid="sensor-type"
               id="sensor-type"
               v-model="formData.temperature.sensor"
               placeholder="thermometer"
               type="text"
               :class="[
-                'flex-grow border border-gray-300 rounded px-3 py-2 mt-1',
+                'flex-grow bg-white border border-gray-300 rounded px-3 py-2 mt-1',
                 errors.sensor ? 'border-red-500 border-2' : 'border-gray-300',
               ]"
             />
@@ -326,22 +338,30 @@ const postDataCheck = () => {
                 <span class="inline sm:hidden">Temp. Value</span>
               </label>
               <input
+                data-testid="temp-val"
                 id="temp-val"
                 v-model="tempVal"
                 type="number"
+                min="0"
                 @input="onTempInput"
                 ref="tempRef"
                 placeholder="e.g. 24.3"
                 :class="[
-                  'flex-1 min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
+                  'flex-1 bg-white min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
                   errors.temp ? 'border-red-500 border-2' : 'border-gray-300',
                 ]"
               />
               <label class="items-center gap-1">
-                <input name="temp" type="radio" value="C" v-model="tempUnit" />
+                <input
+                  data-testid="celsius"
+                  name="temp"
+                  type="radio"
+                  value="C"
+                  v-model="tempUnit"
+                />
                 <span>°C</span>
               </label>
-              <label class="items-center gap-1">
+              <label data-testid="fahrenheit" class="items-center gap-1">
                 <input name="temp" type="radio" value="F" v-model="tempUnit" />
                 <span>°F</span>
               </label>
@@ -356,20 +376,26 @@ const postDataCheck = () => {
         <div class="flex flex-col">
           <label class="block text-sm font-medium text-gray-700"
             >Time waited</label
-          >        </div>
+          >
+        </div>
 
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
+              data-testid="time-waited-mins"
               id="time-waited_min"
               @input="handleInput"
               @keypress="handleKeyPress"
               @paste="handlePaste"
               v-model="time.mins"
+              min="0"
               placeholder="00"
               type="number"
               ref="minsRef"
-              class="w-16 border border-gray-300 rounded px-2 py-1 border-gray-300"
+              :class="[
+                'w-16 rounded px-2 py-1 bg-white',
+                errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
+              ]"
             />
             <label for="time-waited_min">Min</label>
           </div>
@@ -377,15 +403,20 @@ const postDataCheck = () => {
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <input
+              data-testid="time-waited-sec"
               id="time-waited_sec"
               @input="handleInput"
               @keypress="handleKeyPress"
               @paste="handlePaste"
               v-model="time.sec"
+              min="0"
               placeholder="00"
               type="number"
               ref="secRef"
-              class="w-16 border border-gray-300 rounded px-2 py-1 border-gray-300"
+              :class="[
+                'w-16 rounded px-2 py-1 bg-white',
+                errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
+              ]"
             />
             <label for="time-waited_sec">Sec</label>
           </div>
@@ -416,19 +447,24 @@ const postDataCheck = () => {
       >
         Submit
       </button>
-          <Modal :visible="showModal" @close="showModal = false">
-            <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
-            <p>{{ modalMessage }}</p>
-            <div class="flex items-center mt-4 gap-2">
-                <button @click="showModal = false" class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer">
-                Cancel
-                </button>
-                <button @click="postData" class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer">
-                Submit
-                </button>
-            </div>
-            </Modal>
-
+      <Modal :visible="showModal" @close="showModal = false">
+        <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
+        <p>{{ modalMessage }}</p>
+        <div class="flex items-center mt-4 gap-2">
+          <button
+            @click="showModal = false"
+            class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            @click="postData"
+            class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+          >
+            Submit
+          </button>
+        </div>
+      </Modal>
     </div>
   </div>
 </template>

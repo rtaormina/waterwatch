@@ -28,3 +28,10 @@ dist-ssr
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Vitest Coverage
+coverage/
+
+# Nuxt UI
+auto-imports.d.ts
+components.d.ts

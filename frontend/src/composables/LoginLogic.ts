@@ -44,7 +44,7 @@ export function useLogin() {
                 if (groups.includes('researcher')) {
                     router.push({ name: 'Export' }) // Replace with your route name
                 } else {
-                    router.push({ name: 'Home' }) // Default or non-researcher route
+                    router.push({ name: 'Map' }) // Default or non-researcher route
                 }
             }
 

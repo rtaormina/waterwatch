@@ -1,5 +1,5 @@
 import { nextTick, type Ref } from "vue";
-
+import { DateTime } from "luxon";
 
 export function validateTemp(
   val: string,
@@ -12,7 +12,7 @@ export function validateTemp(
   if (!/^-?\d+(\.\d+)?$/.test(val)) {
     errors.temp = "Enter a number";
     nextTick(() => tempRef?.value?.focus());
-  } else if (Number(val) > 100){
+  } else if (Number(val) > 500) {
     errors.temp = "Temperature too large";
     nextTick(() => tempRef?.value?.focus());
   } else {
@@ -34,6 +34,30 @@ export function onSensorInput(
   }
 }
 
+export function validateTime(
+  errors: {
+    temp: string | null;
+    sensor: string | null;
+    mins: string | null;
+    sec: string | null;
+  },
+  time: {
+    mins: string;
+    sec: string;
+  }
+) {
+  if (+time.mins > 59 || +time.mins < 0) {
+    errors.mins = "Time must be between 0 and 59";
+  } else {
+    errors.mins = null;
+  }
+  if (+time.sec > 59 && +time.sec < 0) {
+    errors.sec = "Time must be between 0 and 59";
+  } else {
+    errors.sec = null;
+  }
+}
+
 export function validateInputs(
   longitude: number | undefined,
   latitude: number | undefined,
@@ -44,6 +68,8 @@ export function validateInputs(
   errors: {
     temp: string | null;
     sensor: string | null;
+    mins: string | null;
+    sec: string | null;
   },
   time: {
     mins: string;
@@ -64,11 +90,18 @@ export function validateInputs(
       tempVal === "" ||
       isNaN(Number(tempVal)) ||
       errors.temp !== null ||
-      errors.sensor !== null || ((time.mins === "" || time.mins === "0") && (time.sec === "" || time.sec === "0"))
+      errors.sensor !== null ||
+      errors.sec != null ||
+      errors.mins != null ||
+      ((time.mins === "" || time.mins === "0") &&
+        (time.sec === "" || time.sec === "0")) ||
+      +time.mins < 0 ||
+      +time.sec < 0
     ) {
       return false;
     }
   }
+
   return true;
 }
 
@@ -101,13 +134,16 @@ export function createPayload(
     const ss = String(secs).padStart(2, "0");
     temperature.time_waited = `00:${mm}:${ss}`;
   }
-
+  const longitudeRounded = longitude !== undefined ? Number(longitude.toFixed(3)) : undefined;
+  const latitudeRounded = latitude !== undefined ? Number(latitude.toFixed(3)) : undefined;
+  const localISO = DateTime.local().toISO();
   return {
+    timestamp_local: localISO,
     location: {
       type: "Point",
-      coordinates: [longitude, latitude],
+      coordinates: [longitudeRounded, latitudeRounded],
     },
     water_source: waterSource,
-    temperature: temperature,
+    temperature: temperature
   };
 }
