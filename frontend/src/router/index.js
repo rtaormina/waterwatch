@@ -1,5 +1,6 @@
 // django-vue/frontend/src/router/index.js
 import { createRouter, createWebHistory } from "vue-router";
+import { useSession } from "../composables/useSession";
 
 const routes = [
   {
@@ -31,7 +32,7 @@ const routes = [
     name: "Export",
     component: () => import("@/views/ExportView.vue"),
     meta: {
-      requiresAuth: false,
+      requiresAuth: true,
     },
   },
 ];
@@ -41,8 +42,11 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from) => {
-  if (to.meta.requiresAuth && !cookies.get("sessionid")) {
+const session = useSession();
+
+router.beforeEach(async (to, from) => {
+  const isAuthenticated = session.isAuthenticated();
+  if (to.meta.requiresAuth && !(await isAuthenticated)) {
     return { name: "Login" };
   }
 });
