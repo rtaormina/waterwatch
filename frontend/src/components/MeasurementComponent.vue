@@ -10,6 +10,8 @@ import {
   createPayload,
   validateTime,
 } from "@/composables/MeasurementCollectionLogic";
+import LocationFallback from "./LocationFallback.vue";
+import * as L from "leaflet";
 
 const cookies = new Cookies();
 const router = useRouter();
@@ -52,14 +54,14 @@ const waterSourceOptions = [
   { label: "Well", value: "well" },
   { label: "Tap", value: "tap" },
 ];
-const userLoc = ref<{ latitude: number; longitude: number } | null>(null);
+const userLoc = ref<L.LatLng>(L.latLng(0, 0));
 const locating = ref(false);
 const locAvail = ref(true);
 
 const validated = computed(() => {
   return validateInputs(
-    userLoc.value?.longitude,
-    userLoc.value?.latitude,
+    userLoc.value?.lng,
+    userLoc.value?.lat,
     formData.water_source,
     formData.temperature.sensor,
     tempVal.value,
@@ -87,7 +89,6 @@ function clear() {
   tempVal.value = "";
   tempUnit.value = "C";
   selectedMetrics.value = [];
-  userLoc.value = null;
   errors.temp = null;
   errors.sensor = null;
   locationMode.value = null;
@@ -102,10 +103,7 @@ function getLocation() {
   locAvail.value = true;
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      userLoc.value = {
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-      };
+      userLoc.value = L.latLng(pos.coords.latitude, pos.coords.longitude);
       locAvail.value = true;
       locating.value = false;
     },
@@ -156,15 +154,6 @@ watch(locAvail, (avail) => {
   }
 });
 
-function handleLocationModeChange() {
-  if (locationMode.value === "auto") {
-    getLocation();
-  }
-  if (locationMode.value === "manual") {
-    userLoc.value = null;
-  }
-}
-
 const showModal = ref(false);
 const modalMessage = ref("");
 const postData = () => {
@@ -175,9 +164,19 @@ const postData = () => {
     tempVal.value,
     time,
     formData.water_source,
-    userLoc.value?.longitude,
-    userLoc.value?.latitude
+    userLoc.value?.lng,
+    userLoc.value?.lat
   );
+  if (formData.temperature.value < 0 || formData.temperature.value > 40) {
+    showModal.value = true;
+    modalMessage.value =
+      "Are you sure you would like to submit the temperature value " +
+      tempVal.value +
+      "°" +
+      tempUnit.value +
+      "?";
+    return;
+  }
 
   fetch("/api/measurements/", {
     method: "POST",
@@ -190,7 +189,9 @@ const postData = () => {
   })
     .then((res) => {
       if (res.status === 201) {
-        router.push({ name: "Home" });
+        router.push({ name: "Map" });
+        showModal.value = false;
+        clear();
       } else {
         console.error("error with adding measurement");
       }
@@ -233,38 +234,19 @@ const postDataCheck = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-white p-4 md:p-8">
+  <div class="bg-white">
     <h1
-      class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto"
+      class="bg-main text-lg font-bold text-white rounded-b-lg p-4 mb-6 shadow max-w-screen-md mx-auto"
     >
       Record Measurement
     </h1>
     <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
       <h3 class="text-lg font-semibold mb-4">Measurement</h3>
 
-      <label class="flex items-center gap-2">
-        <input
-          data-testid="radio-auto"
-          type="radio"
-          value="auto"
-          v-model="locationMode"
-          :disabled="!locAvail"
-          @change="handleLocationModeChange"
-        />
-        Use Current Location
-        <span v-if="locating" class="text-sm text-gray-500">(Locating...)</span>
-      </label>
 
-      <label class="flex items-center gap-2 mb-3">
-        <input
-          data-testid="radio-manual"
-          type="radio"
-          value="manual"
-          v-model="locationMode"
-          @change="handleLocationModeChange"
-        />
-        Select Location Manually
-      </label>
+      <div class="w-full h-48">
+        <LocationFallback v-model:location="userLoc" />
+      </div>
 
       <div class="flex-start min-w-0 flex items-center gap-2">
         <label class="self-center text-sm font-medium text-gray-700"

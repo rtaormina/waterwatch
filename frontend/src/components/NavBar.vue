@@ -60,12 +60,12 @@ onUnmounted(() => {
             <!-- Menu items -->
             <div class="flex flex-col justify-right space-y-6 text-4xl">
               <div v-if="page == 'Map'" class="text-white  underline">
-                <a href="/map">
+                <a href="/">
                   Map
                 </a>
               </div>
               <div v-else>
-                <a href="/map" class="text-white hover:underline">
+                <a href="/" class="text-white hover:underline">
                   Map
                 </a>
               </div>
@@ -151,8 +151,8 @@ onUnmounted(() => {
     <div class="font-custom bg-[#00A6D6] text-white p-4 w-screen text-3xl flex flex-row justify-between">
       <div>WATERWATCH</div>
       <div class="flex flex-row space-x-6">
-        <div class="border-b-2" :class="page == 'Home' ? 'border-white' : 'border-transparent'">
-          <a href="/home" class="text-white text-2xl hover:border-white">
+        <div class="border-b-2" :class="page == 'Map' ? 'border-white' : 'border-transparent'">
+          <a href="/" class="text-white text-2xl hover:border-white">
             Map
           </a>
         </div>
@@ -170,13 +170,13 @@ onUnmounted(() => {
         </div>
 
         <div class="border-b-2" :class="page == 'Contact' ? 'border-white' : 'border-transparent'">
-          <a href="/home" class="text-white text-2xl hover:border-white">
+          <a href="/" class="text-white text-2xl hover:border-white">
             About
           </a>
         </div>
 
-        <div class="border-b-2" :class="page == 'Map' ? 'border-white' : 'border-transparent'">
-          <a href="/home" class="text-white text-2xl hover:border-white">
+        <div class="border-b-2" :class="page == 'Contact' ? 'border-white' : 'border-transparent'">
+          <a href="/" class="text-white text-2xl hover:border-white">
             Contact
           </a>
         </div>

@@ -1,7 +1,13 @@
-import { createApp } from 'vue'
-import './index.css'
-// import App from './App.vue'
-import App from '@/App.vue'
-import router from '@/router'
+import { createApp } from "vue";
 
-createApp(App).use(router).mount('#app')
+// import CSS files
+import "./index.css";
+
+import "leaflet/dist/leaflet.css";
+
+// import App and router
+import App from "@/App.vue";
+import router from "@/router";
+
+// mount the app
+createApp(App).use(router).mount("#app");
