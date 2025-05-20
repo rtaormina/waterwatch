@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     help = "Create superuser and groups with permissions."
 
-    def handle(self):
+    def handle(self, *_args, **_options):
         """Create superuser and groups with permissions."""
         user = get_user_model()
 
