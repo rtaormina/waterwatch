@@ -43,6 +43,14 @@ const routes = [
       requiresAuth: false,
     },
   },
+  {
+    path: "/about",
+    name: "About",
+    component: () => import("@/views/AboutView.vue"),
+    meta: {
+      requiresAuth: false,
+    },
+  },
 ];
 
 const router = createRouter({
