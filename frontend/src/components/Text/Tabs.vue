@@ -9,6 +9,7 @@
     color="primary"
     :ui="{
       label: 'text-balance',
+      trigger: 'grow'
     }"
   />
 </template>

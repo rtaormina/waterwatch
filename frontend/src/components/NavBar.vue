@@ -170,7 +170,7 @@ onUnmounted(() => {
         </div>
 
         <div class="border-b-2" :class="page == 'Contact' ? 'border-white' : 'border-transparent'">
-          <a href="/" class="text-white text-2xl hover:border-white">
+          <a href="/about" class="text-white text-2xl hover:border-white">
             About
           </a>
         </div>
