@@ -7,7 +7,7 @@ export function formatDateTime(isoString: string): string {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    hour12: true,
+    hour12: false,
   };
 
   return date.toLocaleString(undefined, options);

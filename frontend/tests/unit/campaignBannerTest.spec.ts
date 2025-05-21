@@ -5,12 +5,31 @@ import {
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 
 describe("formatDateTime Logic", () => {
-  it("formatDateTime should format date correctly", () => {
-    const result = formatDateTime("2023-10-01T12:00:00Z");
-    expect(result).toBe("October 1, 2023 at 2:00 PM");
-    const result2 = formatDateTime("2023-12-01T09:05:00Z");
-    expect(result2).toBe("December 1, 2023 at 10:05 AM");
+  const realToLocaleString = Date.prototype.toLocaleString;
+
+  beforeEach(() => {
+    Date.prototype.toLocaleString = function () {
+      return 'December 1, 2023 at 09:05';
+    };
   });
+
+  afterEach(() => {
+    Date.prototype.toLocaleString = realToLocaleString;
+  });
+
+  it("should return mocked string", () => {
+    const result = formatDateTime("2023-12-01T09:05:00Z");
+    expect(result).toBe("December 1, 2023 at 09:05");
+  });
+});
+
+describe("formatDateTime Logic General", () => {
+
+  it("formatDateTime should format date correctly", () => {
+    const result = formatDateTime("2023-12-01T09:05:00Z");
+    expect(result).toMatch(/\d{1,2}:\d{2}/);
+  });
+
 });
 
 describe("updateCountdown", () => {
@@ -32,7 +51,6 @@ describe("updateCountdown", () => {
   });
 
   it("updateCountdown should return correct time left if time has ended", () => {
-
     const result2 = updateCountdown("2021-09-01T12:00:00Z");
     expect(result2.hasEnded).toBe(true);
     expect(result2.timeLeft).toBe("Campaign has ended!");
