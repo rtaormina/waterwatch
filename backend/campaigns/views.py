@@ -6,12 +6,14 @@ import logging
 from django.contrib.gis.geos import Point
 from django.http import JsonResponse
 from django.utils.dateparse import parse_datetime
+from rest_framework.decorators import api_view
 
 from .models import Campaign
 
 logger = logging.getLogger("WATERWATCH")
 
 
+@api_view(["GET"])
 def get_active_campaigns(request):
     """View to handle incoming requests for active campaigns.
 
@@ -32,16 +34,7 @@ def get_active_campaigns(request):
 
     if not dt:
         return JsonResponse({"error": "Invalid or missing datetime"}, status=400)
-    if not lat or not lng:
-        matching_campaigns = Campaign.objects.filter(start_time__lte=dt, end_time__gte=dt).order_by("end_time")
-        logger.warning("No lat/lng provided, returning all campaigns")
-    else:
-        point = Point(float(lng), float(lat))
-        matching_campaigns = (
-            Campaign.objects.filter(start_time__lte=dt, end_time__gte=dt)
-            .filter(region__contains=point)
-            .order_by("end_time")
-        )
+    matching_campaigns = find_matching_campaigns(dt, lat, lng)
 
     results = [
         {
@@ -56,3 +49,31 @@ def get_active_campaigns(request):
     ]
 
     return JsonResponse({"campaigns": results})
+
+
+def find_matching_campaigns(dt, lat, lng):
+    """Find matching campaigns based on datetime and location.
+
+    Attributes
+    ----------
+    dt : datetime
+        The datetime to check for active campaigns
+    lat : str
+        The latitude of the location
+    lng : str
+        The longitude of the location
+
+    Returns
+    -------
+    QuerySet
+        A QuerySet of matching Campaign objects
+    """
+    if not lat or not lng:
+        logger.warning("No lat/lng provided, returning all campaigns")
+        return Campaign.objects.filter(start_time__lte=dt, end_time__gte=dt).order_by("end_time")
+    point = Point(float(lng), float(lat))
+    return (
+        Campaign.objects.filter(start_time__lte=dt, end_time__gte=dt)
+        .filter(region__contains=point)
+        .order_by("end_time")
+    )
