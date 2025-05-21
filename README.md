@@ -7,7 +7,11 @@ WATERWATCH is global citizen science platform for tracking water temperatures an
 The live production version of [WATERWATCH](https://waterwatch.tudelft.nl)
 
 ## Documentation
-View the documentation for WATERWATCH [here](https://waterwatch.tudelft.nl/docs).
+In order to see the documentation during development make sure that sphinx is installed in your virtual environment. This can be done by running the following:
+```bash
+python -m pip install -r requirements/dev-requirements.txt
+```
+Then after running the project using the installation steps bellow the documentation can be accessed by going to ['/docs'](http://127.0.0.1/docs).
 
 ## Installation
 
