@@ -2,6 +2,16 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import burgerBar from '@/assets/burger-bar.png'
 import { useRouter } from 'vue-router'
+import { UserIcon, ArrowLeftStartOnRectangleIcon } from "@heroicons/vue/24/solid";
+import { useLogin } from '@/composables/LoginLogic.ts'
+
+
+const {
+  checkLoginStatus
+} = useLogin()
+
+const loggedIn = ref(false)
+
 
 // a reactive flag…
 const isMobile = ref(false)
@@ -17,6 +27,14 @@ const checkMobile = () => {
 
 const showOverlay = ref(false)
 
+function login() {
+
+}
+
+function logout() {
+
+}
+
 function openOverlay() {
   showOverlay.value = true
 }
@@ -24,7 +42,8 @@ function closeOverlay() {
   showOverlay.value = false
 }
 
-onMounted(() => {
+onMounted( async () => {
+  loggedIn.value = await checkLoginStatus()
   checkMobile()
   window.addEventListener('resize', checkMobile)
 })
@@ -180,6 +199,15 @@ onUnmounted(() => {
             Contact
           </a>
         </div>
+        <div>
+          <div v-if="!loggedIn">
+            <user-icon class="w-10 h-10 text-white" @click="login()" />
+          </div>
+          <div v-else>
+            <arrow-left-start-on-rectangle-icon class="w-10 h-10 text-white" @click="logout()" />
+          </div>
+
+        </div>
       </div>
 
     </div>
@@ -190,7 +218,8 @@ onUnmounted(() => {
     <div class="font-custom bg-[#00A6D6] text-white p-2 w-screen flex justify-between">
       <div class="text-4xl text-white font-custom mt-4 mb-3 ml-4">WATERWATCH</div>
       <div>
-        <button @click="openOverlay"><img :src="burgerBar" alt="Menu icon" class="w-12 mt-3 mr-3  object-contain"></button>
+        <button @click="openOverlay"><img :src="burgerBar" alt="Menu icon"
+            class="w-12 mt-3 mr-3  object-contain"></button>
       </div>
     </div>
   </div>

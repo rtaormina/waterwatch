@@ -19,6 +19,21 @@ export function useLogin() {
         showError.value = true
     }
 
+
+    const checkLoginStatus = async () => {
+        const response = await fetch("api/login/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": cookies.get("csrftoken"),
+            },
+            credentials: "same-origin",
+            body: JSON.stringify(formData),
+        })
+
+        return response.ok
+    }
+
     const handleSubmit = async () => {
         try {
             const response = await fetch("api/login/", {
@@ -63,5 +78,6 @@ export function useLogin() {
         errorMessage,
         showError,
         handleSubmit,
+        checkLoginStatus,
     }
 }
