@@ -94,31 +94,6 @@ function clear() {
   locationMode.value = null;
 }
 
-function getLocation() {
-  if (!navigator.geolocation) {
-    locAvail.value = false;
-    return;
-  }
-  locating.value = true;
-  locAvail.value = true;
-  navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      userLoc.value = L.latLng(pos.coords.latitude, pos.coords.longitude);
-      locAvail.value = true;
-      locating.value = false;
-    },
-    (err) => {
-      locAvail.value = true;
-      locating.value = false;
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0,
-    }
-  );
-}
-
 defineProps<{
   modelValue?: string;
 }>();
@@ -167,16 +142,6 @@ const postData = () => {
     userLoc.value?.lng,
     userLoc.value?.lat
   );
-  if (formData.temperature.value < 0 || formData.temperature.value > 40) {
-    showModal.value = true;
-    modalMessage.value =
-      "Are you sure you would like to submit the temperature value " +
-      tempVal.value +
-      "°" +
-      tempUnit.value +
-      "?";
-    return;
-  }
 
   fetch("/api/measurements/", {
     method: "POST",
