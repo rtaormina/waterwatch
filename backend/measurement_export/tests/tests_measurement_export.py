@@ -63,6 +63,17 @@ class ExportMeasurementTests(TestCase):
             time_waited=timedelta(seconds=1),
         )
 
+    def test_empty_export_xml(self):
+        Measurement.objects.all().delete()
+        Temperature.objects.all().delete()
+        response = self.client.get("/api/measurements/?format=xml")
+        assert response.status_code == 200
+        root = ET.fromstring(response.content)
+
+        assert root.tag == "measurements"
+        entries = root.findall("measurement")
+        assert len(entries) == 0
+
     def test_export_measurements_xml(self):
         response = self.client.get("/api/measurements/?format=xml")
         assert response.status_code == 200
@@ -88,6 +99,21 @@ class ExportMeasurementTests(TestCase):
 
         assert first.find("country").text == "Netherlands"
         assert second.find("continent").text == "The Ocean"
+
+    def test_empty_export_csv(self):
+        import csv
+        import io
+
+        Measurement.objects.all().delete()
+        Temperature.objects.all().delete()
+        response = self.client.get("/api/measurements/?format=csv")
+        assert response.status_code == 200
+
+        content = response.content.decode("utf-8")
+        reader = csv.DictReader(io.StringIO(content))
+
+        rows = list(reader)
+        assert len(rows) == 0
 
     def test_export_measurements_csv(self):
         import csv
@@ -119,6 +145,14 @@ class ExportMeasurementTests(TestCase):
             == '[{"metric_type": "temperature", "sensor": "Second Test Sensor", "value": 40.1, "time_waited": 1.0}]'
         )
 
+    def test_empty_export_json(self):
+        Measurement.objects.all().delete()
+        Temperature.objects.all().delete()
+        response = self.client.get("/api/measurements/?format=json")
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 0
+
     def test_export_measurements_json(self):
         response = self.client.get("/api/measurements/?format=json")
         assert response.status_code == 200
@@ -140,6 +174,17 @@ class ExportMeasurementTests(TestCase):
 
         assert m2_metric["value"] == 40.1
         assert m2_metric["sensor"] == "Second Test Sensor"
+
+    def test_empty_export_geojson(self):
+        Measurement.objects.all().delete()
+        Temperature.objects.all().delete()
+        response = self.client.get("/api/measurements/?format=geojson")
+        assert response.status_code == 200
+
+        data = response.json()
+        assert data["type"] == "FeatureCollection"
+        features = data["features"]
+        assert len(features) == 0
 
     def test_export_measurements_geojson(self):
         response = self.client.get("/api/measurements/?format=geojson")
