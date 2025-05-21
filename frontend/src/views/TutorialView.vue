@@ -1,23 +1,7 @@
 <template>
   <div>
     <Navbar />
-    <USelect
-      v-model="page"
-      :items="tutorials"
-      class="mb-4 w-full"
-      v-if="!showTabs"
-    />
-    <UTabs
-      v-else
-      v-model="page"
-      :items="tutorials"
-      class="w-full"
-      variant="link"
-      color="primary"
-      :ui="{
-        label: 'text-balance',
-      }"
-    />
+    <TextTabs :items="tutorials" v-model="page" class="mb-4 w-full" />
 
     <template v-if="page == 'Measurements'">
       <TextSection title="Introduction">
@@ -232,20 +216,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import Navbar from "../components/NavBar.vue";
 import TextSection from "../components/Text/Section.vue";
 import TextSectionSplit from "../components/Text/SectionSplit.vue";
 import TextSubSection from "../components/Text/SubSection.vue";
-import { useWindowSize } from "@vueuse/core";
+import TextTabs from "../components/Text/Tabs.vue";
 
 const page = ref<string>("Measurements");
-
-const windowSize = useWindowSize();
-
-const showTabs = computed<boolean>(() => {
-  return windowSize.width.value >= 600;
-});
 
 const tutorials = [
   {
