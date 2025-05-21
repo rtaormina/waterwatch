@@ -142,16 +142,6 @@ const postData = () => {
     userLoc.value?.lng,
     userLoc.value?.lat
   );
-  if (formData.temperature.value < 0 || formData.temperature.value > 40) {
-    showModal.value = true;
-    modalMessage.value =
-      "Are you sure you would like to submit the temperature value " +
-      tempVal.value +
-      "°" +
-      tempUnit.value +
-      "?";
-    return;
-  }
 
   fetch("/api/measurements/", {
     method: "POST",
