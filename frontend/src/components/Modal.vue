@@ -1,10 +1,10 @@
 <template>
-  <div v-if="visible" class="fixed inset-0 g-black/5 backdrop-blur-sm flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-lg relative">
-      <button @click="$emit('close')" class="absolute top-2 right-2 text-gray-600 hover:text-black">
+  <div v-if="visible" class="fixed inset-0 g-black/5 backdrop-blur-sm flex items-center justify-center z-50 ">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-lg relative max-h-[90vh] overflow-y-auto">
 
-      </button>
-      <slot />
+      <div class="whitespace-normal break-words">
+              <slot />
+      </div>
     </div>
   </div>
 </template>
