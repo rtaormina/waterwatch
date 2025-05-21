@@ -1,10 +1,14 @@
 """Serializers for Measurement and Temperature models."""
 
+import logging
+
 from campaigns.views import find_matching_campaigns
 from django.utils import timezone
 from measurements.models import Measurement, Temperature
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
+
+logger = logging.getLogger("WATERWATCH")
 
 
 class TemperatureSerializer(serializers.ModelSerializer):
@@ -93,10 +97,9 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         temperature_data = validated_data.pop("temperature", None)
         measurement = Measurement.objects.create(**validated_data)
         active_campaigns = find_matching_campaigns(
-            timezone.now().isoformat(), str(measurement.location.y), str(measurement.location.x)
+            timezone.now(), str(measurement.location.y), str(measurement.location.x)
         )
-        [measurement.campaigns.add(i) for i in list(active_campaigns.values_list("id", flat=True))]
-
+        measurement.campaigns.add(*active_campaigns)
         if temperature_data:
             Temperature.objects.create(measurement=measurement, **temperature_data)
 
