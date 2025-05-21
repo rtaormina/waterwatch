@@ -30,7 +30,7 @@ const items = ref([
   { label: 'Preferences', icon: 'i-lucide-settings', to: '/preferences' },
   { label: 'See History', icon: 'i-lucide-history', to: '/history' },
   { type: 'separator' },
-  { label: 'Log Out', icon: 'i-lucide-log-out', onSelect: () => logout() }
+  { label: 'Log Out', icon: 'i-lucide-log-out', onSelect: () => logout(), class: 'cursor-pointer' }
 ])
 </script>
 
@@ -179,11 +179,11 @@ const items = ref([
               content: 'w-48 z-50'
             }">
               <user-icon
-                class="w-10 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out" />
+                class="w-8 h-8 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out" />
             </UDropdownMenu>
           </div>
           <div v-else>
-            <user-icon class="w-10 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
+            <user-icon class="w-7 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
               @click="login()" />
           </div>
 
