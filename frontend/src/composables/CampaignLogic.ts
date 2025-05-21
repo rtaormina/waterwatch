@@ -18,7 +18,6 @@ export function updateCountdown(endTime: string) {
   const now = new Date().getTime();
   const end = new Date(endTime).getTime();
   const diffMs = now - end;
-
   if (diffMs > 0) {
     return {
         hasEnded: true,
@@ -26,7 +25,7 @@ export function updateCountdown(endTime: string) {
     }
   }
 
-  const totalSeconds = Math.floor(diffMs / 1000);
+  const totalSeconds = Math.abs(Math.floor(diffMs / 1000));
   const days = Math.abs(Math.floor(totalSeconds / (3600 * 24)));
   const hours = Math.abs(Math.floor((totalSeconds % (3600 * 24)) / 3600));
   const minutes = Math.abs(Math.floor((totalSeconds % 3600) / 60));

@@ -47,7 +47,7 @@ describe("updateCountdown", () => {
   it("updateCountdown should return correct time left if time left", () => {
     const result = updateCountdown("2023-05-21T12:00:00Z");
     expect(result.hasEnded).toBe(false);
-    expect(result.timeLeft).toMatch("1d 20h 0m 0s");
+    expect(result.timeLeft).toMatch("0d 20h 0m 0s");
   });
 
   it("updateCountdown should return correct time left if time has ended", () => {

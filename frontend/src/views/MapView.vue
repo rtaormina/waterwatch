@@ -46,7 +46,10 @@ import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 
 const addingMeasurement = ref(false);
 const campaigns = ref([])
-
+type Location = {
+  latitude: number
+  longitude: number
+}
 const fetchCampaigns = async (lat: number, lng: number) => {
   const now = new Date().toISOString()
 
@@ -64,25 +67,51 @@ const fetchCampaigns = async (lat: number, lng: number) => {
   campaigns.value = data.campaigns || []
 }
 
-const getLocation = (): Promise<GeolocationPosition> => {
+const getLocation = (): Promise<Location> => {
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) {
-      reject(new Error('Geolocation not supported'))
-      return
+      console.warn('Geolocation not supported, falling back to IP-based location');
+      getIpLocation().then(resolve).catch(reject);
+      return;
     }
 
-    navigator.geolocation.getCurrentPosition(resolve, reject, {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0,
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+      },
+      (err) => {
+        console.warn('Geolocation failed, falling back to IP-based location', err);
+        getIpLocation().then(resolve).catch(reject);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  });
+};
+const getIpLocation = (): Promise<Location> => {
+  return fetch("https://www.geolocation-db.com/json/")
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.latitude || !data.longitude) {
+        throw new Error('Invalid IP location data')
+      }
+      return {
+        latitude: data.latitude,
+        longitude: data.longitude,
+      }
     })
-  })
 }
 
 onMounted(async () => {
     getLocation().then((position) => {
-        const lat = position.coords.latitude
-        const lng = position.coords.longitude
+        const lat = position.latitude
+        const lng = position.longitude
 
         fetchCampaigns(lat, lng)
     }).catch((err) => {
