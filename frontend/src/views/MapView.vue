@@ -4,7 +4,7 @@
 
   <CampaignBannerComponent
       v-if="campaigns.length"
-    :campaigns="campaigns"/>
+    :campaigns="campaigns" class="bg-white"/>
 
     <div class="w-full h-full flex flex-row">
       <div

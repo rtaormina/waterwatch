@@ -45,7 +45,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="w-full text-black px-4 py-2 shadow-md bg-white/20 backdrop-blur-sm hover:cursor-pointer"
+    class="w-full text-black px-4 py-2 shadow-md bg-white backdrop-blur-sm hover:cursor-pointer"
     @click="showModal = true"
   >
     <div class="w-full flex justify-center items-center">
