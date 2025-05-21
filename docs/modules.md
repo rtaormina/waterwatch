@@ -1,12 +1,12 @@
-# backend
+# Backend
 ```{eval-rst}
 .. toctree::
    :maxdepth: 3
 
-   backend
-   campaigns
-   measurement_analysis
-   measurement_collection
-   measurement_export
-   measurements
+   Backend <backend>
+   Campaigns <campaigns>
+   Measurement Analysis <measurement_analysis>
+   Measurement Collection <measurement_collection>
+   Measurement Export <measurement_export>
+   Measurements <measurements>
 ```

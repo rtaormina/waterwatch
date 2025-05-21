@@ -1,4 +1,4 @@
-# measurement\_collection package
+# measurement\_collection Package
 
 
 ## measurement\_collection.admin module

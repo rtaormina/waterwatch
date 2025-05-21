@@ -1,4 +1,4 @@
-# campaigns package
+# Campaigns Package
 
 ## campaigns.admin module
 ```{eval-rst}

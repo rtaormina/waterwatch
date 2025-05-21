@@ -1,4 +1,4 @@
-# backend package
+# Backend Package
 
 ## backend.asgi module
 ```{eval-rst}

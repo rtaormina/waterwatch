@@ -1,4 +1,4 @@
-# measurement\_analysis package
+# measurement\_analysis Package
 
 ## measurement\_analysis.admin module
 
