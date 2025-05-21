@@ -2,7 +2,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import burgerBar from '@/assets/burger-bar.png'
 import { useRouter } from 'vue-router'
-import { UDropdownMenu, UButton } from '@nuxt/ui'
 import { UserIcon, ArrowLeftStartOnRectangleIcon } from "@heroicons/vue/24/solid";
 import { useLogin } from '@/composables/LoginLogic.ts'
 
@@ -94,7 +93,29 @@ const items = ref([
         </div>
 
         <!-- registration/login buttons -->
-        <div
+        <div v-if="loggedIn"
+          class="flex flex-row justify-center space-x-3 absolute bottom-0 width-screen left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+
+          <div>
+            <router-link to="/preferences" class="px-7 py-1 rounded-md border-2 border-white text-white text-2xl
+           hover:bg-white hover:text-[#00A6D6] transition-colors duration-200 whitespace-nowrap">
+              Preferences
+            </router-link>
+          </div>
+          <div>
+            <router-link to="/login" class="px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl
+           hover:bg-gray-100 transition-colors duration-200">
+              History
+            </router-link>
+          </div>
+          <div>
+            <router-link @click="logout()" to="/" class="px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl
+           hover:bg-gray-100 transition-colors duration-200">
+              Logout
+            </router-link>
+          </div>
+        </div>
+        <div v-else
           class="flex flex-row justify-center space-x-3 absolute bottom-0 width-screen left-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <div>
             <router-link to="/login" class="px-7 py-1 rounded-md border-2 border-white text-white text-2xl
@@ -153,20 +174,21 @@ const items = ref([
         </div>
 
         <div>
-          <div v-if="!loggedIn">
+          <div v-if="loggedIn">
+            <UDropdownMenu :items="items" :ui="{
+              content: 'w-48 z-50'
+            }">
+              <user-icon
+                class="w-10 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out" />
+            </UDropdownMenu>
+          </div>
+          <div v-else>
             <user-icon class="w-10 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
               @click="login()" />
           </div>
-          <div v-else>
-            <arrow-left-start-on-rectangle-icon
-              class="w-10 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
-              @click="logout()" />
-          </div>
 
         </div>
-        <UDropdownMenu :items="items">
-          <UButton icon="i-lucide-user" color="neutral" variant="ghost" />
-        </UDropdownMenu>
+
       </div>
 
     </div>
