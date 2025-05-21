@@ -8,6 +8,7 @@ import { useLogin } from '@/composables/LoginLogic.ts'
 
 const {
   checkLoginStatus
+  , login, logout
 } = useLogin()
 
 const loggedIn = ref(false)
@@ -27,13 +28,7 @@ const checkMobile = () => {
 
 const showOverlay = ref(false)
 
-function login() {
 
-}
-
-function logout() {
-
-}
 
 function openOverlay() {
   showOverlay.value = true
@@ -42,7 +37,7 @@ function closeOverlay() {
   showOverlay.value = false
 }
 
-onMounted( async () => {
+onMounted(async () => {
   loggedIn.value = await checkLoginStatus()
   checkMobile()
   window.addEventListener('resize', checkMobile)
@@ -201,7 +196,11 @@ onUnmounted(() => {
         </div>
         <div>
           <div v-if="!loggedIn">
-            <user-icon class="w-10 h-10 text-white" @click="login()" />
+            <user-icon class="w-10 h-10 text-white cursor-pointer
+    hover:bg-white hover:bg-opacity-20
+    hover:scale-110
+    transition
+    duration-200 ease-in-out     " @click="login()" />
           </div>
           <div v-else>
             <arrow-left-start-on-rectangle-icon class="w-10 h-10 text-white" @click="logout()" />

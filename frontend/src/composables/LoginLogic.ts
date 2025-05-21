@@ -34,6 +34,14 @@ export function useLogin() {
         return response.ok
     }
 
+    function login() {
+        router.push({ name: 'Login' })
+    }
+
+    function logout() {
+
+    }
+
     const handleSubmit = async () => {
         try {
             const response = await fetch("api/login/", {
@@ -79,5 +87,7 @@ export function useLogin() {
         showError,
         handleSubmit,
         checkLoginStatus,
+        login,
+        logout,
     }
 }
