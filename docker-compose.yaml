@@ -10,7 +10,7 @@ services:
       - "5432:5432"
     restart: always
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - waterwatch_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -74,5 +74,6 @@ services:
     restart: always
 
 volumes:
-  pgdata:
+  waterwatch_data:
+    name: waterwatch_data
     driver: local
