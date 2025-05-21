@@ -1,5 +1,5 @@
 <template>
-    <USelect v-if="smallScreen" v-model="activeTab" :items :class="cssClass + ' px-4 text-lg sm:text-xl'"/>
+    <USelect v-if="smallScreen" v-model="activeTab" :items :class="cssClass + ' px-4 text-lg sm:text-xl cursor-pointer'"/>
   <UTabs
     v-else
     v-model="activeTab"
@@ -9,7 +9,7 @@
     color="primary"
     :ui="{
       label: 'text-balance',
-      trigger: 'grow'
+      trigger: 'grow cursor-pointer',
     }"
   />
 </template>
