@@ -11,6 +11,8 @@ onMounted(async () => {
 
 <template>
   <UApp>
-    <RouterView />
+    <div class="w-full h-screen">
+      <RouterView />
+    </div>
   </UApp>
 </template>
