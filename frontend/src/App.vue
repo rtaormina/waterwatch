@@ -10,7 +10,7 @@ onMounted(async () => {
 </script>
 
 <template>
-
-  <router-view />
-
+  <UApp>
+    <RouterView />
+  </UApp>
 </template>

@@ -31,3 +31,7 @@ dist-ssr
 
 # Vitest Coverage
 coverage/
+
+# Nuxt UI
+auto-imports.d.ts
+components.d.ts

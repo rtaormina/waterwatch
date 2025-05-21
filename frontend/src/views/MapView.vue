@@ -1,6 +1,11 @@
 <template>
   <div class="w-full h-screen flex flex-col">
     <NavBar />
+
+  <CampaignBannerComponent
+      v-if="campaigns.length"
+    :campaigns="campaigns" class="bg-white"/>
+
     <div class="w-full h-full flex flex-row">
       <div
         class="left-0 bottom-0 w-3/5 relative"
@@ -35,10 +40,85 @@
 import { PlusCircleIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import HexMap from "@/components/HexMap.vue";
 import NavBar from "@/components/NavBar.vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
-
+import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 
 const addingMeasurement = ref(false);
+const campaigns = ref([])
+type Location = {
+  latitude: number
+  longitude: number
+}
+const fetchCampaigns = async (lat: number, lng: number) => {
+  const now = new Date().toISOString()
+
+  const res = await fetch(
+    `/api/campaigns/active/?datetime=${encodeURIComponent(now)}&lat=${lat}&lng=${lng}`,
+    {
+      method: 'GET',
+      credentials: 'same-origin',
+    }
+  )
+
+  if (!res.ok) throw new Error(`Status: ${res.status}`)
+
+  const data = await res.json()
+  campaigns.value = data.campaigns || []
+}
+
+const getLocation = (): Promise<Location> => {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      console.warn('Geolocation not supported, falling back to IP-based location');
+      getIpLocation().then(resolve).catch(reject);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        resolve({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+      },
+      (err) => {
+        console.warn('Geolocation failed, falling back to IP-based location', err);
+        getIpLocation().then(resolve).catch(reject);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  });
+};
+const getIpLocation = (): Promise<Location> => {
+  return fetch("https://www.geolocation-db.com/json/")
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.latitude || !data.longitude) {
+        throw new Error('Invalid IP location data')
+      }
+      return {
+        latitude: data.latitude,
+        longitude: data.longitude,
+      }
+    })
+}
+
+onMounted(async () => {
+    getLocation().then((position) => {
+        const lat = position.latitude
+        const lng = position.longitude
+
+        fetchCampaigns(lat, lng)
+    }).catch((err) => {
+            console.error('Error getting location or fetching campaigns:', err)
+    campaigns.value = []
+    })
+
+})
 
 </script>
