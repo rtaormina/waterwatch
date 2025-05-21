@@ -89,7 +89,7 @@ const items = ref([
               </router-link>
 
               <router-link
-                to="/"
+                to="/tutorial"
                 class="text-white"
                 :class="{
                   underline: page === 'Tutorial',
@@ -111,7 +111,7 @@ const items = ref([
               </router-link>
 
               <router-link
-                to="/"
+                to="/about"
                 class="text-white"
                 :class="{
                   underline: page === 'About',
@@ -122,7 +122,7 @@ const items = ref([
               </router-link>
 
               <router-link
-                to="/"
+                to="/contact"
                 class="text-white"
                 :class="{
                   underline: page === 'Contact',
@@ -216,7 +216,7 @@ const items = ref([
           class="border-b-2"
           :class="page == 'Tutorial' ? 'border-white' : 'border-transparent'"
         >
-          <router-link to="/" class="text-white text-2xl hover:border-white">
+          <router-link to="/tutorial" class="text-white text-2xl hover:border-white">
             Tutorial
           </router-link>
         </div>
@@ -249,7 +249,7 @@ const items = ref([
           class="border-b-2"
           :class="page == 'Contact' ? 'border-white' : 'border-transparent'"
         >
-          <router-link to="/" class="text-white text-2xl hover:border-white">
+          <router-link to="/contact" class="text-white text-2xl hover:border-white">
             Contact
           </router-link>
         </div>
