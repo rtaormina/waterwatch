@@ -142,16 +142,6 @@ const postData = () => {
     userLoc.value?.lng,
     userLoc.value?.lat
   );
-  if (formData.temperature.value < 0 || formData.temperature.value > 40) {
-    showModal.value = true;
-    modalMessage.value =
-      "Are you sure you would like to submit the temperature value " +
-      tempVal.value +
-      "°" +
-      tempUnit.value +
-      "?";
-    return;
-  }
 
   fetch("/api/measurements/", {
     method: "POST",
@@ -210,9 +200,7 @@ const postDataCheck = () => {
 
 <template>
   <div class="bg-white">
-    <h1
-      class="bg-main text-lg font-bold text-white rounded-b-lg p-4 mb-6 shadow max-w-screen-md mx-auto"
-    >
+    <h1 class="bg-main text-lg font-bold text-white rounded-b-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
       Record Measurement
     </h1>
     <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
@@ -224,22 +212,12 @@ const postDataCheck = () => {
       </div>
 
       <div class="flex-start min-w-0 flex items-center gap-2">
-        <label class="self-center text-sm font-medium text-gray-700"
-          >Water Source:</label
-        >
+        <label class="self-center text-sm font-medium text-gray-700">Water Source:</label>
 
-        <select
-          data-testid="select-water-source"
-          id="water_source"
-          v-model="formData.water_source"
-          class="bg-white self-center border border-gray-300 rounded px-3 py-2"
-        >
+        <select data-testid="select-water-source" id="water_source" v-model="formData.water_source"
+          class="bg-white self-center border border-gray-300 rounded px-3 py-2">
           <option disabled value="">Select a source</option>
-          <option
-            v-for="opt in waterSourceOptions"
-            :key="opt.value"
-            :value="opt.value"
-          >
+          <option v-for="opt in waterSourceOptions" :key="opt.value" :value="opt.value">
             {{ opt.label }}
           </option>
         </select>
@@ -248,54 +226,31 @@ const postDataCheck = () => {
 
     <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
       <h3 class="text-lg font-semibold mb-2">Metric</h3>
-      <label
-        for="metric_choice"
-        class="block text-sm font-medium text-gray-700 mb-1"
-        >Metric Type</label
-      >
+      <label for="metric_choice" class="block text-sm font-medium text-gray-700 mb-1">Metric Type</label>
       <div class="flex flex-col gap-2">
-        <label
-          data-testid="metric-checkbox"
-          v-for="opt in metricOptions"
-          :key="opt.value"
-          class="flex items-center space-x-2"
-        >
-          <input
-            type="checkbox"
-            :value="opt.value"
-            v-model="selectedMetrics"
-            class="accent-primary"
-          />
+        <label data-testid="metric-checkbox" v-for="opt in metricOptions" :key="opt.value"
+          class="flex items-center space-x-2">
+          <input type="checkbox" :value="opt.value" v-model="selectedMetrics" class="accent-primary" />
           <span>{{ opt.label }}</span>
         </label>
       </div>
     </div>
 
     <!-- Temperature Metric -->
-    <div
-      v-if="selectedMetrics.includes('temperature')"
-      class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto space-y-6"
-    >
+    <div v-if="selectedMetrics.includes('temperature')"
+      class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto space-y-6">
       <h3 class="text-lg font-semibold mb-4">Temperature</h3>
 
       <!-- Sensor Type -->
       <div class="flex-1 items-start gap-4 mb-4">
         <div class="flex flex-col">
           <div class="flex-start min-w-0 flex items-center gap-2">
-            <label for="sensor-type" class="text-sm font-medium text-gray-700"
-              >Sensor Type</label
-            >
-            <input
-              data-testid="sensor-type"
-              id="sensor-type"
-              v-model="formData.temperature.sensor"
-              placeholder="thermometer"
-              type="text"
-              :class="[
+            <label for="sensor-type" class="text-sm font-medium text-gray-700">Sensor Type</label>
+            <input data-testid="sensor-type" id="sensor-type" v-model="formData.temperature.sensor"
+              placeholder="thermometer" type="text" :class="[
                 'flex-grow bg-white border border-gray-300 rounded px-3 py-2 mt-1',
                 errors.sensor ? 'border-red-500 border-2' : 'border-gray-300',
-              ]"
-            />
+              ]" />
           </div>
           <p class="mt-2 h-4 text-red-600 text-xs">
             {{ errors.sensor || " " }}
@@ -312,28 +267,13 @@ const postDataCheck = () => {
                 <span class="hidden sm:inline">Temperature Value</span>
                 <span class="inline sm:hidden">Temp. Value</span>
               </label>
-              <input
-                data-testid="temp-val"
-                id="temp-val"
-                v-model="tempVal"
-                type="number"
-                min="0"
-                @input="onTempInput"
-                ref="tempRef"
-                placeholder="e.g. 24.3"
-                :class="[
+              <input data-testid="temp-val" id="temp-val" v-model="tempVal" type="number" min="0" @input="onTempInput"
+                ref="tempRef" placeholder="e.g. 24.3" :class="[
                   'flex-1 bg-white min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
                   errors.temp ? 'border-red-500 border-2' : 'border-gray-300',
-                ]"
-              />
+                ]" />
               <label class="items-center gap-1">
-                <input
-                  data-testid="celsius"
-                  name="temp"
-                  type="radio"
-                  value="C"
-                  v-model="tempUnit"
-                />
+                <input data-testid="celsius" name="temp" type="radio" value="C" v-model="tempUnit" />
                 <span>°C</span>
               </label>
               <label data-testid="fahrenheit" class="items-center gap-1">
@@ -349,50 +289,26 @@ const postDataCheck = () => {
       <!-- Temp time waited -->
       <div class="flex items-center gap-2">
         <div class="flex flex-col">
-          <label class="block text-sm font-medium text-gray-700"
-            >Time waited</label
-          >
+          <label class="block text-sm font-medium text-gray-700">Time waited</label>
         </div>
 
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <input
-              data-testid="time-waited-mins"
-              id="time-waited_min"
-              @input="handleInput"
-              @keypress="handleKeyPress"
-              @paste="handlePaste"
-              v-model="time.mins"
-              min="0"
-              placeholder="00"
-              type="number"
-              ref="minsRef"
-              :class="[
+            <input data-testid="time-waited-mins" id="time-waited_min" @input="handleInput" @keypress="handleKeyPress"
+              @paste="handlePaste" v-model="time.mins" min="0" placeholder="00" type="number" ref="minsRef" :class="[
                 'w-16 rounded px-2 py-1 bg-white',
                 errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
-              ]"
-            />
+              ]" />
             <label for="time-waited_min">Min</label>
           </div>
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <input
-              data-testid="time-waited-sec"
-              id="time-waited_sec"
-              @input="handleInput"
-              @keypress="handleKeyPress"
-              @paste="handlePaste"
-              v-model="time.sec"
-              min="0"
-              placeholder="00"
-              type="number"
-              ref="secRef"
-              :class="[
+            <input data-testid="time-waited-sec" id="time-waited_sec" @input="handleInput" @keypress="handleKeyPress"
+              @paste="handlePaste" v-model="time.sec" min="0" placeholder="00" type="number" ref="secRef" :class="[
                 'w-16 rounded px-2 py-1 bg-white',
                 errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
-              ]"
-            />
+              ]" />
             <label for="time-waited_sec">Sec</label>
           </div>
         </div>
@@ -401,41 +317,29 @@ const postDataCheck = () => {
 
     <!-- Submit -->
     <div class="flex mb-6 max-w-screen-md mx-auto mt-6 gap-2">
-      <button
-        type="button"
+      <button type="button"
         class="flex-1 bg-white border border-primary text-primary px-4 py-2 rounded hover:bg-primary-light hover:cursor-pointer"
-        @click="clear"
-      >
+        @click="clear">
         Clear
       </button>
-      <button
-        :disabled="!validated"
-        type="submit"
-        @click="postDataCheck"
-        style="background-color: #00a6d6"
-        :class="[
-          'flex-1 px-4 py-2 rounded text-white ',
-          !validated
-            ? 'bg-gray-400 opacity-50 hover:cursor-not-allowed'
-            : 'bg-main hover:cursor-pointer',
-        ]"
-      >
+      <button :disabled="!validated" type="submit" @click="postDataCheck" style="background-color: #00a6d6" :class="[
+        'flex-1 px-4 py-2 rounded text-white ',
+        !validated
+          ? 'bg-gray-400 opacity-50 hover:cursor-not-allowed'
+          : 'bg-main hover:cursor-pointer',
+      ]">
         Submit
       </button>
       <Modal :visible="showModal" @close="showModal = false">
         <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
         <p>{{ modalMessage }}</p>
         <div class="flex items-center mt-4 gap-2">
-          <button
-            @click="showModal = false"
-            class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer"
-          >
+          <button @click="showModal = false"
+            class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer">
             Cancel
           </button>
-          <button
-            @click="postData"
-            class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
-          >
+          <button @click="postData"
+            class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer">
             Submit
           </button>
         </div>

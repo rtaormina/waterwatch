@@ -68,6 +68,24 @@ class CollectMeasurementTests(TestCase):
             },
         }
 
+        cls.payload_test_metric = {
+            "timestamp_local": "2025-0-01T07:00:00.000-05:00",
+            "location": {
+                "type": "Point",
+                "coordinates": [100, 110],
+            },
+            "water_source": "well",
+            "temperature": {
+                "sensor": "thermometer",
+                "value": 45.5,
+                "time_waited": "00:01:15",
+            },
+            "test_metric": {
+                "sensor": "thermometer",
+                "value": 45.5,
+            },
+        }
+
     def test_save_measurement_flagged(self):
         response = self.client.post(
             "/api/measurements/",
