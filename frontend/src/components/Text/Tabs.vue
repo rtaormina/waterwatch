@@ -1,5 +1,5 @@
 <template>
-  <USelect v-model="activeTab" :items :class="cssClass" v-if="smallScreen" />
+    <USelect v-if="smallScreen" v-model="activeTab" :items :class="cssClass + ' px-4 text-lg sm:text-xl'"/>
   <UTabs
     v-else
     v-model="activeTab"
