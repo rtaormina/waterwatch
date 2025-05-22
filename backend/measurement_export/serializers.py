@@ -34,6 +34,13 @@ class MeasurementSerializer(serializers.ModelSerializer):
     -------
     get_location(obj)
         Extracts latitude and longitude from `obj.location` and returns them in a dictionary.
+    get_country(obj)
+        Uses reverse geocoding to get the country name for the measurement's location.
+    get_continent(obj)
+        Uses reverse geocoding to get the continent name for the measurement's location.
+    get_metrics(obj)
+        Iterates through all subclasses of the Metric model and collects their data if they are related
+        to the current measurement instance.
     """
 
     location = serializers.SerializerMethodField()
