@@ -1,13 +1,14 @@
 """Add Measurements to Admin view."""
 
 from django.contrib import admin
+from django.contrib.gis.admin import GISModelAdmin
 
 from .models import Measurement, Temperature
 
 
 # Register your models here.
 @admin.register(Measurement)
-class MeasurementAdmin(admin.ModelAdmin):
+class MeasurementAdmin(GISModelAdmin):
     """Admin view for Measurements."""
 
     list_display = (

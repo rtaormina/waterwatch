@@ -10,7 +10,8 @@ import {
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
 import { exportData, format } from "@/composables/ExportDownloadLogic";
 import Modal from "./Modal.vue";
-import { permissionsLogic } from "@/composables/PermissionsLogic.ts";
+import { permissionsLogic } from "@/composables/PermissionsLogic";
+import { all } from "axios";
 
 const canDownload = ref(false);
 const perms = ref<string[]>([]);
