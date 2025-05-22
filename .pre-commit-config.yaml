@@ -16,3 +16,23 @@ repos:
     - id: ruff
     # Run the formatter.
     - id: ruff-format
+- repo: https://github.com/pre-commit/mirrors-eslint
+  rev: v9.27.0
+  hooks:
+    - id: eslint
+      additional_dependencies:
+        - eslint
+        - typescript
+        - "@typescript-eslint/parser"
+        - "@typescript-eslint/eslint-plugin"
+        - eslint-plugin-vue
+        - eslint-plugin-prettier
+        - eslint-config-prettier
+      args:
+        - --config
+        - ./frontend/eslint.config.js
+        - --ext
+        - .js,.ts,.vue
+        - ./frontend/src
+        - --fix
+      files: ^frontend/src/.*\.(js|ts|vue)$
