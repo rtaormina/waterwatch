@@ -7,30 +7,22 @@ import {
   onUpdated,
   onBeforeUnmount,
 } from "vue";
+import axios from "axios";
 import {
   PlusIcon,
   MinusIcon,
   ChevronDownIcon,
   CheckIcon,
 } from "@heroicons/vue/24/solid";
-import { useLocations } from "@/composables/ExportLocationLogic";
-import { temp, tempRangeValid } from "@/composables/ExportTemperatureLogic";
-import {
-  dateRange,
-  dateRangeValid,
-  times,
-  slotsNonOverlapping,
-  allSlotsValid,
-  slotValid,
-  addSlot,
-  removeSlot,
-} from "@/composables/ExportTimeLogic";
+import { useFilters } from "@/composables/ExportFilterLogic";
+import { useMeasurements } from "@/composables/ExportSearchLogic";
+import type { PresetFilters } from "@/composables/ExportPresetLogic";
+import type { MeasurementSearchParams } from "@/composables/ExportSearchLogic";
 
 const emit = defineEmits(["search"]);
-const filterPanelRef = ref<HTMLElement | null>(null);
-const scrollableAreaRef = ref<HTMLElement | null>(null);
 
 const {
+  // Location filter
   continents,
   countriesByContinent,
   selectedContinents,
@@ -44,7 +36,30 @@ const {
   toggleAllCountries,
   formatContinentSelectionText,
   formatCountrySelectionText,
-} = useLocations();
+  // Measurement filter
+  temperatureEnabled,
+  temperature,
+  tempRangeValid,
+  // Date range filter
+  dateRange,
+  dateRangeValid,
+  // Time slot filter
+  times,
+  allSlotsValid,
+  slotsNonOverlapping,
+  addSlot,
+  removeSlot,
+  slotValid,
+  // Filter logic
+  getSearchParams,
+  applyPreset,
+  resetFilters,
+} = useFilters();
+
+const { loading, error, results, searchMeasurements, resetSearch } = useMeasurements();
+
+const filterPanelRef = ref<HTMLElement | null>(null);
+const scrollableAreaRef = ref<HTMLElement | null>(null);
 
 // Dropdown state
 const continentDropdownOpen = ref(false);
@@ -115,40 +130,15 @@ watch(selectedContinents, (newList) => {
   );
 });
 
-// Measurement type
-const measurements = reactive({
-  temperature: false,
+function reset() {
+  resetFilters();
+  resetSearch();
+}
+
+defineExpose({
+  getSearchParams,
+  applyPreset
 });
-
-// Reset filters
-function resetFilters() {
-  selectedContinents.value = [];
-  selectedCountries.value = [];
-  temp.from = "";
-  temp.to = "";
-  temp.unit = "C";
-  measurements.temperature = false;
-  dateRange.from = "";
-  dateRange.to = "";
-  times.value = [];
-}
-
-// Search function
-function search() {
-  emit("search", {
-    location: {
-      continents: selectedContinents.value,
-      countries: selectedCountries.value,
-    },
-    measurements: {
-      temperature: measurements.temperature
-        ? { from: temp.from, to: temp.to, unit: temp.unit }
-        : null,
-    },
-    dateRange: dateRange,
-    times: times.value,
-  });
-}
 </script>
 
 <template>
@@ -314,26 +304,22 @@ function search() {
         <!-- Temperature checkbox -->
         <div class="flex items-center justify-between mb-2">
           <label class="flex items-center">
-            <input
-              type="checkbox"
-              v-model="measurements.temperature"
-              class="mr-2"
-            />
+            <input type="checkbox" v-model="temperatureEnabled" class="mr-2" />
             <span>Temperature</span>
           </label>
 
           <!-- Units -->
-          <div v-if="measurements.temperature" class="flex space-x-2">
+          <div v-if="temperatureEnabled" class="flex space-x-2">
             <button
-              @click="temp.unit = 'C'"
-              :class="{ 'bg-main text-white': temp.unit === 'C' }"
+              @click="temperature.unit = 'C'"
+              :class="{ 'bg-main text-white': temperature.unit === 'C' }"
               class="cursor-pointer px-3 py-1 rounded border"
             >
               °C
             </button>
             <button
-              @click="temp.unit = 'F'"
-              :class="{ 'bg-main text-white': temp.unit === 'F' }"
+              @click="temperature.unit = 'F'"
+              :class="{ 'bg-main text-white': temperature.unit === 'F' }"
               class="cursor-pointer px-3 py-1 rounded border"
             >
               °F
@@ -343,7 +329,7 @@ function search() {
 
         <!-- Temperature range fields with equal widths -->
         <div
-          v-if="measurements.temperature"
+          v-if="temperatureEnabled"
           class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end relative"
         >
           <!-- From -->
@@ -351,7 +337,7 @@ function search() {
             <label class="block text-sm mb-1">From</label>
             <input
               type="number"
-              v-model="temp.from"
+              v-model="temperature.from"
               min="0"
               max="100"
               placeholder="Min temperature"
@@ -364,7 +350,7 @@ function search() {
             <label class="block text-sm mb-1">To</label>
             <input
               type="number"
-              v-model="temp.to"
+              v-model="temperature.to"
               min="0"
               max="100"
               placeholder="Max temperature"
@@ -481,13 +467,13 @@ function search() {
     <!-- Action Buttons (fixed at bottom) -->
     <div class="flex justify-center space-x-4 mt-auto shrink-0">
       <button
-        @click="resetFilters"
+        @click="reset"
         class="cursor-pointer px-6 py-2 border border-gray-300 rounded-2xl hover:bg-gray-100 font-semibold text-lg"
       >
         Reset
       </button>
       <button
-        @click="search"
+        @click="emit('search')"
         :disabled="
           !tempRangeValid ||
           !dateRangeValid ||

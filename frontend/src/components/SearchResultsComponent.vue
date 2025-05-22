@@ -1,33 +1,49 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick, defineProps } from "vue";
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  defineProps,
+  watch,
+} from "vue";
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
 import { exportData, format } from "@/composables/ExportDownloadLogic";
 import Modal from "./Modal.vue";
 import { permissionsLogic } from "@/composables/PermissionsLogic.ts";
-import { all } from "axios";
 
 const canDownload = ref(false);
 const perms = ref<string[]>([]);
 
-const {
-  fetchPermissions,
-  hasPermission,
-  inGroup,
-  loaded,
-  allPermissions,
-} = permissionsLogic();
+const { fetchPermissions, hasPermission, inGroup, loaded, allPermissions } =
+  permissionsLogic();
 
-const props = defineProps({ results: Object });
+const emit = defineEmits(["download", "close-modal"]);
+
+interface Props {
+  results: { count: number; avgTemp: number };
+  searched: boolean;
+  showModal: boolean;
+}
+const props = defineProps<Props>();
+const resultsCount = ref(props.results?.count || 0);
+const resultsAvgTemp = ref(props.results?.avgTemp || 0);
+
+watch(
+  () => props.results,
+  (newResults) => {
+    if (newResults) {
+      resultsCount.value = newResults.count || 0;
+      resultsAvgTemp.value = newResults.avgTemp || 0;
+    }
+  },
+  { immediate: true, deep: true }
+);
+
 const wrapperRef = ref<HTMLElement | null>(null);
 const totalWidth = ref(0);
 
 const showModal = ref(false);
-
-const getData = async () => {
-  const exportSuccessful = await exportData();
-  showModal.value = !exportSuccessful;
-  console.log(showModal.value);
-};
 
 onMounted(async () => {
   // wait for DOM
@@ -45,8 +61,6 @@ onMounted(async () => {
   await fetchPermissions();
   canDownload.value = hasPermission("measurement_export.can_export");
   perms.value = allPermissions();
-  console.log("canDownload", canDownload.value);
-  console.log("permissions", perms.value);
 });
 </script>
 
@@ -56,11 +70,11 @@ onMounted(async () => {
       <h3 class="font-bold text-lg mb-4 hidden md:block">Search Results</h3>
       <h4 class="font-semibold text-lg hidden md:block">Summary</h4>
       <div class="mt-2 space-y-1">
-        <div class="flex justify-between">
-          <span>Number of Results:</span><span>{{ results?.count }}</span>
+        <div v-if="searched" class="flex justify-between">
+          <span>Number of Results:</span><span>{{ resultsCount }}</span>
         </div>
-        <div class="hidden md:flex md:justify-between">
-          <span>Average Temperature:</span><span>{{ results?.avgTemp }} °C</span>
+        <div v-if="searched" class="hidden md:flex md:justify-between">
+          <span>Average Temperature:</span><span>{{ resultsAvgTemp }} °C</span>
         </div>
       </div>
     </div>
@@ -69,13 +83,15 @@ onMounted(async () => {
       <ArrowDownTrayIcon
         :class="[
           'md:min-h-12 md:min-w-12 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200',
-          canDownload
+          canDownload && searched
             ? 'cursor-pointer text-gray-800 hover:text-gray-600'
             : 'cursor-not-allowed text-gray-400',
         ]"
-        @click="canDownload ? getData() : null"
+        @click="!props.searched || !canDownload ? null : emit('download')"
       />
-      <div class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4">
+      <div
+        class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4"
+      >
         <label for="format" class="font-semibold">Download as</label>
         <select
           id="format"
@@ -89,10 +105,14 @@ onMounted(async () => {
         </select>
       </div>
       <button
-        @click="getData"
-        :disabled="!canDownload"
+        @click="emit('download')"
+        :disabled="!canDownload || !searched"
         class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
-        :class="canDownload ? 'bg-main cursor-pointer' : 'bg-gray-300 cursor-not-allowed'"
+        :class="
+          canDownload && searched
+            ? 'bg-main cursor-pointer'
+            : 'bg-gray-300 cursor-not-allowed'
+        "
       >
         Download
       </button>

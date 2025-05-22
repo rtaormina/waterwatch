@@ -1,72 +1,48 @@
-<script setup>
-import { ref, reactive } from "vue";
+<script setup lang="ts">
+import { ref, reactive, watch } from "vue";
 import { computed } from "vue";
 import NavBar from "@/components/NavBar.vue";
 import SearchBar from "@/components/SearchBarComponent.vue";
 import FilterPanel from "@/components/FilterPanelComponent.vue";
 import SearchResults from "@/components/SearchResultsComponent.vue";
+import { useMeasurements } from "@/composables/ExportSearchLogic";
+import type { Preset } from "@/composables/ExportPresetLogic";
+import { exportData, format } from "@/composables/ExportDownloadLogic";
 
-const showFilters = ref(true);
 const query = ref("");
-const hasSearched = ref(false);
-const results = reactive({
-  count: 0,
-  avgTemp: 0,
-});
+const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 
-// Define presets - can be expanded with more options
-const presets = [
-  {
-    name: "Mediterranean Waters",
-    continents: ["Europe", "Africa"],
-    countries: ["Italy", "Spain", "France", "Greece", "Morocco", "Tunisia"],
-    temperature: {
-      enabled: true,
-      from: 15,
-      to: 30,
-      unit: "C",
-    },
-    dateRange: {
-      from: "",
-      to: "",
-    },
-    times: [],
-  },
-];
+const lastSearchParams = ref<
+  import("@/composables/ExportSearchLogic").MeasurementSearchParams | null
+>(null);
 
-// function to handle search with server communication
-async function onSearch(payload) {
-  console.log("Search with:", payload);
-  hasSearched.value = true;
+// Use measurements composable
+const { results, hasSearched, loading, error, searchMeasurements } =
+  useMeasurements();
 
-  try {
-    // In a real implementation, this would be an API call
-    // const response = await fetch('/api/search', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(payload)
-    // });
-    // const data = await response.json();
+// Handle search from SearchBar or FilterPanel
+async function onSearch() {
+  if (!filterPanelRef.value) return;
 
-    // For demonstration, set sample results
-    // In production, you would use data from the response
-    results.count = 1000;
-    results.avgTemp = 23.5;
-    results.avgTurbidity = 2;
-    results.avgPH = 6.8;
-  } catch (error) {
-    console.error("Search failed:", error);
-    // Handle error state
-  }
+  // Get current filters from FilterPanel
+  const searchParams = filterPanelRef.value.getSearchParams(query.value);
+  lastSearchParams.value = searchParams;
+
+  // Perform search
+  await searchMeasurements(searchParams);
 }
 
-// Function to apply preset to filter panel
-function applyPreset(presetIndex) {
-  // This would trigger an event to update the filter panel
-  // Currently we're just logging
-  console.log("Applying preset:", presets[presetIndex]);
-  // In a real implementation, you would emit this to the filter panel
-  // or use a shared state management solution
+const showModal = ref(false);
+async function onDownload() {;
+  const ok = await exportData(lastSearchParams.value == null ? {} : lastSearchParams.value);
+  showModal.value = !ok;
+}
+
+// Handle preset application
+function onApplyPreset(preset: Preset) {
+  if (filterPanelRef.value && preset.filters) {
+    filterPanelRef.value.applyPreset(preset.filters);
+  }
 }
 </script>
 
@@ -83,15 +59,25 @@ function applyPreset(presetIndex) {
       >
         <div class="w-full md:w-7/12 flex flex-col min-h-0">
           <div class="mb-4 shrink-0">
-            <SearchBar v-model:query="query" @search="onSearch" />
+            <SearchBar
+              v-model:query="query"
+              @search="onSearch"
+              @applyPreset="onApplyPreset"
+            />
           </div>
           <div class="flex-grow bg-light min-h-0 mb-[14px]">
-            <FilterPanel @search="onSearch" />
+            <FilterPanel ref="filterPanelRef" @search="onSearch" />
           </div>
         </div>
 
         <div class="w-full md:w-5/12 flex flex-col min-h-0">
-          <SearchResults :results="results" :searched="hasSearched" />
+          <SearchResults
+            :results="results"
+            :searched="hasSearched"
+            @download="onDownload"
+            :show-modal="showModal"
+            @close-modal="showModal = false"
+          />
         </div>
       </div>
     </div>

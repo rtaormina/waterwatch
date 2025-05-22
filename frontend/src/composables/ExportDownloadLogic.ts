@@ -1,14 +1,22 @@
 import Cookies from "universal-cookie";
 import { ref } from "vue";
 import { saveAs } from "file-saver";
+import { flattenSearchParams } from "./ExportSearchLogic";
+import type { MeasurementSearchParams } from "./ExportSearchLogic";
+
 
 const format = ref<"csv" | "xml" | "json" | "geojson">("csv");
 const cookies = new Cookies();
 
 export { format };
 
-export async function exportData() {
-  const params = new URLSearchParams();
+export async function exportData(filters?: MeasurementSearchParams) {
+  // flatten whatever filters were given (or empty object)
+  console.log(filters?.times)
+  const flat = filters ? flattenSearchParams(filters) : {};
+  const params = new URLSearchParams(flat as any);
+
+  // 2) always include format
   params.append("format", format.value);
 
   const url = `/api/measurements/?${params.toString()}`;
@@ -22,7 +30,7 @@ export async function exportData() {
     const blob = await res.blob();
     saveAs(blob, `water-data.${format.value}`);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

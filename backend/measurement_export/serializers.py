@@ -4,6 +4,8 @@ from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework import serializers
 
+from measurement_export.models import Preset
+
 from .utils import lookup_location
 
 
@@ -167,3 +169,24 @@ class MeasurementSerializer(serializers.ModelSerializer):
             metrics_data.append(data)
 
         return metrics_data
+
+
+class PresetSerializer(serializers.ModelSerializer):
+    """Serializer for Preset model instances.
+
+    This serializer is used to serialize and deserialize Preset objects.
+    It includes fields for the preset's ID, name, description, filters,
+    created_at timestamp, and a boolean indicating if the preset is public.
+
+    Parameters
+    ----------
+    serializers.ModelSerializer : Base class
+        Inherits from Django REST Framework's ModelSerializer.
+    """
+
+    class Meta:
+        """Meta class for PresetSerializer."""
+
+        model = Preset
+        fields = ["id", "name", "description", "filters", "created_at", "is_public"]
+        read_only_fields = ["id", "created_at"]

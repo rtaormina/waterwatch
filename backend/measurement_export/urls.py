@@ -5,5 +5,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.location_list, name="location-list"),
+    path("locations/", views.location_list, name="location-list"),
+    path("presets/", views.preset_list, name="preset-list"),
 ]
