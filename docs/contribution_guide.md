@@ -34,3 +34,8 @@ After pre-commit is installed, to create the commit hook:
 pre-commit install
 ```
 This makes sure that the pre-commit hooks will be run before commiting.
+
+## Testing
+Contributions should generally be supported by unit tests. Frontend unit testing is done using [vitest](https://vitest.dev/), backend unit testing is done using django [unittest](https://docs.djangoproject.com/en/5.2/topics/testing/).
+
+Where applicable, end to end testing should also be carried out. End to end testing is done using [Playwright](https://playwright.dev/). Generally if significant changes to the UI/frontend are made these should be supported by an end to end test.
