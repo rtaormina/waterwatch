@@ -4,7 +4,6 @@ import logging
 
 from campaigns.views import find_matching_campaigns
 from django.contrib.gis.geos import Point
-from django.utils import timezone
 from measurements.models import Measurement, Temperature
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -102,7 +101,7 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         temperature_data = validated_data.pop("temperature", None)
         measurement = Measurement.objects.create(**validated_data)
         active_campaigns = find_matching_campaigns(
-            timezone.now(), str(measurement.location.y), str(measurement.location.x)
+            measurement.timestamp_local, str(measurement.location.y), str(measurement.location.x)
         )
         measurement.campaigns.add(*active_campaigns)
         if temperature_data:
