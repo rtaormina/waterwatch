@@ -21,4 +21,11 @@ export default defineConfig([
     plugins: { prettier: pluginPrettier },
     rules: { "prettier/prettier": "error" },
   },
+
+  // Ignore rules
+  {
+    rules: {
+      "vue/multi-word-component-names": "off",
+    },
+  },
 ]);
