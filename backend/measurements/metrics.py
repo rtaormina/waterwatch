@@ -1,8 +1,7 @@
 """Contains the metric models for the measurements app."""
 
-from .models import Temperature, TestMetric
+from measurement_collection.tests.test_extra_metric_table import TestMetric
 
-METRIC_MODELS = [
-    Temperature,
-    TestMetric,
-]
+from .models import Temperature
+
+METRIC_MODELS = [Temperature, TestMetric]

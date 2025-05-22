@@ -66,24 +66,3 @@ class Temperature(models.Model):
 
     def __str__(self):
         return f"Temperature: {self.value} - {self.sensor} - {self.time_waited}"
-
-
-class TestMetric(models.Model):
-    """Model for testing new metric.
-
-    Attributes
-    ----------
-    measurement : Measurement
-        Associated Measurement for metric
-    sensor : str
-        The type of the sensor that was used to record the temperature
-    value : float
-        The temperature recorded temperature with single decimal place precision
-    """
-
-    measurement = models.OneToOneField(Measurement, on_delete=models.CASCADE, null=False, default=None)
-    sensor = models.CharField(max_length=255)
-    value = models.DecimalField(max_digits=4, decimal_places=1)
-
-    def __str__(self):
-        return f"Temperature: {self.value} - {self.sensor} - {self.time_waited}"

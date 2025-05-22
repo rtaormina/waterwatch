@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.contrib.gis.admin import GISModelAdmin
 
-from .models import Measurement, Temperature, TestMetric
+from .models import Measurement, Temperature
 
 
 # Register your models here.
@@ -56,22 +56,6 @@ class TemperatureAdmin(admin.ModelAdmin):
         "value",
         "sensor",
         "time_waited",
-    )
-    list_display_links = ("value",)
-    search_fields = [
-        "value",
-        "sensor",
-    ]
-
-
-@admin.register(TestMetric)
-class TestMetricAdmin(admin.ModelAdmin):
-    """Admin view for TestMetric."""
-
-    list_display = (
-        "measurement",
-        "value",
-        "sensor",
     )
     list_display_links = ("value",)
     search_fields = [
