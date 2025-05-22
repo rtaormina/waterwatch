@@ -64,5 +64,19 @@ class Temperature(models.Model):
     value = models.DecimalField(max_digits=4, decimal_places=1)
     time_waited = models.DurationField()
 
+    class Meta:
+        """Meta class for Temperature model."""
+
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(value__gte=0),
+                name="temperature_value_greater_than_zero",
+            ),
+            models.CheckConstraint(
+                check=models.Q(value__lte=100),
+                name="temperature_value_less_than_100",
+            ),
+        ]
+
     def __str__(self):
         return f"Temperature: {self.value} - {self.sensor} - {self.time_waited}"
