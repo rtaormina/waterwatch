@@ -1,5 +1,5 @@
 # measurement\_collection Package
-
+Package containing the associated backend logic for adding measurements to the database.
 
 ## measurement\_collection.admin module
 

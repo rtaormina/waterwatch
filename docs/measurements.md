@@ -1,4 +1,5 @@
 # Measurements Package
+Package containing the associated backend logic for measurement support.
 
 ## measurements.admin module
 

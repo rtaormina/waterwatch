@@ -1,4 +1,5 @@
 # measurement\_export Package
+Package containing the associated backend logic for exporting/retrieving measurements from the database.
 
 ## measurement\_export.admin module
 

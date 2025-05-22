@@ -1,5 +1,8 @@
 # Contribution Guide
 
+Outlined in this section are the guidelines for contributing to WATERWATCH.
+
+## Requirements Installation
 To avoid having to run individual installation commands, run:
 ```bash
 python -m pip install -r requirements/dev-requirements.txt

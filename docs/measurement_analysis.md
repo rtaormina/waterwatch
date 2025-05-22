@@ -1,4 +1,5 @@
 # measurement\_analysis Package
+Package containing the associated backend logic for conducting measurement analysis.
 
 ## measurement\_analysis.admin module
 

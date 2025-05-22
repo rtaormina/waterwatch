@@ -1,4 +1,5 @@
 # Campaigns Package
+Package containing the associated logic (endpoints, models etc) for campaign functionality.
 
 ## campaigns.admin module
 ```{eval-rst}
