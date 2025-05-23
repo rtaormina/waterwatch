@@ -24,7 +24,7 @@ const { center = L.latLng(51.999, 4.3737), data } = defineProps<{
 
 const hexbinOptions = {
   radius: 24,
-  opacity: 0.3,
+  opacity: 0.2,
   colorRange: ["blue", "orange", "red"],
   radiusRange: [4, 22],
 };
@@ -44,7 +44,7 @@ onMounted(() => {
   // Initialize the map
   const map = L.map(mapElement.value, {
     center: center,
-    zoom: 14,
+    zoom: 6,
     maxZoom: 16,
     worldCopyJump: true,
   });
