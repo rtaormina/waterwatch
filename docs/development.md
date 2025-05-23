@@ -3,18 +3,9 @@
 This section outlines the development steps that need to be taken to extend certain WATERWATCH functionalities.
 
 
-### Table of Contents
-
-[Adding Additional Metrics](#adding-additional-metrics)
-  * [Backend](#backend)
-    * [Models](#models)
-    * [Serializers](#serializers)
-    * [Final Steps](#final-steps)
-  * [Frontend](#frontend)
-
-[Adding Water Sources](#adding-water-sources)
-  * [Backend](#backend-1)
-  * [Frontend](#frontend-1)
+```{contents} Table of Contents
+:depth: 3
+```
 
 ## Adding Additional Metrics
 This section outlines how an additional metric can be integrated into WATERWATCH.
