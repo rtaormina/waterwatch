@@ -27,6 +27,7 @@ New to WATERWATCH? Check out the following links:
    troubleshooting
    contribution_guide
    manual_test
+   development
 ```
 
 ## Contributing / Reporting Issues

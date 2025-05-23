@@ -2,7 +2,7 @@
 Thank you for your interest in contributing!
 In this section you will find the guidelines for contributing and offering suggestions to improve WATERWATCH.
 
-#### Table of Contents
+### Table of Contents
 
 [Reporting Bugs](#reporting-bugs)
 

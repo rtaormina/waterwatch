@@ -7,8 +7,14 @@ Example: `TC-LOGIN-001`
 ## Title
 *Short, clear description of the test case*
 
-## Module / Feature
-*Name of the application module being tested*
+## Tested By
+`<Tester Name>`
+
+## Test Date
+`YYYY-MM-DD`
+
+## Summary
+*Short summary of what the test case consists of*
 
 ## Preconditions
 *State or setup required before test execution*
@@ -28,7 +34,6 @@ Example: `TC-LOGIN-001`
 ## Status
 - Pass
 - Fail
-    - Description of failure
 
 ## Severity (if failed)
 - High
@@ -43,11 +48,6 @@ Example: `TC-LOGIN-001`
 | Device       |           |
 | Environment  |           |
 
-## Tested By
-`<Tester Name>`
-
-## Test Date
-`YYYY-MM-DD`
 
 ## Related Requirement / User Story
 *Link or ID referencing the user story or requirement*
