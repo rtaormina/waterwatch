@@ -35,7 +35,29 @@ pre-commit install
 ```
 This makes sure that the pre-commit hooks will be run before commiting.
 
+## Commit Messages
+Commit messages should be concise but descriptive and contain information about the changes that can be found in the commit.
+
+## Merging into Main
+Changes should never be merged directly into main. Contributions should always be merged into dev first by creating a merge request, and dev is regularly merged into main. When creating a merge request, contributors must use the provided merge request template.
+
 ## Testing
 Contributions should generally be supported by unit tests. Frontend unit testing is done using [vitest](https://vitest.dev/), backend unit testing is done using django [unittest](https://docs.djangoproject.com/en/5.2/topics/testing/).
 
 Where applicable, end to end testing should also be carried out. End to end testing is done using [Playwright](https://playwright.dev/). Generally if significant changes to the UI/frontend are made these should be supported by an end to end test.
+
+The following commands can be used to run tests:
+### Frontend
+Unit Tests:
+```bash
+docker exec frontend npm run test
+```
+End-to-End Tests:
+```bash
+docker exec frontend npm run e2e
+```
+
+### Backend
+```bash
+docker exec backend python manage.py test
+```

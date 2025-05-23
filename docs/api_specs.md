@@ -1,7 +1,11 @@
 # API Specifications
 
 ```{eval-rst}
-.. openapi:: WATERWATCH_API.yaml
-    :examples:
-    :encoding: utf-8
+.. toctree::
+   :maxdepth: 3
+
+   measurements_api
+   users_api
+   admin_api
+   campaigns_api
 ```
