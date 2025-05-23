@@ -15,9 +15,9 @@ When recording the test case ID, the following modules are recognized:
 - `<Collection>`
    - This module refers to testing related to collecting measurement data.
 - `<Map>`
-   - This module refers to testing related to the map visualizations on the website homescreen.
+   - This module refers to testing related to the map visualizations on the website homepage.
 - `<Data-Analysis>`
-   - This module refers to testing related to datat analysis presented on the home screen when interacting with the map.
+   - This module refers to testing related to data analysis presented on the homepage when interacting with the map.
 
 ### Severity
 
@@ -28,7 +28,7 @@ Severity of the bug should be recorded and is defined as follows:
 
 ### Related Requirement / User Story
 
-In this section provide the related epic, issue, or requireement that the bug relates to
+In this section provide the related epic, issue, or requireement that the bug relates to.
 
 ## Manual Test Records
 ```{eval-rst}
