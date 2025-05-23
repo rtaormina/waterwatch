@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-# npm install --save-dev typedoc
-
 npx typedoc \
   --plugin typedoc-plugin-markdown \
   --plugin typedoc-plugin-vue \
