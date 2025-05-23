@@ -1,5 +1,3 @@
-
-
 ## Bug Report
 
 ### Description

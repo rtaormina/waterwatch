@@ -13,6 +13,13 @@ python -m pip install -r requirements/dev-requirements.txt
 ```
 Then after running the project using the installation steps below the documentation can be accessed by going to ['/docs'](http://127.0.0.1/docs).
 
+Alternatively, navigate to the docs directory and run the following:
+```bash
+make clean
+make html
+```
+Once the html has been built, open the file `/docs/_build/html/index.html` to view the documentation statically.
+
 ## Installation
 
 ### Development
