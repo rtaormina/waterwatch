@@ -88,12 +88,12 @@ watch(
 </script>
 
 <template>
-  <div class="h-screen bg-white flex flex-col">
-    <NavBar />
-    <div
-      class="w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow md:overflow-y-auto relative z-10"
-    >
-      <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
+    <div class="h-screen bg-white flex flex-col">
+        <NavBar />
+        <div
+            class="w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow md:overflow-y-auto relative z-10"
+        >
+            <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
 
       <div
         class="flex flex-col md:flex-row md:space-x-8 flex-grow min-h-0 pb-[14px]"

@@ -111,6 +111,11 @@ For python files, [numpy documentation style](https://numpydoc.readthedocs.io/en
 
 For files containing typescript, [TypeDoc style](https://typedoc.org/) must be used.
 
+For generating front-end documentation run ./generate_doc.sh, for this you need to first run
+```bash
+npm install --save-dev typedoc
+```
+
 ### Style-checking
 To ensure consistent code style, contributors will need [ruff](https://docs.astral.sh/ruff/) installed. This can be done by running
 ```bash
@@ -156,3 +161,10 @@ This makes sure that the pre-commit hooks will be run before commiting.
 
 
 > Additional thanks to everyone who helped in any way, shape, or form.
+
+generate type doc
+- npm install --save-dev typedoc
+- npm install typedoc-plugin-markdown --save-dev
+- npx typedoc --plugin typedoc-plugin-markdown --out docs/ts
+- npx vue-docgen frontend/src/components docs/vue-components
+- npx vue-docgen frontend/src/views docs/vue-views

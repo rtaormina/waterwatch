@@ -5,14 +5,14 @@ import { useLogin } from "@/composables/LoginLogic";
 const { isLoggedIn } = useLogin();
 
 onMounted(async () => {
-  await isLoggedIn();
+    await isLoggedIn();
 });
 </script>
 
 <template>
-  <UApp>
-    <div class="w-full h-screen">
-      <RouterView />
-    </div>
-  </UApp>
+    <UApp>
+        <div class="w-full h-screen">
+            <RouterView />
+        </div>
+    </UApp>
 </template>

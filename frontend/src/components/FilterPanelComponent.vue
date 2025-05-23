@@ -572,17 +572,17 @@ defineExpose({
             </div>
           </div>
 
-          <button
-            v-if="times.length < 3"
-            @click="addSlot"
-            class="cursor-pointer flex items-center text-gray-700 hover:text-gray-900 mt-2"
-          >
-            <PlusIcon class="h-5 w-5 mr-1" />
-            Add time slot
-          </button>
+                    <button
+                        v-if="times.length < 3"
+                        @click="addSlot"
+                        class="cursor-pointer flex items-center text-gray-700 hover:text-gray-900 mt-2"
+                    >
+                        <PlusIcon class="h-5 w-5 mr-1" />
+                        Add time slot
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
     <!-- Action Buttons (fixed at bottom) -->
     <div class="flex justify-center space-x-4 mt-auto shrink-0">

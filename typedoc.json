@@ -1,0 +1,5 @@
+{
+    "plugin": ["typedoc-plugin-vue"],
+    // Defaults to true, removes $props, $watch, etc. from generated classes
+
+}
