@@ -8,16 +8,20 @@
 
 > **useSession**(): `object`
 
-Defined in: src/composables/useSession.ts:1
+Defined in: src/composables/useSession.ts:4
+
+Function to handle session information
 
 ## Returns
-
-`object`
 
 ### isAuthenticated()
 
 > **isAuthenticated**: () => `Promise`\<`any`\>
 
+Function to check if the user is authenticated
+
 #### Returns
 
 `Promise`\<`any`\>
+
+- true if the user is authenticated, false otherwise

@@ -8,7 +8,9 @@
 
 > **createPayload**(`tempUnit`, `selectedMetrics`, `temperature`, `tempVal`, `time`, `waterSource`, `longitude`, `latitude`): `object`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:115
+Defined in: src/composables/MeasurementCollectionLogic.ts:147
+
+Creates a payload object for measurement collection.
 
 ## Parameters
 
@@ -16,11 +18,17 @@ Defined in: src/composables/MeasurementCollectionLogic.ts:115
 
 `string`
 
+The unit of temperature measurement ("C" for Celsius or "F" for Fahrenheit).
+
 ### selectedMetrics
 
 `string`[]
 
+An array of selected metric names to include in the payload.
+
 ### temperature
+
+An object containing temperature information
 
 #### sensor
 
@@ -38,7 +46,11 @@ Defined in: src/composables/MeasurementCollectionLogic.ts:115
 
 `string`
 
+The raw temperature value as a string (to be parsed and converted).
+
 ### time
+
+An object containing the time waited for the measurement
 
 #### mins
 
@@ -52,17 +64,25 @@ Defined in: src/composables/MeasurementCollectionLogic.ts:115
 
 `string`
 
+The water source.
+
 ### longitude
+
+The longitude coordinate
 
 `undefined` | `number`
 
 ### latitude
+
+The latitude coordinate
 
 `undefined` | `number`
 
 ## Returns
 
 `object`
+
+the payload
 
 ### location
 

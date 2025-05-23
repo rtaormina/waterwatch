@@ -8,11 +8,15 @@
 
 > **validateTime**(`errors`, `time`): `void`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:44
+Defined in: src/composables/MeasurementCollectionLogic.ts:56
+
+Validates if the input in the time fields (minutes and seconds) are numbers, and within the valid range.
 
 ## Parameters
 
 ### errors
+
+the current error state of the time inputs
 
 #### mins
 
@@ -31,6 +35,8 @@ Defined in: src/composables/MeasurementCollectionLogic.ts:44
 `null` \| `string`
 
 ### time
+
+the current values of the time inputs
 
 #### mins
 

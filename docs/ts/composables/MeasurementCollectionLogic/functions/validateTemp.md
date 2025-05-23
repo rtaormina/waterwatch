@@ -10,7 +10,7 @@
 
 Defined in: src/composables/MeasurementCollectionLogic.ts:11
 
-Calculates the square root of a number.
+Validates if the input in the temperature field is a number, and not too large.
 
 ## Parameters
 
@@ -18,7 +18,11 @@ Calculates the square root of a number.
 
 `string`
 
+the current value of the temperature input
+
 ### errors
+
+the current error state of the temperature input
 
 #### sensor
 
@@ -32,8 +36,8 @@ Calculates the square root of a number.
 
 `Ref`\<`undefined` \| `HTMLInputElement`\>
 
+the reference to the input element
+
 ## Returns
 
 `void`
-
-the square root if `x` is non-negative or `NaN` if `x` is negative.

@@ -8,11 +8,11 @@
 
 > **useLogin**(): `object`
 
-Defined in: src/composables/LoginLogic.ts:7
+Defined in: src/composables/LoginLogic.ts:10
+
+Function to handle login/logout logic
 
 ## Returns
-
-`object`
 
 ### errorMessage
 
@@ -24,15 +24,17 @@ Defined in: src/composables/LoginLogic.ts:7
 
 #### formData.password
 
-> **password**: `string` = `''`
+> **password**: `string` = `""`
 
 #### formData.username
 
-> **username**: `string` = `''`
+> **username**: `string` = `""`
 
 ### handleSubmit()
 
 > **handleSubmit**: () => `Promise`\<`void`\>
+
+Function to handle a user trying to log in
 
 #### Returns
 
@@ -42,9 +44,13 @@ Defined in: src/composables/LoginLogic.ts:7
 
 > **isLoggedIn**: () => `Promise`\<`boolean`\>
 
+Function to check if the user is logged in
+
 #### Returns
 
 `Promise`\<`boolean`\>
+
+- Returns true if the user is logged in, false otherwise
 
 ### loggedIn
 
@@ -54,6 +60,8 @@ Defined in: src/composables/LoginLogic.ts:7
 
 > **login**: () => `void`
 
+Function to handle login redirection
+
 #### Returns
 
 `void`
@@ -61,6 +69,8 @@ Defined in: src/composables/LoginLogic.ts:7
 ### logout()
 
 > **logout**: () => `Promise`\<`void`\>
+
+Function to handle logout
 
 #### Returns
 

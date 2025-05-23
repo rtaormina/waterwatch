@@ -14,5 +14,6 @@
 - [composables/PermissionsLogic](composables/PermissionsLogic/README.md)
 - [composables/useSession](composables/useSession/README.md)
 - [main](main/README.md)
+- [router](router/README.md)
 - [shims-vue](shims-vue/README.md)
 - [vite-env](vite-env/README.md)

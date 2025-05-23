@@ -8,7 +8,9 @@
 
 > **createMarker**(`location`): `Marker`
 
-Defined in: src/composables/LocationFallback.ts:14
+Defined in: src/composables/LocationFallback.ts:24
+
+Creates a marker on the map.
 
 ## Parameters
 
@@ -19,3 +21,5 @@ Defined in: src/composables/LocationFallback.ts:14
 ## Returns
 
 `Marker`
+
+The marker

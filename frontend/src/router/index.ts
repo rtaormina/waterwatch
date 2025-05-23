@@ -84,5 +84,3 @@ router.beforeEach(async (to) => {
         return { name: "Login" };
     }
 });
-
-export default router;

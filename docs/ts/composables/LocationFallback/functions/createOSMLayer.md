@@ -8,8 +8,12 @@
 
 > **createOSMLayer**(): `TileLayer`
 
-Defined in: src/composables/LocationFallback.ts:6
+Defined in: src/composables/LocationFallback.ts:11
+
+Creates the OSM Layer for the map.
 
 ## Returns
 
 `TileLayer`
+
+The OSM Layer

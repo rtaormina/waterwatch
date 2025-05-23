@@ -8,7 +8,9 @@
 
 > **formatDateTime**(`isoString`): `string`
 
-Defined in: src/composables/CampaignLogic.ts:1
+Defined in: src/composables/CampaignLogic.ts:7
+
+Format a date string to a more readable format
 
 ## Parameters
 
@@ -16,6 +18,10 @@ Defined in: src/composables/CampaignLogic.ts:1
 
 `string`
 
+ISO date string
+
 ## Returns
 
 `string`
+
+the formatted date

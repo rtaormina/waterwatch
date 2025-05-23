@@ -8,7 +8,9 @@
 
 > **updateCountdown**(`endTime`): `object`
 
-Defined in: src/composables/CampaignLogic.ts:16
+Defined in: src/composables/CampaignLogic.ts:28
+
+Updates the countdown timer for the campaign banner
 
 ## Parameters
 
@@ -16,9 +18,13 @@ Defined in: src/composables/CampaignLogic.ts:16
 
 `string`
 
+The end time of the campaign
+
 ## Returns
 
 `object`
+
+the time remaining, or the message "Campaign has ended!"
 
 ### hasEnded
 
