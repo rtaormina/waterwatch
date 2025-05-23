@@ -35,6 +35,7 @@ autoapi_ignore = [
     "**/measurement_collection/admin**",
     "**/measurement_collection/models**",
 ]
+autoapi_template_dir = "templates"
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
