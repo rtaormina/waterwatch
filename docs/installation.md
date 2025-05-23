@@ -1,4 +1,5 @@
 # Installation
+This section outlines the steps to install WATERWATCH.
 
 ## Development
 

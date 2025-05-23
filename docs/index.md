@@ -22,6 +22,7 @@ New to WATERWATCH? Check out the following links:
 
    reference/index
    api_specs
+   diagrams
    installation
    troubleshooting
    contribution_guide
@@ -30,4 +31,4 @@ New to WATERWATCH? Check out the following links:
 
 ## Contributing / Reporting Issues
 
-WATERWATCH welcomes feedback and contributions! Feel free to [open an issue](https://gitlab.ewi.tudelft.nl/groups/cse2000-software-project/2024-2025/cluster-e/06c/-/issues) to report a bug or suggest a feature, or check out our [contribution guide](contribution_guide.md) if you would like to help develop WATERWATCH further.
+WATERWATCH welcomes feedback and contributions! Feel free to [open an issue](https://gitlab.ewi.tudelft.nl/groups/cse2000-software-project/2024-2025/cluster-e/06c/-/issues) to report a bug or suggest a feature, check out our [contribution guide](contribution_guide.md) for more details on helping develop WATERWATCH further.

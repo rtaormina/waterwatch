@@ -1,4 +1,5 @@
 # Troubleshooting Common Issues
+This section contains information on some common issues and how to solve them. If you are encountering an issue that is not covered in this section, consider filling in a [bug report](contribution_guide.md#reporting-bugs).
 
 - If something appears to be broken, start troubleshooting by running:
     ```bash

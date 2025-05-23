@@ -1,5 +1,4 @@
 # Admins API
-
 Admin only endpoints.
 
 ```{eval-rst}
