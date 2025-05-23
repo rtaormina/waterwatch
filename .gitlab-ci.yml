@@ -4,14 +4,14 @@ workflow:
       when: always
 
 stages:
-  - build_image
-  - lint
+  - build_images
+  - linting
   - testing
 #  - e2e_tests
 
 # Build Docker Image for Backend
 build_backend_image:
-  stage: build_image
+  stage: build_images
   image: docker:latest
   services:
     - docker:dind
@@ -26,9 +26,28 @@ build_backend_image:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v0.2-backend .
     - docker push $CI_REGISTRY_IMAGE:v0.2-backend
+
+# Build Docker Image for Backend
+build_frontend_image:
+  stage: build_images
+  image: docker:latest
+  services:
+    - docker:dind
+  # Only if requirements files changed
+  rules:
+    - changes:
+        - frontend/package.json
+        - dockerfile.frontend
+        - .gitlab-ci.yml
+  # Log in to Docker registry and build the image
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker build -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v0.2-frontend .
+    - docker push $CI_REGISTRY_IMAGE:v0.2-frontend
+
 # Linting & Formatting
-lint:
-  stage: lint
+lint_backend:
+  stage: linting
   image: ghcr.io/astral-sh/ruff:0.11.8-alpine
   script:
     - ruff check
@@ -61,18 +80,21 @@ backend_unit_tests:
     - changes:
         - backend/**/*
 
-# Unit Tests - Frontend
-.frontend_test: &frontend_test_setup
-  image: mcr.microsoft.com/playwright:v1.52.0-noble
+# Setup for operations on the frontend
+.frontend_setup: &frontend_setup
+  image: $CI_REGISTRY_IMAGE:v0.2-frontend
   before_script:
     - cd frontend
-    - npm ci
+    - ln -s /dependencies/node_modules ./node_modules
+    - cp /dependencies/package-lock.json ./
   # Run only if files in folder frontend changed
   rules:
     - changes:
         - frontend/**/*
+
+# Unit Tests - Frontend
 frontend_unit_tests:
-  <<: *frontend_test_setup
+  <<: *frontend_setup
   stage: testing
   script:
     - npm run test:coverage
@@ -90,6 +112,7 @@ frontend_unit_tests:
   rules:
     - changes:
         - frontend/**/*
+
 # E2E Tests - Frontend
 # frontend_e2e_tests:
 #   <<: *frontend_test_setup
