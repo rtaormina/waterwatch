@@ -22,6 +22,8 @@ New to WATERWATCH? Check out the following links:
 
    reference/index
    ts/modules.md
+   vue-components/modules.md
+   vue-views/modules.md
    api_specs
    diagrams
    installation
