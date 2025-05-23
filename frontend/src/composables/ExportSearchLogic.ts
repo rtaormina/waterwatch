@@ -7,11 +7,6 @@ import type {
   TimeSlot,
 } from "./ExportFilterLogic";
 
-export interface SearchResults {
-  count: number;
-  avgTemp: number;
-}
-
 export interface MeasurementSearchParams {
   query?: string;
   location?: LocationFilter;
@@ -45,7 +40,7 @@ export function useMeasurements() {
 
       // Update results
       state.count = response.data.count || 0;
-      state.avgTemp = response.data.avgTemp || 0;
+      state.avgTemp = response.data.avgTemp || 0
     } catch (err) {
       console.error("Search failed:", err);
       state.error = err instanceof Error ? err.message : "Search failed";
@@ -109,11 +104,20 @@ export function flattenSearchParams(
     }
   }
 
+  if (params.measurements) {
+    const includedMetrics = Object.entries(params.measurements)
+      .filter(([, filter]) => filter != null)
+      .map(([metric]) => metric);
+
+    if (includedMetrics.length) {
+      flattened["measurements_included"] = includedMetrics;
+    }
+  }
+
   if (params.measurements?.temperature) {
     const temp = params.measurements.temperature;
     if (temp.from) flattened["measurements[temperature][from]"] = temp.from;
     if (temp.to) flattened["measurements[temperature][to]"] = temp.to;
-    if (temp.unit) flattened["measurements[temperature][unit]"] = temp.unit;
   }
 
   if (params.dateRange) {

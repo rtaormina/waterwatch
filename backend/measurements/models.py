@@ -33,7 +33,8 @@ class Measurement(models.Model):
         "well": "well",
     }
     timestamp = models.DateTimeField(auto_now_add=True)
-    timestamp_local = models.DateTimeField(default=timezone.now)
+    local_date = models.DateField(default=timezone.now)
+    local_time = models.TimeField(default=timezone.now)
     location = geomodels.PointField(srid=4326)
     flag = models.BooleanField(default=True)
     water_source = models.CharField(max_length=255, choices=list(water_source_choices.items()))

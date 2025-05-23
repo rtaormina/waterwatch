@@ -28,14 +28,14 @@ export interface TimeSlot {
 }
 
 export function useFilters() {
-  // --- Location filter logic ---
-  // --- Reactive state ---
+  // Location filter logic
+  // Reactive state
   const continents = ref<string[]>([]);
   const countriesByContinent = ref<Record<string, string[]>>({});
   const selectedContinents = ref<string[]>([]);
   const selectedCountries = ref<string[]>([]);
 
-  // --- Derived state ---
+  // Derived state
   const allCountries = computed(() =>
     selectedContinents.value.flatMap((c) => countriesByContinent.value[c] || [])
   );
@@ -47,7 +47,7 @@ export function useFilters() {
     selectedCountries.value.length ? "" : "Select countries"
   );
 
-  // --- Load data ---
+  // Load data
   async function load() {
     const { data } = await axios.get<Record<string, string[]>>(
       "/api/locations/"
@@ -57,7 +57,7 @@ export function useFilters() {
   }
   onMounted(load);
 
-  // --- Toggle logic ---
+  // Toggle logic
   function toggleContinent(continent: string) {
     const idx = selectedContinents.value.indexOf(continent);
     if (idx > -1) {
@@ -96,7 +96,7 @@ export function useFilters() {
     }
   }
 
-  // --- Display formatting ---
+  // Display formatting
   function formatContinentSelectionText() {
     const n = selectedContinents.value.length;
     if (n === 0) return "";
@@ -111,7 +111,7 @@ export function useFilters() {
     return `${n} countries selected`;
   }
 
-  // --- Measurement filter logic ---
+  // Measurement filter logic
   const temperatureEnabled = ref(false);
   const temperature = reactive<TemperatureFilter>({
     from: "",
@@ -125,7 +125,7 @@ export function useFilters() {
     return isNaN(f) || isNaN(t) || t >= f;
   });
 
-  // --- Date range filter logic ---
+  // Date range filter logic
   const dateRange = reactive<DateRangeFilter>({
     from: "",
     to: "",
@@ -136,7 +136,7 @@ export function useFilters() {
     return new Date(dateRange.to) >= new Date(dateRange.from);
   });
 
-  // --- Time slot filter logic ---
+  // Time slot filter logic
   const times = ref<TimeSlot[]>([]);
 
   function slotValid(slot: TimeSlot) {
@@ -184,7 +184,7 @@ export function useFilters() {
         countries: selectedCountries.value,
       },
       measurements: {
-        temperature: temperatureEnabled.value ? { ...temperature } : null,
+        temperature: temperatureEnabled.value ? { ...standardizeTemperature(temperature) } : null,
       },
       dateRange: {
         from: dateRange.from,
@@ -192,6 +192,19 @@ export function useFilters() {
       },
       times: times.value,
     };
+  }
+
+  function standardizeTemperature(temp: TemperatureFilter): TemperatureFilter {
+    const from = temp.from === "" ? 0 : parseFloat(temp.from);
+    const to = temp.to === "" ? 212 : parseFloat(temp.to);
+    if ( temp.unit === "F" ) {
+      return {
+        from: ((from - 32) * 5) / 9 + "",
+        to: ((to - 32) * 5) / 9 + "",
+        unit: "C"
+      };
+    }
+    return { from: temp.from, to: temp.to, unit: "C" };
   }
 
   // Apply preset filters
@@ -228,8 +241,6 @@ export function useFilters() {
       if (presetFilters.times) {
         times.value = [...presetFilters.times];
       }
-
-      console.log("Preset applied successfully:", presetFilters);
     } catch (error) {
       console.error("Error applying preset:", error);
     }

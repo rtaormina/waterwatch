@@ -56,7 +56,7 @@ const {
   resetFilters,
 } = useFilters();
 
-const { loading, error, results, searchMeasurements, resetSearch } = useMeasurements();
+const { loading, error, results, resetSearch } = useMeasurements();
 
 const filterPanelRef = ref<HTMLElement | null>(null);
 const scrollableAreaRef = ref<HTMLElement | null>(null);
@@ -137,7 +137,8 @@ function reset() {
 
 defineExpose({
   getSearchParams,
-  applyPreset
+  applyPreset,
+  temperature,
 });
 </script>
 
@@ -339,7 +340,7 @@ defineExpose({
               type="number"
               v-model="temperature.from"
               min="0"
-              max="100"
+              max="212"
               placeholder="Min temperature"
               class="w-full border rounded bg-white px-3 py-2"
             />
@@ -352,7 +353,7 @@ defineExpose({
               type="number"
               v-model="temperature.to"
               min="0"
-              max="100"
+              max="212"
               placeholder="Max temperature"
               class="w-full border rounded bg-white px-3 py-2"
             />

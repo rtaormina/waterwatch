@@ -4,7 +4,6 @@ import { saveAs } from "file-saver";
 import { flattenSearchParams } from "./ExportSearchLogic";
 import type { MeasurementSearchParams } from "./ExportSearchLogic";
 
-
 const format = ref<"csv" | "xml" | "json" | "geojson">("csv");
 const cookies = new Cookies();
 
@@ -12,11 +11,12 @@ export { format };
 
 export async function exportData(filters?: MeasurementSearchParams) {
   // flatten whatever filters were given (or empty object)
-  console.log(filters?.times)
   const flat = filters ? flattenSearchParams(filters) : {};
   const params = new URLSearchParams(flat as any);
 
-  // 2) always include format
+  console.log("Exporting data with filters:", flat);
+
+  // always include format
   params.append("format", format.value);
 
   const url = `/api/measurements/?${params.toString()}`;

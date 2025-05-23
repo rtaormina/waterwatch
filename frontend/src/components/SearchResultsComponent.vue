@@ -6,12 +6,12 @@ import {
   nextTick,
   defineProps,
   watch,
+  computed
 } from "vue";
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
 import { exportData, format } from "@/composables/ExportDownloadLogic";
 import Modal from "./Modal.vue";
 import { permissionsLogic } from "@/composables/PermissionsLogic";
-import { all } from "axios";
 
 const canDownload = ref(false);
 const perms = ref<string[]>([]);
@@ -25,26 +25,35 @@ interface Props {
   results: { count: number; avgTemp: number };
   searched: boolean;
   showModal: boolean;
+  filtersOutOfSync: boolean;
+  temperatureUnit: "C" | "F";
 }
 const props = defineProps<Props>();
-const resultsCount = ref(props.results?.count || 0);
-const resultsAvgTemp = ref(props.results?.avgTemp || 0);
 
-watch(
-  () => props.results,
-  (newResults) => {
-    if (newResults) {
-      resultsCount.value = newResults.count || 0;
-      resultsAvgTemp.value = newResults.avgTemp || 0;
-    }
-  },
-  { immediate: true, deep: true }
-);
+const avgTempConverted = computed(() => {
+  const c = props.results.avgTemp || 0;
+  return props.temperatureUnit === "F"
+    ? (c * 9) / 5 + 32
+    : c;
+});
+
+
+// watch(
+//   () => props.results,
+//   (newResults) => {
+//     if (newResults) {
+//       resultsCount.value = newResults.count || 0;
+//       resultsAvgTemp.value = newResults.avgTemp || 0;
+//     } else {
+//       resultsCount.value = 0;
+//       resultsAvgTemp.value = 0;
+//     }
+//   },
+//   { immediate: true, deep: true }
+// );
 
 const wrapperRef = ref<HTMLElement | null>(null);
 const totalWidth = ref(0);
-
-const showModal = ref(false);
 
 onMounted(async () => {
   // wait for DOM
@@ -72,10 +81,10 @@ onMounted(async () => {
       <h4 class="font-semibold text-lg hidden md:block">Summary</h4>
       <div class="mt-2 space-y-1">
         <div v-if="searched" class="flex justify-between">
-          <span>Number of Results:</span><span>{{ resultsCount }}</span>
+          <span>Number of Results:</span><span>{{ props.results.count }}</span>
         </div>
         <div v-if="searched" class="hidden md:flex md:justify-between">
-          <span>Average Temperature:</span><span>{{ resultsAvgTemp }} °C</span>
+          <span>Average Temperature:</span><span>{{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}</span>
         </div>
       </div>
     </div>
@@ -84,11 +93,13 @@ onMounted(async () => {
       <ArrowDownTrayIcon
         :class="[
           'md:min-h-12 md:min-w-12 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200',
-          canDownload && searched
+          canDownload && searched && !props.filtersOutOfSync // Updated condition
             ? 'cursor-pointer text-gray-800 hover:text-gray-600'
             : 'cursor-not-allowed text-gray-400',
         ]"
-        @click="!props.searched || !canDownload ? null : emit('download')"
+        @click="
+          !props.searched || !canDownload || props.filtersOutOfSync ? null : emit('download') // Updated condition
+        "
       />
       <div
         class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4"
@@ -98,7 +109,7 @@ onMounted(async () => {
           id="format"
           v-model="format"
           class="flex-1 border rounded bg-white px-3 py-2"
-        >
+          :disabled="!canDownload || !searched || props.filtersOutOfSync" >
           <option value="csv">CSV File</option>
           <option value="xml">XML</option>
           <option value="json">JSON</option>
@@ -107,22 +118,20 @@ onMounted(async () => {
       </div>
       <button
         @click="emit('download')"
-        :disabled="!canDownload || !searched"
-        class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
+        :disabled="!canDownload || !searched || props.filtersOutOfSync" class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
         :class="
-          canDownload && searched
+          canDownload && searched && !props.filtersOutOfSync // Updated condition
             ? 'bg-main cursor-pointer'
             : 'bg-gray-300 cursor-not-allowed'
         "
       >
         Download
       </button>
-      <Modal :visible="showModal" @close="showModal = false">
+      <Modal :visible="props.showModal" @close="emit('close-modal')">
         <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
         <div class="flex items-center mt-4 gap-2">
           <button
-            @click="showModal = false"
-            class="flex-1 bg-main text-white mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
+            @click="emit('close-modal')" class="flex-1 bg-main text-white mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
           >
             Okay
           </button>

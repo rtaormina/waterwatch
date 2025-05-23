@@ -8,6 +8,7 @@ import SearchResults from "@/components/SearchResultsComponent.vue";
 import { useMeasurements } from "@/composables/ExportSearchLogic";
 import type { Preset } from "@/composables/ExportPresetLogic";
 import { exportData, format } from "@/composables/ExportDownloadLogic";
+import { flattenSearchParams } from "@/composables/ExportSearchLogic";
 
 const query = ref("");
 const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
@@ -15,6 +16,15 @@ const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 const lastSearchParams = ref<
   import("@/composables/ExportSearchLogic").MeasurementSearchParams | null
 >(null);
+
+const filtersOutOfSync = ref(false);
+
+const temperatureUnit = computed(() => {
+  if (filterPanelRef.value) {
+    return filterPanelRef.value.temperature.unit || "C";
+  }
+  return "C";
+});
 
 // Use measurements composable
 const { results, hasSearched, loading, error, searchMeasurements } =
@@ -28,15 +38,44 @@ async function onSearch() {
   const searchParams = filterPanelRef.value.getSearchParams(query.value);
   lastSearchParams.value = searchParams;
 
+  console.log("Search params:", searchParams);
+
   // Perform search
   await searchMeasurements(searchParams);
+  filtersOutOfSync.value = false;
 }
 
 const showModal = ref(false);
-async function onDownload() {;
+async function onDownload() {
   const ok = await exportData(lastSearchParams.value == null ? {} : lastSearchParams.value);
   showModal.value = !ok;
 }
+
+// Watch for filter changes that occur *after* a search has been made
+watch(
+  () => {
+    // This dependency array re-runs the watcher if query or filter panel's internal state (via getSearchParams) changes
+    if (filterPanelRef.value) {
+      return filterPanelRef.value.getSearchParams(query.value);
+    }
+    return null;
+  },
+  (currentParams) => {
+    if (hasSearched.value) { // Only act if a search has already been performed
+      if (currentParams && lastSearchParams.value) {
+        if (JSON.stringify(currentParams) !== JSON.stringify(lastSearchParams.value)) {
+          filtersOutOfSync.value = true;
+        }
+        // If params become same as lastSearchParams, filtersOutOfSync remains true
+        // until a new search confirms the current filters. This is intentional.
+      } else if (currentParams && !lastSearchParams.value) {
+        // Edge case: should ideally not happen if onSearch sets lastSearchParams correctly
+        filtersOutOfSync.value = true;
+      }
+    }
+  },
+  { deep: true } // Use deep watch as getSearchParams returns an object
+);
 
 // Handle preset application
 function onApplyPreset(preset: Preset) {
@@ -76,7 +115,9 @@ function onApplyPreset(preset: Preset) {
             :searched="hasSearched"
             @download="onDownload"
             :show-modal="showModal"
+            :temperature-unit="temperatureUnit"
             @close-modal="showModal = false"
+            :filters-out-of-sync="filtersOutOfSync"
           />
         </div>
       </div>

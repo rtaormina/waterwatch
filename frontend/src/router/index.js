@@ -1,4 +1,3 @@
-// django-vue/frontend/src/router/index.js
 import { createRouter, createWebHistory } from "vue-router";
 import { useSession } from "../composables/useSession";
 
@@ -32,7 +31,7 @@ const routes = [
     name: "Export",
     component: () => import("@/views/ExportView.vue"),
     meta: {
-      requiresAuth: true,
+      requiresAuth: false,
     },
   },
   {
@@ -64,6 +63,14 @@ router.beforeEach(async (to, from) => {
   const isAuthenticated = session.isAuthenticated();
   if (to.meta.requiresAuth && !(await isAuthenticated)) {
     return { name: "Login" };
+  }
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.path !== "/" && to.path.endsWith("/")) {
+    next(to.path.replace(/\/+$/, ""));
+  } else {
+    next();
   }
 });
 
