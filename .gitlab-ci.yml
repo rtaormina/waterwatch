@@ -37,6 +37,7 @@ build_frontend_image:
   rules:
     - changes:
         - frontend/package.json
+        - frontend/package-lock.json
         - dockerfile.frontend
         - .gitlab-ci.yml
   # Log in to Docker registry and build the image
@@ -44,6 +45,18 @@ build_frontend_image:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker build -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v0.2-frontend .
     - docker push $CI_REGISTRY_IMAGE:v0.2-frontend
+
+# Setup for operations on the frontend
+.frontend_setup: &frontend_setup
+  image: $CI_REGISTRY_IMAGE:v0.2-frontend
+  before_script:
+    - cd frontend
+    - ln -s /dependencies/node_modules ./node_modules
+    - cp /dependencies/package-lock.json ./
+  # Run only if files in folder frontend changed
+  rules:
+    - changes:
+        - frontend/**/*
 
 # Linting & Formatting
 lint_backend:
@@ -56,6 +69,16 @@ lint_backend:
   rules:
     - changes:
         - backend/**/*
+
+lint_frontend:
+  <<: *frontend_setup
+  stage: linting
+  script:
+    - npm run lint
+  # Run only if files in folder frontend changed
+  rules:
+    - changes:
+        - frontend/**/*
 
 # Unit Tests - Backend
 backend_unit_tests:
@@ -79,18 +102,6 @@ backend_unit_tests:
   rules:
     - changes:
         - backend/**/*
-
-# Setup for operations on the frontend
-.frontend_setup: &frontend_setup
-  image: $CI_REGISTRY_IMAGE:v0.2-frontend
-  before_script:
-    - cd frontend
-    - ln -s /dependencies/node_modules ./node_modules
-    - cp /dependencies/package-lock.json ./
-  # Run only if files in folder frontend changed
-  rules:
-    - changes:
-        - frontend/**/*
 
 # Unit Tests - Frontend
 frontend_unit_tests:
