@@ -6,14 +6,10 @@
 import { createOSMLayer } from "@/composables/LocationFallback";
 import * as L from "leaflet";
 import { onMounted, useTemplateRef } from "vue";
-import "../assets/leaflet.hexagonal.js";
-import "../assets/leaflet.hexagonal.css";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
-import { watch } from "vue";
 
 // Extend Leaflet types to include hexagonal
 declare module "leaflet" {
-  function hexagonal(options?: any): any;
   function hexbinLayer(options?: any): any;
 }
 
@@ -26,28 +22,18 @@ const { center = L.latLng(51.999, 4.3737), data } = defineProps<{
   data: { point: L.LatLng; value: number }[];
 }>();
 
-const hexLayer = L.hexagonal({
-  // clusterProperty: "value",
-  // clusterMode: "avg",
-  clusterColors: ["#d7e9f4", "#297ed8", "#d75f2c", "#951313"],
-  clusterScale: "linear",
-  highlightDisplay: true,
-  selectionMode: "points",
-  highlightStrokeColor: "#0f0",
-  hexagonSize: 64,
-  selectionTolerance: 30,
-  opacity: 0.45,
-});
+const hexbinOptions = {
+  radius: 24,
+  opacity: 0.3,
+  colorRange: ["blue", "orange", "red"],
+  radiusRange: [4, 22],
+};
 
-const hexbinLayer = L.hexbinLayer();
+const hexbinLayer = L.hexbinLayer(hexbinOptions);
 
-hexLayer.on("click", (e) => {
-  const { lat, lng } = e.latlng;
-  const point = L.latLng(lat, lng);
-  const selectedPoint = data.find((item) => item.point.equals(point));
-  if (selectedPoint) {
-    console.log("Selected point:", e);
-  }
+// Set up events
+hexbinLayer.dispatch().on("click", function (event: any, d: any, i: any) {
+  console.log({ type: "click", event: event, d: d, index: i});
 });
 
 onMounted(() => {
@@ -63,22 +49,9 @@ onMounted(() => {
     worldCopyJump: true,
   });
   layer.addTo(map);
-  hexLayer.addTo(map);
   hexbinLayer.addTo(map);
-  hexbinLayer.data(data.map((item) => item.point).map((point) => [point.lng, point.lat]));
-  watch(
-    () => data,
-    (newData) => {
-      if (newData) {
-        hexLayer.removeAll();
-        for (const item of newData) {
-          hexLayer.addPoint(item.point, {
-            value: item.value,
-          });
-        }
-      }
-    },
-    { immediate: true }
+  hexbinLayer.data(
+    data.map((item) => item.point).map((point) => [point.lng, point.lat])
   );
 });
 </script>
