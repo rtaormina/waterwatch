@@ -3,6 +3,11 @@ import { Spinner, type SpinnerOptions } from "spin.js";
 import "spin.js/spin.css";
 import { toValue, watch, type MaybeRefOrGetter, type Ref } from "vue";
 
+/**
+ * Creates the OSM Layer for the map.
+ *
+ * @returns {Leaflet.TileLayer} The OSM Layer
+ */
 export function createOSMLayer(): L.TileLayer {
   return L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
