@@ -44,10 +44,12 @@ onMounted(() => {
   // Initialize the map
   const map = L.map(mapElement.value, {
     center: center,
-    zoom: 6,
+    zoom: 1,
     maxZoom: 16,
+    minZoom: 1,
     worldCopyJump: true,
   });
+  map.setMaxBounds(L.latLngBounds([[-90, -360], [90, 360]]));
   layer.addTo(map);
   hexbinLayer.addTo(map);
   hexbinLayer.data(
