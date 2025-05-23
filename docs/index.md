@@ -21,6 +21,7 @@ New to WATERWATCH? Check out the following links:
    :caption: Contents:
 
    reference/index
+   ts/modules.md
    api_specs
    installation
    troubleshooting

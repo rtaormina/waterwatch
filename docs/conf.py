@@ -54,6 +54,7 @@ extensions = [
     "sphinxcontrib.openapi",
     "myst_parser",
     "autoapi.extension",
+    "myst_parser",
 ]
 
 templates_path = ["_templates"]

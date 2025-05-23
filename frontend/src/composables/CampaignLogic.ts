@@ -13,7 +13,6 @@ export function formatDateTime(isoString: string): string {
   return date.toLocaleString(undefined, options);
 }
 
-
 export function updateCountdown(endTime: string) {
   const now = new Date().getTime();
   const end = new Date(endTime).getTime();
