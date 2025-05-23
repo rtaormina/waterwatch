@@ -1,15 +1,15 @@
 <template>
-  <div class="my-4">
-    <h3 v-if="title" class="font-bold">{{ title }}</h3>
+    <div class="my-4">
+        <h3 v-if="title" class="font-bold">{{ title }}</h3>
 
-    <slot />
-  </div>
+        <slot />
+    </div>
 </template>
 
 <script setup lang="ts">
 defineProps({
-  title: {
-    type: String,
-  },
-})
+    title: {
+        type: String,
+    },
+});
 </script>

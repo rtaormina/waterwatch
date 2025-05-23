@@ -1,17 +1,22 @@
 <template>
-    <USelect v-if="smallScreen" v-model="activeTab" :items :class="cssClass + ' px-4 text-lg sm:text-xl cursor-pointer'"/>
-  <UTabs
-    v-else
-    v-model="activeTab"
-    :items
-    :class="cssClass"
-    variant="link"
-    color="primary"
-    :ui="{
-      label: 'text-balance',
-      trigger: 'grow cursor-pointer',
-    }"
-  />
+    <USelect
+        v-if="smallScreen"
+        v-model="activeTab"
+        :items
+        :class="cssClass + ' px-4 text-lg sm:text-xl cursor-pointer'"
+    />
+    <UTabs
+        v-else
+        v-model="activeTab"
+        :items
+        :class="cssClass"
+        variant="link"
+        color="primary"
+        :ui="{
+            label: 'text-balance',
+            trigger: 'grow cursor-pointer',
+        }"
+    />
 </template>
 
 <script setup lang="ts">
@@ -19,25 +24,25 @@ import { useWindowSize } from "@vueuse/core";
 import { computed } from "vue";
 
 const cssClass = computed(() => {
-  return props.class ?? "w-full mb-4";
+    return props.class ?? "w-full mb-4";
 });
 
 const { switchPoint = 800, ...props } = defineProps<{
-  items: {
-    label: string;
-    value: string;
-  }[];
-  switchPoint?: number;
-  class?: string;
+    items: {
+        label: string;
+        value: string;
+    }[];
+    switchPoint?: number;
+    class?: string;
 }>();
 const activeTab = defineModel("activeTab", {
-  type: String,
-  default: "",
+    type: String,
+    default: "",
 });
 
 const windowSize = useWindowSize();
 
 const smallScreen = computed<boolean>(() => {
-  return windowSize.width.value < switchPoint;
+    return windowSize.width.value < switchPoint;
 });
 </script>
