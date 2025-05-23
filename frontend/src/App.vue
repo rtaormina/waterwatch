@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useLogin } from '@/composables/LoginLogic'
+import { onMounted } from "vue";
+import { useLogin } from "@/composables/LoginLogic";
 
-const { isLoggedIn } = useLogin()
+const { isLoggedIn } = useLogin();
 
 onMounted(async () => {
-  await isLoggedIn()
-})
+    await isLoggedIn();
+});
 </script>
 
 <template>
-  <UApp>
-    <div class="w-full h-screen">
-      <RouterView />
-    </div>
-  </UApp>
+    <UApp>
+        <div class="w-full h-screen">
+            <RouterView />
+        </div>
+    </UApp>
 </template>

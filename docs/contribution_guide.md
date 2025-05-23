@@ -2,21 +2,10 @@
 Thank you for your interest in contributing!
 In this section you will find the guidelines for contributing and offering suggestions to improve WATERWATCH.
 
-#### Table of Contents
 
-[Reporting Bugs](#reporting-bugs)
-
-[Suggesting Improvements](#suggesting-improvements)
-
-[Code Contributions](#code-contributions)
-  * [Requirements Installation](#requirements-installation)
-  * [Documentation Guidelines](#documentation-guidelines)
-  * [Style Checking](#style-checking)
-  * [Pre-commit](#pre-commit)
-  * [Commit Messages](#commit-messages)
-  * [Merging into Main](#merging-into-main)
-  * [Testing](#testing)
-
+```{contents} Table of Contents
+:depth: 3
+```
 
 ## Reporting Bugs
 This section contains resources on how to report a bug for WATERWATCH.
