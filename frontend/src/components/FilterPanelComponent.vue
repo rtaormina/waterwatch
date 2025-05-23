@@ -7,26 +7,41 @@ import {
   onUpdated,
   onBeforeUnmount,
 } from "vue";
-import axios from "axios";
 import {
   PlusIcon,
   MinusIcon,
   ChevronDownIcon,
   CheckIcon,
 } from "@heroicons/vue/24/solid";
-import { useFilters } from "@/composables/ExportFilterLogic";
-import { useMeasurements } from "@/composables/ExportSearchLogic";
-import type { PresetFilters } from "@/composables/ExportPresetLogic";
-import type { MeasurementSearchParams } from "@/composables/ExportSearchLogic";
+import {
+  useFilters,
+  type DateRangeFilter,
+  type TemperatureFilter,
+  type TimeSlot,
+} from "@/composables/useFilters";
+import { useSearch } from "@/composables/useSearch";
 
 const emit = defineEmits(["search"]);
 
+// Reactive state
+const selectedContinents = ref<string[]>([]);
+const selectedCountries = ref<string[]>([]);
+const selectedWaterSources = ref<string[]>([]);
+const temperatureEnabled = ref(false);
+const temperature = reactive<TemperatureFilter>({
+  from: "",
+  to: "",
+  unit: "C",
+});
+const dateRange = reactive<DateRangeFilter>({
+  from: "",
+  to: "",
+});
+const times = ref<TimeSlot[]>([]);
+
 const {
-  // Location filter
   continents,
   countriesByContinent,
-  selectedContinents,
-  selectedCountries,
   allCountries,
   continentPlaceholder,
   countryPlaceholder,
@@ -34,29 +49,32 @@ const {
   toggleCountry,
   toggleAllContinents,
   toggleAllCountries,
+  toggleWaterSource,
+  toggleAllWaterSources,
   formatContinentSelectionText,
   formatCountrySelectionText,
-  // Measurement filter
-  temperatureEnabled,
-  temperature,
+  waterSources,
+  formatWaterSourceSelectionText,
+  waterSourcePlaceholder,
   tempRangeValid,
-  // Date range filter
-  dateRange,
   dateRangeValid,
-  // Time slot filter
-  times,
+  slotValid,
   allSlotsValid,
   slotsNonOverlapping,
   addSlot,
   removeSlot,
-  slotValid,
-  // Filter logic
   getSearchParams,
-  applyPreset,
-  resetFilters,
-} = useFilters();
+} = useFilters(
+  selectedContinents,
+  selectedCountries,
+  selectedWaterSources,
+  temperatureEnabled,
+  temperature,
+  dateRange,
+  times
+);
 
-const { loading, error, results, resetSearch } = useMeasurements();
+const { resetSearch } = useSearch();
 
 const filterPanelRef = ref<HTMLElement | null>(null);
 const scrollableAreaRef = ref<HTMLElement | null>(null);
@@ -66,6 +84,8 @@ const continentDropdownOpen = ref(false);
 const countryDropdownOpen = ref(false);
 const continentWrapperRef = ref<HTMLElement | null>(null);
 const countryWrapperRef = ref<HTMLElement | null>(null);
+const waterSourceDropdownOpen = ref(false);
+const waterSourceWrapperRef = ref<HTMLElement | null>(null);
 
 // Refs for click outside detection
 const dropdownMaxHeight = ref(250);
@@ -83,20 +103,23 @@ const handleClickOutside = (event: MouseEvent) => {
     continentWrapperRef.value &&
     !continentWrapperRef.value.contains(event.target as Node) &&
     countryWrapperRef.value &&
-    !countryWrapperRef.value.contains(event.target as Node)
+    !countryWrapperRef.value.contains(event.target as Node) &&
+    waterSourceWrapperRef.value &&
+    !waterSourceWrapperRef.value.contains(event.target as Node)
   ) {
     continentDropdownOpen.value = false;
     countryDropdownOpen.value = false;
+    waterSourceDropdownOpen.value = false;
   }
 };
 
-// Toggle dropdown visibility
 function toggleContinentDropdown() {
   continentDropdownOpen.value = !continentDropdownOpen.value;
 
   // Close the other dropdown if it's open
   if (continentDropdownOpen.value) {
     countryDropdownOpen.value = false;
+    waterSourceDropdownOpen.value = false;
   }
 }
 
@@ -106,6 +129,17 @@ function toggleCountryDropdown() {
   // Close the other dropdown if it's open
   if (countryDropdownOpen.value) {
     continentDropdownOpen.value = false;
+    waterSourceDropdownOpen.value = false;
+  }
+}
+
+function toggleWaterSourceDropdown() {
+  waterSourceDropdownOpen.value = !waterSourceDropdownOpen.value;
+
+  // Close the other dropdown if it's open
+  if (waterSourceDropdownOpen.value) {
+    continentDropdownOpen.value = false;
+    countryDropdownOpen.value = false;
   }
 }
 
@@ -131,13 +165,21 @@ watch(selectedContinents, (newList) => {
 });
 
 function reset() {
-  resetFilters();
+  selectedContinents.value = [];
+  selectedCountries.value = [];
+  selectedWaterSources.value = [];
+  temperatureEnabled.value = false;
+  temperature.from = "";
+  temperature.to = "";
+  temperature.unit = "C";
+  dateRange.from = "";
+  dateRange.to = "";
+  times.value = [];
   resetSearch();
 }
 
 defineExpose({
   getSearchParams,
-  applyPreset,
   temperature,
 });
 </script>
@@ -164,7 +206,7 @@ defineExpose({
             <label class="block text-sm font-medium mb-1">Continent</label>
             <div class="relative" ref="continentWrapperRef">
               <div
-                class="multiselect-custom-wrapper"
+                class="multiselect-custom-wrapper rounded border"
                 @click="toggleContinentDropdown"
               >
                 <span
@@ -183,11 +225,11 @@ defineExpose({
               <div
                 v-show="continentDropdownOpen"
                 class="multiselect-custom-dropdown"
-                :style="{ 'max-height': `${dropdownMaxHeight}px` }"
+                :style="{ 'max-height': dropdownMaxHeight + 'px' }"
               >
                 <div
                   class="multiselect-select-all"
-                  @click.stop="toggleAllContinents"
+                  @click.stop="selectedContinents = toggleAllContinents(selectedContinents)"
                 >
                   {{
                     selectedContinents.length > 0
@@ -205,7 +247,7 @@ defineExpose({
                       'multiselect-option-selected':
                         selectedContinents.includes(continent),
                     }"
-                    @click.stop="toggleContinent(continent)"
+                    @click.stop="selectedContinents = toggleContinent(selectedContinents, continent)"
                   >
                     <span class="multiselect-option-checkbox">
                       <CheckIcon
@@ -233,7 +275,7 @@ defineExpose({
             <label class="block text-sm font-medium mb-1">Country</label>
             <div class="relative" ref="countryWrapperRef">
               <div
-                class="multiselect-custom-wrapper"
+                class="multiselect-custom-wrapper rounded border"
                 @click="toggleCountryDropdown"
               >
                 <span
@@ -253,11 +295,11 @@ defineExpose({
               <div
                 v-show="countryDropdownOpen"
                 class="multiselect-custom-dropdown"
-                :style="{ 'max-height': `${dropdownMaxHeight}px` }"
+                :style="{ 'max-height': dropdownMaxHeight + 'px' }"	
               >
                 <div
                   class="multiselect-select-all"
-                  @click.stop="toggleAllCountries"
+                  @click.stop="selectedCountries = toggleAllCountries(selectedCountries)"
                 >
                   {{
                     selectedCountries.length > 0 ? "Deselect All" : "Select All"
@@ -280,7 +322,7 @@ defineExpose({
                       'multiselect-option-selected':
                         selectedCountries.includes(country),
                     }"
-                    @click.stop="toggleCountry(country)"
+                    @click.stop="selectedCountries = toggleCountry(selectedCountries, country)"
                   >
                     <span class="multiselect-option-checkbox">
                       <CheckIcon
@@ -302,26 +344,99 @@ defineExpose({
       <div class="mb-2">
         <div class="font-semibold mb-1">Measurement Type</div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-1">
+          <!-- Continent multi‑select -->
+          <div>
+            <label class="block text-sm font-medium mb-1">Water Source</label>
+            <div class="relative" ref="waterSourceWrapperRef">
+              <div
+                class="multiselect-custom-wrapper rounded border"
+                @click="toggleWaterSourceDropdown"
+              >
+                <span
+                  class="multiselect-placeholder"
+                  v-if="selectedWaterSources.length === 0"
+                >
+                  {{ waterSourcePlaceholder }}
+                </span>
+                <span class="multiselect-display-text" v-else>
+                  {{ formatWaterSourceSelectionText() }}
+                </span>
+                <span class="multiselect-arrow">
+                  <ChevronDownIcon class="w-5 h-5" />
+                </span>
+              </div>
+              <div
+                v-show="waterSourceDropdownOpen"
+                class="multiselect-custom-dropdown"
+                :style="{ 'max-height': dropdownMaxHeight + 'px'	 }"
+              >
+                <div
+                  class="multiselect-select-all"
+                  @click.stop="selectedWaterSources = toggleAllWaterSources(selectedWaterSources)"
+                >
+                  {{
+                    selectedWaterSources.length > 0
+                      ? "Deselect All"
+                      : "Select All"
+                  }}
+                </div>
+
+                <div class="multiselect-options">
+                  <div
+                    v-for="waterSource in waterSources"
+                    :key="waterSource"
+                    class="multiselect-option"
+                    :class="{
+                      'multiselect-option-selected':
+                        selectedWaterSources.includes(waterSource),
+                    }"
+                    @click.stop="selectedWaterSources = toggleWaterSource(selectedWaterSources, waterSource)"
+                  >
+                    <span class="multiselect-option-checkbox">
+                      <CheckIcon
+                        v-if="selectedWaterSources.includes(waterSource)"
+                        class="w-5 h-5"
+                        fill="currentColor"
+                      />
+                    </span>
+                    <span>{{ waterSource }}</span>
+                  </div>
+                </div>
+
+                <div
+                  v-if="waterSources.length === 0"
+                  class="multiselect-no-options"
+                >
+                  No water sources found.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Temperature checkbox -->
-        <div class="flex items-center justify-between mb-2">
-          <label class="flex items-center">
-            <input type="checkbox" v-model="temperatureEnabled" class="mr-2" />
-            <span>Temperature</span>
-          </label>
+        <div class="flex items-center justify-between mb-1">
+          <UCheckbox
+            v-model="temperatureEnabled"
+            label="Temperature"
+            class="mt-2"
+            :ui="{ base: 'bg-white' }"
+          />
 
           <!-- Units -->
           <div v-if="temperatureEnabled" class="flex space-x-2">
             <button
               @click="temperature.unit = 'C'"
               :class="{ 'bg-main text-white': temperature.unit === 'C' }"
-              class="cursor-pointer px-3 py-1 rounded border"
+              class="cursor-pointer px-3 rounded border"
             >
               °C
             </button>
             <button
               @click="temperature.unit = 'F'"
               :class="{ 'bg-main text-white': temperature.unit === 'F' }"
-              class="cursor-pointer px-3 py-1 rounded border"
+              class="cursor-pointer px-3 rounded border"
             >
               °F
             </button>
@@ -331,7 +446,7 @@ defineExpose({
         <!-- Temperature range fields with equal widths -->
         <div
           v-if="temperatureEnabled"
-          class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end relative"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end relative mt-2"
         >
           <!-- From -->
           <div>
@@ -501,8 +616,6 @@ defineExpose({
 .multiselect-custom-wrapper {
   width: 100%;
   min-height: 38px;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.375rem;
   padding: 0 12px;
   display: flex;
   align-items: center;
@@ -510,10 +623,6 @@ defineExpose({
   cursor: pointer;
   background-color: white;
   user-select: none;
-}
-
-.multiselect-custom-wrapper:hover {
-  border-color: #cbd5e0;
 }
 
 .multiselect-placeholder {

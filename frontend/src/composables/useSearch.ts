@@ -5,7 +5,7 @@ import type {
   MeasurementFilter,
   DateRangeFilter,
   TimeSlot,
-} from "./ExportFilterLogic";
+} from "./useFilters";
 
 export interface MeasurementSearchParams {
   query?: string;
@@ -15,7 +15,6 @@ export interface MeasurementSearchParams {
   times?: TimeSlot[];
 }
 
-// Create a single shared state that will be used across component instances
 const state = reactive({
   loading: false,
   error: "",
@@ -24,7 +23,7 @@ const state = reactive({
   avgTemp: 0,
 });
 
-export function useMeasurements() {
+export function useSearch() {
   // Search measurements with filters
   async function searchMeasurements(
     params: MeasurementSearchParams
@@ -40,7 +39,7 @@ export function useMeasurements() {
 
       // Update results
       state.count = response.data.count || 0;
-      state.avgTemp = response.data.avgTemp || 0
+      state.avgTemp = response.data.avgTemp || 0;
     } catch (err) {
       console.error("Search failed:", err);
       state.error = err instanceof Error ? err.message : "Search failed";
@@ -66,6 +65,59 @@ export function useMeasurements() {
     state.error = "";
   }
 
+  // Helper function to flatten nested params for axios
+  function flattenSearchParams(
+    params: MeasurementSearchParams
+  ): Record<string, any> {
+    const flattened: Record<string, any> = {};
+
+    if (params.query) {
+      flattened.query = params.query;
+    }
+
+    if (params.location) {
+      if (params.location.continents?.length) {
+        flattened["locstateation[continents]"] = params.location.continents;
+      }
+      if (params.location.countries?.length) {
+        flattened["location[countries]"] = params.location.countries;
+      }
+    }
+
+    if (params.measurements) {
+      const includedMetrics = Object.entries(params.measurements)
+        .filter(([, filter]) => filter != null)
+        .map(([metric]) => metric);
+
+      if (includedMetrics.length) {
+        flattened["measurements_included"] = includedMetrics;
+      }
+    }
+
+    if (params.measurements?.waterSources?.length) {
+      flattened["measurements[waterSources]"] =
+        params.measurements.waterSources;
+    }
+
+    if (params.measurements?.temperature) {
+      const temp = params.measurements.temperature;
+      if (temp.from) flattened["measurements[temperature][from]"] = temp.from;
+      if (temp.to) flattened["measurements[temperature][to]"] = temp.to;
+    }
+
+    if (params.dateRange) {
+      if (params.dateRange.from)
+        flattened["dateRange[from]"] = params.dateRange.from;
+      if (params.dateRange.to) flattened["dateRange[to]"] = params.dateRange.to;
+    }
+
+    if (params.times?.length) {
+      flattened["times"] = JSON.stringify(params.times);
+    }
+
+    return flattened;
+  }
+
   return {
     // Expose primitive state values directly
     loading: computed(() => state.loading),
@@ -82,53 +134,6 @@ export function useMeasurements() {
     // Methods
     searchMeasurements,
     resetSearch,
+    flattenSearchParams,
   };
-}
-
-// Helper function to flatten nested params for axios
-export function flattenSearchParams(
-  params: MeasurementSearchParams
-): Record<string, any> {
-  const flattened: Record<string, any> = {};
-
-  if (params.query) {
-    flattened.query = params.query;
-  }
-
-  if (params.location) {
-    if (params.location.continents?.length) {
-      flattened["location[continents]"] = params.location.continents;
-    }
-    if (params.location.countries?.length) {
-      flattened["location[countries]"] = params.location.countries;
-    }
-  }
-
-  if (params.measurements) {
-    const includedMetrics = Object.entries(params.measurements)
-      .filter(([, filter]) => filter != null)
-      .map(([metric]) => metric);
-
-    if (includedMetrics.length) {
-      flattened["measurements_included"] = includedMetrics;
-    }
-  }
-
-  if (params.measurements?.temperature) {
-    const temp = params.measurements.temperature;
-    if (temp.from) flattened["measurements[temperature][from]"] = temp.from;
-    if (temp.to) flattened["measurements[temperature][to]"] = temp.to;
-  }
-
-  if (params.dateRange) {
-    if (params.dateRange.from)
-      flattened["dateRange[from]"] = params.dateRange.from;
-    if (params.dateRange.to) flattened["dateRange[to]"] = params.dateRange.to;
-  }
-
-  if (params.times?.length) {
-    flattened["times"] = JSON.stringify(params.times);
-  }
-
-  return flattened;
 }

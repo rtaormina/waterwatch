@@ -145,6 +145,7 @@ def apply_measurement_filters(request, qs):
     qs = filter_by_countries(qs, request)
 
     # Temperature filter
+    qs = filter_by_water_sources(qs, request)
     qs = filter_measurement_by_temperature(qs, request)
 
     # Date range filter
@@ -206,6 +207,33 @@ def filter_by_countries(qs, request):
         for poly in polys:
             loc_q |= Q(location__within=poly.geom)
         qs = qs.filter(loc_q)
+    return qs
+
+def filter_by_water_sources(qs, request):
+    """Filter the queryset by water sources.
+
+    This function filters measurements based on water sources provided in the request.
+
+    Parameters
+    ----------
+    qs : QuerySet
+        The initial queryset of measurements to filter.
+    water_sources : list
+        List of water sources to filter by.
+
+    Returns
+    -------
+    QuerySet
+        The filtered queryset of measurements.
+    """
+    water_sources = request.GET.getlist("measurements[waterSources][]")
+    water_sources = [ws.lower() for ws in water_sources]
+    logger.debug(f"Water sources: {water_sources}")
+    logger.debug("Request.GET: %s", request.GET)
+
+    if water_sources:
+        logger.debug(f"Filtering by water sources: {water_sources}")
+        qs = qs.filter(water_source__in=water_sources)
     return qs
 
 def filter_measurement_by_temperature(qs, request):

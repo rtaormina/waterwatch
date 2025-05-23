@@ -5,16 +5,14 @@ import NavBar from "@/components/NavBar.vue";
 import SearchBar from "@/components/SearchBarComponent.vue";
 import FilterPanel from "@/components/FilterPanelComponent.vue";
 import SearchResults from "@/components/SearchResultsComponent.vue";
-import { useMeasurements } from "@/composables/ExportSearchLogic";
-import type { Preset } from "@/composables/ExportPresetLogic";
-import { exportData, format } from "@/composables/ExportDownloadLogic";
-import { flattenSearchParams } from "@/composables/ExportSearchLogic";
+import { useSearch } from "@/composables/useSearch";
+import { useExportData } from "@/composables/useExportData";
 
 const query = ref("");
 const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 
 const lastSearchParams = ref<
-  import("@/composables/ExportSearchLogic").MeasurementSearchParams | null
+  import("@/composables/useSearch").MeasurementSearchParams | null
 >(null);
 
 const filtersOutOfSync = ref(false);
@@ -28,7 +26,11 @@ const temperatureUnit = computed(() => {
 
 // Use measurements composable
 const { results, hasSearched, loading, error, searchMeasurements } =
-  useMeasurements();
+  useSearch();
+
+// Use export data composable
+const { exportData } = useExportData();
+const format = ref<"csv" | "xml" | "json" | "geojson">("csv");
 
 // Handle search from SearchBar or FilterPanel
 async function onSearch() {
@@ -47,7 +49,10 @@ async function onSearch() {
 
 const showModal = ref(false);
 async function onDownload() {
-  const ok = await exportData(lastSearchParams.value == null ? {} : lastSearchParams.value);
+  const ok = await exportData(
+    format.value,
+    lastSearchParams.value == null ? {} : lastSearchParams.value
+  );
   showModal.value = !ok;
 }
 
@@ -61,9 +66,13 @@ watch(
     return null;
   },
   (currentParams) => {
-    if (hasSearched.value) { // Only act if a search has already been performed
+    if (hasSearched.value) {
+      // Only act if a search has already been performed
       if (currentParams && lastSearchParams.value) {
-        if (JSON.stringify(currentParams) !== JSON.stringify(lastSearchParams.value)) {
+        if (
+          JSON.stringify(currentParams) !==
+          JSON.stringify(lastSearchParams.value)
+        ) {
           filtersOutOfSync.value = true;
         }
         // If params become same as lastSearchParams, filtersOutOfSync remains true
@@ -76,13 +85,6 @@ watch(
   },
   { deep: true } // Use deep watch as getSearchParams returns an object
 );
-
-// Handle preset application
-function onApplyPreset(preset: Preset) {
-  if (filterPanelRef.value && preset.filters) {
-    filterPanelRef.value.applyPreset(preset.filters);
-  }
-}
 </script>
 
 <template>
@@ -101,11 +103,13 @@ function onApplyPreset(preset: Preset) {
             <SearchBar
               v-model:query="query"
               @search="onSearch"
-              @applyPreset="onApplyPreset"
             />
           </div>
           <div class="flex-grow bg-light min-h-0 mb-[14px]">
-            <FilterPanel ref="filterPanelRef" @search="onSearch" />
+            <FilterPanel
+              ref="filterPanelRef"
+              @search="onSearch"
+            />
           </div>
         </div>
 
@@ -113,6 +117,7 @@ function onApplyPreset(preset: Preset) {
           <SearchResults
             :results="results"
             :searched="hasSearched"
+            v-model:format="format"
             @download="onDownload"
             :show-modal="showModal"
             :temperature-unit="temperatureUnit"
