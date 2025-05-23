@@ -20,7 +20,7 @@ New to WATERWATCH? Check out the following links:
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   reference/index
    api_specs
    installation
    troubleshooting

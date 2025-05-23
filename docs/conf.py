@@ -10,6 +10,32 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path("..", "backend").resolve()))
 
+autoapi_type = "python"
+autoapi_dirs = [
+    "../backend/api",
+    "../backend/campaigns",
+    "../backend/measurement_analysis",
+    "../backend/measurements",
+    "../backend/measurement_collection",
+    "../backend/measurement_export",
+    "../backend/backend",
+]
+autoapi_root = "reference"
+autoapi_ignore = [
+    "**/migrations/**",
+    "**/api/admin**",
+    "**/api/tests**",
+    "**/api/models**",
+    "**/backend/backend/tests**",
+    "**/measurement_export/admin**",
+    "**/measurement_analysis/admin**",
+    "**/measurement_analysis/models**",
+    "**/measurement_analysis/tests**",
+    "**/measurement_analysis/views**",
+    "**/measurement_collection/admin**",
+    "**/measurement_collection/models**",
+]
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -27,6 +53,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinxcontrib.openapi",
     "myst_parser",
+    "autoapi.extension",
 ]
 
 templates_path = ["_templates"]
