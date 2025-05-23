@@ -22,7 +22,7 @@
       </div class="mt-4">
         <MeasurementComponent />
       </div>
-      <HexMap />
+      <HexMap :data="sampleData" />
       <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4">
         <button
           class="bg-main rounded-md p-1 text-white"
@@ -43,6 +43,25 @@ import NavBar from "@/components/NavBar.vue";
 import { ref, onMounted } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
+
+const sampleData = [
+  { point: { lat: 51.999, lng: 4.3737 }, value: 1 },
+  { point: { lat: 51.998, lng: 4.3737 }, value: 2 },
+  { point: { lat: 51.997, lng: 4.3737 }, value: 3 },
+  { point: { lat: 51.996, lng: 4.3737 }, value: 4 },
+  { point: { lat: 51.995, lng: 4.3737 }, value: 5 },
+  { point: { lat: 51.994, lng: 4.3437 }, value: 6 },
+  { point: { lat: 51.993, lng: 4.3437 }, value: 7 },
+  { point: { lat: 51.992, lng: 4.3437 }, value: 8 },
+  { point: { lat: 51.991, lng: 4.3417 }, value: 9 },
+  { point: { lat: 51.990, lng: 4.3417 }, value: 10 },
+  { point: { lat: 51.989, lng: 4.3717 }, value: 11 },
+  { point: { lat: 51.988, lng: 4.3717 }, value: 12 },
+  { point: { lat: 51.987, lng: 4.3717 }, value: 13 },
+  { point: { lat: 51.986, lng: 4.3717 }, value: 14 },
+
+];
+
 
 const addingMeasurement = ref(false);
 const campaigns = ref([])
