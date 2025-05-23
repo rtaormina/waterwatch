@@ -27,7 +27,7 @@ build_backend_image:
     - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v0.2-backend .
     - docker push $CI_REGISTRY_IMAGE:v0.2-backend
 
-# Build Docker Image for Backend
+# Build Docker Image for Frontend
 build_frontend_image:
   stage: build_images
   image: docker:latest

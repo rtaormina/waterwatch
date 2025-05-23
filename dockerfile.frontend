@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/playwright:v1.52.0-noble
 
 WORKDIR /dependencies
-COPY frontend/package.json .
+COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci
 
 WORKDIR /app
