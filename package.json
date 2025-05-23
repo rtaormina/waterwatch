@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "typedoc-plugin-markdown": "^4.6.3",
-    "typedoc-plugin-vue": "^1.5.0"
+    "typedoc-plugin-vue": "^1.5.0",
+    "vue-docgen-cli": "^4.79.0"
   }
 }

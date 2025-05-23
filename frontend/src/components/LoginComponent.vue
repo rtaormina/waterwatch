@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import NavBar from './NavBar.vue'
 import { useLogin } from '@/composables/LoginLogic.ts'
 
-const {
+export const {
   formData,
   errorMessage,
   showError,

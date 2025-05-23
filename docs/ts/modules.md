@@ -6,10 +6,13 @@
 
 ## Modules
 
-- [CampaignLogic](CampaignLogic/README.md)
-- [LocationFallback](LocationFallback/README.md)
-- [LoginLogic](LoginLogic/README.md)
-- [MeasurementCollectionLogic](MeasurementCollectionLogic/README.md)
-- [MeasurementExportLogic](MeasurementExportLogic/README.md)
-- [PermissionsLogic](PermissionsLogic/README.md)
-- [useSession](useSession/README.md)
+- [composables/CampaignLogic](composables/CampaignLogic/README.md)
+- [composables/LocationFallback](composables/LocationFallback/README.md)
+- [composables/LoginLogic](composables/LoginLogic/README.md)
+- [composables/MeasurementCollectionLogic](composables/MeasurementCollectionLogic/README.md)
+- [composables/MeasurementExportLogic](composables/MeasurementExportLogic/README.md)
+- [composables/PermissionsLogic](composables/PermissionsLogic/README.md)
+- [composables/useSession](composables/useSession/README.md)
+- [main](main/README.md)
+- [shims-vue](shims-vue/README.md)
+- [vite-env](vite-env/README.md)
