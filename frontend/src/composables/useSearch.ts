@@ -1,4 +1,4 @@
-import { ref, reactive, readonly, toRefs, computed } from "vue";
+import { reactive, computed } from "vue";
 import axios from "axios";
 import type {
   LocationFilter,
@@ -15,9 +15,7 @@ export interface MeasurementSearchParams {
   times?: TimeSlot[];
 }
 
-const state = reactive({
-  loading: false,
-  error: "",
+export const state = reactive({
   hasSearched: false,
   count: 0,
   avgTemp: 0,
@@ -28,8 +26,6 @@ export function useSearch() {
   async function searchMeasurements(
     params: MeasurementSearchParams
   ): Promise<void> {
-    state.loading = true;
-    state.error = "";
     state.hasSearched = true;
 
     try {
@@ -42,11 +38,8 @@ export function useSearch() {
       state.avgTemp = response.data.avgTemp || 0;
     } catch (err) {
       console.error("Search failed:", err);
-      state.error = err instanceof Error ? err.message : "Search failed";
       state.count = 0;
       state.avgTemp = 0;
-    } finally {
-      state.loading = false;
     }
   }
 
@@ -62,7 +55,6 @@ export function useSearch() {
     state.hasSearched = false;
     state.count = 0;
     state.avgTemp = 0;
-    state.error = "";
   }
 
   // Helper function to flatten nested params for axios
@@ -77,7 +69,7 @@ export function useSearch() {
 
     if (params.location) {
       if (params.location.continents?.length) {
-        flattened["locstateation[continents]"] = params.location.continents;
+        flattened["location[continents]"] = params.location.continents;
       }
       if (params.location.countries?.length) {
         flattened["location[countries]"] = params.location.countries;
@@ -119,17 +111,11 @@ export function useSearch() {
   }
 
   return {
-    // Expose primitive state values directly
-    loading: computed(() => state.loading),
-    error: computed(() => state.error),
+    // Expose primitive state value directly
     hasSearched: computed(() => state.hasSearched),
 
     // Expose results as a computed property
     results,
-
-    // Also expose individual result values for more granular binding
-    count: computed(() => state.count),
-    avgTemp: computed(() => state.avgTemp),
 
     // Methods
     searchMeasurements,

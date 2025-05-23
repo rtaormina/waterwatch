@@ -42,6 +42,7 @@ const times = ref<TimeSlot[]>([]);
 const {
   continents,
   countriesByContinent,
+  loadLocations,
   allCountries,
   continentPlaceholder,
   countryPlaceholder,
@@ -54,6 +55,7 @@ const {
   formatContinentSelectionText,
   formatCountrySelectionText,
   waterSources,
+  loadWaterSources,
   formatWaterSourceSelectionText,
   waterSourcePlaceholder,
   tempRangeValid,
@@ -147,6 +149,8 @@ onMounted(() => {
   calculateDropdownHeight();
   window.addEventListener("resize", calculateDropdownHeight);
   document.addEventListener("mousedown", handleClickOutside);
+  loadLocations();
+  loadWaterSources();
 });
 
 onUpdated(() => {

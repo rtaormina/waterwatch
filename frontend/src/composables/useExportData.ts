@@ -1,5 +1,5 @@
 import Cookies from "universal-cookie";
-import { ref, toValue, type MaybeRefOrGetter } from "vue";
+import { toValue, type MaybeRefOrGetter } from "vue";
 import { saveAs } from "file-saver";
 import { useSearch } from "./useSearch";
 import type { MeasurementSearchParams } from "./useSearch";

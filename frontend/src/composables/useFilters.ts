@@ -1,11 +1,4 @@
-import {
-  ref,
-  reactive,
-  computed,
-  onMounted,
-  toValue,
-  type MaybeRefOrGetter,
-} from "vue";
+import { ref, computed, onMounted, toValue, type MaybeRefOrGetter } from "vue";
 import axios from "axios";
 import type { MeasurementSearchParams } from "./useSearch";
 
@@ -47,6 +40,15 @@ export function useFilters(
   const continents = ref<string[]>([]);
   const countriesByContinent = ref<Record<string, string[]>>({});
 
+  // Load location data
+  async function loadLocations() {
+    const { data } = await axios.get<Record<string, string[]>>(
+      "/api/locations/"
+    );
+    continents.value = Object.keys(data);
+    countriesByContinent.value = data;
+  }
+
   // Derived state
   const allCountries = computed(() =>
     toValue(selectedContinents).flatMap(
@@ -59,15 +61,6 @@ export function useFilters(
   const countryPlaceholder = computed(() =>
     toValue(selectedCountries).length ? "" : "Select countries"
   );
-
-  // Load location data
-  async function loadLocations() {
-    const { data } = await axios.get<Record<string, string[]>>(
-      "/api/locations/"
-    );
-    continents.value = Object.keys(data);
-    countriesByContinent.value = data;
-  }
 
   // Toggle logic
   function toggleItem<T>(list: T[], item: T): T[] {
@@ -98,6 +91,7 @@ export function useFilters(
   // Measurement filter logic
   const waterSources = ref<string[]>([]);
 
+  // Load water sources data
   async function loadWaterSources() {
     waterSources.value = ["Network", "Rooftop Tank", "Well", "Other"];
   }
@@ -116,11 +110,6 @@ export function useFilters(
       }`;
     return `${n} water sources selected`;
   }
-
-  onMounted(() => {
-    loadLocations();
-    loadWaterSources();
-  });
 
   const tempRangeValid = computed(() => {
     const f = parseFloat(toValue(temperature).from);
@@ -209,6 +198,7 @@ export function useFilters(
   return {
     continents,
     countriesByContinent,
+    loadLocations,
     allCountries,
     continentPlaceholder,
     countryPlaceholder,
@@ -225,6 +215,7 @@ export function useFilters(
     formatContinentSelectionText,
     formatCountrySelectionText,
     waterSources,
+    loadWaterSources,
     formatWaterSourceSelectionText,
     waterSourcePlaceholder,
     tempRangeValid,

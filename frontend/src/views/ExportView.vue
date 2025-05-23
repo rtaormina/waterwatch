@@ -25,7 +25,7 @@ const temperatureUnit = computed(() => {
 });
 
 // Use measurements composable
-const { results, hasSearched, loading, error, searchMeasurements } =
+const { results, hasSearched, searchMeasurements } =
   useSearch();
 
 // Use export data composable
