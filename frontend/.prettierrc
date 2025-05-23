@@ -11,6 +11,5 @@
   "endOfLine": "auto",
   "htmlWhitespaceSensitivity": "ignore",
   "vueIndentScriptAndStyle": false,
-  "vueMaxAttributesPerLine": 1,
   "embeddedLanguageFormatting": "auto"
 }

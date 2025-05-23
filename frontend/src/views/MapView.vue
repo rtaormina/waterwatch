@@ -17,7 +17,7 @@
                 </div>
                 <MeasurementComponent />
             </div>
-            <HexMap />
+            <HexMap :data="sampleData()" />
             <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4">
                 <button
                     class="bg-main rounded-md p-1 text-white"
@@ -38,6 +38,23 @@ import NavBar from "@/components/NavBar.vue";
 import { ref, onMounted } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
+
+/**
+ * Creates sample data for the map
+ */
+const sampleData = () => {
+    let array = [];
+    for (let index = 0; index < 10_000; index++) {
+        array.push({
+            point: {
+                lat: Math.random() * 180 - 90,
+                lng: Math.random() * 360 - 180,
+            },
+            value: Math.floor(Math.random() * 100),
+        });
+    }
+    return array;
+};
 
 const addingMeasurement = ref(false);
 const campaigns = ref([]);

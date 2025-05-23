@@ -336,7 +336,6 @@ const postDataCheck = () => {
                             </label>
                         </div>
                     </div>
-                    <p class="mt-2 h-4 text-red-600 text-xs">{{ errors.temp || " " }}</p>
                 </div>
             </div>
 
