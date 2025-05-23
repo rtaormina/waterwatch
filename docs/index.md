@@ -21,6 +21,7 @@ New to WATERWATCH? Check out the following links:
    :caption: Contents:
 
    reference/index
+   frontend_docs
    api_specs
    diagrams
    installation
