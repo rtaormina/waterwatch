@@ -1,8 +1,8 @@
 """Serializers for measurement export."""
 
 import logging
+from datetime import UTC
 
-import pytz
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework import serializers
@@ -50,7 +50,7 @@ class MeasurementSerializer(serializers.ModelSerializer):
         to the current measurement instance.
     """
 
-    timestamp = serializers.DateTimeField(default_timezone=pytz.UTC, read_only=True)
+    timestamp = serializers.DateTimeField(default_timezone=UTC, read_only=True)
 
     local_date = serializers.DateField()
     local_time = serializers.TimeField()
