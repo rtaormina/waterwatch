@@ -1,6 +1,7 @@
 import { reactive, computed } from "vue";
 import axios from "axios";
 import type { LocationFilter, MeasurementFilter, DateRangeFilter, TimeSlot } from "./useFilters";
+import Cookies from "universal-cookie";
 
 // Define the structure of the search parameters
 export interface MeasurementSearchParams {
@@ -31,6 +32,8 @@ export const state = reactive({
  * - `flattenSearchParams`: A utility method to flatten nested search parameters for API requests.
  */
 export function useSearch() {
+    const cookies = new Cookies();
+
     /**
      * Searches for measurements with the given parameters.
      *
@@ -39,10 +42,14 @@ export function useSearch() {
      */
     async function searchMeasurements(params: MeasurementSearchParams): Promise<void> {
         state.hasSearched = true;
+        const flatParams = flattenSearchParams(params);
 
         try {
-            const response = await axios.get("/api/measurements/", {
-                params: flattenSearchParams(params),
+            const response = await axios.post("/api/measurements/search/", flatParams, {
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": cookies.get("csrftoken"),
+                },
             });
 
             // Update results

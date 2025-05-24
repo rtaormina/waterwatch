@@ -1,8 +1,8 @@
 """Serializers for measurement export."""
 
-import pytz
 import logging
-from django.conf import settings
+
+import pytz
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework import serializers
@@ -49,15 +49,12 @@ class MeasurementSerializer(serializers.ModelSerializer):
         Iterates through all subclasses of the Metric model and collects their data if they are related
         to the current measurement instance.
     """
-    
-    timestamp = serializers.DateTimeField(
-        default_timezone=pytz.UTC,
-        read_only=True
-    )
-    
+
+    timestamp = serializers.DateTimeField(default_timezone=pytz.UTC, read_only=True)
+
     local_date = serializers.DateField()
     local_time = serializers.TimeField()
-    
+
     location = serializers.SerializerMethodField()
     country = serializers.SerializerMethodField()
     continent = serializers.SerializerMethodField()
@@ -167,11 +164,11 @@ class MeasurementSerializer(serializers.ModelSerializer):
             Each dictionary corresponds to a related Metric instance.
         """
         metrics_data = []
-        
+
         logger.debug(self.context)
-        
+
         included_metrics = self.context.get("included_metrics", [])
-        
+
         logger.debug(
             "Included metrics: %s",
             included_metrics,

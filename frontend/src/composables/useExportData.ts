@@ -23,25 +23,37 @@ export function useExportData() {
      * @return {Promise<boolean>} - Returns a promise that resolves to true if the export was successful, or false if it failed.
      */
     async function exportData(format: MaybeRefOrGetter, filters?: MeasurementSearchParams): Promise<boolean> {
-        // flatten whatever filters were given (or empty object)
-        const flat = filters ? useSearch().flattenSearchParams(filters) : {};
-        const params = new URLSearchParams(flat as Record<string, string>);
+        // Get flattenSearchParams from useSearch instance
+        const { flattenSearchParams } = useSearch();
+        const flatFilters = filters ? flattenSearchParams(filters) : {};
 
-        // always include format
-        params.append("format", toValue(format));
+        // Prepare the data for the POST request body
+        const bodyData = {
+            ...flatFilters,
+            format: toValue(format), // Add format to the body
+        };
 
-        const url = `/api/measurements/?${params.toString()}`;
+        const url = "/api/measurements/search/"; // URL without query parameters
         try {
             const res = await fetch(url, {
-                method: "GET",
-                headers: { "X-CSRFToken": cookies.get("csrftoken") },
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": cookies.get("csrftoken"),
+                    "Content-Type": "application/json", // Set Content-Type for JSON payload
+                },
                 credentials: "same-origin",
+                body: JSON.stringify(bodyData), // Send data as a JSON string in the body
             });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+            if (!res.ok) {
+                const errorBody = await res.text(); // Try to get more error info
+                throw new Error(`HTTP ${res.status} - ${errorBody}`);
+            }
             const blob = await res.blob();
             saveAs(blob, `water-data.${toValue(format)}`);
             return true;
-        } catch {
+        } catch (err) {
+            console.error("Export failed:", err);
             return false;
         }
     }

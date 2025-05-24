@@ -1,8 +1,8 @@
 """Serializers for Measurement and Temperature models."""
 
 import logging
-
 from datetime import datetime
+
 from campaigns.views import find_matching_campaigns
 from django.contrib.gis.geos import Point
 from measurements.models import Measurement, Temperature

@@ -176,8 +176,11 @@ export function createPayload(
     const longitudeRounded = longitude !== undefined ? Number(longitude.toFixed(3)) : undefined;
     const latitudeRounded = latitude !== undefined ? Number(latitude.toFixed(3)) : undefined;
     const localISO = DateTime.local().toISO();
+    const local_date = localISO ? localISO.split("T")[0] : undefined;
+    const local_time = localISO ? localISO.split("T")[1].split(".")[0] : undefined;
     return {
-        timestamp_local: localISO,
+        local_date: local_date,
+        local_time: local_time,
         location: {
             type: "Point",
             coordinates: [longitudeRounded, latitudeRounded],

@@ -1,4 +1,18 @@
-[WATERWATCH] WARNING  2025-05-22 14:57:56,249 views      WATERWATCH.get_active_campaigns:37: No lat/lng provided, returning all campaigns
-[WATERWATCH] WARNING  2025-05-22 14:59:23,494 views      WATERWATCH.get_active_campaigns:37: No lat/lng provided, returning all campaigns
-[WATERWATCH] WARNING  2025-05-22 15:01:45,076 views      WATERWATCH.get_active_campaigns:37: No lat/lng provided, returning all campaigns
-[WATERWATCH] WARNING  2025-05-22 15:04:13,115 views      WATERWATCH.get_active_campaigns:37: No lat/lng provided, returning all campaigns
+[WATERWATCH] DEBUG    2025-05-24 19:02:52,951 views      WATERWATCH.search_measurements_view:36: search_measurements_view called with method: POST
+[WATERWATCH] DEBUG    2025-05-24 19:02:52,952 views      WATERWATCH.search_measurements_view:37: Request body: b'{"location[continents]":["Europe"],"location[countries]":["Netherlands"],"measurements_included":["waterSources","temperature"],"measurements[waterSources]":["Well"],"measurements[temperature][to]":30,"dateRange[from]":"2025-05-23","dateRange[to]":"2025-05-23","times":"[{\\"from\\":\\"17:58\\",\\"to\\":\\"19:58\\"}]","format":"csv"}'
+[WATERWATCH] DEBUG    2025-05-24 19:02:53,095 views      WATERWATCH.search_measurements_view:61: Included metrics: ['waterSources', 'temperature']
+[WATERWATCH] DEBUG    2025-05-24 19:02:53,096 views      WATERWATCH.search_measurements_view:62: Requested format: csv
+[WATERWATCH] DEBUG    2025-05-24 19:03:54,919 views      WATERWATCH.search_measurements_view:36: search_measurements_view called with method: POST
+[WATERWATCH] DEBUG    2025-05-24 19:03:54,920 views      WATERWATCH.search_measurements_view:37: Request body: b'{"location[continents]":["Europe"],"location[countries]":["Netherlands"],"measurements_included":["waterSources","temperature"],"measurements[waterSources]":["Well"],"measurements[temperature][to]":30,"dateRange[from]":"2025-05-23","dateRange[to]":"2025-05-23","times":"[{\\"from\\":\\"17:58\\",\\"to\\":\\"19:58\\"}]","format":"csv"}'
+[WATERWATCH] DEBUG    2025-05-24 19:03:55,068 views      WATERWATCH.search_measurements_view:61: Included metrics: ['waterSources', 'temperature']
+[WATERWATCH] DEBUG    2025-05-24 19:03:55,069 views      WATERWATCH.search_measurements_view:62: Requested format: csv
+[WATERWATCH] DEBUG    2025-05-24 19:03:55,125 views      WATERWATCH.search_measurements_view:67: Data to export: []
+[WATERWATCH] DEBUG    2025-05-24 19:03:55,126 views      WATERWATCH.search_measurements_view:69: Using export strategy: CsvExport
+[WATERWATCH] DEBUG    2025-05-24 19:04:54,870 serializers WATERWATCH.get_metrics:168: {'included_metrics': ['waterSources', 'temperature']}
+[WATERWATCH] DEBUG    2025-05-24 19:04:54,870 serializers WATERWATCH.get_metrics:172: Included metrics: ['waterSources', 'temperature']
+[WATERWATCH] DEBUG    2025-05-24 19:04:54,885 serializers WATERWATCH.get_metrics:168: {'included_metrics': ['waterSources', 'temperature']}
+[WATERWATCH] DEBUG    2025-05-24 19:04:54,885 serializers WATERWATCH.get_metrics:172: Included metrics: ['waterSources', 'temperature']
+[WATERWATCH] DEBUG    2025-05-24 19:05:41,074 serializers WATERWATCH.get_metrics:168: {'included_metrics': ['waterSources', 'temperature']}
+[WATERWATCH] DEBUG    2025-05-24 19:05:41,075 serializers WATERWATCH.get_metrics:172: Included metrics: ['waterSources', 'temperature']
+[WATERWATCH] DEBUG    2025-05-24 19:05:41,091 serializers WATERWATCH.get_metrics:168: {'included_metrics': ['waterSources', 'temperature']}
+[WATERWATCH] DEBUG    2025-05-24 19:05:41,091 serializers WATERWATCH.get_metrics:172: Included metrics: ['waterSources', 'temperature']

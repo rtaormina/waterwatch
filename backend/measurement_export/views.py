@@ -2,13 +2,12 @@
 
 import json
 import logging
-
 from datetime import time
-from django.db.models import Q, F, Value, DateTimeField, TimeField, Func, Count, Avg
-from django.db.models.functions import Cast, Extract
+
+from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
-from measurements.models import Measurement
 from measurements.metrics import METRIC_MODELS
+from measurements.models import Measurement
 
 from .factories import get_strategy
 from .models import Location, Preset
@@ -17,7 +16,7 @@ from .serializers import MeasurementSerializer, PresetSerializer
 logger = logging.getLogger("WATERWATCH")
 
 
-def measurements_view(request):
+def search_measurements_view(request):
     """Get measurements based on filters.
 
     This view handles filtering measurements based on location, temperature, date, and time range.
@@ -30,17 +29,32 @@ def measurements_view(request):
     Returns
     -------
     JsonResponse
-        JSON response containing the count and average temperature of the filtered measurements or
-        a serialized list of measurements in the requested format (CSV, JSON, XML, GeoJSON) if specified.
-    """    
+        JSON response containing the filtered measurements or aggregated statistics.
+        If the request has a "format" parameter, it returns the data in that format (CSV, JSON, XML, GeoJSON).
+        Otherwise, it returns a JSON response with count and average temperature.
+    """
     related_fields = [model.__name__.lower() for model in METRIC_MODELS]
     qs = Measurement.objects.select_related(*related_fields).all()
-    qs = apply_measurement_filters(request, qs)
 
-    included_metrics = request.GET.getlist("measurements_included")
+    request_data = {}
+    if request.body:
+        try:
+            request_data = json.loads(request.body)
+        except json.JSONDecodeError:
+            logger.exception("Invalid JSON received in POST request.")
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    qs = apply_measurement_filters(request_data, qs)
+
+    included_metrics = request_data.get("measurements_included", [])
+
+    if not isinstance(included_metrics, list):
+        logger.warning("measurements_included was not a list: %s", included_metrics)
+        included_metrics = []
 
     # If the request has a "format" parameter, we will return the data in that format
-    fmt = request.GET.get("format", "").lower()
+    fmt = str(request_data.get("format", "")).lower()
+
     if fmt in ("csv", "json", "xml", "geojson"):
         data = MeasurementSerializer(qs, many=True, context={"included_metrics": included_metrics}).data
         strategy = get_strategy(fmt)
@@ -122,15 +136,15 @@ def preset_list(_self):
     return JsonResponse({"presets": serializer.data})
 
 
-def apply_measurement_filters(request, qs):
+def apply_measurement_filters(data, qs):
     """Apply filters to the measurement queryset based on request parameters.
 
     This function filters measurements based on location, temperature, date range, and time slots.
 
     Parameters
     ----------
-    request : HttpRequest
-        The HTTP request object containing filter parameters.
+    data : dict
+        The request data containing filter parameters.
     qs : QuerySet
         The initial queryset of measurements to filter.
 
@@ -139,22 +153,22 @@ def apply_measurement_filters(request, qs):
     QuerySet
         The filtered queryset of measurements.
     """
-    
     # Location filter
-    qs = filter_by_continents(qs, request)
-    qs = filter_by_countries(qs, request)
+    qs = filter_by_continents(qs, data)
+    qs = filter_by_countries(qs, data)
 
     # Temperature filter
-    qs = filter_by_water_sources(qs, request)
-    qs = filter_measurement_by_temperature(qs, request)
+    qs = filter_by_water_sources(qs, data)
+    qs = filter_measurement_by_temperature(qs, data)
 
     # Date range filter
-    qs = filter_by_date_range(qs, request)
+    qs = filter_by_date_range(qs, data)
 
     # Time slots filter
-    return filter_by_time_slots(qs, request)
+    return filter_by_time_slots(qs, data)
 
-def filter_by_continents(qs, request):
+
+def filter_by_continents(qs, data):
     """Filter the queryset by continents.
 
     This function filters measurements based on continents provided in the request.
@@ -163,15 +177,18 @@ def filter_by_continents(qs, request):
     ----------
     qs : QuerySet
         The initial queryset of measurements to filter.
-    continents : list
-        List of continents to filter by.
+    data : dict
+        The request data containing filter parameters.
 
     Returns
     -------
     QuerySet
         The filtered queryset of measurements.
     """
-    continents = request.GET.getlist("location[continents]") + request.GET.getlist("location[continents][]")
+    continents = data.get("location[continents]", [])
+    if continents and not isinstance(continents, list):
+        logger.warning("Continents data is not a list: %s", continents)
+        continents = []
 
     if continents:
         polys = Location.objects.filter(continent__in=continents)
@@ -181,7 +198,8 @@ def filter_by_continents(qs, request):
         qs = qs.filter(loc_q)
     return qs
 
-def filter_by_countries(qs, request):
+
+def filter_by_countries(qs, data):
     """Filter the queryset by countries.
 
     This function filters measurements based on countries provided in the request.
@@ -190,16 +208,18 @@ def filter_by_countries(qs, request):
     ----------
     qs : QuerySet
         The initial queryset of measurements to filter.
-    countries : list
-
-        List of countries to filter by.
+    data : dict
+        The request data containing filter parameters.
 
     Returns
     -------
     QuerySet
         The filtered queryset of measurements.
     """
-    countries = request.GET.getlist("location[countries]") + request.GET.getlist("location[countries][]")
+    countries = data.get("location[countries]", [])
+    if countries and not isinstance(countries, list):
+        logger.warning("Countries data is not a list: %s", countries)
+        countries = []
 
     if countries:
         polys = Location.objects.filter(country_name__in=countries)
@@ -209,7 +229,8 @@ def filter_by_countries(qs, request):
         qs = qs.filter(loc_q)
     return qs
 
-def filter_by_water_sources(qs, request):
+
+def filter_by_water_sources(qs, data):
     """Filter the queryset by water sources.
 
     This function filters measurements based on water sources provided in the request.
@@ -218,25 +239,27 @@ def filter_by_water_sources(qs, request):
     ----------
     qs : QuerySet
         The initial queryset of measurements to filter.
-    water_sources : list
-        List of water sources to filter by.
+    data : dict
+        The request data containing filter parameters.
 
     Returns
     -------
     QuerySet
         The filtered queryset of measurements.
     """
-    water_sources = request.GET.getlist("measurements[waterSources][]")
-    water_sources = [ws.lower() for ws in water_sources]
-    logger.debug(f"Water sources: {water_sources}")
-    logger.debug("Request.GET: %s", request.GET)
+    water_sources = data.get("measurements[waterSources]", [])
+    if water_sources and not isinstance(water_sources, list):
+        logger.warning("Water sources data is not a list: %s", water_sources)
+        water_sources = []
+
+    water_sources = [ws.lower() for ws in water_sources if isinstance(ws, str)]
 
     if water_sources:
-        logger.debug(f"Filtering by water sources: {water_sources}")
         qs = qs.filter(water_source__in=water_sources)
     return qs
 
-def filter_measurement_by_temperature(qs, request):
+
+def filter_measurement_by_temperature(qs, data):
     """Filter the queryset by temperature range.
 
     This function filters measurements based on a temperature range provided in the request.
@@ -245,27 +268,28 @@ def filter_measurement_by_temperature(qs, request):
     ----------
     qs : QuerySet
         The initial queryset of measurements to filter.
-    temp_from : str
-        The start temperature for the filter.
-    temp_to : str
-        The end temperature for the filter.
+    data : dict
+        The request data containing filter parameters.
 
     Returns
     -------
     QuerySet
         The filtered queryset of measurements.
     """
-    temp_from = request.GET.get("measurements[temperature][from]")
-    temp_to = request.GET.get("measurements[temperature][to]")
-    
-    if temp_from:
-        qs = qs.filter(temperature__value__gte=float(temp_from))
+    temp_from_str = data.get("measurements[temperature][from]")
+    temp_to_str = data.get("measurements[temperature][to]")
 
-    if temp_to:
-        qs = qs.filter(temperature__value__lte=float(temp_to))
+    try:
+        if temp_from_str:
+            qs = qs.filter(temperature__value__gte=float(temp_from_str))
+        if temp_to_str:
+            qs = qs.filter(temperature__value__lte=float(temp_to_str))
+    except ValueError as e:
+        logger.warning("Invalid temperature value: %s. From: '%s', To: '%s'", e, temp_from_str, temp_to_str)
     return qs
 
-def filter_by_date_range(qs, request):
+
+def filter_by_date_range(qs, data):
     """Filter the queryset by date range.
 
     This function filters measurements based on a date range provided in the request.
@@ -274,20 +298,25 @@ def filter_by_date_range(qs, request):
     ----------
     qs : QuerySet
         The initial queryset of measurements to filter.
-    date_from : str
-        The start date for the filter.
-    date_to : str
-        The end date for the filter.
+    data : dict
+        The request data containing filter parameters.
 
     Returns
     -------
     QuerySet
         The filtered queryset of measurements.
     """
-    
-    date_from = request.GET.get("dateRange[from]")
-    date_to = request.GET.get("dateRange[to]")
-    
+    date_from = data.get("dateRange[from]")
+    date_to = data.get("dateRange[to]")
+
+    if date_from and not isinstance(date_from, str):
+        logger.warning("dateRange[from] is not a string: %s", date_from)
+        date_from = None
+
+    if date_to and not isinstance(date_to, str):
+        logger.warning("dateRange[to] is not a string: %s", date_to)
+        date_to = None
+
     if date_from:
         qs = qs.filter(local_date__gte=date_from)
 
@@ -297,38 +326,59 @@ def filter_by_date_range(qs, request):
     return qs
 
 
-def filter_by_time_slots(qs, request):
+def filter_by_time_slots(qs, data):
     """Filter the queryset by time slots.
-    
+
     This function filters measurements based on time slots provided in the request.
     It filters by the local time component of the timestamp, ignoring timezone offsets.
-    
+
     Parameters
     ----------
-    request : HttpRequest
-        The HTTP request object containing time slot parameters.
     qs : QuerySet
         The initial queryset of measurements to filter.
-    
+    data : dict
+        The request data containing filter parameters.
+
     Returns
     -------
     QuerySet
         The filtered queryset of measurements.
     """
-    
-    times_json = request.GET.get("times")
-    if not times_json:
+    times_json_str = data.get("times")
+    if not times_json_str:
         return qs
 
     try:
-        slots = json.loads(times_json)
+        if isinstance(times_json_str, str):
+            slots = json.loads(times_json_str)
+        elif isinstance(times_json_str, list):
+            slots = times_json_str
+        else:
+            logger.warning("Times data is not a string or list: %s", type(times_json_str))
+            return qs
+
+        if not isinstance(slots, list):
+            logger.warning("Parsed times data is not a list: %s", slots)
+            return qs  # Or qs.none() if invalid format means no results
     except json.JSONDecodeError:
+        logger.warning("Invalid JSON for time_slots string: %s", times_json_str)
         return qs
 
     time_q = Q()
-    for slot in slots:
-        start = time.fromisoformat(slot.get("from")) if slot.get("from") else time(0,0,0)
-        end   = time.fromisoformat(slot.get("to"))   if slot.get("to")   else time(23,59,59)
-        time_q |= Q(local_time__range=(start, end))
+    for slot_data in slots:
+        if not isinstance(slot_data, dict):
+            logger.warning("Slot data is not a dictionary: %s", slot_data)
+            continue
+        try:
+            start_str = slot_data.get("from")
+            end_str = slot_data.get("to")
+            start = time.fromisoformat(start_str) if start_str else time(0, 0, 0)
+            end = time.fromisoformat(end_str) if end_str else time(23, 59, 59)
+            time_q |= Q(local_time__range=(start, end))
+        except ValueError:
+            logger.warning("Invalid time format in slot: %s. From: '%s', To: '%s'", slot_data, start_str, end_str)
+            continue  # Skip this slot
 
-    return qs.filter(time_q)
+    if time_q:  # Only apply filter if at least one valid time condition was generated
+        return qs.filter(time_q)
+    return qs
