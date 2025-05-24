@@ -8,27 +8,28 @@ import ui from "@nuxt/ui/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    tailwindcss(),
-    ui({
-      ui: {
-        container: {
-          base: "w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8",
+    plugins: [
+        vue(),
+        tailwindcss(),
+        ui({
+            ui: {
+                container: {
+                    base: "w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8",
+                },
+            },
+        }),
+    ],
+    base: "/",
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
         },
-      },
-    }),
-  ],
-  base: "/",
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
     },
-  },
-  server: {
-    watch: {
-      usePolling: true,
+    server: {
+        // Use the following line if you want to enable polling for file changes
+        // watch: {
+        //   usePolling: true,
+        // },
+        allowedHosts: ["waterwatch", "localhost"],
     },
-    allowedHosts: ["waterwatch", "localhost"],
-  },
 });
