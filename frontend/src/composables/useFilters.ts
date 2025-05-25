@@ -73,7 +73,9 @@ export function useFilters(
 
     // Derived state
     const allCountries = computed(() =>
-        toValue(selectedContinents).flatMap((c) => toValue(countriesByContinent)[c] || []),
+        toValue(selectedContinents)
+            .flatMap((c) => toValue(countriesByContinent)[c] || [])
+            .sort((a, b) => a.localeCompare(b)),
     );
     const continentPlaceholder = computed(() => (toValue(selectedContinents).length ? "" : "Select continents"));
     const countryPlaceholder = computed(() => (toValue(selectedCountries).length ? "" : "Select countries"));

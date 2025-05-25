@@ -56,6 +56,7 @@ class MeasurementSerializer(serializers.ModelSerializer):
     local_time = serializers.TimeField()
 
     location = serializers.SerializerMethodField()
+    flag = serializers.SerializerMethodField()
     country = serializers.SerializerMethodField()
     continent = serializers.SerializerMethodField()
     metrics = serializers.SerializerMethodField()
@@ -102,6 +103,24 @@ class MeasurementSerializer(serializers.ModelSerializer):
             "latitude": obj.location.y,
             "longitude": obj.location.x,
         }
+
+    def get_flag(self, obj):
+        """Flip the flag value.
+
+        This method is used to invert the boolean value of the `flag` field
+
+        Parameters
+        ----------
+        obj : Measurement
+            The model instance being serialized. `obj.flag` is expected
+            to be a boolean field indicating some condition (e.g., quality flag).
+
+        Returns
+        -------
+        bool
+            The inverted value of the `flag` field. If `obj.flag` is True, it returns False, and vice versa.
+        """
+        return not obj.flag
 
     def get_country(self, obj):
         """Get the country name for the measurement's location.
@@ -165,14 +184,7 @@ class MeasurementSerializer(serializers.ModelSerializer):
         """
         metrics_data = []
 
-        logger.debug(self.context)
-
         included_metrics = self.context.get("included_metrics", [])
-
-        logger.debug(
-            "Included metrics: %s",
-            included_metrics,
-        )
 
         for metric_cls in METRIC_MODELS:
             attr = metric_cls.__name__.lower()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, onUpdated, onBeforeUnmount } from "vue";
+import { ref, reactive, watch, onMounted, onUpdated, onBeforeUnmount, computed } from "vue";
 import { PlusIcon, MinusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
 import { useFilters, type DateRangeFilter, type TemperatureFilter, type TimeSlot } from "@/composables/useFilters";
 import { useSearch } from "@/composables/useSearch";
@@ -165,6 +165,27 @@ function toggleWaterSourceDropdown() {
     }
 }
 
+// Functionality to search for countries
+const countrySearchQuery = ref("");
+const filteredCountries = computed(() => {
+    if (!countrySearchQuery.value) return allCountries.value;
+    return allCountries.value.filter((country) =>
+        country.toLowerCase().includes(countrySearchQuery.value.toLowerCase()),
+    );
+});
+
+/**
+ * Clears the country search query when the country dropdown is closed.
+ * This ensures that the search input is reset when the dropdown is not open.
+ *
+ * @returns {void}
+ */
+const clearSearchOnClose = () => {
+    if (!countryDropdownOpen.value) countrySearchQuery.value = "";
+};
+
+watch([countryDropdownOpen], clearSearchOnClose);
+
 /**
  * Resets the filter panel to its initial state.
  * Clears all selected continents, countries, water sources, temperature settings, date range, and time slots.
@@ -311,6 +332,15 @@ defineExpose({
                                 class="multiselect-custom-dropdown"
                                 :style="{ 'max-height': dropdownMaxHeight + 'px' }"
                             >
+                                <div class="p-2 border-b">
+                                    <input
+                                        type="text"
+                                        v-model="countrySearchQuery"
+                                        placeholder="Search countries..."
+                                        class="w-full px-3 py-2 border rounded text-sm"
+                                        @click.stop
+                                    />
+                                </div>
                                 <div
                                     class="multiselect-select-all"
                                     @click.stop="selectedCountries = toggleAllCountries(selectedCountries)"
@@ -326,7 +356,7 @@ defineExpose({
 
                                 <div v-else class="multiselect-options">
                                     <div
-                                        v-for="country in allCountries"
+                                        v-for="country in filteredCountries"
                                         :key="country"
                                         class="multiselect-option"
                                         :class="{
