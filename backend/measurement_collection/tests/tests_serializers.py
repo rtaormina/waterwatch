@@ -28,19 +28,22 @@ class SerializerTest(TestCase):
 
         cls.json_temp = {"sensor": "Test", "value": 25.0, "time_waited": timedelta(minutes=1)}
         cls.json_measurement_below_40 = {
-            "timestamp_local": "2025-05-20T12:00:00Z",
+            "local_date": "2025-05-25",
+            "local_time": "14:30:00",
             "location": Point(12.34567, 54.32109),
             "water_source": "well",
             "temperature": {"sensor": "Test Sensor", "value": 40.0, "time_waited": "00:01:00"},
         }
         cls.json_measurement_above_40 = {
-            "timestamp_local": "2025-05-10T12:00:00Z",
+            "local_date": "2025-05-10",
+            "local_time": "12:00:00",
             "location": Point(12.34567, 54.32109),
             "water_source": "well",
             "temperature": {"sensor": "Test Sensor", "value": 40.1, "time_waited": "00:01:00"},
         }
         cls.json_measurement_with_campaign = {
-            "timestamp_local": "2025-05-15T12:00:00Z",
+            "local_date": "2025-05-15",
+            "local_time": "12:00:00",
             "location": Point(0.5, 0.5),
             "water_source": "well",
             "temperature": {"sensor": "Test Sensor", "value": 40.0, "time_waited": "00:01:00"},
