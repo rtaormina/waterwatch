@@ -777,7 +777,7 @@ describe("useFilters", () => {
         selectedContinents.value = ["North America", "Europe"];
         await nextTick(); // Wait for computed to update
 
-        expect(filters.allCountries.value).toEqual(["USA", "Canada", "Mexico", "Germany", "France", "UK"]);
+        expect(filters.allCountries.value).toEqual(["Canada", "France", "Germany", "Mexico", "UK", "USA"]);
 
         selectedContinents.value = [];
         await nextTick();
