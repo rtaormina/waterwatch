@@ -30,7 +30,10 @@ class Measurement(models.Model):
     """
 
     water_source_choices = {
+        "network": "network",
+        "rooftop tank": "rooftop tank",
         "well": "well",
+        "other": "other",
     }
     timestamp = models.DateTimeField(auto_now_add=True)
     local_date = models.DateField(default=timezone.now)

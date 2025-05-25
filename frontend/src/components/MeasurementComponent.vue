@@ -51,8 +51,10 @@ const tempVal = ref("");
 const selectedMetrics = ref<string[]>([]);
 const metricOptions = [{ label: "Temperature", value: "temperature" }];
 const waterSourceOptions = [
+    { label: "Network", value: "network" },
+    { label: "Rooftop Tank", value: "rooftop tank" },
     { label: "Well", value: "well" },
-    { label: "Tap", value: "tap" },
+    { label: "Other", value: "other" },
 ];
 const userLoc = ref<L.LatLng>(L.latLng(0, 0));
 const locAvail = ref(true);
