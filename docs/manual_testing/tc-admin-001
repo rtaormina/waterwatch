@@ -1,0 +1,88 @@
+# Manual Test Admin 001
+
+## Test Case ID
+`TC-ADMIN-001`
+
+## Title
+Manage Campaigns as Admin
+
+## Tested By
+`<Tester Name>`
+
+## Test Date
+`YYYY-MM-DD`
+
+## Summary
+Log in as an admin and manage campaigns by adding an active campaign, editing it, and deleting it.
+
+## Preconditions
+Empty database
+
+## Test Steps
+1. Open to the admin login and enter the username admin and password admin
+2. Select the campaigns section and select add campaign.
+3. Enter the test data for the campaign
+4. Select save
+5. Navigate to the map page and click on the campaign banner
+6. Navigate to admin console
+7. Select the campaign that was just added and edit with the edited test data
+8. Navigate to map page and click on campaign banner
+9. Navigate to admin console
+10. Select the campaign that was added and delete it
+11. Navigate to map page
+
+## Test Data
+*start and end time are relative to the time that the tester is creating the campaigns*
+
+Initial Campaign:
+Name: Netherlands Water Week
+Description: Celebrate water week in the netherlands by recording water temperature data
+Start time: today and now
+End time: one week from today and now
+Region: Select entire netherlands
+
+Edited Campaign (only changed fields included):
+Name: Netherlands Water Day
+Description: Celebrate water day in the netherlands by recording water temperature data
+End time: tomorrow and now
+
+## Expected Result
+Admin console:
+- Upon adding the campaign, it should appear in the database and also be visible on the admin console
+- Edits to the campaign should also be reflected in the admin console and database
+- Once the campaign is deleted, it should disappear from the admin console and database.
+- There should be a prompt when deleting the campaign that confirms this action
+Map page:
+- The initial campaign should appear on the map page as a banner with displaying the data that was mentioned in the test data section
+- Once edited, the campaign should still appear on the map page as a banner with a countdown of about a day and the changes reflected in the title and description
+- Once deleted, the map page should display no campaign banner
+
+## Actual Result
+*To be filled during test execution*
+
+## Status
+- Pass
+- Fail
+
+## Severity (if failed)
+- High
+- Medium
+- Low
+
+## Environment
+| Detail       | Value            |
+|--------------|------------------|
+| Browser      |        |
+| OS           |       |
+| Device       |           |
+| Environment  |           |
+
+
+## Related Requirement / User Story
+*Link or ID referencing the user story or requirement*
+
+
+## Attachments
+*Screenshots, logs, or notes*
+
+## Additional Notes
