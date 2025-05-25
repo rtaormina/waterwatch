@@ -44,7 +44,7 @@ const routes = [
          */
         component: () => import("@/views/ExportView.vue"),
         meta: {
-            requiresAuth: true,
+            requiresAuth: false,
         },
     },
     {
@@ -84,3 +84,5 @@ router.beforeEach(async (to) => {
         return { name: "Login" };
     }
 });
+
+export default router;

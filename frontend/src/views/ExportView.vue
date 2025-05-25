@@ -1,75 +1,94 @@
-<script setup>
-import { ref, reactive } from "vue";
+<script setup lang="ts">
+import { ref, watch } from "vue";
+import { computed } from "vue";
 import NavBar from "@/components/NavBar.vue";
 import SearchBar from "@/components/SearchBarComponent.vue";
 import FilterPanel from "@/components/FilterPanelComponent.vue";
 import SearchResults from "@/components/SearchResultsComponent.vue";
+import { useSearch } from "@/composables/useSearch";
+import { useExportData } from "@/composables/useExportData";
 
 const query = ref("");
-const hasSearched = ref(false);
-const results = reactive({
-    count: 0,
-    avgTemp: 0,
+// Reference to the FilterPanel component
+const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
+
+// Store last search parameters to detect changes in filters
+const lastSearchParams = ref<import("@/composables/useSearch").MeasurementSearchParams | null>(null);
+
+// Flag to indicate if filters are out of sync with the last search
+const filtersOutOfSync = ref(false);
+
+// Computed property to get the temperature unit from FilterPanel or default to "C"
+const temperatureUnit = computed(() => {
+    if (filterPanelRef.value) {
+        return filterPanelRef.value.temperature.unit || "C";
+    }
+    return "C";
 });
 
-// Define presets - can be expanded with more options
-// const presets = [
-//     {
-//         name: "Mediterranean Waters",
-//         continents: ["Europe", "Africa"],
-//         countries: ["Italy", "Spain", "France", "Greece", "Morocco", "Tunisia"],
-//         temperature: {
-//             enabled: true,
-//             from: 15,
-//             to: 30,
-//             unit: "C",
-//         },
-//         dateRange: {
-//             from: "",
-//             to: "",
-//         },
-//         times: [],
-//     },
-// ];
+// Use measurements composable
+const { results, hasSearched, searchMeasurements } = useSearch();
+
+// Use export data composable
+const { exportData } = useExportData();
+const format = ref<"csv" | "xml" | "json" | "geojson">("csv");
 
 /**
- * Function to handle search with server communication
+ * Function to handle search action.
+ * This function retrieves the current filters from the FilterPanel, constructs search parameters, and performs a search.
  *
- * @param {Object} payload - The search parameters
+ * @returns {Promise<void>} A promise that resolves when the search is complete.
  */
-async function onSearch(payload) {
-    console.log("Search with:", payload);
-    hasSearched.value = true;
+async function onSearch(): Promise<void> {
+    if (!filterPanelRef.value) return;
 
-    try {
-        // In a real implementation, this would be an API call
-        // const response = await fetch('/api/search', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(payload)
-        // });
-        // const data = await response.json();
+    // Get current filters from FilterPanel
+    const searchParams = filterPanelRef.value.getSearchParams(query.value);
+    lastSearchParams.value = searchParams;
 
-        // For demonstration, set sample results
-        // In production, you would use data from the response
-        results.count = 1000;
-        results.avgTemp = 23.5;
-        results.avgTurbidity = 2;
-        results.avgPH = 6.8;
-    } catch (error) {
-        console.error("Search failed:", error);
-        // Handle error state
-    }
+    console.log("Search params:", searchParams);
+
+    // Perform search
+    await searchMeasurements(searchParams);
+    filtersOutOfSync.value = false;
 }
 
-// Function to apply preset to filter panel
-// function applyPreset(presetIndex) {
-//     // This would trigger an event to update the filter panel
-//     // Currently we're just logging
-//     console.log("Applying preset:", presets[presetIndex]);
-//     // In a real implementation, you would emit this to the filter panel
-//     // or use a shared state management solution
-// }
+// Modal state for export failure
+const showModal = ref(false);
+/**
+ * Function to handle download action.
+ * This function exports data based on the selected format and last search parameters.
+ *
+ * @returns {Promise<void>} A promise that resolves when the export is complete.
+ */
+async function onDownload(): Promise<void> {
+    const ok = await exportData(format.value, lastSearchParams.value == null ? {} : lastSearchParams.value);
+    showModal.value = !ok;
+}
+
+// Watch for filter changes that occur *after* a search has been made
+watch(
+    () => {
+        if (filterPanelRef.value) {
+            return filterPanelRef.value.getSearchParams(query.value);
+        }
+        return null;
+    },
+    (currentParams) => {
+        if (hasSearched.value) {
+            // Only act if a search has already been performed
+            if (currentParams && lastSearchParams.value) {
+                if (JSON.stringify(currentParams) !== JSON.stringify(lastSearchParams.value)) {
+                    filtersOutOfSync.value = true;
+                }
+                // If params become same as lastSearchParams, filtersOutOfSync remains true until a new search confirms the current filters.
+            } else if (currentParams && !lastSearchParams.value) {
+                filtersOutOfSync.value = true;
+            }
+        }
+    },
+    { deep: true },
+);
 </script>
 
 <template>
@@ -86,12 +105,21 @@ async function onSearch(payload) {
                         <SearchBar v-model:query="query" @search="onSearch" />
                     </div>
                     <div class="flex-grow bg-light min-h-0 mb-[14px]">
-                        <FilterPanel @search="onSearch" />
+                        <FilterPanel ref="filterPanelRef" @search="onSearch" />
                     </div>
                 </div>
 
                 <div class="w-full md:w-5/12 flex flex-col min-h-0">
-                    <SearchResults :results="results" :searched="hasSearched" />
+                    <SearchResults
+                        :results="results"
+                        :searched="hasSearched"
+                        v-model:format="format"
+                        @download="onDownload"
+                        :show-modal="showModal"
+                        :temperature-unit="temperatureUnit"
+                        @close-modal="showModal = false"
+                        :filters-out-of-sync="filtersOutOfSync"
+                    />
                 </div>
             </div>
         </div>
