@@ -8,6 +8,7 @@ from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
+from rest_framework.decorators import api_view
 
 from .factories import get_strategy
 from .models import Location, Preset
@@ -16,6 +17,7 @@ from .serializers import MeasurementSerializer, PresetSerializer
 logger = logging.getLogger("WATERWATCH")
 
 
+@api_view(["POST"])
 def search_measurements_view(request):
     """Get measurements based on filters.
 

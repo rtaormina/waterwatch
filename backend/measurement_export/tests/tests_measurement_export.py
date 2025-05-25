@@ -1,5 +1,6 @@
 """Tests for exporting measurement Endpoints."""
 
+import json
 import xml.etree.ElementTree as ET
 from datetime import timedelta
 
@@ -70,10 +71,31 @@ class ExportMeasurementTests(TestCase):
             time_waited=timedelta(seconds=1),
         )
 
+    # def test_continent_filter(self):
+    #     # location[continents]
+    #     response = self.client.get("/api/measurements/?location[continents]=[Europe]")
+    #     assert response.status_code == 200
+    #     data = response.json()
+    #     assert len(data) == 1
+    #     assert data[0]["country"] == "Netherlands"
+
+    #     response = self.client.post("/api/measurements/?location[continents]=[The Ocean]")
+    #     assert response.status_code == 200
+    #     data = response.json()
+    #     assert len(data) == 1
+    #     assert data[0]["country"] == "Atlantis"
+
     def test_empty_export_xml(self):
         Measurement.objects.all().delete()
         Temperature.objects.all().delete()
-        response = self.client.get("/api/measurements/?format=xml")
+        payload = {
+            "filters": {},
+            "measurements_included": ["temperature"],
+            "format": "xml",
+        }
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
         assert response.status_code == 200
         root = ET.fromstring(response.content)
 
@@ -82,7 +104,14 @@ class ExportMeasurementTests(TestCase):
         assert len(entries) == 0
 
     def test_export_measurements_xml(self):
-        response = self.client.get("/api/measurements/?format=xml")
+        payload = {
+            "filters": {},
+            "measurements_included": ["temperature"],
+            "format": "xml",
+        }
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
         assert response.status_code == 200
 
         root = ET.fromstring(response.content)
@@ -113,8 +142,14 @@ class ExportMeasurementTests(TestCase):
 
         Measurement.objects.all().delete()
         Temperature.objects.all().delete()
-        response = self.client.get("/api/measurements/?format=csv")
-        assert response.status_code == 200
+        payload = {
+            "filters": {},
+            "measurements_included": ["temperature"],
+            "format": "csv",
+        }
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
 
         content = response.content.decode("utf-8")
         reader = csv.DictReader(io.StringIO(content))
@@ -126,7 +161,14 @@ class ExportMeasurementTests(TestCase):
         import csv
         import io
 
-        response = self.client.get("/api/measurements/?format=csv")
+        payload = {
+            "filters": {},
+            "measurements_included": ["temperature"],
+            "format": "csv",
+        }
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
         assert response.status_code == 200
 
         content = response.content.decode("utf-8")
@@ -155,13 +197,27 @@ class ExportMeasurementTests(TestCase):
     def test_empty_export_json(self):
         Measurement.objects.all().delete()
         Temperature.objects.all().delete()
-        response = self.client.get("/api/measurements/?format=json")
+        payload = {
+            "filters": {},
+            "measurements_included": ["temperature"],
+            "format": "json",
+        }
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 0
 
     def test_export_measurements_json(self):
-        response = self.client.get("/api/measurements/?format=json")
+        payload = {
+            "filters": {},
+            "measurements_included": ["temperature"],
+            "format": "json",
+        }
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 2
@@ -185,7 +241,14 @@ class ExportMeasurementTests(TestCase):
     def test_empty_export_geojson(self):
         Measurement.objects.all().delete()
         Temperature.objects.all().delete()
-        response = self.client.get("/api/measurements/?format=geojson")
+        payload = {
+            "filters": {},
+            "measurements_included": ["temperature"],
+            "format": "geojson",
+        }
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
         assert response.status_code == 200
 
         data = response.json()
@@ -194,7 +257,14 @@ class ExportMeasurementTests(TestCase):
         assert len(features) == 0
 
     def test_export_measurements_geojson(self):
-        response = self.client.get("/api/measurements/?format=geojson")
+        payload = {
+            "filters": {},
+            "measurements_included": ["temperature"],
+            "format": "geojson",
+        }
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
         assert response.status_code == 200
 
         data = response.json()

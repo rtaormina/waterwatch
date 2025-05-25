@@ -31,7 +31,6 @@ class MeasurementTest(TestCase):
             location=Point(3, 3),
             flag=True,
             timestamp="2023-10-01T12:00:00",
-            timestamp_local=cls.original_tz,
             water_source="tap",
         )
 
@@ -55,4 +54,3 @@ class MeasurementTest(TestCase):
         retrieved_meas1 = Measurement.objects.get(id=self.timezone1.id)
 
         assert retrieved_meas1.timestamp == self.timezone1.timestamp
-        assert retrieved_meas1.timestamp_local == self.original_tz
