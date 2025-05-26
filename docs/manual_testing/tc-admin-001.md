@@ -7,10 +7,10 @@
 Manage Campaigns as Admin
 
 ## Tested By
-`<Tester Name>`
+`Stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-05-26`
 
 ## Summary
 Log in as an admin and manage campaigns by adding an active campaign, editing it, and deleting it.
