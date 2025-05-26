@@ -179,6 +179,7 @@ export function createPayload(
     const local_date = localISO ? localISO.split("T")[0] : undefined;
     const local_time = localISO ? localISO.split("T")[1].split(".")[0] : undefined;
     return {
+        timestamp: DateTime.utc().toISO(),
         local_date: local_date,
         local_time: local_time,
         location: {
