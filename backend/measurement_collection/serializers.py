@@ -1,6 +1,7 @@
 """Serializers for Measurement and Temperature models."""
 
 import logging
+from datetime import datetime
 
 from campaigns.views import find_matching_campaigns
 from django.contrib.gis.geos import Point
@@ -55,7 +56,7 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         """Meta class for MeasurementSerializer."""
 
         model = Measurement
-        fields = ["timestamp_local", "location", "water_source", "temperature"]
+        fields = ["local_date", "local_time", "location", "water_source", "temperature"]
         geo_field = "location"
 
     def validate(self, data):
@@ -100,8 +101,9 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         """
         temperature_data = validated_data.pop("temperature", None)
         measurement = Measurement.objects.create(**validated_data)
+        timestamp_local = datetime.combine(measurement.local_date, measurement.local_time)
         active_campaigns = find_matching_campaigns(
-            measurement.timestamp_local, str(measurement.location.y), str(measurement.location.x)
+            timestamp_local, str(measurement.location.y), str(measurement.location.x)
         )
         measurement.campaigns.add(*active_campaigns)
         if temperature_data:

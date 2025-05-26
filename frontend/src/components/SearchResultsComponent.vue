@@ -1,38 +1,80 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, nextTick, defineProps } from "vue";
+import { ref, onMounted, onBeforeUnmount, nextTick, defineProps, computed } from "vue";
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
-import { exportData, format } from "@/composables/MeasurementExportLogic";
 import Modal from "./Modal.vue";
 import { permissionsLogic } from "@/composables/PermissionsLogic";
 
+// Define the logic for permissions
 const canDownload = ref(false);
 const perms = ref<string[]>([]);
 
 const { fetchPermissions, hasPermission, allPermissions } = permissionsLogic();
 
-defineProps({ results: Object });
+// Define the emits for the component
+const emit = defineEmits<{
+    (e: "update:format", newFormat: typeof props.format): void;
+    (e: "download"): void;
+    (e: "close-modal"): void;
+}>();
+
+// Define the props for the component
+interface Props {
+    results: { count: number; avgTemp: number };
+    searched: boolean;
+    showModal: boolean;
+    filtersOutOfSync: boolean;
+    temperatureUnit: "C" | "F";
+    format: "csv" | "xml" | "json" | "geojson";
+}
+const props = defineProps<Props>();
+
+// Computed properties for average temperature conversion and format handling
+const avgTempConverted = computed(() => {
+    const c = props.results.avgTemp || 0;
+    return props.temperatureUnit === "F" ? (c * 9) / 5 + 32 : c;
+});
+
+// Computed property for model format with two-way binding
+const modelFormat = computed({
+    /**
+     * Getter for the format prop.
+     * This allows the component to reactively bind to the format prop.
+     *
+     * @returns {typeof props.format} The current format prop value.
+     */
+    get: () => props.format,
+    /**
+     * Setter for the format prop.
+     * This emits an event to update the format prop in the parent component.
+     *
+     * @param {typeof props.format} val - The new format value to set.
+     * @returns {void}
+     */
+    set: (val: typeof props.format) => {
+        emit("update:format", val);
+    },
+});
+
+// Reference for the wrapper element and total width
 const wrapperRef = ref<HTMLElement | null>(null);
 const totalWidth = ref(0);
 
-const showModal = ref(false);
-
 /**
- * Checks if the data export was successful.
+ * Handles the resize event to adjust the total width of the wrapper element.
+ * This function is called on component mount and whenever the window is resized.
+ *
+ * @returns {void}
  */
-const getData = async () => {
-    const exportSuccessful = await exportData();
-    showModal.value = !exportSuccessful;
-    console.log(showModal.value);
-};
-
 onMounted(async () => {
     // wait for DOM
     await nextTick();
-
     /**
-     * Measure the width of the wrapper element
+     * Measures the width of the wrapper element and updates the totalWidth ref.
+     * This function is called on component mount and whenever the window is resized.
+     *
+     * @returns {void}
      */
-    const measure = () => {
+    const measure = (): void => {
         if (wrapperRef.value) {
             totalWidth.value = wrapperRef.value.scrollWidth + 100;
         }
@@ -45,8 +87,6 @@ onMounted(async () => {
     await fetchPermissions();
     canDownload.value = hasPermission("measurement_export.can_export");
     perms.value = allPermissions();
-    console.log("canDownload", canDownload.value);
-    console.log("permissions", perms.value);
 });
 </script>
 
@@ -56,13 +96,13 @@ onMounted(async () => {
             <h3 class="font-bold text-lg mb-4 hidden md:block">Search Results</h3>
             <h4 class="font-semibold text-lg hidden md:block">Summary</h4>
             <div class="mt-2 space-y-1">
-                <div class="flex justify-between">
+                <div v-if="searched" class="flex justify-between">
                     <span>Number of Results:</span>
-                    <span>{{ results?.count }}</span>
+                    <span>{{ props.results.count }}</span>
                 </div>
-                <div class="hidden md:flex md:justify-between">
+                <div v-if="searched" class="hidden md:flex md:justify-between">
                     <span>Average Temperature:</span>
-                    <span>{{ results?.avgTemp }} °C</span>
+                    <span>{{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}</span>
                 </div>
             </div>
         </div>
@@ -71,34 +111,45 @@ onMounted(async () => {
             <ArrowDownTrayIcon
                 :class="[
                     'md:min-h-12 md:min-w-12 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200',
-                    canDownload
+                    canDownload && searched && !props.filtersOutOfSync // Updated condition
                         ? 'cursor-pointer text-gray-800 hover:text-gray-600'
                         : 'cursor-not-allowed text-gray-400',
                 ]"
-                @click="canDownload ? getData() : null"
+                @click="
+                    !props.searched || !canDownload || props.filtersOutOfSync ? null : emit('download') // Updated condition
+                "
             />
             <div class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4">
                 <label for="format" class="font-semibold">Download as</label>
-                <select id="format" v-model="format" class="flex-1 border rounded bg-white px-3 py-2">
-                    <option value="csv">CSV File</option>
+                <select
+                    id="format"
+                    v-model="modelFormat"
+                    class="flex-1 border rounded bg-white px-3 py-2"
+                    :disabled="!canDownload || !searched || props.filtersOutOfSync"
+                >
+                    <option value="csv">CSV</option>
                     <option value="xml">XML</option>
                     <option value="json">JSON</option>
                     <option value="geojson">GeoJSON</option>
                 </select>
             </div>
             <button
-                @click="getData"
-                :disabled="!canDownload"
+                @click="emit('download')"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync"
                 class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
-                :class="canDownload ? 'bg-main cursor-pointer' : 'bg-gray-300 cursor-not-allowed'"
+                :class="
+                    canDownload && searched && !props.filtersOutOfSync
+                        ? 'bg-main cursor-pointer'
+                        : 'bg-gray-300 cursor-not-allowed'
+                "
             >
                 Download
             </button>
-            <Modal :visible="showModal" @close="showModal = false">
+            <Modal :visible="props.showModal" @close="emit('close-modal')">
                 <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
                 <div class="flex items-center mt-4 gap-2">
                     <button
-                        @click="showModal = false"
+                        @click="emit('close-modal')"
                         class="flex-1 bg-main text-white mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
                     >
                         Okay

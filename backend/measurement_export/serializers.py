@@ -1,10 +1,17 @@
 """Serializers for measurement export."""
 
+import logging
+from datetime import UTC
+
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework import serializers
 
+from measurement_export.models import Preset
+
 from .utils import lookup_location
+
+logger = logging.getLogger("WATERWATCH")
 
 
 class MeasurementSerializer(serializers.ModelSerializer):
@@ -43,7 +50,13 @@ class MeasurementSerializer(serializers.ModelSerializer):
         to the current measurement instance.
     """
 
+    timestamp = serializers.DateTimeField(default_timezone=UTC, read_only=True)
+
+    local_date = serializers.DateField()
+    local_time = serializers.TimeField()
+
     location = serializers.SerializerMethodField()
+    flag = serializers.SerializerMethodField()
     country = serializers.SerializerMethodField()
     continent = serializers.SerializerMethodField()
     metrics = serializers.SerializerMethodField()
@@ -55,6 +68,8 @@ class MeasurementSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "timestamp",
+            "local_date",
+            "local_time",
             "location",
             "flag",
             "water_source",
@@ -88,6 +103,24 @@ class MeasurementSerializer(serializers.ModelSerializer):
             "latitude": obj.location.y,
             "longitude": obj.location.x,
         }
+
+    def get_flag(self, obj):
+        """Flip the flag value.
+
+        This method is used to invert the boolean value of the `flag` field
+
+        Parameters
+        ----------
+        obj : Measurement
+            The model instance being serialized. `obj.flag` is expected
+            to be a boolean field indicating some condition (e.g., quality flag).
+
+        Returns
+        -------
+        bool
+            The inverted value of the `flag` field. If `obj.flag` is True, it returns False, and vice versa.
+        """
+        return not obj.flag
 
     def get_country(self, obj):
         """Get the country name for the measurement's location.
@@ -151,8 +184,13 @@ class MeasurementSerializer(serializers.ModelSerializer):
         """
         metrics_data = []
 
+        included_metrics = self.context.get("included_metrics", [])
+
         for metric_cls in METRIC_MODELS:
             attr = metric_cls.__name__.lower()
+            if attr not in included_metrics:
+                continue
+
             inst = getattr(obj, attr, None)
             if not inst:
                 continue
@@ -174,3 +212,24 @@ class MeasurementSerializer(serializers.ModelSerializer):
             metrics_data.append(data)
 
         return metrics_data
+
+
+class PresetSerializer(serializers.ModelSerializer):
+    """Serializer for Preset model instances.
+
+    This serializer is used to serialize and deserialize Preset objects.
+    It includes fields for the preset's ID, name, description, filters,
+    created_at timestamp, and a boolean indicating if the preset is public.
+
+    Parameters
+    ----------
+    serializers.ModelSerializer : Base class
+        Inherits from Django REST Framework's ModelSerializer.
+    """
+
+    class Meta:
+        """Meta class for PresetSerializer."""
+
+        model = Preset
+        fields = ["id", "name", "description", "filters", "created_at", "is_public"]
+        read_only_fields = ["id", "created_at"]
