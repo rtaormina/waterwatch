@@ -1,5 +1,8 @@
 /// <reference types="vite/client" />
-declare module '@/router' {
-    const router: any;
-    export default router;
-}
+
+// import { Router } from "vue-router";
+
+// declare module "@/router" {
+//     const router: Router;
+//     export default router;
+// }

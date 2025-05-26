@@ -7,5 +7,6 @@ from . import views
 app_name = "measurements"
 
 urlpatterns = [
-    path("", views.measurement_view, name="measurements"),
+    path("search/", views.measurement_search, name="measurement_search"),
+    path("", views.measurement_view, name="measurement_view"),
 ]

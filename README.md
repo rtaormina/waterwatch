@@ -7,7 +7,18 @@ WATERWATCH is global citizen science platform for tracking water temperatures an
 The live production version of [WATERWATCH](https://waterwatch.tudelft.nl)
 
 ## Documentation
-View the documentation for WATERWATCH [here](https://waterwatch.tudelft.nl/docs).
+In order to see the documentation during development make sure that sphinx is installed in your virtual environment. This can be done by running the following:
+```bash
+python -m pip install -r requirements/dev-requirements.txt
+```
+Then after running the project using the installation steps below the documentation can be accessed by going to ['/docs'](http://127.0.0.1/docs).
+
+Alternatively, navigate to the docs directory and run the following:
+```bash
+make clean
+make html
+```
+Once the html has been built, open the file `/docs/_build/html/index.html` to view the documentation statically.
 
 ## Installation
 
@@ -19,17 +30,17 @@ Requirements before install:
 
 Linux:
 ```bash
-docker compose up -d
+./setup.sh
 ```
 After installation the project will run at [localhost](http://127.0.0.1/).
 
-> [!note]
-> The first time after running execute the following to setup the database and create an admin user:
-> ```bash
-> docker exec backend python manage.py makemigrations
-> docker exec backend python manage.py migrate
-> docker exec -it backend python manage.py createsuperuser
-> ```
+There are two standard users
+Admin
+    -username: admin
+    -password: admin
+Researcher
+    -username: researcher
+    -password: researcher
 
 ### Production
 TODO
@@ -82,6 +93,12 @@ docker exec backend python manage.py test
     docker stop {container_name}
     docker rm {container_name}
     ```
+- If bash cannot find setup.sh (bad interpreter, no such file or directory), run the following:
+    ```bash
+    sudo apt-get install dos2unix
+    dos2unix setup.sh
+    ./setup.sh
+    ```
 
 ## Contributing
 To avoid having to run individual installation commands, run:
@@ -93,6 +110,11 @@ python -m pip install -r requirements/dev-requirements.txt
 For python files, [numpy documentation style](https://numpydoc.readthedocs.io/en/latest/format.html) must be used.
 
 For files containing typescript, [TypeDoc style](https://typedoc.org/) must be used.
+
+For generating front-end documentation run ./generate_doc.sh, for this you need to first run
+```bash
+npm install --save-dev typedoc
+```
 
 ### Style-checking
 To ensure consistent code style, contributors will need [ruff](https://docs.astral.sh/ruff/) installed. This can be done by running
@@ -139,3 +161,10 @@ This makes sure that the pre-commit hooks will be run before commiting.
 
 
 > Additional thanks to everyone who helped in any way, shape, or form.
+
+generate type doc
+- npm install --save-dev typedoc
+- npm install typedoc-plugin-markdown --save-dev
+- npx typedoc --plugin typedoc-plugin-markdown --out docs/ts
+- npx vue-docgen frontend/src/components docs/vue-components
+- npx vue-docgen frontend/src/views docs/vue-views

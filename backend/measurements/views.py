@@ -1,8 +1,12 @@
 """Create views associated with measurements."""
 
+import logging
+
 from django.http import HttpResponseNotAllowed
 from measurement_collection.views import add_measurement_view
-from measurement_export.views import export_all_view
+from measurement_export.views import search_measurements_view
+
+logger = logging.getLogger("WATERWATCH")
 
 
 def measurement_view(request):
@@ -23,8 +27,28 @@ def measurement_view(request):
         - If POST: Calls add_measurement_view.
         - If neither: Returns 405 Method Not Allowed.
     """
-    if request.method == "GET":
-        return export_all_view(request)
+    # TODO: Implement export_all_view if needed
+    # if request.method == "GET":
     if request.method == "POST":
+        logger.debug("measurement_view called with method: %s", request.method)
         return add_measurement_view(request)
     return HttpResponseNotAllowed(["GET", "POST"])
+
+
+def measurement_search(request):
+    """Handle POST requests for searching measurements.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object.
+
+    Returns
+    -------
+    HttpResponse
+        - If POST: Calls search_measurements_view to handle the search.
+        - If not POST: Returns 405 Method Not Allowed.
+    """
+    if request.method == "POST":
+        return search_measurements_view(request)
+    return HttpResponseNotAllowed(["POST"])

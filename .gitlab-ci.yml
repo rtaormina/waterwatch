@@ -4,14 +4,14 @@ workflow:
       when: always
 
 stages:
-  - build_image
-  - lint
+  - build_images
+  - linting
   - testing
 #  - e2e_tests
 
 # Build Docker Image for Backend
 build_backend_image:
-  stage: build_image
+  stage: build_images
   image: docker:latest
   services:
     - docker:dind
@@ -20,15 +20,45 @@ build_backend_image:
     - changes:
         - requirements/**/*
         - dockerfile.backend
-        - .gitlab-ci.yml
   # Log in to Docker registry and build the image
   script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
     - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v0.2-backend .
     - docker push $CI_REGISTRY_IMAGE:v0.2-backend
+
+# Build Docker Image for Frontend
+build_frontend_image:
+  stage: build_images
+  image: docker:latest
+  services:
+    - docker:dind
+  # Only if requirements files changed
+  rules:
+    - changes:
+        - frontend/package.json
+        - frontend/package-lock.json
+        - dockerfile.frontend
+  # Log in to Docker registry and build the image
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker build -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v0.2-frontend .
+    - docker push $CI_REGISTRY_IMAGE:v0.2-frontend
+
+# Setup for operations on the frontend
+.frontend_setup: &frontend_setup
+  image: $CI_REGISTRY_IMAGE:v0.2-frontend
+  before_script:
+    - cd frontend
+    - ln -s /dependencies/node_modules ./node_modules
+    - cp /dependencies/package-lock.json ./
+  # Run only if files in folder frontend changed
+  rules:
+    - changes:
+        - frontend/**/*
+
 # Linting & Formatting
-lint:
-  stage: lint
+lint_backend:
+  stage: linting
   image: ghcr.io/astral-sh/ruff:0.11.8-alpine
   script:
     - ruff check
@@ -38,48 +68,60 @@ lint:
     - changes:
         - backend/**/*
 
+lint_frontend:
+  <<: *frontend_setup
+  stage: linting
+  script:
+    - npm run lint
+  # Run only if files in folder frontend changed
+  rules:
+    - changes:
+        - frontend/**/*
+
 # Unit Tests - Backend
 backend_unit_tests:
+  services:
+    - name: postgis/postgis:latest
+      alias: postgis
+  variables:
+    POSTGRES_DB: postgis
+    POSTGRES_USER: postgueser
+    POSTGRES_PASSWORD: shouldbesecret
+    POSTGRES_HOST: postgis
+    POSTGRES_HOST_AUTH_METHOD: trust
+    POSTGRES_PORT: 5432
   stage: testing
   image: $CI_REGISTRY_IMAGE:v0.2-backend
   script:
-    - python -m coverage run --source='backend/' backend/manage.py test
+    - cd backend
+    - python -m coverage run --source="./" --branch --omit "*/migrations/*","*/__init__.py","*/tests/*","tests.py" manage.py test
     - python -m coverage report
     - python -m coverage xml
   coverage: '/TOTAL.*\s+(\d+%)$/'
   artifacts:
     # https://docs.gitlab.com/ee/ci/yaml/index.html#artifactsexpire_in
-    expire_in: 1 week
+    expire_in: 3 days
 
-    # https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
+    # https://docs.gitlab.com/ci/testing/code_coverage/
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: coverage.xml
+        path: backend/coverage.xml
   # Run only if files in folder backend changed
   rules:
     - changes:
         - backend/**/*
 
 # Unit Tests - Frontend
-.frontend_test: &frontend_test_setup
-  image: mcr.microsoft.com/playwright:v1.52.0-noble
-  before_script:
-    - cd frontend
-    - npm ci
-  # Run only if files in folder frontend changed
-  rules:
-    - changes:
-        - frontend/**/*
 frontend_unit_tests:
-  <<: *frontend_test_setup
+  <<: *frontend_setup
   stage: testing
   script:
     - npm run test:coverage
   coverage: '/All files(?:[^|]*\|){4}\s*(\S+)/'
   artifacts:
     # https://docs.gitlab.com/ee/ci/yaml/index.html#artifactsexpire_in
-    expire_in: 1 week
+    expire_in: 3 days
 
     # https://docs.gitlab.com/ee/ci/testing/test_coverage_visualization.html
     reports:
@@ -90,6 +132,7 @@ frontend_unit_tests:
   rules:
     - changes:
         - frontend/**/*
+
 # E2E Tests - Frontend
 # frontend_e2e_tests:
 #   <<: *frontend_test_setup
