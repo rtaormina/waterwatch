@@ -82,6 +82,11 @@ lint_frontend:
 backend_unit_tests:
   stage: testing
   image: $CI_REGISTRY_IMAGE:v0.2-backend
+  services:
+    - name: postgis/postgis:latest
+      alias: postgis
+  environment:
+    POSTGRES_HOST: postgis
   script:
     - cd backend
     - python -m coverage run manage.py test
