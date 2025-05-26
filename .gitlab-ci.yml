@@ -80,13 +80,18 @@ lint_frontend:
 
 # Unit Tests - Backend
 backend_unit_tests:
-  stage: testing
-  image: $CI_REGISTRY_IMAGE:v0.2-backend
   services:
     - name: postgis/postgis:latest
       alias: postgis
   variables:
+    POSTGRES_DB: postgis
+    POSTGRES_USER: postgueser
+    POSTGRES_PASSWORD: shouldbesecret
     POSTGRES_HOST: postgis
+    POSTGRES_HOST_AUTH_METHOD: trust
+    POSTGRES_PORT: 5432
+  stage: testing
+  image: $CI_REGISTRY_IMAGE:v0.2-backend
   script:
     - cd backend
     - python -m coverage run manage.py test
