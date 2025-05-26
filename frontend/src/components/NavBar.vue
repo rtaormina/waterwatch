@@ -64,6 +64,14 @@ const items = ref([
         class: "cursor-pointer",
     },
 ]);
+
+const navItems = [
+    { label: "Map", to: "/", name: "Map" },
+    { label: "Tutorial", to: "/tutorial", name: "Tutorial" },
+    { label: "Data", to: "/export", name: "Export" },
+    { label: "About", to: "/about", name: "About" },
+    { label: "Contact", to: "/contact", name: "Contact" },
+];
 </script>
 
 <template>
@@ -94,55 +102,17 @@ const items = ref([
 
                         <!-- Menu items -->
                         <div class="flex flex-col justify-right space-y-6 text-4xl">
-                            <router-link
-                                to="/"
-                                class="text-white"
+                            <div
+                                v-for="item in navItems"
+                                :key="item.name"
                                 :class="{
-                                    underline: page === 'Map',
+                                    underline: page === item.name,
                                 }"
                             >
-                                Map
-                            </router-link>
-
-                            <router-link
-                                to="/tutorial"
-                                class="text-white"
-                                :class="{
-                                    underline: page === 'Tutorial',
-                                }"
-                            >
-                                Tutorial
-                            </router-link>
-
-                            <router-link
-                                to="/export"
-                                class="text-white"
-                                :class="{
-                                    underline: page === 'Data',
-                                }"
-                            >
-                                Data
-                            </router-link>
-
-                            <router-link
-                                to="/about"
-                                class="text-white"
-                                :class="{
-                                    underline: page === 'About',
-                                }"
-                            >
-                                About
-                            </router-link>
-
-                            <router-link
-                                to="/contact"
-                                class="text-white"
-                                :class="{
-                                    underline: page === 'Contact',
-                                }"
-                            >
-                                Contact
-                            </router-link>
+                                <router-link :to="item.to" class="text-white">
+                                    {{ item.label }}
+                                </router-link>
+                            </div>
                         </div>
                     </div>
 
@@ -213,26 +183,16 @@ const items = ref([
                 <div>WATERWATCH</div>
             </router-link>
             <div class="flex flex-row space-x-6">
-                <div class="border-b-2" :class="page == 'Map' ? 'border-white' : 'border-transparent'">
-                    <router-link to="/" class="text-white text-2xl hover:border-white">Map</router-link>
+                <div
+                    v-for="item in navItems"
+                    :key="item.name"
+                    class="border-b-2"
+                    :class="page === item.name ? 'border-white' : 'border-transparent'"
+                >
+                    <router-link :to="item.to" class="text-white text-2xl hover:border-white">
+                        {{ item.label }}
+                    </router-link>
                 </div>
-
-                <div class="border-b-2" :class="page == 'Tutorial' ? 'border-white' : 'border-transparent'">
-                    <router-link to="/tutorial" class="text-white text-2xl hover:border-white">Tutorial</router-link>
-                </div>
-
-                <div class="border-b-2" :class="page == 'Export' ? 'border-white' : 'border-transparent'">
-                    <router-link to="/export" class="text-white text-2xl hover:border-white">Data</router-link>
-                </div>
-
-                <div class="border-b-2" :class="page == 'About' ? 'border-white' : 'border-transparent'">
-                    <router-link to="/about" class="text-white text-2xl hover:border-white">About</router-link>
-                </div>
-
-                <div class="border-b-2" :class="page == 'Contact' ? 'border-white' : 'border-transparent'">
-                    <router-link to="/contact" class="text-white text-2xl hover:border-white">Contact</router-link>
-                </div>
-
                 <div>
                     <div v-if="loggedIn">
                         <UDropdownMenu
