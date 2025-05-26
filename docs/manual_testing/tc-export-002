@@ -7,10 +7,10 @@
 Export measurement data according to filters
 
 ## Tested By
-`<Tester Name>`
+`Stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-05-26`
 
 ## Summary
 Export filtered data by location as well as temperature values.
@@ -19,28 +19,28 @@ Export filtered data by location as well as temperature values.
 Only three measurements with the associated temperature data should be in the database as follows:
 
 Measurement 1:
-Location: TU Delft library (manually selected)
-Water Source: well
-Metric type: temperature
-Sensor Type: analog thermometer
-Temperature value: 30 (celsius)
-Time waited: 1 min 15 sec
+- Location: TU Delft library (manually selected)
+- Water Source: well
+- Metric type: temperature
+- Sensor Type: analog thermometer
+- Temperature value: 30 (celsius)
+- Time waited: 1 min 15 sec
 
 Measurement 2:
-Location: Madrid Spain
-Water Source: well
-Metric type: temperature
-Sensor Type: digital thermometer
-Temperature value: 12 (celsius)
-Time waited: 0 min 32 sec
+- Location: Madrid Spain
+- Water Source: well
+- Metric type: temperature
+- Sensor Type: digital thermometer
+- Temperature value: 12 (celsius)
+- Time waited: 0 min 32 sec
 
 Measurement 3:
-Location: Amsterdam Netherlands
-Water Source: well
-Metric type: temperature
-Sensor Type: digital thermometer
-Temperature value: 4 (celsius)
-Time waited: 0 min 14 sec
+- Location: Amsterdam Netherlands
+- Water Source: well
+- Metric type: temperature
+- Sensor Type: digital thermometer
+- Temperature value: 4 (celsius)
+- Time waited: 0 min 14 sec
 
 ## Test Steps
 1. Click the Data button on the nav bar to open export page
@@ -90,31 +90,27 @@ After third search:
 The CSV should contain measurement/temperature data for measurements 1 and 2.
 
 ## Actual Result
-*To be filled during test execution*
+Matches expected
 
 ## Status
 - Pass
-- Fail
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+n/a
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |    Firefox    |
+| OS           |    Windows   |
+| Device       |    Laptop       |
+| Environment  |     Development      |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
+#5
 
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes
