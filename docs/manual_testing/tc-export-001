@@ -7,10 +7,10 @@
 Initial export all data test
 
 ## Tested By
-`<Tester Name>`
+`Stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-05-26`
 
 ## Summary
 From homescreen, navigate to Data page and export entire dataset.
@@ -51,31 +51,27 @@ n/a
 In the initial attempt to export, the user should be blocked as they do not have the researcher role. After logging in, the user should be able to download CSV, XML, JSON, and GeoJSON files containing the two measurements and temperatures detailed in the preconditions in the appropriate data format.
 
 ## Actual Result
-*To be filled during test execution*
+Matches expected
 
 ## Status
 - Pass
-- Fail
+
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+n/a
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |   Chrome     |
+| OS           |   Windows    |
+| Device       |   Laptop        |
+| Environment  |   Development        |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#5
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes

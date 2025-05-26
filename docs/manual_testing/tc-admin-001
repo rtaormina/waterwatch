@@ -58,31 +58,26 @@ Map page:
 - Once deleted, the map page should display no campaign banner
 
 ## Actual Result
-*To be filled during test execution*
+Same as expected
 
 ## Status
 - Pass
-- Fail
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+n/a
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |  Chrome      |
+| OS           |   Windows    |
+| Device       |   Laptop        |
+| Environment  |   Development        |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#11
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes

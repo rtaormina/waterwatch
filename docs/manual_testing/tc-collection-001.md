@@ -7,10 +7,10 @@
 Initial adding measurement with temperature test
 
 ## Tested By
-`<Tester Name>`
+`Stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-05-26`
 
 ## Summary
 From homescreen, navigate to add measurement page and add a measurement.
@@ -41,31 +41,30 @@ Time waited: 1 min 15 sec
 - We should be returned to the map screen and the add measurement screen should be reset
 
 ## Actual Result
-*To be filled during test execution*
+
+- Measurement was added but the measurement screen was not reset, meaning that the text "sensor type is required" stayed on the page.
+- Measurements with time waited of 0 were able to be added.
 
 ## Status
-- Pass
 - Fail
 
 ## Severity (if failed)
-- High
 - Medium
-- Low
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |    Chrome   |
+| OS           |    Windows   |
+| Device       |    Laptop       |
+| Environment  |    Development       |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#1
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes
+
+- The UI goes all the way to the edges of the screen, it would be nice to add some margin.
