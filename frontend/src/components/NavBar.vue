@@ -1,8 +1,7 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-import burgerBar from "@/assets/burger-bar.png";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useRouter } from "vue-router";
-import { UserIcon } from "@heroicons/vue/24/solid";
+import { UserIcon, XMarkIcon, Bars3Icon } from "@heroicons/vue/24/solid";
 import { useLogin } from "@/composables/LoginLogic.ts";
 
 const { login, logout, loggedIn } = useLogin();
@@ -12,14 +11,19 @@ const page = router.currentRoute.value.name;
 
 const isMobile = ref(false);
 
+const showOverlay = ref(false);
+
+// whenever showOverlay toggles, lock/unlock body scrolling
+watch(showOverlay, (isOpen) => {
+    document.body.style.overflow = isOpen ? "hidden" : "";
+});
+
 /**
  * Check if the user is on a mobile device
  */
 const checkMobile = () => {
     isMobile.value = window.innerWidth < 768;
 };
-
-const showOverlay = ref(false);
 
 /**
  * Opens the navbar overlay
@@ -37,6 +41,7 @@ function closeOverlay() {
 
 onMounted(async () => {
     checkMobile();
+    document.body.style.overflow = "";
     window.addEventListener("resize", checkMobile);
 });
 
@@ -75,11 +80,11 @@ const items = ref([
             <div class="flex">
                 <div class="text-4xl text-white font-custom mt-6 ml-6">WATERWATCH</div>
             </div>
-            <button @click="closeOverlay" class="absolute top-4 right-4 text-white text-5xl" aria-label="Close">
-                ×
+            <button @click="closeOverlay" class="absolute top-6 right-6 text-white text-5xl" aria-label="Close">
+                <XMarkIcon class="w-12 h-12" />
             </button>
-            <div class="flex flex-row h-screen">
-                <div class="flex flex-col items-center space-y-3 h-screen ml-10">
+            <div class="flex flex-row h-full">
+                <div class="flex flex-col items-center space-y-3 h-full ml-10">
                     <!-- spacer 1/6 -->
                     <div class="grow"></div>
 
@@ -94,7 +99,6 @@ const items = ref([
                                 class="text-white"
                                 :class="{
                                     underline: page === 'Map',
-                                    'hover:underline': page !== 'Map',
                                 }"
                             >
                                 Map
@@ -105,7 +109,6 @@ const items = ref([
                                 class="text-white"
                                 :class="{
                                     underline: page === 'Tutorial',
-                                    'hover:underline': page !== 'Tutorial',
                                 }"
                             >
                                 Tutorial
@@ -116,7 +119,6 @@ const items = ref([
                                 class="text-white"
                                 :class="{
                                     underline: page === 'Data',
-                                    'hover:underline': page !== 'Data',
                                 }"
                             >
                                 Data
@@ -127,7 +129,6 @@ const items = ref([
                                 class="text-white"
                                 :class="{
                                     underline: page === 'About',
-                                    'hover:underline': page !== 'About',
                                 }"
                             >
                                 About
@@ -138,7 +139,6 @@ const items = ref([
                                 class="text-white"
                                 :class="{
                                     underline: page === 'Contact',
-                                    'hover:underline': page !== 'Contact',
                                 }"
                             >
                                 Contact
@@ -263,7 +263,7 @@ const items = ref([
             <router-link to="/" class="text-4xl text-white font-custom mt-4 mb-3 ml-4">WATERWATCH</router-link>
             <div>
                 <button @click="openOverlay">
-                    <img :src="burgerBar" alt="Menu icon" class="w-12 mt-3 mr-3 object-contain" />
+                    <Bars3Icon class="w-18 h-18 text-white cursor-pointer mr-4" />
                 </button>
             </div>
         </div>
