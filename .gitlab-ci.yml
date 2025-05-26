@@ -85,7 +85,7 @@ backend_unit_tests:
   services:
     - name: postgis/postgis:latest
       alias: postgis
-  environment:
+  variables:
     POSTGRES_HOST: postgis
   script:
     - cd backend
