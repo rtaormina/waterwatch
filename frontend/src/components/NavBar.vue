@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { UserIcon, XMarkIcon, Bars3Icon } from "@heroicons/vue/24/solid";
 import { useLogin } from "@/composables/LoginLogic.ts";
 
@@ -8,13 +8,6 @@ const { login, logout, loggedIn } = useLogin();
 const isMobile = ref(false);
 
 const showOverlay = ref(false);
-
-// whenever showOverlay toggles, lock/unlock body scrolling
-watch(showOverlay, (isOpen) => {
-    if (isOpen) {
-        document.body.style.overflow = "hidden";
-    }
-});
 
 /**
  * Check if the user is on a mobile device
@@ -33,17 +26,14 @@ function openOverlay() {
 
 /**
  * Closes the navbar overlay and makes sure the body is scrollable again
- * @returns {Promise<void>}
+ * @returns {void}
  */
-async function closeOverlay() {
+function closeOverlay() {
     showOverlay.value = false;
-    await nextTick();
-    document.body.style.overflow = "";
 }
 
 onMounted(async () => {
     checkMobile();
-    document.body.style.overflow = "";
     window.addEventListener("resize", checkMobile);
 });
 
@@ -160,6 +150,7 @@ const navItems = [
                     <div>
                         <router-link
                             to="/login"
+                            @click="closeOverlay()"
                             class="px-7 py-1 rounded-md border-2 border-white text-white text-2xl hover:bg-white hover:text-[#00A6D6] transition-colors duration-200 whitespace-nowrap"
                         >
                             Sign in
@@ -167,7 +158,8 @@ const navItems = [
                     </div>
                     <div>
                         <router-link
-                            to="/login"
+                            to="/register"
+                            @click="closeOverlay()"
                             class="px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
                         >
                             Register
@@ -222,8 +214,10 @@ const navItems = [
     <!-- main navbar mobile -->
     <div v-else class="relative z-60">
         <div class="font-custom bg-[#00A6D6] text-white p-2 w-full flex justify-between">
-            <router-link to="/" class="text-4xl text-white font-custom mt-4 mb-3 ml-4">WATERWATCH</router-link>
-            <div>
+            <router-link to="/" @click="closeOverlay()" class="text-4xl text-white font-custom mt-3 mb-2 ml-3">
+                WATERWATCH
+            </router-link>
+            <div class="mt-2 mr-4">
                 <button @click="showOverlay ? closeOverlay() : openOverlay()">
                     <transition
                         mode="out-in"

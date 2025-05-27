@@ -11,11 +11,11 @@ onMounted(async () => {
 
 <template>
     <UApp>
-        <div class="w-full h-screen flex flex-col">
+        <div class="w-full h-screen flex flex-col overflow-hidden">
             <NavBar />
 
-            <!-- take up all leftover space under the navbar -->
-            <div class="flex-1 min-h-0 overflow-auto">
+            <!-- this is your only scrollable area -->
+            <div class="flex-1 overflow-auto min-h-0">
                 <RouterView />
             </div>
         </div>
