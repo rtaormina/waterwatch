@@ -3,7 +3,7 @@ import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
 import Modal from "./Modal.vue";
 import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
-import { validateTemp, onSensorInput, validateInputs, createPayload } from "@/composables/MeasurementCollectionLogic";
+import { onSensorInput, validateInputs, createPayload } from "@/composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
 import { setFalse, useMeasurementState } from "@/composables/MeasurementState";
@@ -65,6 +65,7 @@ const validated = computed(() => {
         selectedMetrics.value,
         errors,
         time,
+        tempUnit.value,
     );
 });
 
@@ -72,13 +73,6 @@ watch(
     () => formData.temperature.sensor,
     (newVal) => onSensorInput(newVal, errors),
 );
-
-/**
- * Handles the input for the temperature value.
- */
-function onTempInput() {
-    validateTemp(tempVal.value, errors, tempRef);
-}
 
 /**
  * Clears the form from all values.
@@ -176,22 +170,22 @@ const handleInput = (event: Event) => {
  */
 const handleTempPress = (event: KeyboardEvent) => {
     const key = event.key;
-    if (!/^\d$/.test(key) && key !== "." && key !== "-") {
-        event.preventDefault();
-        return;
-    }
-
-    if (key === "-" && tempVal.value.startsWith("-")) {
-        event.preventDefault();
-        return;
-    }
-
     const target = event.target as HTMLInputElement;
+
+    if ((!/^\d$/.test(key) && key !== ".") || key === "-") {
+        event.preventDefault();
+        return;
+    }
+    if (key === "." && target.value.includes(".")) {
+        event.preventDefault();
+        return;
+    }
+
     let raw = target.value.replace(/[^0-9]/g, "");
 
     const current = raw === "" ? 0 : parseInt(raw, 10);
     const attempted = current * 10 + Number(key);
-    if (attempted > 100 || attempted < -100) {
+    if (attempted < 0 || attempted > 212) {
         event.preventDefault();
         return;
     }
@@ -384,7 +378,6 @@ const postDataCheck = () => {
                                 type="number"
                                 min="0"
                                 @keypress="handleTempPress"
-                                @input="onTempInput"
                                 ref="tempRef"
                                 placeholder="e.g. 24.3"
                                 :class="[

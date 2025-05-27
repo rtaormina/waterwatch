@@ -1,59 +1,20 @@
 import {
     validateInputs,
-    validateTemp,
+    validateTempRange,
     onSensorInput,
     createPayload,
 } from "../../src/composables/MeasurementCollectionLogic.ts";
 import { beforeAll, afterAll, vi, describe, it, expect } from "vitest";
-import { nextTick, ref, type Ref } from "vue";
 import { DateTime } from "luxon";
 
 describe("validateTemp Tests", () => {
-    it("sets an error and focuses input if val is not a number", async () => {
-        const errors = {
-            mins: null,
-            sec: null,
-            temp: null,
-            sensor: null,
-        };
-
-        const focusMock = vi.fn();
-        const tempRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-        tempRef.value = {
-            focus: focusMock,
-        } as unknown as HTMLInputElement;
-
-        validateTemp("abc", errors, tempRef);
-        expect(errors.temp).toBe("Enter a number");
-        await nextTick();
-        expect(focusMock).toHaveBeenCalled();
-    });
-    it("has no error if valid temp value pos", async () => {
-        const errors = {
-            mins: null,
-            sec: null,
-            temp: null,
-            sensor: null,
-        };
-
-        const tempRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-        validateTemp("32", errors, tempRef);
-        expect(errors.sec).toBe(null);
-    });
-    it("has no error if valid temp value neg", async () => {
-        const errors = {
-            mins: null,
-            sec: null,
-            temp: null,
-            sensor: null,
-        };
-
-        const tempRef: Ref<HTMLInputElement | undefined> = ref(undefined);
-
-        validateTemp("-32", errors, tempRef);
-        expect(errors.sec).toBe(null);
+    it("accepts valid temp value", async () => {
+        expect(validateTempRange("0", "C")).toBe(true);
+        expect(validateTempRange("100", "C")).toBe(true);
+        expect(validateTempRange("101", "C")).toBe(false);
+        expect(validateTempRange("32", "F")).toBe(true);
+        expect(validateTempRange("212", "F")).toBe(true);
+        expect(validateTempRange("213", "F")).toBe(false);
     });
 });
 
@@ -82,7 +43,6 @@ describe("onSensorInput Tests", () => {
 
 describe("createPayload Tests", () => {
     beforeAll(() => {
-        // turn on fake timers & set a fixed date
         vi.useFakeTimers();
         vi.setSystemTime(new Date("2025-01-01T12:00:00Z"));
     });
@@ -228,7 +188,7 @@ describe("validateInputs Tests", () => {
             mins: "0",
             sec: "1",
         };
-        const result = validateInputs(undefined, 10, "well", "sensor", "20", ["temperature"], errors, time);
+        const result = validateInputs(undefined, 10, "well", "sensor", "20", ["temperature"], errors, time, "C");
         expect(result).toBe(false);
     });
     it("returns false if water source is empty", () => {
@@ -242,7 +202,7 @@ describe("validateInputs Tests", () => {
             mins: "0",
             sec: "1",
         };
-        const result = validateInputs(10, 10, "", "sensor", "20", ["temperature"], errors, time);
+        const result = validateInputs(10, 10, "", "sensor", "20", ["temperature"], errors, time, "C");
         expect(result).toBe(false);
     });
     it("returns false if sensor is empty", () => {
@@ -256,7 +216,7 @@ describe("validateInputs Tests", () => {
             mins: "0",
             sec: "1",
         };
-        const result = validateInputs(10, 10, "well", "", "20", ["temperature"], errors, time);
+        const result = validateInputs(10, 10, "well", "", "20", ["temperature"], errors, time, "C");
         expect(result).toBe(false);
     });
     it("returns false if tempVal is empty", () => {
@@ -270,21 +230,7 @@ describe("validateInputs Tests", () => {
             mins: "0",
             sec: "1",
         };
-        const result = validateInputs(10, 10, "well", "sensor", "", ["temperature"], errors, time);
-        expect(result).toBe(false);
-    });
-    it("returns false if tempVal is not a number", () => {
-        const errors = {
-            mins: null,
-            sec: null,
-            temp: null,
-            sensor: null,
-        };
-        const time = {
-            mins: "0",
-            sec: "1",
-        };
-        const result = validateInputs(10, 10, "well", "sensor", "abc", ["temperature"], errors, time);
+        const result = validateInputs(10, 10, "well", "sensor", "", ["temperature"], errors, time, "C");
         expect(result).toBe(false);
     });
     it("returns false if there are errors - temp", () => {
@@ -298,7 +244,7 @@ describe("validateInputs Tests", () => {
             mins: "0",
             sec: "1",
         };
-        const result = validateInputs(10, 10, "well", "sensor", "20", ["temperature"], errors, time);
+        const result = validateInputs(10, 10, "well", "sensor", "20", ["temperature"], errors, time, "C");
         expect(result).toBe(false);
     });
     it("returns false if there are errors - sensor", () => {
@@ -312,7 +258,7 @@ describe("validateInputs Tests", () => {
             mins: "0",
             sec: "1",
         };
-        const result = validateInputs(10, 10, "well", "sensor", "20", ["temperature"], errors, time);
+        const result = validateInputs(10, 10, "well", "sensor", "20", ["temperature"], errors, time, "C");
         expect(result).toBe(false);
     });
     it("returns false if zero time", () => {
@@ -326,7 +272,7 @@ describe("validateInputs Tests", () => {
             mins: "0",
             sec: "",
         };
-        const result = validateInputs(10, 10, "well", "sensor", "20", ["temperature"], errors, time);
+        const result = validateInputs(10, 10, "well", "sensor", "20", ["temperature"], errors, time, "C");
         expect(result).toBe(false);
     });
     it("returns false if zero time empty fields", () => {
@@ -340,7 +286,7 @@ describe("validateInputs Tests", () => {
             mins: "",
             sec: "",
         };
-        const result = validateInputs(10, 10, "well", "sensor", "20", ["temperature"], errors, time);
+        const result = validateInputs(10, 10, "well", "sensor", "20", ["temperature"], errors, time, "C");
         expect(result).toBe(false);
     });
 });
