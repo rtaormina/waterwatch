@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from "vue";
-import NavBar from "./NavBar.vue";
 import { useLogin } from "@/composables/LoginLogic.ts";
 
 const { formData, errorMessage, showError, handleSubmit } = useLogin();
@@ -26,7 +25,6 @@ onUnmounted(() => {
 
 <template>
     <div class="h-screen flex flex-col">
-        <NavBar />
         <div class="flex-1 flex flex-col items-center justify-center px-4">
             <div class="text-4xl mb-6 text-center font-bold">Welcome Back!</div>
 

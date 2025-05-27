@@ -1,13 +1,9 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { UserIcon, XMarkIcon, Bars3Icon } from "@heroicons/vue/24/solid";
 import { useLogin } from "@/composables/LoginLogic.ts";
 
 const { login, logout, loggedIn } = useLogin();
-
-const router = useRouter();
-const page = router.currentRoute.value.name;
 
 const isMobile = ref(false);
 
@@ -15,7 +11,9 @@ const showOverlay = ref(false);
 
 // whenever showOverlay toggles, lock/unlock body scrolling
 watch(showOverlay, (isOpen) => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
+    if (isOpen) {
+        document.body.style.overflow = "hidden";
+    }
 });
 
 /**
@@ -27,16 +25,20 @@ const checkMobile = () => {
 
 /**
  * Opens the navbar overlay
+ * @returns {void}
  */
 function openOverlay() {
     showOverlay.value = true;
 }
 
 /**
- * Closes the navbar overlay
+ * Closes the navbar overlay and makes sure the body is scrollable again
+ * @returns {Promise<void>}
  */
-function closeOverlay() {
+async function closeOverlay() {
     showOverlay.value = false;
+    await nextTick();
+    document.body.style.overflow = "";
 }
 
 onMounted(async () => {
@@ -102,14 +104,14 @@ const navItems = [
 
                         <!-- Menu items -->
                         <div class="flex flex-col justify-right space-y-6 text-4xl">
-                            <div
-                                v-for="item in navItems"
-                                :key="item.name"
-                                :class="{
-                                    underline: page === item.name,
-                                }"
-                            >
-                                <router-link :to="item.to" class="text-white">
+                            <div v-for="item in navItems" :key="item.name">
+                                <router-link
+                                    :to="item.to"
+                                    class="text-white"
+                                    @click="closeOverlay()"
+                                    active-class="underline"
+                                    exact-active-class="underline"
+                                >
                                     {{ item.label }}
                                 </router-link>
                             </div>
@@ -178,18 +180,18 @@ const navItems = [
 
     <!-- main navbar desktop -->
     <div v-if="!isMobile" class="relative z-30">
-        <div class="font-custom bg-[#00A6D6] text-white p-4 w-screen text-3xl flex flex-row justify-between">
+        <div class="font-custom bg-[#00A6D6] text-white p-4 w-full text-3xl flex flex-row justify-between">
             <router-link to="/">
                 <div>WATERWATCH</div>
             </router-link>
             <div class="flex flex-row space-x-6">
-                <div
-                    v-for="item in navItems"
-                    :key="item.name"
-                    class="border-b-2"
-                    :class="page === item.name ? 'border-white' : 'border-transparent'"
-                >
-                    <router-link :to="item.to" class="text-white text-2xl hover:border-white">
+                <div v-for="item in navItems" :key="item.name">
+                    <router-link
+                        :to="item.to"
+                        class="text-white text-2xl hover:border-white"
+                        active-class="underline"
+                        exact-active-class="underline"
+                    >
                         {{ item.label }}
                     </router-link>
                 </div>
@@ -202,7 +204,7 @@ const navItems = [
                             }"
                         >
                             <user-icon
-                                class="w-8 h-8 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
+                                class="w-7 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
                             />
                         </UDropdownMenu>
                     </div>
@@ -218,12 +220,23 @@ const navItems = [
     </div>
 
     <!-- main navbar mobile -->
-    <div v-else class="relative z-30">
-        <div class="font-custom bg-[#00A6D6] text-white p-2 w-screen flex justify-between">
+    <div v-else class="relative z-60">
+        <div class="font-custom bg-[#00A6D6] text-white p-2 w-full flex justify-between">
             <router-link to="/" class="text-4xl text-white font-custom mt-4 mb-3 ml-4">WATERWATCH</router-link>
             <div>
-                <button @click="openOverlay">
-                    <Bars3Icon class="w-18 h-18 text-white cursor-pointer mr-4" />
+                <button @click="showOverlay ? closeOverlay() : openOverlay()">
+                    <transition
+                        mode="out-in"
+                        enter-active-class="transform transition duration-300 ease-out"
+                        enter-from-class="opacity-0 -rotate-90"
+                        enter-to-class="opacity-100 rotate-0"
+                        leave-active-class="transform transition duration-200 ease-in"
+                        leave-from-class="opacity-100 rotate-0"
+                        leave-to-class="opacity-0 rotate-90"
+                    >
+                        <Bars3Icon v-if="!showOverlay" key="bars" class="w-12 h-12 text-white cursor-pointer" />
+                        <XMarkIcon v-else key="close" class="w-12 h-12 text-white cursor-pointer" />
+                    </transition>
                 </button>
             </div>
         </div>

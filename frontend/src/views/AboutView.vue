@@ -1,6 +1,5 @@
 <template>
     <div>
-        <Navbar />
         <TextTabs :items="aboutPages" v-model="page" class="mb-4 w-full text-center" :switch-point="0" />
         <div class="mx-4 md:mx-8">
             <template v-if="page == 'About WATERWATCH'">
@@ -88,7 +87,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import Navbar from "../components/NavBar.vue";
 import TextSection from "../components/Text/Section.vue";
 import TextSectionSplit from "../components/Text/SectionSplit.vue";
 import TextTabs from "../components/Text/Tabs.vue";
