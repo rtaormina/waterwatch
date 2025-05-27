@@ -3,15 +3,11 @@ import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
 import Modal from "./Modal.vue";
 import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
-import {
-    validateTemp,
-    onSensorInput,
-    validateInputs,
-    createPayload,
-    validateTime,
-} from "@/composables/MeasurementCollectionLogic";
+import { onSensorInput, validateInputs, createPayload } from "@/composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
+import { setFalse, useMeasurementState } from "@/composables/MeasurementState";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 const cookies = new Cookies();
 const router = useRouter();
@@ -69,6 +65,7 @@ const validated = computed(() => {
         selectedMetrics.value,
         errors,
         time,
+        tempUnit.value,
     );
 });
 
@@ -76,13 +73,6 @@ watch(
     () => formData.temperature.sensor,
     (newVal) => onSensorInput(newVal, errors),
 );
-
-/**
- * Handles the input for the temperature value.
- */
-function onTempInput() {
-    validateTemp(tempVal.value, errors, tempRef);
-}
 
 /**
  * Clears the form from all values.
@@ -117,10 +107,22 @@ const emit = defineEmits<{
  */
 const handleKeyPress = (event: KeyboardEvent) => {
     const key = event.key;
-    if (key.length === 1 && isNaN(Number(key))) {
+    const target = event.target as HTMLInputElement;
+    let raw = target.value.replace(/[^0-9]/g, "");
+
+    if (!/^\d$/.test(key)) {
         event.preventDefault();
+        return;
     }
-    validateTime(errors, time);
+
+    const current = raw === "" ? 0 : parseInt(raw, 10);
+    const attempted = current * 10 + Number(key);
+    if (attempted > 59 || attempted < 0) {
+        event.preventDefault();
+        return;
+    }
+
+    emit("update:modelValue", String(attempted));
 };
 
 /**
@@ -130,10 +132,17 @@ const handleKeyPress = (event: KeyboardEvent) => {
  */
 const handlePaste = (event: ClipboardEvent) => {
     const pastedText = event.clipboardData?.getData("text");
+
     if (pastedText && !/^\d+$/.test(pastedText)) {
         event.preventDefault();
+        return;
     }
-    validateTime(errors, time);
+    if (Number(pastedText) < 0 || Number(pastedText) > 59) {
+        event.preventDefault();
+        return;
+    }
+
+    emit("update:modelValue", String(pastedText));
 };
 
 /**
@@ -143,8 +152,45 @@ const handlePaste = (event: ClipboardEvent) => {
  */
 const handleInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    emit("update:modelValue", target.value.replace(/[^0-9]/g, ""));
-    validateTime(errors, time);
+    let raw = target.value.replace(/[^0-9]/g, "");
+
+    const attempted = raw === "" ? 0 : parseInt(raw, 10);
+    if (attempted > 59 || attempted < 0) {
+        event.preventDefault();
+        return;
+    }
+
+    emit("update:modelValue", String(attempted));
+};
+
+/**
+ * Handles key presses for the temperature input field.
+ *
+ * @param {KeyboardEvent} event - The keypress event.
+ */
+const handleTempPress = (event: KeyboardEvent) => {
+    const key = event.key;
+    const target = event.target as HTMLInputElement;
+
+    if ((!/^\d$/.test(key) && key !== ".") || key === "-") {
+        event.preventDefault();
+        return;
+    }
+    if (key === "." && target.value.includes(".")) {
+        event.preventDefault();
+        return;
+    }
+
+    let raw = target.value.replace(/[^0-9]/g, "");
+
+    const current = raw === "" ? 0 : parseInt(raw, 10);
+    const attempted = current * 10 + Number(key);
+    if (attempted < 0 || attempted > 212) {
+        event.preventDefault();
+        return;
+    }
+
+    emit("update:modelValue", String(attempted));
 };
 const locationMode = ref<"auto" | "manual" | null>(null);
 
@@ -193,6 +239,8 @@ const postData = () => {
         .catch((err) => {
             console.error(err);
         });
+    clear();
+    setFalse();
 };
 
 /**
@@ -231,9 +279,18 @@ const postDataCheck = () => {
 </script>
 
 <template>
-    <div class="bg-white">
-        <h1 class="bg-main text-lg font-bold text-white rounded-b-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
+    <div class="bg-white m-4 p-4 h-full overflow-y-auto box-border">
+        <h1
+            class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
+        >
             Record Measurement
+            <button
+                class="bg-main rounded-md p-1 text-white"
+                @click="setFalse()"
+                v-if="useMeasurementState().addingMeasurement.value"
+            >
+                <XMarkIcon class="w-10 h-10" />
+            </button>
         </h1>
         <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
             <h3 class="text-lg font-semibold mb-4">Measurement</h3>
@@ -242,7 +299,7 @@ const postDataCheck = () => {
                 <LocationFallback v-model:location="userLoc" />
             </div>
 
-            <div class="flex-start min-w-0 flex items-center gap-2">
+            <div class="flex-start min-w-0 mt-2 flex items-center gap-2">
                 <label class="self-center text-sm font-medium text-gray-700">Water Source:</label>
 
                 <select
@@ -320,7 +377,7 @@ const postDataCheck = () => {
                                 v-model="tempVal"
                                 type="number"
                                 min="0"
-                                @input="onTempInput"
+                                @keypress="handleTempPress"
                                 ref="tempRef"
                                 placeholder="e.g. 24.3"
                                 :class="[
@@ -357,6 +414,7 @@ const postDataCheck = () => {
                             @paste="handlePaste"
                             v-model="time.mins"
                             min="0"
+                            max="59"
                             placeholder="00"
                             type="number"
                             ref="minsRef"
@@ -378,6 +436,7 @@ const postDataCheck = () => {
                             @paste="handlePaste"
                             v-model="time.sec"
                             min="0"
+                            max="59"
                             placeholder="00"
                             type="number"
                             ref="secRef"

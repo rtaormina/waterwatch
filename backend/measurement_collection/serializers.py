@@ -56,7 +56,7 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         """Meta class for MeasurementSerializer."""
 
         model = Measurement
-        fields = ["local_date", "local_time", "location", "water_source", "temperature"]
+        fields = ["timestamp", "local_date", "local_time", "location", "water_source", "temperature"]
         geo_field = "location"
 
     def validate(self, data):
