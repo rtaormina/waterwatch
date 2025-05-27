@@ -115,7 +115,7 @@ const navItems = [
                 <!-- registration/login buttons -->
                 <div
                     v-if="loggedIn"
-                    class="flex flex-row justify-center space-x-3 absolute bottom-0 width-screen left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    class="flex flex-col justify-center space-y-4 absolute bottom-0 width-screen left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                 >
                     <div>
                         <router-link
