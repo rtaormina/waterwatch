@@ -8,10 +8,11 @@ import { toValue, watch, type MaybeRefOrGetter, type Ref } from "vue";
  *
  * @returns {Leaflet.TileLayer} The OSM Layer
  */
-export function createOSMLayer(): L.TileLayer {
+export function createOSMLayer(options?: { noWrap: boolean }): L.TileLayer {
     return L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        ...options,
     });
 }
 

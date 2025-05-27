@@ -30,6 +30,7 @@ import { ref, onMounted } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 import { setTrue, useMeasurementState } from "@/composables/MeasurementState";
+import * as L from "leaflet";
 
 /**
  * Creates sample data for the map
@@ -38,11 +39,8 @@ const sampleData = () => {
     let array = [];
     for (let index = 0; index < 10_000; index++) {
         array.push({
-            point: {
-                lat: Math.random() * 180 - 90,
-                lng: Math.random() * 360 - 180,
-            },
-            value: Math.floor(Math.random() * 100),
+            point: L.latLng(Math.random() * 180 - 90, Math.random() * 360 - 180),
+            temperature: Math.random() * 100,
         });
     }
     return array;
