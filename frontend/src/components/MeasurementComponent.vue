@@ -3,10 +3,10 @@ import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
 import Modal from "./Modal.vue";
 import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
-import { onSensorInput, validateInputs, createPayload } from "@/composables/MeasurementCollectionLogic";
+import { onSensorInput, validateInputs, createPayload } from "../composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
-import { setFalse, useMeasurementState } from "@/composables/MeasurementState";
+import { setFalse, useMeasurementState } from "../composables/MeasurementState";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 const cookies = new Cookies();
@@ -218,7 +218,7 @@ const postData = () => {
         userLoc.value?.lat,
     );
 
-    fetch("/api/measurements/", {
+    return fetch("/api/measurements/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -238,9 +238,11 @@ const postData = () => {
         })
         .catch((err) => {
             console.error(err);
+        })
+        .finally(() => {
+            clear();
+            setFalse();
         });
-    clear();
-    setFalse();
 };
 
 /**
