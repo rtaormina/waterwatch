@@ -29,8 +29,6 @@ services:
       context: ../
       dockerfile: production/dockerfile.backend.prod
     image: django_backend_app
-    before_script:
-      - python manage.py migrate
     ports:
       - "8000:8000"
     env_file:

@@ -26,4 +26,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install backend dev dependencies
 COPY requirements/dev-requirements.txt .
+COPY requirements/doc-requirements.txt .
 RUN pip install --no-cache-dir -r dev-requirements.txt
