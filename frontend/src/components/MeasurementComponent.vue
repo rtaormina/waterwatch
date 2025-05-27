@@ -12,6 +12,8 @@ import {
 } from "@/composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
+import { setFalse, useMeasurementState } from "@/composables/MeasurementState";
+import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 const cookies = new Cookies();
 const router = useRouter();
@@ -193,6 +195,8 @@ const postData = () => {
         .catch((err) => {
             console.error(err);
         });
+    clear();
+    setFalse();
 };
 
 /**
@@ -231,9 +235,18 @@ const postDataCheck = () => {
 </script>
 
 <template>
-    <div class="bg-white">
-        <h1 class="bg-main text-lg font-bold text-white rounded-b-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
+    <div class="bg-white m-4 p-4 h-full overflow-y-auto box-border">
+        <h1
+            class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
+        >
             Record Measurement
+            <button
+                class="bg-main rounded-md p-1 text-white"
+                @click="setFalse()"
+                v-if="useMeasurementState().addingMeasurement.value"
+            >
+                <XMarkIcon class="w-10 h-10" />
+            </button>
         </h1>
         <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
             <h3 class="text-lg font-semibold mb-4">Measurement</h3>
@@ -242,7 +255,7 @@ const postDataCheck = () => {
                 <LocationFallback v-model:location="userLoc" />
             </div>
 
-            <div class="flex-start min-w-0 flex items-center gap-2">
+            <div class="flex-start min-w-0 mt-2 flex items-center gap-2">
                 <label class="self-center text-sm font-medium text-gray-700">Water Source:</label>
 
                 <select
