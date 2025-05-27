@@ -1,7 +1,5 @@
 <template>
-    <div class="w-full h-screen flex flex-col">
-        <NavBar />
-
+    <div class="w-full h-full flex flex-col">
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
 
         <div class="w-full h-full flex flex-row">
@@ -25,7 +23,6 @@
 <script setup lang="ts">
 import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 import HexMap from "@/components/HexMap.vue";
-import NavBar from "@/components/NavBar.vue";
 import { ref, onMounted } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
