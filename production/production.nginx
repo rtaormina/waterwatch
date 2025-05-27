@@ -34,7 +34,7 @@ http {
 
   server {
     listen 80;
-    server_name localhost;
+    server_name waterwatch.tudelft.nl;
 
     # Path to the root of your static files
     root /usr/share/nginx/html/;

@@ -53,6 +53,7 @@ services:
     ports:
       - "80:80"
     volumes:
+      - ./production.nginx:/etc/nginx/nginx.conf
       - gunicorn_socket:/run
       - static_files:/backend_app/static
       - media_files:/backend_app/media
