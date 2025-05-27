@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted, onUpdated, onBeforeUnmount, computed } from "vue";
 import { PlusIcon, MinusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
-import { useFilters, type DateRangeFilter, type TemperatureFilter, type TimeSlot } from "@/composables/useFilters";
-import { useSearch } from "@/composables/useSearch";
+import { useFilters, type DateRangeFilter, type TemperatureFilter, type TimeSlot } from "../composables/useFilters";
+import { useSearch } from "../composables/useSearch";
 
 // Define the emits for the component
 const emit = defineEmits(["search"]);
@@ -168,6 +168,8 @@ function toggleWaterSourceDropdown() {
 // Functionality to search for countries
 const countrySearchQuery = ref("");
 const filteredCountries = computed(() => {
+    console.log("Filtering countries with query:", countrySearchQuery.value);
+    console.log("All countries:", allCountries.value);
     if (!countrySearchQuery.value) return allCountries.value;
     return allCountries.value.filter((country) =>
         country.toLowerCase().includes(countrySearchQuery.value.toLowerCase()),

@@ -2,7 +2,7 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, defineProps, computed } from "vue";
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
 import Modal from "./Modal.vue";
-import { permissionsLogic } from "@/composables/PermissionsLogic";
+import { permissionsLogic } from "../composables/PermissionsLogic";
 
 // Define the logic for permissions
 const canDownload = ref(false);
