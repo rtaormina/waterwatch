@@ -1,30 +1,24 @@
-import { nextTick, type Ref } from "vue";
 import { DateTime } from "luxon";
 
 /**
- * Validates if the input in the temperature field is a number, and not too large.
+ * Validates the temperature range based on the selected temperature unit.
  *
  * @param {string} val - the current value of the temperature input
- * @param {string | null} errors - the current error state of the temperature input
- * @param {Ref<HTMLInputElement | undefined>} tempRef - the reference to the input element
+ * @param {string} tempUnit - the selected temperature unit ("C" for Celsius or "F" for Fahrenheit)
+ * @returns {boolean} true if the value is within the valid range, false otherwise
  */
-export function validateTemp(
-    val: string,
-    errors: {
-        temp: string | null;
-        sensor: string | null;
-    },
-    tempRef: Ref<HTMLInputElement | undefined>,
-) {
-    if (!/^-?\d+(\.\d+)?$/.test(val)) {
-        errors.temp = "Enter a number";
-        nextTick(() => tempRef?.value?.focus());
-    } else if (Number(val) > 500) {
-        errors.temp = "Temperature too large";
-        nextTick(() => tempRef?.value?.focus());
-    } else {
-        errors.temp = null;
+export function validateTempRange(val: string, tempUnit: string) {
+    if (tempUnit === "C") {
+        if (Number(val) < 0 || Number(val) > 100) {
+            return false;
+        }
+    } else if (tempUnit === "F") {
+        if (Number(val) < 32 || Number(val) > 212) {
+            console.log(val);
+            return false;
+        }
     }
+    return true;
 }
 
 /**
@@ -48,36 +42,6 @@ export function onSensorInput(
 }
 
 /**
- * Validates if the input in the time fields (minutes and seconds) are numbers, and within the valid range.
- *
- * @param {object} errors - the current error state of the time inputs
- * @param {object} time - the current values of the time inputs
- */
-export function validateTime(
-    errors: {
-        temp: string | null;
-        sensor: string | null;
-        mins: string | null;
-        sec: string | null;
-    },
-    time: {
-        mins: string;
-        sec: string;
-    },
-) {
-    if (+time.mins > 59 || +time.mins < 0) {
-        errors.mins = "Time must be between 0 and 59";
-    } else {
-        errors.mins = null;
-    }
-    if (+time.sec > 59 && +time.sec < 0) {
-        errors.sec = "Time must be between 0 and 59";
-    } else {
-        errors.sec = null;
-    }
-}
-
-/**
  * Validates the input values required for a measurement collection operation.
  *
  * @param {number | undefined} longitude - The longitude value, or `undefined` if not provided.
@@ -88,6 +52,7 @@ export function validateTime(
  * @param {string[]} selectedMetrics - An array of selected metric names.
  * @param {{ temp: string | null; sensor: string | null; mins: string | null; sec: string | null }} errors - An object containing possible error messages for temperature, sensor, minutes, and seconds.
  * @param {{ mins: string; sec: string }} time - An object containing the minutes and seconds as strings.
+ * @param {string} tempUnit - The unit of temperature measurement ("C" for Celsius or "F" for Fahrenheit).
  * @returns {boolean} `true` if all required inputs are valid; otherwise, `false`.
  */
 export function validateInputs(
@@ -107,6 +72,7 @@ export function validateInputs(
         mins: string;
         sec: string;
     },
+    tempUnit: string,
 ) {
     if (longitude === undefined || latitude === undefined || waterSource === "" || selectedMetrics.length === 0) {
         return false;
@@ -120,9 +86,10 @@ export function validateInputs(
             errors.sensor !== null ||
             errors.sec != null ||
             errors.mins != null ||
-            ((time.mins === "" || time.mins === "0") && (time.sec === "" || time.sec === "0")) ||
+            ((time.mins === "" || +time.mins === 0) && (time.sec === "" || +time.sec === 0)) ||
             +time.mins < 0 ||
-            +time.sec < 0
+            +time.sec < 0 ||
+            !validateTempRange(tempVal, tempUnit)
         ) {
             return false;
         }
@@ -179,6 +146,7 @@ export function createPayload(
     const local_date = localISO ? localISO.split("T")[0] : undefined;
     const local_time = localISO ? localISO.split("T")[1].split(".")[0] : undefined;
     return {
+        timestamp: DateTime.utc().toISO(),
         local_date: local_date,
         local_time: local_time,
         location: {
