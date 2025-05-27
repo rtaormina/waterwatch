@@ -2,12 +2,15 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import pluginVue from "eslint-plugin-vue";
-import { defineConfig } from "eslint/config";
 import prettier from "eslint-config-prettier";
 import pluginPrettier from "eslint-plugin-prettier";
 import jsdoc from "eslint-plugin-jsdoc";
+import { defineConfig } from "eslint/config";
 
 export default defineConfig([
+  {
+    ignores: ["**/tests/*", "**/eslint.config.js"]
+  },
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts,vue}"], plugins: { js }, extends: ["js/recommended"] },
   { files: ["**/*.js"], languageOptions: { sourceType: "script" } },
   { files: ["**/*.{js,mjs,cjs,ts,mts,cts,vue}"], languageOptions: { globals: globals.browser } },
