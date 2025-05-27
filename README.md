@@ -96,6 +96,7 @@ docker exec backend python manage.py test
 - If bash cannot find setup.sh (bad interpreter, no such file or directory), run the following:
     ```bash
     sudo apt-get install dos2unix
+    dos2unix .env
     dos2unix setup.sh
     ./setup.sh
     ```

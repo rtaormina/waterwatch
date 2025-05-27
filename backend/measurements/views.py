@@ -30,7 +30,6 @@ def measurement_view(request):
     # TODO: Implement export_all_view if needed
     # if request.method == "GET":
     if request.method == "POST":
-        logger.debug("measurement_view called with method: %s", request.method)
         return add_measurement_view(request)
     return HttpResponseNotAllowed(["GET", "POST"])
 
