@@ -3,13 +3,7 @@ import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
 import Modal from "./Modal.vue";
 import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
-import {
-    validateTemp,
-    onSensorInput,
-    validateInputs,
-    createPayload,
-    validateTime,
-} from "@/composables/MeasurementCollectionLogic";
+import { validateTemp, onSensorInput, validateInputs, createPayload } from "@/composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
 import { setFalse, useMeasurementState } from "@/composables/MeasurementState";
@@ -119,10 +113,22 @@ const emit = defineEmits<{
  */
 const handleKeyPress = (event: KeyboardEvent) => {
     const key = event.key;
-    if (key.length === 1 && isNaN(Number(key))) {
+    const target = event.target as HTMLInputElement;
+    let raw = target.value.replace(/[^0-9]/g, "");
+
+    if (!/^\d$/.test(key)) {
         event.preventDefault();
+        return;
     }
-    validateTime(errors, time);
+
+    const current = raw === "" ? 0 : parseInt(raw, 10);
+    const attempted = current * 10 + Number(key);
+    if (attempted > 59 || attempted < 0) {
+        event.preventDefault();
+        return;
+    }
+
+    emit("update:modelValue", String(attempted));
 };
 
 /**
@@ -132,10 +138,17 @@ const handleKeyPress = (event: KeyboardEvent) => {
  */
 const handlePaste = (event: ClipboardEvent) => {
     const pastedText = event.clipboardData?.getData("text");
+
     if (pastedText && !/^\d+$/.test(pastedText)) {
         event.preventDefault();
+        return;
     }
-    validateTime(errors, time);
+    if (Number(pastedText) < 0 || Number(pastedText) > 59) {
+        event.preventDefault();
+        return;
+    }
+
+    emit("update:modelValue", String(pastedText));
 };
 
 /**
@@ -145,8 +158,45 @@ const handlePaste = (event: ClipboardEvent) => {
  */
 const handleInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    emit("update:modelValue", target.value.replace(/[^0-9]/g, ""));
-    validateTime(errors, time);
+    let raw = target.value.replace(/[^0-9]/g, "");
+
+    const attempted = raw === "" ? 0 : parseInt(raw, 10);
+    if (attempted > 59 || attempted < 0) {
+        event.preventDefault();
+        return;
+    }
+
+    emit("update:modelValue", String(attempted));
+};
+
+/**
+ * Handles key presses for the temperature input field.
+ *
+ * @param {KeyboardEvent} event - The keypress event.
+ */
+const handleTempPress = (event: KeyboardEvent) => {
+    const key = event.key;
+    if (!/^\d$/.test(key) && key !== "." && key !== "-") {
+        event.preventDefault();
+        return;
+    }
+
+    if (key === "-" && tempVal.value.startsWith("-")) {
+        event.preventDefault();
+        return;
+    }
+
+    const target = event.target as HTMLInputElement;
+    let raw = target.value.replace(/[^0-9]/g, "");
+
+    const current = raw === "" ? 0 : parseInt(raw, 10);
+    const attempted = current * 10 + Number(key);
+    if (attempted > 100 || attempted < -100) {
+        event.preventDefault();
+        return;
+    }
+
+    emit("update:modelValue", String(attempted));
 };
 const locationMode = ref<"auto" | "manual" | null>(null);
 
@@ -333,6 +383,7 @@ const postDataCheck = () => {
                                 v-model="tempVal"
                                 type="number"
                                 min="0"
+                                @keypress="handleTempPress"
                                 @input="onTempInput"
                                 ref="tempRef"
                                 placeholder="e.g. 24.3"
@@ -370,6 +421,7 @@ const postDataCheck = () => {
                             @paste="handlePaste"
                             v-model="time.mins"
                             min="0"
+                            max="59"
                             placeholder="00"
                             type="number"
                             ref="minsRef"
@@ -391,6 +443,7 @@ const postDataCheck = () => {
                             @paste="handlePaste"
                             v-model="time.sec"
                             min="0"
+                            max="59"
                             placeholder="00"
                             type="number"
                             ref="secRef"

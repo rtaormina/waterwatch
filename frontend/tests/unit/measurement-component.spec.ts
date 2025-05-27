@@ -4,7 +4,7 @@ import {
     onSensorInput,
     createPayload,
 } from "../../src/composables/MeasurementCollectionLogic.ts";
-import { vi, describe, it, expect } from "vitest";
+import { beforeAll, afterAll, vi, describe, it, expect } from "vitest";
 import { nextTick, ref, type Ref } from "vue";
 import { DateTime } from "luxon";
 
@@ -81,6 +81,15 @@ describe("onSensorInput Tests", () => {
 });
 
 describe("createPayload Tests", () => {
+    beforeAll(() => {
+        // turn on fake timers & set a fixed date
+        vi.useFakeTimers();
+        vi.setSystemTime(new Date("2025-01-01T12:00:00Z"));
+    });
+
+    afterAll(() => {
+        vi.useRealTimers();
+    });
     it("creates correct celsius payload", () => {
         vi.spyOn(DateTime, "local").mockImplementation(
             () => DateTime.fromISO("2025-01-01T12:00:00.000-00:00").setZone("America/New_York") as DateTime<true>,
@@ -97,6 +106,7 @@ describe("createPayload Tests", () => {
                 110,
             ),
         ).toStrictEqual({
+            timestamp: "2025-01-01T12:00:00.000Z",
             local_date: "2025-01-01",
             local_time: "07:00:00",
             location: {
@@ -127,6 +137,7 @@ describe("createPayload Tests", () => {
                 110.23491,
             ),
         ).toStrictEqual({
+            timestamp: "2025-01-01T12:00:00.000Z",
             local_date: "2025-01-01",
             local_time: "08:00:00",
             location: {
@@ -157,6 +168,7 @@ describe("createPayload Tests", () => {
                 110,
             ),
         ).toStrictEqual({
+            timestamp: "2025-01-01T12:00:00.000Z",
             local_date: "2025-01-01",
             local_time: "08:00:00",
             location: {
@@ -187,6 +199,7 @@ describe("createPayload Tests", () => {
                 110,
             ),
         ).toStrictEqual({
+            timestamp: "2025-01-01T12:00:00.000Z",
             local_date: "2025-01-01",
             local_time: "08:00:00",
             location: {

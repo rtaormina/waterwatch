@@ -48,36 +48,6 @@ export function onSensorInput(
 }
 
 /**
- * Validates if the input in the time fields (minutes and seconds) are numbers, and within the valid range.
- *
- * @param {object} errors - the current error state of the time inputs
- * @param {object} time - the current values of the time inputs
- */
-export function validateTime(
-    errors: {
-        temp: string | null;
-        sensor: string | null;
-        mins: string | null;
-        sec: string | null;
-    },
-    time: {
-        mins: string;
-        sec: string;
-    },
-) {
-    if (+time.mins > 59 || +time.mins < 0) {
-        errors.mins = "Time must be between 0 and 59";
-    } else {
-        errors.mins = null;
-    }
-    if (+time.sec > 59 && +time.sec < 0) {
-        errors.sec = "Time must be between 0 and 59";
-    } else {
-        errors.sec = null;
-    }
-}
-
-/**
  * Validates the input values required for a measurement collection operation.
  *
  * @param {number | undefined} longitude - The longitude value, or `undefined` if not provided.
@@ -120,7 +90,7 @@ export function validateInputs(
             errors.sensor !== null ||
             errors.sec != null ||
             errors.mins != null ||
-            ((time.mins === "" || time.mins === "0") && (time.sec === "" || time.sec === "0")) ||
+            ((time.mins === "" || +time.mins === 0) && (time.sec === "" || +time.sec === 0)) ||
             +time.mins < 0 ||
             +time.sec < 0
         ) {
