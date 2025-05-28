@@ -261,7 +261,11 @@ defineExpose({
                         <label class="block text-sm font-medium mb-1">Continent</label>
                         <div class="relative" ref="continentWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleContinentDropdown">
-                                <span data-testid="continent-placeholder" class="multiselect-placeholder" v-if="selectedContinents.length === 0">
+                                <span
+                                    data-testid="continent-placeholder"
+                                    class="multiselect-placeholder"
+                                    v-if="selectedContinents.length === 0"
+                                >
                                     {{ continentPlaceholder }}
                                 </span>
                                 <span data-testid="continent-text" class="multiselect-display-text" v-else>
@@ -318,7 +322,11 @@ defineExpose({
                         <label class="block text-sm font-medium mb-1">Country</label>
                         <div class="relative" ref="countryWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleCountryDropdown">
-                                <span data-testid="country-placeholder" class="multiselect-placeholder" v-if="selectedCountries.length === 0">
+                                <span
+                                    data-testid="country-placeholder"
+                                    class="multiselect-placeholder"
+                                    v-if="selectedCountries.length === 0"
+                                >
                                     {{ countryPlaceholder }}
                                 </span>
                                 <span data-testid="country-text" class="multiselect-display-text" v-else>
@@ -392,7 +400,11 @@ defineExpose({
                         <label class="block text-sm font-medium mb-1">Water Source</label>
                         <div class="relative" ref="waterSourceWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleWaterSourceDropdown">
-                                <span data-testid="measurement-type-placeholder" class="multiselect-placeholder" v-if="selectedWaterSources.length === 0">
+                                <span
+                                    data-testid="measurement-type-placeholder"
+                                    class="multiselect-placeholder"
+                                    v-if="selectedWaterSources.length === 0"
+                                >
                                     {{ waterSourcePlaceholder }}
                                 </span>
                                 <span data-testid="formated-water-sources" class="multiselect-display-text" v-else>

@@ -36,11 +36,15 @@ const showNoResults = ref(false);
             ref="dropdownRef"
             class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-md shadow-lg z-50 max-h-64 overflow-y-auto"
         >
-            <div v-if="loading" class="px-4 py-3 text-gray-500 text-sm">Loading presets...</div>
-            <div v-else-if="error" class="px-4 py-3 text-red-500 text-sm">
+            <div data-testid="loading-presets" v-if="loading" class="px-4 py-3 text-gray-500 text-sm">
+                Loading presets...
+            </div>
+            <div data-testid="preset-error" v-else-if="error" class="px-4 py-3 text-red-500 text-sm">
                 {{ error }}
             </div>
-            <div v-else-if="showNoResults" class="px-4 py-3 text-gray-500 text-sm">No presets found</div>
+            <div data-testid="results" v-else-if="showNoResults" class="px-4 py-3 text-gray-500 text-sm">
+                No presets found
+            </div>
             <!-- Uncomment once preset functionality exists -->
             <!-- <div
         v-else

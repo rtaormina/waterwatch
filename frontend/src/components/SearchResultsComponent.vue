@@ -98,11 +98,11 @@ onMounted(async () => {
             <div class="mt-2 space-y-1">
                 <div v-if="searched" class="flex justify-between">
                     <span>Number of Results:</span>
-                    <span>{{ props.results.count }}</span>
+                    <span data-testid="num-results">{{ props.results.count }}</span>
                 </div>
                 <div v-if="searched" class="hidden md:flex md:justify-between">
                     <span>Average Temperature:</span>
-                    <span>{{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}</span>
+                    <span data-testid="avg-temp">{{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}</span>
                 </div>
             </div>
         </div>

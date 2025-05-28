@@ -1,6 +1,5 @@
-// tests/FilterPanel.spec.ts
 import { mount, VueWrapper } from "@vue/test-utils";
-import { describe, it, expect, beforeEach, vi, onTestFailed } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
 const mockDataFilters = {
     continents: ["Asia", "Europe"],
@@ -98,11 +97,11 @@ describe("FilterPanelComponent - country filtering UI", () => {
         expect(searchInput.exists()).toBe(true);
         expect(searchInput.text()).toBe("Select continents");
         await nextTick();
-        
+
         const filteredOptions = wrapper.findAll('[data-testid="continent-options"] .multiselect-option');
         expect(filteredOptions.length).toBe(2);
         expect(filteredOptions[0].text()).toContain("Asia")
-  
+
 
         const allOptions = wrapper.findAll('[data-testid="continent-options"] .multiselect-option');
         expect(allOptions.length).toBe(2);
