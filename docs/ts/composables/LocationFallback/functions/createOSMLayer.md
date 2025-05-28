@@ -6,11 +6,19 @@
 
 # Function: createOSMLayer()
 
-> **createOSMLayer**(): `TileLayer`
+> **createOSMLayer**(`options?`): `TileLayer`
 
 Defined in: src/composables/LocationFallback.ts:11
 
 Creates the OSM Layer for the map.
+
+## Parameters
+
+### options?
+
+#### noWrap
+
+`boolean`
 
 ## Returns
 

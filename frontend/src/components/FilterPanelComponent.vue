@@ -241,6 +241,17 @@ defineExpose({
     getSearchParams,
     temperature,
 });
+defineExpose({
+    /** Calculate dropdown height based on panel size. */ calculateDropdownHeight,
+    /** Close dropdowns on outside click. */ handleClickOutside,
+    /** Toggle continent dropdown. */ toggleContinentDropdown,
+    /** Toggle country dropdown. */ toggleCountryDropdown,
+    /** Toggle water source dropdown. */ toggleWaterSourceDropdown,
+    /** Clear search input when dropdown closes. */ clearSearchOnClose,
+    /** Reset filters to defaults. */ reset,
+    /** Get serialized search parameters for current filters. */ getSearchParams,
+    /** Reactive temperature filter object. */ temperature,
+});
 </script>
 
 <template>

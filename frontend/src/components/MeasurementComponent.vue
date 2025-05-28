@@ -2,7 +2,7 @@
 import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
 import Modal from "./Modal.vue";
-import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
+import { ref, computed, reactive, defineProps, defineEmits, defineExpose, watch } from "vue";
 import { onSensorInput, validateInputs, createPayload } from "@/composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
@@ -27,12 +27,7 @@ const time = reactive({
     sec: "",
 });
 
-const errors = reactive<{
-    temp: string | null;
-    sensor: string | null;
-    mins: string | null;
-    sec: string | null;
-}>({
+const errors = reactive<{ temp: string | null; sensor: string | null; mins: string | null; sec: string | null }>({
     temp: null,
     sensor: null,
     mins: null,
@@ -92,13 +87,9 @@ function clear() {
     locationMode.value = null;
 }
 
-defineProps<{
-    modelValue?: string;
-}>();
+defineProps<{ modelValue?: string }>();
 
-const emit = defineEmits<{
-    (e: "update:modelValue", value: string): void;
-}>();
+const emit = defineEmits<{ (e: "update:modelValue", value: string): void }>();
 
 /**
  * Handles key presses for the time input fields.
@@ -192,6 +183,7 @@ const handleTempPress = (event: KeyboardEvent) => {
 
     emit("update:modelValue", String(attempted));
 };
+
 const locationMode = ref<"auto" | "manual" | null>(null);
 
 watch(locAvail, (avail) => {
@@ -276,8 +268,25 @@ const postDataCheck = () => {
         return;
     }
 };
-</script>
 
+// Expose methods so vue-docgen-cli can pick them up
+defineExpose({
+    /** Clears the form from all values. */
+    clear,
+    /** Handles key presses for the time input fields. */
+    handleKeyPress,
+    /** Handles paste events for the time input fields. */
+    handlePaste,
+    /** Handles input events for the time input fields. */
+    handleInput,
+    /** Handles key presses for the temperature input field. */
+    handleTempPress,
+    /** Sends the form data to the server, and checks if the response is successful. */
+    postData,
+    /** Checks temperature and displays a confirmation or warning modal. */
+    postDataCheck,
+});
+</script>
 <template>
     <div class="bg-white m-4 p-4 h-full overflow-y-auto box-border">
         <h1

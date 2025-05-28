@@ -64,6 +64,15 @@ const navItems = [
     { label: "About", to: "/about", name: "About" },
     { label: "Contact", to: "/contact", name: "Contact" },
 ];
+
+defineExpose({
+    /** Checks if user is on mobile. */
+    checkMobile,
+    /** Opens mobile overlay. */
+    openOverlay,
+    /** Closes mobile overlay. */
+    closeOverlay,
+});
 </script>
 
 <template>

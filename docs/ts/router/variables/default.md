@@ -8,4 +8,4 @@
 
 > `const` **default**: `Router`
 
-Defined in: src/vite-env.d.ts:6
+Defined in: src/router/index.ts:74

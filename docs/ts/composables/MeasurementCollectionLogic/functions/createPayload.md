@@ -8,7 +8,7 @@
 
 > **createPayload**(`tempUnit`, `selectedMetrics`, `temperature`, `tempVal`, `time`, `waterSource`, `longitude`, `latitude`): `object`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:147
+Defined in: src/composables/MeasurementCollectionLogic.ts:114
 
 Creates a payload object for measurement collection.
 
@@ -84,6 +84,14 @@ The latitude coordinate
 
 the payload
 
+### local\_date
+
+> **local\_date**: `undefined` \| `string`
+
+### local\_time
+
+> **local\_time**: `undefined` \| `string`
+
 ### location
 
 > **location**: `object`
@@ -112,9 +120,9 @@ the payload
 
 > **value**: `number`
 
-### timestamp\_local
+### timestamp
 
-> **timestamp\_local**: `string` = `localISO`
+> **timestamp**: `string`
 
 ### water\_source
 

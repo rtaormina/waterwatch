@@ -8,7 +8,7 @@
 
 > **createMarker**(`location`): `Marker`
 
-Defined in: src/composables/LocationFallback.ts:24
+Defined in: src/composables/LocationFallback.ts:25
 
 Creates a marker on the map.
 

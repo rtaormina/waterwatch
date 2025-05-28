@@ -6,9 +6,9 @@
 
 # Function: validateInputs()
 
-> **validateInputs**(`longitude`, `latitude`, `waterSource`, `sensor`, `tempVal`, `selectedMetrics`, `errors`, `time`): `boolean`
+> **validateInputs**(`longitude`, `latitude`, `waterSource`, `sensor`, `tempVal`, `selectedMetrics`, `errors`, `time`, `tempUnit`): `boolean`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:93
+Defined in: src/composables/MeasurementCollectionLogic.ts:58
 
 Validates the input values required for a measurement collection operation.
 
@@ -81,6 +81,12 @@ An object containing the minutes and seconds as strings.
 #### sec
 
 `string`
+
+### tempUnit
+
+`string`
+
+The unit of temperature measurement ("C" for Celsius or "F" for Fahrenheit).
 
 ## Returns
 
