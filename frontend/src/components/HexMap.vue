@@ -129,7 +129,10 @@ const emit = defineEmits<{
 }>();
 
 hexbinLayer.dispatch().on("click", function (event: MouseEvent, d: unknown[], i: unknown) {
-    emit("hex-click", d);
+    emit(
+        "hex-click",
+        d.map((item) => item.o),
+    );
     console.log("Hex clicked:", d, i);
 });
 
