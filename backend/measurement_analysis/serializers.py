@@ -1,5 +1,6 @@
 """Serializers for measurement Analysis."""
 
+from django.contrib.gis.geos import Point
 from rest_framework import serializers
 
 
@@ -21,6 +22,14 @@ class LocationField(serializers.Field):
             "latitude": value.y,
             "longitude": value.x,
         }
+
+    def to_internal_value(self, data):
+        """Convert a dictionary with latitude and longitude to a GEOS Point object."""
+        if not isinstance(data, dict) or "latitude" not in data or "longitude" not in data:
+            raise serializers.ValidationError(
+                "Invalid location format. Expected a dictionary with latitude and longitude."
+            )
+        return Point(data["longitude"], data["latitude"])
 
 
 class MeasurementAggregatedSerializer(serializers.Serializer):
