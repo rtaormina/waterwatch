@@ -109,17 +109,17 @@ onMounted(async () => {
         <div class="flex-grow"></div>
         <div class="md:overflow-y-auto flex flex-col items-center mb-4 md:mb-8">
             <button
-                id="download-icon"
+                data-testid="download-icon"
                 @click="emit('download')"
                 :disabled="!canDownload || !searched || props.filtersOutOfSync"
                 class="flex items-center justify-center md:min-h-0 md:min-w-0 w-25 h-25 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200 disabled:cursor-not-allowed disabled:text-gray-400 enabled:cursor-pointer enabled:text-gray-800 enabled:hover:text-gray-600"
             >
-                <ArrowDownTrayIcon id="download-icon" class="w-full h-full" />
+                <ArrowDownTrayIcon class="w-full h-full" />
             </button>
             <div class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4">
                 <label for="format" class="font-semibold">Download as</label>
                 <select
-                    id="format"
+                    data-testid="format"
                     v-model="modelFormat"
                     class="flex-1 border rounded bg-white px-3 py-2"
                     :disabled="!canDownload"

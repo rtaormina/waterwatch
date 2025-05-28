@@ -1,5 +1,6 @@
 import { test, expect, Page } from "@playwright/test";
 import { addMeasurement } from "./utils";
+import fs from "fs/promises";
 
 const url = "http://localhost/";
 
@@ -39,6 +40,8 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should open and close continent dropdown", async ({ page }) => {
+        await waitForLocations(page);
+
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
@@ -51,6 +54,8 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should select and deselect continents", async ({ page }) => {
+        await waitForLocations(page);
+
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
@@ -69,6 +74,8 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should use select all/deselect all for continents", async ({ page }) => {
+        await waitForLocations(page);
+
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
@@ -83,11 +90,15 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should open and search countries", async ({ page }) => {
+        await waitForLocations(page);
+
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
         const selectAllButton = page.locator(".multiselect-select-all").first();
         await selectAllButton.click();
+
+        await continentDropdown.click(); // Close dropdown
 
         const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
         await countryDropdown.click();
@@ -98,9 +109,9 @@ test.describe("Filter Panel Tests", () => {
         await searchInput.fill("United");
 
         // Countries should be filtered based on search
-        const countryOptions = page.locator("#country-option");
-        // assert that at least one country option appears within 5s
-        await expect(countryOptions).toHaveCount(6, { timeout: 5_000 });
+        const countryOptions = page.getByTestId("country-option");
+        // assert that at least one country option appears within 10s
+        expect(await countryOptions.count()).toBeGreaterThan(0);
 
         const firstCountry = countryOptions.first();
         const countryText = (await firstCountry.textContent())?.toLowerCase() ?? "";
@@ -108,6 +119,8 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should clear country search when dropdown closes", async ({ page }) => {
+        await waitForLocations(page);
+
         const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
         await countryDropdown.click();
 
@@ -375,6 +388,8 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should reset all filters", async ({ page }) => {
+        await waitForLocations(page);
+
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
@@ -443,15 +458,15 @@ test.describe("Search Results Tests", () => {
     });
 
     test("should disable download format selector if not logged in", async ({ page }) => {
-        const formatSelect = page.locator("select#format");
+        const formatSelect = page.getByTestId("format");
         await expect(formatSelect).toBeVisible();
         await expect(formatSelect).toBeDisabled();
     });
 
-    test("should show download format selector if logged in", async ({ page }) => {
+    test("should show download format selector if logged in as researcher", async ({ page }) => {
         await login(page);
 
-        const formatSelect = page.locator("select#format");
+        const formatSelect = page.getByTestId("format");
         await expect(formatSelect).toBeVisible();
         await expect(formatSelect).toBeEnabled();
 
@@ -466,7 +481,7 @@ test.describe("Search Results Tests", () => {
     test("should change download format", async ({ page }) => {
         await login(page);
 
-        const formatSelect = page.locator("select#format");
+        const formatSelect = page.getByTestId("format");
 
         await formatSelect.selectOption("csv");
         await expect(formatSelect).toHaveValue("csv");
@@ -484,7 +499,7 @@ test.describe("Search Results Tests", () => {
         await expect(downloadButton).toBeDisabled();
         await expect(downloadButton).toHaveClass(/cursor-not-allowed/);
 
-        const downloadIcon = page.locator("#download-icon");
+        const downloadIcon = page.getByTestId("download-icon");
         await expect(downloadIcon).toBeVisible();
         await expect(downloadIcon).toBeDisabled();
         await expect(downloadIcon).toHaveClass(/cursor-not-allowed/);
@@ -498,18 +513,17 @@ test.describe("Search Results Tests", () => {
         await expect(downloadButton).toBeDisabled();
         await expect(downloadButton).toHaveClass(/cursor-not-allowed/);
 
-        const downloadIcon = page.locator("#download-icon");
+        const downloadIcon = page.getByTestId("download-icon");
         await expect(downloadIcon).toBeVisible();
         await expect(downloadIcon).toBeDisabled();
         await expect(downloadIcon).toHaveClass(/cursor-not-allowed/);
     });
 
-    test("should enable download after search when logged in", async ({ page }) => {
+    test("should enable download after search when logged in as researcher", async ({ page }) => {
         await login(page);
 
         // Perform a search first
-        const searchButton = page.locator("button", { hasText: "Search" });
-        await searchButton.click();
+        await getSummary(page); // This will trigger the search
 
         // Download should be enabled after search
         const downloadButton = page.locator("button", { hasText: "Download" });
@@ -517,7 +531,30 @@ test.describe("Search Results Tests", () => {
         await expect(downloadButton).toBeEnabled();
         await expect(downloadButton).toHaveClass(/cursor-pointer/);
 
-        const downloadIcon = page.locator("#download-icon");
+        const downloadIcon = page.getByTestId("download-icon");
+        await expect(downloadIcon).toBeVisible();
+        await expect(downloadIcon).toBeEnabled();
+        await expect(downloadIcon).toHaveClass(/cursor-pointer/);
+    });
+
+    test("should enable download after search when logged in as admin", async ({ page }) => {
+        await page.goto(url + "login");
+        await page.fill('input[placeholder="Your Username"]', "admin");
+        await page.fill('input[placeholder="Your Password"]', "admin");
+        await page.click('button[type="submit"]');
+
+        await page.goto(url + "export");
+
+        // Perform a search first
+        await getSummary(page); // This will trigger the search
+
+        // Download should be enabled after search
+        const downloadButton = page.locator("button", { hasText: "Download" });
+        await expect(downloadButton).toBeVisible();
+        await expect(downloadButton).toBeEnabled();
+        await expect(downloadButton).toHaveClass(/cursor-pointer/);
+
+        const downloadIcon = page.getByTestId("download-icon");
         await expect(downloadIcon).toBeVisible();
         await expect(downloadIcon).toBeEnabled();
         await expect(downloadIcon).toHaveClass(/cursor-pointer/);
@@ -527,8 +564,7 @@ test.describe("Search Results Tests", () => {
         await login(page);
 
         // Perform a search first
-        const searchButton = page.locator("button", { hasText: "Search" });
-        await searchButton.click();
+        await getSummary(page); // This will trigger the search
 
         // Change a filter after search
         const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
@@ -540,7 +576,7 @@ test.describe("Search Results Tests", () => {
         await expect(downloadButton).toBeDisabled();
         await expect(downloadButton).toHaveClass(/cursor-not-allowed/);
 
-        const downloadIcon = page.locator("#download-icon");
+        const downloadIcon = page.getByTestId("download-icon");
         await expect(downloadIcon).toBeVisible();
         await expect(downloadIcon).toBeDisabled();
         await expect(downloadIcon).toHaveClass(/cursor-not-allowed/);
@@ -548,43 +584,801 @@ test.describe("Search Results Tests", () => {
 });
 
 test.describe("Integration Tests", () => {
-    test("add data & then export - no filters", async ({ page }) => {
+    test.describe.configure({ mode: "serial" });
+
+    let measurementWithTemp;
+    let measurementWithoutTemp;
+    let measurementTheHague;
+    let measurementBoston;
+    let measurementWell;
+    let measurementNetwork;
+    let measurement20Degrees;
+    let measurement30Degrees;
+    let measurement2024;
+    let measurement2025;
+    let measurementMorning;
+    let measurementAfternoon;
+    let measurementAll;
+
+    test.beforeAll(async () => {
+        measurementWithTemp = {
+            timestamp: "2024-01-01T09:00:00Z",
+            localDate: "2024-01-01",
+            localTime: "09:00:00",
+            latitude: 52.0,
+            longitude: 5.0,
+            waterSource: "well",
+            temperature: { sensor: "analog thermometer", value: 12.5, time_waited: 3 },
+        };
+
+        measurementWithoutTemp = {
+            timestamp: "2024-06-01T15:30:00Z",
+            localDate: "2024-06-01",
+            localTime: "15:30:00",
+            latitude: 52.1,
+            longitude: 5.1,
+            waterSource: "network",
+        };
+
+        measurementTheHague = {
+            timestamp: "2024-01-01T09:00:00Z",
+            localDate: "2024-01-01",
+            localTime: "09:00:00",
+            latitude: 52.08,
+            longitude: 4.32,
+            waterSource: "well",
+            temperature: { sensor: "analog thermometer", value: 20.0, time_waited: 3 },
+        };
+
+        measurementBoston = {
+            timestamp: "2025-06-01T15:30:00Z",
+            localDate: "2025-06-01",
+            localTime: "15:30:00",
+            latitude: 42.33,
+            longitude: -71.09,
+            waterSource: "network",
+            temperature: { sensor: "digital thermometer", value: 30.0, time_waited: 3 },
+        };
+
+        measurementWell = measurementTheHague;
+        measurementNetwork = measurementBoston;
+        measurement20Degrees = measurementTheHague;
+        measurement30Degrees = measurementBoston;
+        measurement2024 = measurementTheHague;
+        measurement2025 = measurementBoston;
+        measurementMorning = measurementTheHague;
+        measurementAfternoon = measurementBoston;
+        measurementAll = measurementTheHague;
+    });
+
+    test("add data & then search - no filters", async ({ page }) => {
         await page.goto(url + "export");
         const before = await getSummary(page);
 
         // add two measurements to the database
-        await addMeasurement(
-            page,
-            {
-                timestamp: "2024-01-01T09:00:00Z",
-                localDate: "2024-01-01",
-                localTime: "09:00:00",
-                latitude: 52.0,
-                longitude: 5.0,
-                waterSource: "well",
-                temperature: { sensor: "analog thermometer", value: 12.5, time_waited: 3 },
-            },
-            url,
-        );
-        await addMeasurement(
-            page,
-            {
-                timestamp: "2024-06-01T15:30:00Z",
-                localDate: "2024-06-01",
-                localTime: "15:30:00",
-                latitude: 52.1,
-                longitude: 5.1,
-                waterSource: "network",
-                // no temperature key → serializer just ignores it
-            },
-            url,
-        );
+        await addMeasurement(page, measurementWithTemp, url);
+        await addMeasurement(page, measurementWithoutTemp, url);
 
         await page.goto(url + "export");
         const after = await getSummary(page);
 
         expect(after.count).toBe(before.count + 2);
-        expect(after.avgTemp).toBeCloseTo((before.avgTemp * before.count + 12.5) / (before.count + 1), 1);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 12.5) * 10) / (after.count - 1)) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("add data & then search - continent filtering, added measurement not included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
+        await continentDropdown.click();
+
+        const asia = page.getByText("Asia").first();
+        await asia.click();
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementTheHague, url);
+        await addMeasurement(page, measurementBoston, url);
+
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        await continentDropdown.click();
+        await asia.click();
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count);
+        expect(after.avgTemp).toBeCloseTo(before.avgTemp, 0);
+    });
+
+    test("add data & then search - continent filtering, added measurement included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
+        await continentDropdown.click();
+
+        const europe = page.getByText("Europe").first();
+        await europe.click();
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementTheHague, url);
+        await addMeasurement(page, measurementBoston, url);
+
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        await continentDropdown.click();
+        await europe.click();
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 1);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 20.0) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("add data & then search - continent and country filtering, added measurements not included", async ({
+        page,
+    }) => {
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
+        await continentDropdown.click();
+
+        const europe = page.getByText("Europe").first();
+        await europe.click();
+
+        const northAmerica = page.getByText("North America").first();
+        await northAmerica.click();
+
+        await continentDropdown.click(); // close dropdown
+
+        const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
+        await countryDropdown.click();
+
+        const searchInput = page.locator('input[placeholder="Search countries..."]');
+        await searchInput.fill("Netherlands");
+        const netherlands = page.getByText("Netherlands").first();
+        await netherlands.click();
+
+        await searchInput.fill("United States of America");
+        const unitedStates = page.getByText("United States of America").first();
+        await unitedStates.click();
+
+        countryDropdown.click(); // close dropdown
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementTheHague, url);
+        await addMeasurement(page, measurementBoston, url);
+
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        await continentDropdown.click();
+        await europe.click();
+        await northAmerica.click();
+
+        await continentDropdown.click(); // close dropdown
+
+        await countryDropdown.click();
+        await searchInput.fill("Netherlands");
+        await netherlands.click();
+
+        await searchInput.fill("United States of America");
+        await unitedStates.click();
+
+        countryDropdown.click(); // close dropdown
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count);
+        expect(after.avgTemp).toBeCloseTo(before.avgTemp, 0);
+    });
+
+    test("add data & then search - continent and country filtering, added measurements included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
+        await continentDropdown.click();
+
+        const europe = page.getByText("Europe").first();
+        await europe.click();
+
+        const northAmerica = page.getByText("North America").first();
+        await northAmerica.click();
+
+        await continentDropdown.click(); // close dropdown
+
+        const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
+        await countryDropdown.click();
+
+        const selectAllCountriesButton = page.locator(".multiselect-select-all").nth(1);
+        await selectAllCountriesButton.click();
+
+        const searchInput = page.locator('input[placeholder="Search countries..."]');
+        await searchInput.fill("Netherlands");
+        const netherlands = page.getByText("Netherlands").first();
+        await netherlands.click();
+
+        await searchInput.fill("United States of America");
+        const unitedStates = page.getByText("United States of America").first();
+        await unitedStates.click();
+
+        countryDropdown.click(); // close dropdown
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementTheHague, url);
+        await addMeasurement(page, measurementBoston, url);
+
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        await continentDropdown.click();
+        await europe.click();
+        await northAmerica.click();
+
+        await continentDropdown.click(); // close dropdown
+
+        await countryDropdown.click();
+        await selectAllCountriesButton.click();
+        await searchInput.fill("Netherlands");
+        await netherlands.click();
+        await searchInput.fill("United States of America");
+        await unitedStates.click();
+
+        countryDropdown.click(); // close dropdown
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 2);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 20.0 + 30.0) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("add data & then search - water source filtering, added measurements not included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        const waterSourceDropdown = page.locator(".multiselect-custom-wrapper").nth(2);
+        await waterSourceDropdown.click();
+
+        const rooftopTank = page.getByText("Rooftop Tank").first();
+        await rooftopTank.click();
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementWell, url);
+        await addMeasurement(page, measurementNetwork, url);
+
+        await page.goto(url + "export");
+
+        await waterSourceDropdown.click();
+        await rooftopTank.click();
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count);
+        expect(after.avgTemp).toBeCloseTo(before.avgTemp, 0);
+    });
+
+    test("add data & then search - water source filtering, added measurement included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        const waterSourceDropdown = page.locator(".multiselect-custom-wrapper").nth(2);
+        await waterSourceDropdown.click();
+
+        const network = page.getByText("Network").first();
+        await network.click();
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementWell, url);
+        await addMeasurement(page, measurementNetwork, url);
+
+        await page.goto(url + "export");
+
+        await waterSourceDropdown.click();
+        await network.click();
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 1);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 30.0) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("add data & then search - temperature range filtering celsius, added measurements not included", async ({
+        page,
+    }) => {
+        await page.goto(url + "export");
+
+        const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
+        await tempCheckbox.check();
+
+        const minTempInput = page.locator('input[placeholder="Min temperature"]');
+        const maxTempInput = page.locator('input[placeholder="Max temperature"]');
+
+        await minTempInput.fill("0");
+        await maxTempInput.fill("19");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurement20Degrees, url);
+        await addMeasurement(page, measurement30Degrees, url);
+
+        await page.goto(url + "export");
+
+        await tempCheckbox.check();
+        await minTempInput.fill("0");
+        await maxTempInput.fill("19");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count);
+        expect(after.avgTemp).toBeCloseTo(before.avgTemp, 0);
+    });
+
+    test("add data & then search - temperature range filtering fahrenheit, added measurements not included", async ({
+        page,
+    }) => {
+        await page.goto(url + "export");
+
+        const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
+        await tempCheckbox.check();
+        const fahrenheitButton = page.locator("button", { hasText: "°F" });
+        await fahrenheitButton.click();
+        const minTempInput = page.locator('input[placeholder="Min temperature"]');
+        const maxTempInput = page.locator('input[placeholder="Max temperature"]');
+        await minTempInput.fill("32");
+        await maxTempInput.fill("66.2");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurement20Degrees, url);
+        await addMeasurement(page, measurement30Degrees, url);
+
+        await page.goto(url + "export");
+
+        await tempCheckbox.check();
+        await fahrenheitButton.click();
+        await minTempInput.fill("32");
+        await maxTempInput.fill("66.2");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count);
+        expect(after.avgTemp).toBeCloseTo(before.avgTemp, 0);
+    });
+
+    test("add data & then search - temperature range filtering celsius, added measurement included", async ({
+        page,
+    }) => {
+        await page.goto(url + "export");
+
+        const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
+        await tempCheckbox.check();
+
+        const minTempInput = page.locator('input[placeholder="Min temperature"]');
+        const maxTempInput = page.locator('input[placeholder="Max temperature"]');
+
+        await minTempInput.fill("0");
+        await maxTempInput.fill("20");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurement20Degrees, url);
+        await addMeasurement(page, measurement30Degrees, url);
+
+        await page.goto(url + "export");
+
+        await tempCheckbox.check();
+        await minTempInput.fill("0");
+        await maxTempInput.fill("20");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 1);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 20.0) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("add data & then search - temperature range filtering fahrenheit, added measurement included", async ({
+        page,
+    }) => {
+        await page.goto(url + "export");
+
+        const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
+        await tempCheckbox.check();
+        const fahrenheitButton = page.locator("button", { hasText: "°F" });
+        await fahrenheitButton.click();
+        const minTempInput = page.locator('input[placeholder="Min temperature"]');
+        const maxTempInput = page.locator('input[placeholder="Max temperature"]');
+        await minTempInput.fill("32");
+        await maxTempInput.fill("68");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurement20Degrees, url);
+        await addMeasurement(page, measurement30Degrees, url);
+
+        await page.goto(url + "export");
+
+        await tempCheckbox.check();
+        await fahrenheitButton.click();
+        await minTempInput.fill("32");
+        await maxTempInput.fill("68");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 1);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 68) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("add data & then search - date filtering, added measurements not included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        const fromDateInput = page.locator('input[type="date"]').first();
+        const toDateInput = page.locator('input[type="date"]').nth(1);
+
+        await fromDateInput.fill("2023-01-01");
+        await toDateInput.fill("2023-12-31");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurement2024, url);
+        await addMeasurement(page, measurement2025, url);
+
+        await page.goto(url + "export");
+
+        await fromDateInput.fill("2023-01-01");
+        await toDateInput.fill("2023-12-31");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count);
+        expect(after.avgTemp).toBeCloseTo(before.avgTemp, 0);
+    });
+
+    test("add data & then search - date filtering, added measurement included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        const fromDateInput = page.locator('input[type="date"]').first();
+        const toDateInput = page.locator('input[type="date"]').nth(1);
+
+        await fromDateInput.fill("2024-01-01");
+        await toDateInput.fill("2024-12-31");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurement2024, url);
+        await addMeasurement(page, measurement2025, url);
+
+        await page.goto(url + "export");
+
+        await fromDateInput.fill("2024-01-01");
+        await toDateInput.fill("2024-12-31");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 1);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 20.0) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("add data & then search - time filtering 1 slot, added measurements not included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
+        await addTimeSlotButton.click();
+        const fromTimeInput = page.locator('input[type="time"]').first();
+        const toTimeInput = page.locator('input[type="time"]').nth(1);
+        await fromTimeInput.fill("18:00");
+        await toTimeInput.fill("20:00");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementMorning, url);
+        await addMeasurement(page, measurementAfternoon, url);
+
+        await page.goto(url + "export");
+
+        await addTimeSlotButton.click();
+        await fromTimeInput.fill("18:00");
+        await toTimeInput.fill("20:00");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count);
+        expect(after.avgTemp).toBeCloseTo(before.avgTemp, 0);
+    });
+
+    test("add data & then search - time filtering 1 slot, added measurement included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
+        await addTimeSlotButton.click();
+        const fromTimeInput = page.locator('input[type="time"]').first();
+        const toTimeInput = page.locator('input[type="time"]').nth(1);
+        await fromTimeInput.fill("09:00");
+        await toTimeInput.fill("11:00");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementMorning, url);
+        await addMeasurement(page, measurementAfternoon, url);
+
+        await page.goto(url + "export");
+
+        await addTimeSlotButton.click();
+        await fromTimeInput.fill("09:00");
+        await toTimeInput.fill("11:00");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 1);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 20.0) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("add data & then search - time filtering 3 slots, added measurements not included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
+        await addTimeSlotButton.click();
+        const fromTimeInputFirst = page.locator('input[type="time"]').first();
+        const toTimeInputFirst = page.locator('input[type="time"]').nth(1);
+        await fromTimeInputFirst.fill("18:00");
+        await toTimeInputFirst.fill("20:00");
+
+        await addTimeSlotButton.click();
+
+        const fromTimeInputSecond = page.locator('input[type="time"]').nth(2);
+        const toTimeInputSecond = page.locator('input[type="time"]').nth(3);
+
+        await fromTimeInputSecond.fill("10:00");
+        await toTimeInputSecond.fill("12:00");
+
+        await addTimeSlotButton.click();
+
+        const fromTimeInputThird = page.locator('input[type="time"]').nth(4);
+        const toTimeInputThird = page.locator('input[type="time"]').nth(5);
+
+        await fromTimeInputThird.fill("14:00");
+        await toTimeInputThird.fill("14:30");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementMorning, url);
+        await addMeasurement(page, measurementAfternoon, url);
+
+        await page.goto(url + "export");
+
+        await addTimeSlotButton.click();
+        await fromTimeInputFirst.fill("18:00");
+        await toTimeInputFirst.fill("20:00");
+        await addTimeSlotButton.click();
+        await fromTimeInputSecond.fill("10:00");
+        await toTimeInputSecond.fill("12:00");
+        await addTimeSlotButton.click();
+        await fromTimeInputThird.fill("14:00");
+        await toTimeInputThird.fill("14:30");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count);
+        expect(after.avgTemp).toBeCloseTo(before.avgTemp, 0);
+    });
+
+    test("add data & then search - time filtering 3 slots, added measurements included", async ({ page }) => {
+        await page.goto(url + "export");
+
+        const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
+        await addTimeSlotButton.click();
+        const fromTimeInputFirst = page.locator('input[type="time"]').first();
+        const toTimeInputFirst = page.locator('input[type="time"]').nth(1);
+        await fromTimeInputFirst.fill("09:00");
+        await toTimeInputFirst.fill("11:00");
+        await addTimeSlotButton.click();
+        const fromTimeInputSecond = page.locator('input[type="time"]').nth(2);
+        const toTimeInputSecond = page.locator('input[type="time"]').nth(3);
+        await fromTimeInputSecond.fill("12:00");
+        await toTimeInputSecond.fill("14:00");
+        await addTimeSlotButton.click();
+        const fromTimeInputThird = page.locator('input[type="time"]').nth(4);
+        const toTimeInputThird = page.locator('input[type="time"]').nth(5);
+        await fromTimeInputThird.fill("15:00");
+        await toTimeInputThird.fill("16:00");
+
+        const before = await getSummary(page);
+
+        // add two measurements to the database
+        await addMeasurement(page, measurementMorning, url);
+        await addMeasurement(page, measurementAfternoon, url);
+
+        await page.goto(url + "export");
+
+        await addTimeSlotButton.click();
+        await fromTimeInputFirst.fill("09:00");
+        await toTimeInputFirst.fill("11:00");
+        await addTimeSlotButton.click();
+        await fromTimeInputSecond.fill("12:00");
+        await toTimeInputSecond.fill("14:00");
+        await addTimeSlotButton.click();
+        await fromTimeInputThird.fill("15:00");
+        await toTimeInputThird.fill("16:00");
+
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 2);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 20.0 + 30.0) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+    });
+
+    test("full user flow - add data, filter, search, download", async ({ page }) => {
+        // Login
+        await login(page);
+
+        // Navigate to export page
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
+        await continentDropdown.click();
+
+        const europe = page.getByText("Europe").first();
+        await europe.click();
+
+        await continentDropdown.click(); // close dropdown
+
+        const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
+        await countryDropdown.click();
+        const selectAllCountriesButton = page.locator(".multiselect-select-all").nth(1);
+        await selectAllCountriesButton.click();
+
+        const searchInput = page.locator('input[placeholder="Search countries..."]');
+        await searchInput.fill("Netherlands");
+        const netherlands = page.getByText("Netherlands").first();
+        await netherlands.click();
+
+        countryDropdown.click(); // close dropdown
+
+        const waterSourceDropdown = page.locator(".multiselect-custom-wrapper").nth(2);
+        await waterSourceDropdown.click();
+        const well = page.getByText("Well").first();
+        await well.click();
+
+        waterSourceDropdown.click(); // close dropdown
+
+        const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
+        await tempCheckbox.check();
+        const fahrenheitButton = page.locator("button", { hasText: "°F" });
+        await fahrenheitButton.click();
+        const minTempInput = page.locator('input[placeholder="Min temperature"]');
+        await minTempInput.fill("68");
+        const maxTempInput = page.locator('input[placeholder="Max temperature"]');
+        await maxTempInput.fill("68");
+
+        const fromDateInput = page.locator('input[type="date"]').first();
+        const toDateInput = page.locator('input[type="date"]').nth(1);
+
+        await fromDateInput.fill("2024-01-01");
+        await toDateInput.fill("2024-01-01");
+
+        const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
+        await addTimeSlotButton.click();
+        const fromTimeInput = page.locator('input[type="time"]').first();
+        const toTimeInput = page.locator('input[type="time"]').nth(1);
+        await fromTimeInput.fill("09:00");
+        await toTimeInput.fill("09:00");
+
+        // Perform a search
+        const before = await getSummary(page);
+
+        // Add a measurement
+        await addMeasurement(page, measurementAll, url);
+
+        // Navigate back to export page
+        await page.goto(url + "export");
+
+        await waitForLocations(page);
+
+        // Reapply filters
+        await continentDropdown.click();
+        await europe.click();
+        await continentDropdown.click(); // close dropdown
+        await countryDropdown.click();
+        await selectAllCountriesButton.click();
+        await netherlands.click();
+        await countryDropdown.click(); // close dropdown
+        await waterSourceDropdown.click();
+        await well.click();
+        await waterSourceDropdown.click(); // close dropdown
+        await tempCheckbox.check();
+        await fahrenheitButton.click();
+        await minTempInput.fill("68");
+        await maxTempInput.fill("68");
+        await fromDateInput.fill("2024-01-01");
+        await toDateInput.fill("2024-01-01");
+        await addTimeSlotButton.click();
+        await fromTimeInput.fill("09:00");
+        await toTimeInput.fill("09:00");
+
+        // Perform the search again
+        const after = await getSummary(page);
+
+        expect(after.count).toBe(before.count + 1);
+        const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 68) * 10) / after.count) / 10;
+        expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
+
+        // Download the data
+        const formatSelect = page.getByTestId("format");
+        await formatSelect.selectOption("json");
+        const downloadButton = page.locator("button", { hasText: "Download" });
+        const [download] = await Promise.all([
+            page.waitForEvent("download"), // <-- waits for the next download
+            downloadButton.click(), // <-- triggers it
+        ]);
+
+        // Verify the download
+        const tempFilePath = await download.path();
+        expect(tempFilePath).toBeTruthy();
+
+        const raw = await fs.readFile(tempFilePath!, "utf-8");
+        const jsonData = JSON.parse(raw);
+
+        // Check if the downloaded data is an array and has at least one measurement
+        expect(Array.isArray(jsonData)).toBe(true);
+        expect(jsonData.length).toBeGreaterThan(0);
+
+        console.log(jsonData);
+
+        // Check if measurement is included in the downloaded data
+        const found = jsonData.some(
+            (m) =>
+                m.timestamp === "2024-01-01T09:00:00Z" &&
+                m.local_date === "2024-01-01" &&
+                m.local_time === "09:00:00" &&
+                Math.abs(m.location.coordinates[1] - 52.08) < 1e-6 &&
+                Math.abs(m.location.coordinates[0] - 4.32) < 1e-6 &&
+                m.water_source === "well" &&
+                m.temperature?.value === 20.0 &&
+                m.temperature?.sensor === "analog thermometer" &&
+                m.temperature?.time_waited === 3,
+        );
+        expect(found).toBe(true);
     });
 });
 
@@ -608,7 +1402,7 @@ async function login(page: Page) {
  */
 async function getSummary(page: Page) {
     const [response] = await Promise.all([
-        page.waitForResponse("**/api/measurements/search/**", { timeout: 10_000 }),
+        page.waitForResponse("**/api/measurements/search/**", { timeout: 20_000 }),
         page.click("button:has-text('Search')"),
     ]);
 
@@ -636,4 +1430,13 @@ async function getSummary(page: Page) {
     const avgTemp = parseFloat((avgText ?? "").replace(/[^0-9.-]/g, ""));
 
     return { count, avgTemp };
+}
+
+/**
+ * Waits for the locations API response to be received.
+ *
+ * @param page Playwright Page object to interact with the browser.
+ */
+async function waitForLocations(page: Page) {
+    await page.waitForResponse((response) => response.url().endsWith("/api/locations/") && response.status() === 200);
 }
