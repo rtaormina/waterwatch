@@ -72,20 +72,30 @@ Researcher
 ## Running Tests
 
 ### Frontend
-Unit Tests:
+#### Unit Tests
 ```bash
 docker exec frontend npm run test
 ```
-End-to-End Tests:
+#### End-to-End Tests:
+In case you have the production version of WATERWATCH running:
 ```bash
-docker exec frontend npm run e2e
+docker compose down
+```
+Then:
+```bash
+./test-setup.sh
+cd frontend
+npm run e2e
+```
+To reset the test database, run:
+```bash
+./test-reset-db.sh
 ```
 
 ### Backend
 ```bash
 docker exec backend python manage.py test
 ```
-
 
 ## Support
 
@@ -123,6 +133,16 @@ docker exec backend python manage.py test
     dos2unix .env
     dos2unix setup.sh
     ./setup.sh
+    ```
+- If bash cannot find test-setup.sh (bad interpreter, no such file or directory), run the following:
+    ```bash
+    dos2unix test-setup.sh
+    ./test-setup.sh
+    ```
+- If bash cannot find test-reset-db.sh (bad interpreter, no such file or directory), run the following:
+    ```bash
+    dos2unix test-reset-db.sh
+    ./test-reset-db.sh
     ```
 
 ## Contributing

@@ -64,17 +64,28 @@ Changes should never be merged directly into main. Contributions should always b
 ### Testing
 Contributions should generally be supported by unit tests. Frontend unit testing is done using [vitest](https://vitest.dev/), backend unit testing is done using django [unittest](https://docs.djangoproject.com/en/5.2/topics/testing/).
 
-Where applicable, end to end testing should also be carried out. End to end testing is done using [Playwright](https://playwright.dev/). Generally if significant changes to the UI/frontend are made these should be supported by an end to end test.
+Where applicable, end-to-end testing should also be carried out. End-to-end testing is done using [Playwright](https://playwright.dev/). Generally if significant changes to the UI/frontend are made these should be supported by an end to end test. To ensure that data modified during end-to-end testing does not affect the production database, a separate docker-compose file is used. See below for how to run the test version of WATERWATCH.
 
-The following commands can be used to run tests:
+The following commands can be used to run tests.
 #### Frontend
-Unit Tests:
+#### Unit Tests
 ```bash
 docker exec frontend npm run test
 ```
-End-to-End Tests:
+#### End-to-End Tests:
+In case you have the production version of WATERWATCH running:
 ```bash
-docker exec frontend npm run e2e
+docker compose down
+```
+Then:
+```bash
+./test-setup.sh
+cd frontend
+npm run e2e
+```
+To reset the test database, run:
+```bash
+./test-reset-db.sh
 ```
 
 #### Backend
