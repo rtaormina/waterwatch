@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { getLocateControl, initializeMap } from "@/composables/LocationFallback";
+import { getLocateControl, initializeMap } from "../composables/LocationFallback";
 import * as L from "leaflet";
 import { onMounted, useTemplateRef } from "vue";
 
