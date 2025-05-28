@@ -1,0 +1,26 @@
+{
+        "labels": {
+            "measurement": "How to Take Water Temperature Measurements",
+            "website": "How to Use the WATERWATCH Website",
+            "app": "How to Use the WATERWATCH Mobile App",
+            "api": "How to Use the WATERWATCH API"
+        },
+        "website": {
+            "introduction": {
+                "title": "Introduction",
+                "text": "Welcome to the tutorial page for the WATERWATCH website! WATERWATCH was created for researchers and citizen scientists to report water quality measurements, analyze water temperature trends, and gather data. In this tutorial you will learn how to add your first measurement, navigate the map, and export some water data. This guide is designed for first-time users and experienced researchers looking to get the most out of the WATERWATCH website."
+            },
+            "measurement": {
+                "title": "Adding a Measurement",
+                "text": "This tutorial will be covering how to enter measurement data into the WATERWATCH website. For information on how to take a temperature measurement, see How to Take Water Temperature Measurements. Using the menu bar, select 'Map'. From the map page you can add a measurement by selecting the + button in the bottom left corner of the screen. This will bring you to a screen where you can enter location, water source, and other relevant information. Make sure to double check the values that you record before hitting submit. If you cannot hit the submit button, check that you have filled in all of the required fields with the appropriate values! If you would like to reset the form, you can select 'Clear'. Once you have completed the form, select 'Submit'. You will be prompted to confirm your measurement, at which point you can select 'Cancel' to edit your entry, or 'Submit' to save your measurement."
+            },
+            "map": {
+                "title": "Navigating the Map",
+                "text": ""
+            },
+            "export": {
+                "title": "Exporting Data",
+                "text": ""
+            }
+    }
+    }

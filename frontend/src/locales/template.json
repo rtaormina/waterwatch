@@ -1,0 +1,26 @@
+{
+    "labels": {
+        "measurement": "",
+        "website": "",
+        "app": "",
+        "api": ""
+    },
+    "website": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "measurement": {
+            "title": "",
+            "text": ""
+        },
+        "map": {
+            "title": "",
+            "text": ""
+        },
+        "export": {
+            "title": "",
+            "text": ""
+        }
+    }
+}
