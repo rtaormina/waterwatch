@@ -4,7 +4,7 @@ import logging
 
 from django.http import HttpResponseNotAllowed
 from measurement_collection.views import add_measurement_view
-from measurement_export.views import search_measurements_view
+from measurement_export.views import export_all_view, search_measurements_view
 
 logger = logging.getLogger("WATERWATCH")
 
@@ -28,7 +28,9 @@ def measurement_view(request):
         - If neither: Returns 405 Method Not Allowed.
     """
     # TODO: Implement export_all_view if needed
-    # if request.method == "GET":
+    if request.method == "GET":
+        logger.debug("measurement_view called with method: %s", request.method)
+        return export_all_view(request)
     if request.method == "POST":
         logger.debug("measurement_view called with method: %s", request.method)
         return add_measurement_view(request)
