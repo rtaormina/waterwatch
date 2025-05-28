@@ -3,7 +3,7 @@ import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
 import Modal from "./Modal.vue";
 import { ref, computed, reactive, defineProps, defineEmits, defineExpose, watch } from "vue";
-import { onSensorInput, validateInputs, createPayload } from "@/composables/MeasurementCollectionLogic";
+import { onSensorInput, validateInputs, createPayload } from "../composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
 import { setFalse, useMeasurementState } from "../composables/MeasurementState";
