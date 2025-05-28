@@ -1,16 +1,17 @@
 <template>
     <div>
-        <TextTabs :items="tutorials" v-model="page" class="mb-4 w-full text-center" />
+        <div class="flex items-center justify-between mb-4 px-4 md:px-8">
+            <!-- <div class="w-12"></div> -->
+            <div class="flex-1 text-center">
+                <TextTabs :items="tutorials" v-model="page" class="w-full text-center" />
+            </div>
+            <LanguageSwitcher class="ml-4 border border-main rounded p-2" />
+        </div>
+        <!-- <TextTabs :items="tutorials" v-model="page" class="mb-4 w-full text-center" /> -->
         <div class="mx-4 md:mx-8">
             <template v-if="page == 'Measurements'">
-                <TextSection title="Introduction">
-                    <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam, voluptatibus
-                        nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam tempore dolorem.
-                        Enim, et qui. Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                        voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                        tempore dolorem. Enim, et qui.
-                    </p>
+                <TextSection :title="t('Introduction.title')">
+                    <p>{{ t("Introduction.text") }}</p>
                 </TextSection>
                 <TextSectionSplit>
                     <template #left>
@@ -207,6 +208,9 @@ import TextSection from "../components/Text/Section.vue";
 import TextSectionSplit from "../components/Text/SectionSplit.vue";
 import TextSubSection from "../components/Text/SubSection.vue";
 import TextTabs from "../components/Text/Tabs.vue";
+import { useI18n } from "vue-i18n";
+import LanguageSwitcher from "../components/LanguageSwitcher.vue";
+const { t } = useI18n();
 
 const page = ref<string>("Measurements");
 
