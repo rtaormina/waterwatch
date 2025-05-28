@@ -261,10 +261,10 @@ defineExpose({
                         <label class="block text-sm font-medium mb-1">Continent</label>
                         <div class="relative" ref="continentWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleContinentDropdown">
-                                <span class="multiselect-placeholder" v-if="selectedContinents.length === 0">
+                                <span data-testid="continent-placeholder" class="multiselect-placeholder" v-if="selectedContinents.length === 0">
                                     {{ continentPlaceholder }}
                                 </span>
-                                <span class="multiselect-display-text" v-else>
+                                <span data-testid="continent-text" class="multiselect-display-text" v-else>
                                     {{ formatContinentSelectionText() }}
                                 </span>
                                 <span class="multiselect-arrow">
@@ -283,7 +283,7 @@ defineExpose({
                                     {{ selectedContinents.length > 0 ? "Deselect All" : "Select All" }}
                                 </div>
 
-                                <div class="multiselect-options">
+                                <div data-testid="continent-options" class="multiselect-options">
                                     <div
                                         v-for="continent in continents"
                                         :key="continent"
@@ -318,10 +318,10 @@ defineExpose({
                         <label class="block text-sm font-medium mb-1">Country</label>
                         <div class="relative" ref="countryWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleCountryDropdown">
-                                <span class="multiselect-placeholder" v-if="selectedCountries.length === 0">
+                                <span data-testid="country-placeholder" class="multiselect-placeholder" v-if="selectedCountries.length === 0">
                                     {{ countryPlaceholder }}
                                 </span>
-                                <span class="multiselect-display-text" v-else>
+                                <span data-testid="country-text" class="multiselect-display-text" v-else>
                                     {{ formatCountrySelectionText() }}
                                 </span>
                                 <span class="multiselect-arrow">
@@ -356,7 +356,7 @@ defineExpose({
                                     Please select a continent first.
                                 </div>
 
-                                <div v-else class="multiselect-options">
+                                <div v-else data-testid="country-options" class="multiselect-options">
                                     <div
                                         v-for="country in filteredCountries"
                                         :key="country"
@@ -392,10 +392,10 @@ defineExpose({
                         <label class="block text-sm font-medium mb-1">Water Source</label>
                         <div class="relative" ref="waterSourceWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleWaterSourceDropdown">
-                                <span class="multiselect-placeholder" v-if="selectedWaterSources.length === 0">
+                                <span data-testid="measurement-type-placeholder" class="multiselect-placeholder" v-if="selectedWaterSources.length === 0">
                                     {{ waterSourcePlaceholder }}
                                 </span>
-                                <span class="multiselect-display-text" v-else>
+                                <span data-testid="formated-water-sources" class="multiselect-display-text" v-else>
                                     {{ formatWaterSourceSelectionText() }}
                                 </span>
                                 <span class="multiselect-arrow">
@@ -414,7 +414,7 @@ defineExpose({
                                     {{ selectedWaterSources.length > 0 ? "Deselect All" : "Select All" }}
                                 </div>
 
-                                <div class="multiselect-options">
+                                <div data-testid="dropdown-options" class="multiselect-options">
                                     <div
                                         v-for="waterSource in waterSources"
                                         :key="waterSource"
