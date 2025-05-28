@@ -125,11 +125,8 @@ export function useLogin() {
             }
         } catch (err: unknown) {
             console.error(err);
-            if (err instanceof Error && err.message === "Failed to fetch") {
-                showErrorMessage("Network error. Please try again later.");
-            } else {
-                showErrorMessage("Invalid username or password.");
-            }
+
+            showErrorMessage("Invalid username or password.");
         }
     };
 

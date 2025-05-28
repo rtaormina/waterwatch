@@ -236,11 +236,6 @@ function reset() {
     resetSearch();
 }
 
-// Expose methods and properties to the parent component
-defineExpose({
-    getSearchParams,
-    temperature,
-});
 defineExpose({
     /** Calculate dropdown height based on panel size. */ calculateDropdownHeight,
     /** Close dropdowns on outside click. */ handleClickOutside,
