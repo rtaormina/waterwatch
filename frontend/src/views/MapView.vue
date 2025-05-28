@@ -10,7 +10,7 @@
                 <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
                 <DataAnalyticsComponent v-if="viewAnalytics" :data="selectedHexData" @close="handleClose" />
             </div>
-            <HexMap :data="sampleData()" @hex-click="handleHexClick" />
+            <HexMap :data="hexData" @hex-click="handleHexClick" />
             <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4 z-20">
                 <button
                     class="bg-main rounded-md p-1 text-white"
@@ -22,13 +22,20 @@
                 >
                     <PlusCircleIcon class="w-10 h-10" />
                 </button>
+                <button
+                    class="bg-main rounded-md p-1 text-white"
+                    @click="showGlobalAnalytics"
+                    v-if="!viewAnalytics && !addMeasurement"
+                >
+                    <ChartBarIcon class="w-10 h-10" />
+                </button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { PlusCircleIcon } from "@heroicons/vue/24/outline";
+import { PlusCircleIcon, ChartBarIcon } from "@heroicons/vue/24/outline";
 import HexMap from "@/components/HexMap.vue";
 import { ref, onMounted } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
@@ -36,7 +43,6 @@ import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
 
-const selectedHexData = ref<unknown[] | null>(null);
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const campaigns = ref([]);
@@ -44,6 +50,15 @@ type Location = {
     latitude: number;
     longitude: number;
 };
+
+/**
+ * Shows the global analytics in the sidebar component.
+ */
+function showGlobalAnalytics() {
+    selectedHexData.value = data;
+    viewAnalytics.value = true;
+    addMeasurement.value = false;
+}
 
 /**
  * Handles the click event on a hexagon in the map.
@@ -77,6 +92,10 @@ const sampleData = () => {
     }
     return array;
 };
+
+const data = sampleData();
+const hexData = ref<unknown[]>(data);
+const selectedHexData = ref<unknown[]>(sampleData());
 
 /**
  * Fetches active campaigns based on the user's location

@@ -18,7 +18,7 @@ const graph = ref<HTMLElement | null>(null);
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getNumericValues(data: any[]): number[] {
-    return data.map((item) => item.point[0]);
+    return data.map((item) => item.temperature);
 }
 
 /**

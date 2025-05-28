@@ -57,6 +57,9 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
     const width = el.clientWidth - margin.left - margin.right;
     const height = el.clientHeight - margin.top - margin.bottom;
 
+    const barColor = "#1f449c";
+    const lineColor = "#f05039";
+
     d3.select(el).selectAll("*").remove();
 
     const svg = createSVGContainer(el, width, height, margin);
@@ -90,7 +93,7 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
         .attr("y", (d) => y(d.length))
         .attr("width", (d) => x(d.x1) - x(d.x0) - 1)
         .attr("height", (d) => height - y(d.length))
-        .attr("fill", "#69b3a2");
+        .attr("fill", barColor);
 
     // Create KDE line
     const kde = kernelDensityEstimator(kernelEpanechnikov(7), x.ticks(100));
@@ -111,8 +114,8 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
     svg.append("path")
         .datum(density)
         .attr("fill", "none")
-        .attr("stroke", "#ff6600")
-        .attr("stroke-width", 2)
+        .attr("stroke", lineColor)
+        .attr("stroke-width", 5)
         .attr("d", line);
 
     // Add axes to svg and format them
@@ -127,14 +130,13 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
     svg.append("g").call(
         d3
             .axisLeft(y)
-            .ticks(y.domain()[1])
+            .ticks(6)
             .tickFormat((d) => (Number.isInteger(d) ? d : "")),
     );
     svg.append("text")
-        .attr("text-anchor", "middle")
-        .attr("transform", `rotate(-90)`)
-        .attr("x", -height / 2)
-        .attr("y", -margin.left + 17)
+        .attr("text-anchor", "top")
+        .attr("x", -margin.left)
+        .attr("y", margin.top - 50)
         .attr("fill", "#333")
         .text("Frequency");
 
