@@ -124,8 +124,13 @@ hexbinLayer.colorValue((d) => {
 });
 
 // Set up events
+const emit = defineEmits<{
+    (e: "hex-click", d: unknown[]): void;
+}>();
+
 hexbinLayer.dispatch().on("click", function (event: MouseEvent, d: unknown[], i: unknown) {
-    console.log({ type: "click", event: event, d: d, index: i });
+    emit("hex-click", d);
+    console.log("Hex clicked:", d, i);
 });
 
 onMounted(() => {

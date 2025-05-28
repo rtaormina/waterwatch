@@ -3,15 +3,22 @@
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
 
         <div class="w-full h-full flex flex-row">
-            <div class="left-0 bottom-0 w-3/5 relative" v-if="useMeasurementState().addingMeasurement.value">
-                <MeasurementComponent />
+            <div
+                class="left-0 top-[64px] md:top-0 bottom-0 w-screen md:w-3/5 h-screen fixed md:relative z-10 bg-white"
+                v-if="viewAnalytics || addMeasurement"
+            >
+                <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
+                <DataAnalyticsComponent v-if="viewAnalytics" :data="selectedHexData" @close="handleClose" />
             </div>
-            <HexMap :data="sampleData()" />
-            <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4">
+            <HexMap :data="sampleData()" @hex-click="handleHexClick" />
+            <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4 z-20">
                 <button
                     class="bg-main rounded-md p-1 text-white"
-                    @click="setTrue()"
-                    v-if="!useMeasurementState().addingMeasurement.value"
+                    @click="
+                        addMeasurement = true;
+                        viewAnalytics = false;
+                    "
+                    v-if="!addMeasurement"
                 >
                     <PlusCircleIcon class="w-10 h-10" />
                 </button>
@@ -26,8 +33,36 @@ import HexMap from "@/components/HexMap.vue";
 import { ref, onMounted } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
-import { setTrue, useMeasurementState } from "@/composables/MeasurementState";
 import * as L from "leaflet";
+import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
+
+const selectedHexData = ref<unknown[] | null>(null);
+const viewAnalytics = ref(false);
+const addMeasurement = ref(false);
+const campaigns = ref([]);
+type Location = {
+    latitude: number;
+    longitude: number;
+};
+
+/**
+ * Handles the click event on a hexagon in the map.
+ *
+ * @param data the data of the hexagon clicked
+ */
+function handleHexClick(data: unknown[]) {
+    selectedHexData.value = data;
+    viewAnalytics.value = true;
+    addMeasurement.value = false;
+}
+
+/**
+ * Handles the close event for the sidebar components.
+ */
+function handleClose() {
+    viewAnalytics.value = false;
+    addMeasurement.value = false;
+}
 
 /**
  * Creates sample data for the map
@@ -41,12 +76,6 @@ const sampleData = () => {
         });
     }
     return array;
-};
-
-const campaigns = ref([]);
-type Location = {
-    latitude: number;
-    longitude: number;
 };
 
 /**
