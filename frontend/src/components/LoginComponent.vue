@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from "vue";
-import { useLogin } from "@/composables/LoginLogic.ts";
+import { useLogin } from "../composables/LoginLogic.ts";
 
 const { formData, errorMessage, showError, handleSubmit } = useLogin();
 
