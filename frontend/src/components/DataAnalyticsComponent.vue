@@ -47,6 +47,9 @@ watch(() => props.data, render);
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>
-        <div ref="graph" class="w-full h-64"></div>
+        <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
+            <h3 class="text-lg font-semibold mb-4">Frequency analysis</h3>
+            <div ref="graph" class="w-full h-64"></div>
+        </div>
     </div>
 </template>

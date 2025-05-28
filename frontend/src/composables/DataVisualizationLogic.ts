@@ -53,7 +53,7 @@ function createSVGContainer(
  * @param {number[]} data The data to visualize in the histogram.
  */
 export function drawHistogram(el: HTMLElement, data: number[]) {
-    const margin = { top: 30, right: 30, bottom: 30, left: 30 };
+    const margin = { top: 40, right: 40, bottom: 40, left: 40 };
     const width = el.clientWidth - margin.left - margin.right;
     const height = el.clientHeight - margin.top - margin.bottom;
 
@@ -62,9 +62,8 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
     const svg = createSVGContainer(el, width, height, margin);
 
     let xDomain = d3.extent(data);
-    if (xDomain[0] === xDomain[1]) {
-        xDomain = [xDomain[0] - 0.5, xDomain[1] + 0.5];
-    }
+    xDomain = [xDomain[0] - 1, xDomain[1] + 1];
+
     const x = d3.scaleLinear().domain(xDomain).nice().range([0, width]);
 
     let thresholds = x.ticks(20);
@@ -118,10 +117,46 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
 
     // Add axes to svg and format them
     svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+    svg.append("text")
+        .attr("text-anchor", "middle")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 5)
+        .attr("fill", "#333")
+        .text("Measurement Value");
+
     svg.append("g").call(
         d3
             .axisLeft(y)
             .ticks(y.domain()[1])
             .tickFormat((d) => (Number.isInteger(d) ? d : "")),
     );
+    svg.append("text")
+        .attr("text-anchor", "middle")
+        .attr("transform", `rotate(-90)`)
+        .attr("x", -height / 2)
+        .attr("y", -margin.left + 17)
+        .attr("fill", "#333")
+        .text("Frequency");
+
+    // After creating the SVG container
+    const outerSvg = d3.select(el).select("svg");
+
+    // Add legend at the top right of the plot area
+    outerSvg
+        .append("rect")
+        .attr("x", width + margin.left - 28)
+        .attr("y", margin.top - 16)
+        .attr("width", 18)
+        .attr("height", 6)
+        .attr("fill", "#ff6600");
+
+    outerSvg
+        .append("text")
+        .attr("x", width + margin.left - 33)
+        .attr("y", margin.top - 10)
+        .attr("alignment-baseline", "middle")
+        .attr("text-anchor", "end")
+        .attr("fill", "#333")
+        .style("font-size", "12px")
+        .text("KDE (density)");
 }
