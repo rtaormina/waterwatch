@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { computed } from "vue";
-import NavBar from "@/components/NavBar.vue";
 import SearchBar from "@/components/SearchBarComponent.vue";
 import FilterPanel from "@/components/FilterPanelComponent.vue";
 import SearchResults from "@/components/SearchResultsComponent.vue";
@@ -93,7 +92,6 @@ watch(
 
 <template>
     <div class="h-screen bg-white flex flex-col">
-        <NavBar />
         <div
             class="w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow md:overflow-y-auto relative z-10"
         >

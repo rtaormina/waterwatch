@@ -1,7 +1,6 @@
 """Tests for measurement collection Endpoints."""
 
-from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
+from datetime import date, time, timedelta
 
 from django.test import TestCase
 from measurements.models import Measurement, Temperature
@@ -14,7 +13,8 @@ class CollectMeasurementTests(TestCase):
     def setUpTestData(cls):
         """Set up test data for the test cases."""
         cls.payload_noflag = {
-            "timestamp_local": "2025-01-01T07:00:00.000-05:00",
+            "local_date": "2025-05-25",
+            "local_time": "14:30:00",
             "location": {
                 "type": "Point",
                 "coordinates": [100, 110],
@@ -28,7 +28,8 @@ class CollectMeasurementTests(TestCase):
         }
 
         cls.payload_flag = {
-            "timestamp_local": "2025-01-01T07:00:00.000-05:00",
+            "local_date": "2025-05-25",
+            "local_time": "14:30:00",
             "location": {
                 "type": "Point",
                 "coordinates": [100, 110],
@@ -42,7 +43,8 @@ class CollectMeasurementTests(TestCase):
         }
 
         cls.payload_temp_invalid = {
-            "timestamp_local": "2025-01-01T07:00:00.000-05:00",
+            "local_date": "2025-05-25",
+            "local_time": "14:30:00",
             "location": {
                 "type": "Point",
                 "coordinates": [100, 110],
@@ -55,7 +57,8 @@ class CollectMeasurementTests(TestCase):
         }
 
         cls.payload_meas_invalid = {
-            "timestamp_local": "2025-0-01T07:00:00.000-05:00",
+            "local_date": "2025-05-44",
+            "local_time": "14:03:00",
             "location": {
                 "type": "Point",
                 "coordinates": [100, 110],
@@ -82,7 +85,8 @@ class CollectMeasurementTests(TestCase):
         assert retrieved_meas.location.x == 100
         assert retrieved_meas.location.y == 110
         assert not retrieved_meas.flag
-        assert retrieved_meas.timestamp_local == datetime(2025, 1, 1, 12, 0, tzinfo=ZoneInfo("UTC"))
+        assert retrieved_meas.local_date == date(2025, 5, 25)
+        assert retrieved_meas.local_time == time(14, 30)
         assert retrieved_meas.water_source == "well"
 
     def test_save_measurement_no_flag(self):
@@ -100,7 +104,8 @@ class CollectMeasurementTests(TestCase):
         assert retrieved_meas.location.x == 100
         assert retrieved_meas.location.y == 110
         assert retrieved_meas.flag
-        assert retrieved_meas.timestamp_local == datetime(2025, 1, 1, 12, 0, tzinfo=ZoneInfo("UTC"))
+        assert retrieved_meas.local_date == date(2025, 5, 25)
+        assert retrieved_meas.local_time == time(14, 30)
         assert retrieved_meas.water_source == "well"
 
     def test_save_temperature(self):

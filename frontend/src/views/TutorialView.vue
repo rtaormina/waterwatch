@@ -1,6 +1,5 @@
 <template>
     <div>
-        <Navbar />
         <TextTabs :items="tutorials" v-model="page" class="mb-4 w-full text-center" />
         <div class="mx-4 md:mx-8">
             <template v-if="page == 'Measurements'">
@@ -204,7 +203,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import Navbar from "../components/NavBar.vue";
 import TextSection from "../components/Text/Section.vue";
 import TextSectionSplit from "../components/Text/SectionSplit.vue";
 import TextSubSection from "../components/Text/SubSection.vue";
