@@ -142,7 +142,7 @@ onMounted(async () => {
             >
                 Download
             </button>
-            <Modal :visible="props.showModal" @close="emit('close-modal')">
+            <Modal data-testid="export-failed-modal" :visible="props.showModal" @close="emit('close-modal')">
                 <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
                 <div class="flex items-center mt-4 gap-2">
                     <button

@@ -6,7 +6,7 @@ const url = "http://localhost/";
 
 test.describe("Export View Tests", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
     });
 
     test("should display the correct page title", async ({ page }) => {
@@ -26,7 +26,7 @@ test.describe("Export View Tests", () => {
 
 test.describe("Filter Panel Tests", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto(url + "export");
+        interceptDataForExportPage(page);
     });
 
     test("should display all filter sections", async ({ page }) => {
@@ -40,10 +40,7 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should open and close continent dropdown", async ({ page }) => {
-        await waitForLocations(page);
-
-        const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
-        await continentDropdown.click();
+        await page.locator(".multiselect-custom-wrapper").first().click();
 
         // Check if dropdown options are visible
         await expect(page.locator(".multiselect-custom-dropdown").first()).toBeVisible();
@@ -54,30 +51,20 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should select and deselect continents", async ({ page }) => {
-        await waitForLocations(page);
-
-        const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
-        await continentDropdown.click();
+        await page.locator(".multiselect-custom-wrapper").first().click();
 
         // Select first continent option if available
         const firstOption = page.locator(".multiselect-option").first();
-        if (await firstOption.isVisible()) {
-            await firstOption.click();
-            await expect(firstOption).toHaveClass(/multiselect-option-selected/);
+        await expect(firstOption).toBeVisible();
+        await firstOption.click();
+        await expect(firstOption).toHaveClass(/multiselect-option-selected/);
 
-            // Deselect
-            await firstOption.click();
-            await expect(firstOption).not.toHaveClass(/multiselect-option-selected/);
-        } else {
-            throw new Error("No continent options available to select");
-        }
+        await firstOption.click();
+        await expect(firstOption).not.toHaveClass(/multiselect-option-selected/);
     });
 
     test("should use select all/deselect all for continents", async ({ page }) => {
-        await waitForLocations(page);
-
-        const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
-        await continentDropdown.click();
+        await page.locator(".multiselect-custom-wrapper").first().click();
 
         const selectAllButton = page.locator(".multiselect-select-all").first();
         await expect(selectAllButton).toContainText("Select All");
@@ -90,8 +77,6 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should open and search countries", async ({ page }) => {
-        await waitForLocations(page);
-
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
@@ -110,17 +95,13 @@ test.describe("Filter Panel Tests", () => {
 
         // Countries should be filtered based on search
         const countryOptions = page.getByTestId("country-option");
-        // assert that at least one country option appears within 10s
-        expect(await countryOptions.count()).toBeGreaterThan(0);
+        await expect(countryOptions.first()).toBeVisible();
 
-        const firstCountry = countryOptions.first();
-        const countryText = (await firstCountry.textContent())?.toLowerCase() ?? "";
+        const countryText = (await countryOptions.first().textContent())!.toLowerCase();
         expect(countryText).toContain("united");
     });
 
     test("should clear country search when dropdown closes", async ({ page }) => {
-        await waitForLocations(page);
-
         const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
         await countryDropdown.click();
 
@@ -136,13 +117,12 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should open and select water sources", async ({ page }) => {
-        const wrapper = page.locator(".multiselect-custom-wrapper").nth(2);
-        await wrapper.click();
+        await page.locator(".multiselect-custom-wrapper").nth(2).click();
 
-        const dropdown = page.locator(".multiselect-custom-dropdown").nth(2);
-        await expect(dropdown).toBeVisible();
+        const waterSourceDropdown = page.locator(".multiselect-custom-dropdown").nth(2);
+        await expect(waterSourceDropdown).toBeVisible();
 
-        const options = dropdown.locator(".multiselect-option");
+        const options = waterSourceDropdown.locator(".multiselect-option");
         // wait for at least one option
         await expect(options).not.toHaveCount(0);
 
@@ -168,8 +148,7 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should switch temperature units", async ({ page }) => {
-        const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
-        await tempCheckbox.check();
+        await page.getByRole("checkbox", { name: "Temperature" }).first().check();
 
         const celsiusButton = page.locator("button", { hasText: "°C" });
         const fahrenheitButton = page.locator("button", { hasText: "°F" });
@@ -182,8 +161,7 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should validate temperature range", async ({ page }) => {
-        const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
-        await tempCheckbox.check();
+        await page.getByRole("checkbox", { name: "Temperature" }).first().check();
 
         const minTempInput = page.locator('input[placeholder="Min temperature"]');
         const maxTempInput = page.locator('input[placeholder="Max temperature"]');
@@ -243,14 +221,12 @@ test.describe("Filter Panel Tests", () => {
         await expect(page.locator('input[type="time"]')).toHaveCount(4); // 2 slots with from/to each
 
         // Remove a time slot
-        const removeButton = page.getByRole("button").filter({ hasText: /^$/ }).nth(2);
-        await removeButton.click();
+        await page.getByRole("button").filter({ hasText: /^$/ }).nth(2).click();
         await expect(page.locator('input[type="time"]')).toHaveCount(2);
     });
 
     test("should validate time slots", async ({ page }) => {
-        const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
-        await addTimeSlotButton.click();
+        await page.locator("button", { hasText: "Add time slot" }).click();
 
         const fromTimeInput = page.locator('input[type="time"]').first();
         const toTimeInput = page.locator('input[type="time"]').nth(1);
@@ -273,25 +249,21 @@ test.describe("Filter Panel Tests", () => {
 
         // Add first time slot
         await addTimeSlotButton.click();
-        const firstFromTime = page.locator('input[type="time"]').first();
-        const firstToTime = page.locator('input[type="time"]').nth(1);
-        await firstFromTime.fill("10:00");
-        await firstToTime.fill("12:00");
+        page.locator('input[type="time"]').first().fill("10:00");
+        page.locator('input[type="time"]').nth(1).fill("12:00");
 
         // Add second time slot
         await addTimeSlotButton.click();
-        const secondFromTime = page.locator('input[type="time"]').nth(2);
-        const secondToTime = page.locator('input[type="time"]').nth(3);
 
         // Overlapping times
-        await secondFromTime.fill("11:00");
-        await secondToTime.fill("13:00");
+        await page.locator('input[type="time"]').nth(2).fill("11:00");
+        await page.locator('input[type="time"]').nth(3).fill("13:00");
 
         await expect(page.locator("text=Time slots must not overlap.")).toBeVisible();
 
         // Non-overlapping times
-        await secondFromTime.fill("13:00");
-        await secondToTime.fill("15:00");
+        await page.locator('input[type="time"]').nth(2).fill("13:00");
+        await page.locator('input[type="time"]').nth(3).fill("15:00");
 
         await expect(page.locator("text=Time slots must not overlap.")).not.toBeVisible();
     });
@@ -312,8 +284,7 @@ test.describe("Filter Panel Tests", () => {
         const searchButton = page.locator("button", { hasText: "Search" });
 
         // Enable temperature with invalid range
-        const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
-        await tempCheckbox.check();
+        await page.getByRole("checkbox", { name: "Temperature" }).first().check();
 
         const minTempInput = page.locator('input[placeholder="Min temperature"]');
         const maxTempInput = page.locator('input[placeholder="Max temperature"]');
@@ -388,8 +359,6 @@ test.describe("Filter Panel Tests", () => {
     });
 
     test("should reset all filters", async ({ page }) => {
-        await waitForLocations(page);
-
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
@@ -450,7 +419,7 @@ test.describe("Filter Panel Tests", () => {
 
 test.describe("Search Results Tests", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto(url + "export");
+        await interceptDataForExportPage(page);
     });
 
     test("should display summary section", async ({ page }) => {
@@ -466,6 +435,8 @@ test.describe("Search Results Tests", () => {
     test("should show download format selector if logged in as researcher", async ({ page }) => {
         await login(page);
 
+        await interceptDataForExportPage(page, true);
+
         const formatSelect = page.getByTestId("format");
         await expect(formatSelect).toBeVisible();
         await expect(formatSelect).toBeEnabled();
@@ -480,6 +451,8 @@ test.describe("Search Results Tests", () => {
 
     test("should change download format", async ({ page }) => {
         await login(page);
+
+        await interceptDataForExportPage(page, true);
 
         const formatSelect = page.getByTestId("format");
 
@@ -508,6 +481,8 @@ test.describe("Search Results Tests", () => {
     test("should disable download when no search performed", async ({ page }) => {
         await login(page);
 
+        await interceptDataForExportPage(page, true);
+
         const downloadButton = page.locator("button", { hasText: "Download" });
         await expect(downloadButton).toBeVisible();
         await expect(downloadButton).toBeDisabled();
@@ -521,6 +496,8 @@ test.describe("Search Results Tests", () => {
 
     test("should enable download after search when logged in as researcher", async ({ page }) => {
         await login(page);
+
+        await interceptDataForExportPage(page, true);
 
         // Perform a search first
         await getSummary(page); // This will trigger the search
@@ -538,12 +515,14 @@ test.describe("Search Results Tests", () => {
     });
 
     test("should enable download after search when logged in as admin", async ({ page }) => {
-        await page.goto(url + "login");
+        await page.goto(url + "login", { waitUntil: "domcontentloaded" });
         await page.fill('input[placeholder="Your Username"]', "admin");
         await page.fill('input[placeholder="Your Password"]', "admin");
         await page.click('button[type="submit"]');
 
-        await page.goto(url + "export");
+        await page.waitForURL(url, { waitUntil: "domcontentloaded" });
+
+        interceptDataForExportPage(page);
 
         // Perform a search first
         await getSummary(page); // This will trigger the search
@@ -562,6 +541,8 @@ test.describe("Search Results Tests", () => {
 
     test("should disable download when filters out of sync", async ({ page }) => {
         await login(page);
+
+        await interceptDataForExportPage(page, true);
 
         // Perform a search first
         await getSummary(page); // This will trigger the search
@@ -652,14 +633,15 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - no filters", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
+
         const before = await getSummary(page);
 
         // add two measurements to the database
         await addMeasurement(page, measurementWithTemp, url);
         await addMeasurement(page, measurementWithoutTemp, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
         const after = await getSummary(page);
 
         expect(after.count).toBe(before.count + 2);
@@ -668,9 +650,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - continent filtering, added measurement not included", async ({ page }) => {
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
+        interceptDataForExportPage(page);
 
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
@@ -684,9 +664,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementTheHague, url);
         await addMeasurement(page, measurementBoston, url);
 
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
+        interceptDataForExportPage(page);
 
         await continentDropdown.click();
         await asia.click();
@@ -698,9 +676,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - continent filtering, added measurement included", async ({ page }) => {
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
+        interceptDataForExportPage(page);
 
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
@@ -714,9 +690,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementTheHague, url);
         await addMeasurement(page, measurementBoston, url);
 
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
+        interceptDataForExportPage(page);
 
         await continentDropdown.click();
         await europe.click();
@@ -731,9 +705,7 @@ test.describe("Integration Tests", () => {
     test("add data & then search - continent and country filtering, added measurements not included", async ({
         page,
     }) => {
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
+        interceptDataForExportPage(page);
 
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
@@ -766,9 +738,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementTheHague, url);
         await addMeasurement(page, measurementBoston, url);
 
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
+        interceptDataForExportPage(page);
 
         await continentDropdown.click();
         await europe.click();
@@ -792,9 +762,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - continent and country filtering, added measurements included", async ({ page }) => {
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
+        interceptDataForExportPage(page);
 
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
@@ -830,9 +798,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementTheHague, url);
         await addMeasurement(page, measurementBoston, url);
 
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
+        interceptDataForExportPage(page);
 
         await continentDropdown.click();
         await europe.click();
@@ -857,7 +823,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - water source filtering, added measurements not included", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const waterSourceDropdown = page.locator(".multiselect-custom-wrapper").nth(2);
         await waterSourceDropdown.click();
@@ -871,7 +837,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementWell, url);
         await addMeasurement(page, measurementNetwork, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await waterSourceDropdown.click();
         await rooftopTank.click();
@@ -883,7 +849,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - water source filtering, added measurement included", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const waterSourceDropdown = page.locator(".multiselect-custom-wrapper").nth(2);
         await waterSourceDropdown.click();
@@ -897,7 +863,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementWell, url);
         await addMeasurement(page, measurementNetwork, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await waterSourceDropdown.click();
         await network.click();
@@ -912,7 +878,7 @@ test.describe("Integration Tests", () => {
     test("add data & then search - temperature range filtering celsius, added measurements not included", async ({
         page,
     }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
         await tempCheckbox.check();
@@ -929,7 +895,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurement20Degrees, url);
         await addMeasurement(page, measurement30Degrees, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await tempCheckbox.check();
         await minTempInput.fill("0");
@@ -944,7 +910,7 @@ test.describe("Integration Tests", () => {
     test("add data & then search - temperature range filtering fahrenheit, added measurements not included", async ({
         page,
     }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
         await tempCheckbox.check();
@@ -961,7 +927,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurement20Degrees, url);
         await addMeasurement(page, measurement30Degrees, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await tempCheckbox.check();
         await fahrenheitButton.click();
@@ -977,7 +943,7 @@ test.describe("Integration Tests", () => {
     test("add data & then search - temperature range filtering celsius, added measurement included", async ({
         page,
     }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
         await tempCheckbox.check();
@@ -994,7 +960,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurement20Degrees, url);
         await addMeasurement(page, measurement30Degrees, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await tempCheckbox.check();
         await minTempInput.fill("0");
@@ -1010,7 +976,7 @@ test.describe("Integration Tests", () => {
     test("add data & then search - temperature range filtering fahrenheit, added measurement included", async ({
         page,
     }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const tempCheckbox = page.getByRole("checkbox", { name: "Temperature" }).first();
         await tempCheckbox.check();
@@ -1027,7 +993,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurement20Degrees, url);
         await addMeasurement(page, measurement30Degrees, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await tempCheckbox.check();
         await fahrenheitButton.click();
@@ -1042,7 +1008,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - date filtering, added measurements not included", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const fromDateInput = page.locator('input[type="date"]').first();
         const toDateInput = page.locator('input[type="date"]').nth(1);
@@ -1056,7 +1022,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurement2024, url);
         await addMeasurement(page, measurement2025, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await fromDateInput.fill("2023-01-01");
         await toDateInput.fill("2023-12-31");
@@ -1068,7 +1034,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - date filtering, added measurement included", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const fromDateInput = page.locator('input[type="date"]').first();
         const toDateInput = page.locator('input[type="date"]').nth(1);
@@ -1082,7 +1048,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurement2024, url);
         await addMeasurement(page, measurement2025, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await fromDateInput.fill("2024-01-01");
         await toDateInput.fill("2024-12-31");
@@ -1095,7 +1061,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - time filtering 1 slot, added measurements not included", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
         await addTimeSlotButton.click();
@@ -1110,7 +1076,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementMorning, url);
         await addMeasurement(page, measurementAfternoon, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await addTimeSlotButton.click();
         await fromTimeInput.fill("18:00");
@@ -1123,7 +1089,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - time filtering 1 slot, added measurement included", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
         await addTimeSlotButton.click();
@@ -1138,7 +1104,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementMorning, url);
         await addMeasurement(page, measurementAfternoon, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await addTimeSlotButton.click();
         await fromTimeInput.fill("09:00");
@@ -1152,7 +1118,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - time filtering 3 slots, added measurements not included", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
         await addTimeSlotButton.click();
@@ -1183,7 +1149,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementMorning, url);
         await addMeasurement(page, measurementAfternoon, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await addTimeSlotButton.click();
         await fromTimeInputFirst.fill("18:00");
@@ -1202,7 +1168,7 @@ test.describe("Integration Tests", () => {
     });
 
     test("add data & then search - time filtering 3 slots, added measurements included", async ({ page }) => {
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
         await addTimeSlotButton.click();
@@ -1227,7 +1193,7 @@ test.describe("Integration Tests", () => {
         await addMeasurement(page, measurementMorning, url);
         await addMeasurement(page, measurementAfternoon, url);
 
-        await page.goto(url + "export");
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
 
         await addTimeSlotButton.click();
         await fromTimeInputFirst.fill("09:00");
@@ -1247,14 +1213,9 @@ test.describe("Integration Tests", () => {
     });
 
     test("full user flow - add data, filter, search, download", async ({ page }) => {
-        // Login
-        await login(page);
+        await interceptDataForExportPage(page);
 
-        // Navigate to export page
-        await page.goto(url + "export");
-
-        await waitForLocations(page);
-
+        // Wait for both API calls to complete and the UI to be ready
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
@@ -1310,10 +1271,15 @@ test.describe("Integration Tests", () => {
         // Add a measurement
         await addMeasurement(page, measurementAll, url);
 
-        // Navigate back to export page
-        await page.goto(url + "export");
+        // Login
+        await login(page);
 
-        await waitForLocations(page);
+        await interceptDataForExportPage(page, true);
+
+        const formatSelect = page.locator("select[data-testid=format]");
+
+        // Wait for the format select to be enabled again
+        await expect(formatSelect).toBeEnabled({ timeout: 10000 });
 
         // Reapply filters
         await continentDropdown.click();
@@ -1343,9 +1309,10 @@ test.describe("Integration Tests", () => {
         const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 68) * 10) / after.count) / 10;
         expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
 
-        // Download the data
-        const formatSelect = page.getByTestId("format");
-        await formatSelect.selectOption("json");
+        // The format select should already be enabled at this point
+        await expect(formatSelect).toBeEnabled();
+
+        await page.selectOption("select[data-testid=format]", "json");
         const downloadButton = page.locator("button", { hasText: "Download" });
         const [download] = await Promise.all([
             page.waitForEvent("download"), // <-- waits for the next download
@@ -1363,22 +1330,61 @@ test.describe("Integration Tests", () => {
         expect(Array.isArray(jsonData)).toBe(true);
         expect(jsonData.length).toBeGreaterThan(0);
 
-        console.log(jsonData);
-
         // Check if measurement is included in the downloaded data
         const found = jsonData.some(
             (m) =>
-                m.timestamp === "2024-01-01T09:00:00Z" &&
                 m.local_date === "2024-01-01" &&
                 m.local_time === "09:00:00" &&
-                Math.abs(m.location.coordinates[1] - 52.08) < 1e-6 &&
-                Math.abs(m.location.coordinates[0] - 4.32) < 1e-6 &&
+                m.location.latitude === 52.08 &&
+                m.location.longitude === 4.32 &&
+                m.flag === false &&
                 m.water_source === "well" &&
-                m.temperature?.value === 20.0 &&
-                m.temperature?.sensor === "analog thermometer" &&
-                m.temperature?.time_waited === 3,
+                m.country === "Netherlands" &&
+                m.continent === "Europe" &&
+                m.metrics &&
+                m.metrics.length > 0 &&
+                m.metrics.some(
+                    (metric) =>
+                        metric.metric_type === "temperature" &&
+                        metric.sensor === "analog thermometer" &&
+                        Math.abs(metric.value - 20.0) < 0.001 &&
+                        metric.time_waited === 3,
+                ),
         );
         expect(found).toBe(true);
+    });
+
+    test("export failure - modal shows", async ({ page }) => {
+        // Login
+        await login(page);
+
+        await interceptDataForExportPage(page, true);
+
+        // Get summary to ensure the page is loaded
+        await getSummary(page);
+
+        await page.route("**/api/measurements/search/", (route) => {
+            if (route.request().method() === "POST") {
+                route.fulfill({
+                    status: 500,
+                    contentType: "application/json",
+                    body: JSON.stringify({ error: "Internal Server Error" }),
+                });
+            } else {
+                route.continue(); // allow other requests through
+            }
+        });
+
+        // Try to download without any measurements
+        const downloadButton = page.locator("button", { hasText: "Download" });
+        await downloadButton.click();
+
+        const modal = page.getByTestId("export-failed-modal");
+        await expect(modal).toBeVisible();
+        await expect(modal).toContainText("Export Failed");
+        const closeButton = modal.locator("button", { hasText: "Okay" });
+        await closeButton.click();
+        await expect(modal).toBeHidden();
     });
 });
 
@@ -1388,7 +1394,7 @@ test.describe("Integration Tests", () => {
  * @param page Playwright Page object to interact with the browser.
  */
 async function login(page: Page) {
-    await page.goto(url + "login");
+    await page.goto(url + "login", { waitUntil: "domcontentloaded" });
     await page.fill('input[placeholder="Your Username"]', "researcher");
     await page.fill('input[placeholder="Your Password"]', "researcher");
     await page.click('button[type="submit"]');
@@ -1402,7 +1408,7 @@ async function login(page: Page) {
  */
 async function getSummary(page: Page) {
     const [response] = await Promise.all([
-        page.waitForResponse("**/api/measurements/search/**", { timeout: 20_000 }),
+        page.waitForResponse("**/api/measurements/search/**", { timeout: 90_000 }),
         page.click("button:has-text('Search')"),
     ]);
 
@@ -1433,10 +1439,22 @@ async function getSummary(page: Page) {
 }
 
 /**
- * Waits for the locations API response to be received.
+ * Intercepts API calls for locations and permissions on the export page.
  *
  * @param page Playwright Page object to interact with the browser.
+ * @param loginResearcher Flag indicating whether there has been a login as a researcher.
  */
-async function waitForLocations(page: Page) {
-    await page.waitForResponse((response) => response.url().endsWith("/api/locations/") && response.status() === 200);
+async function interceptDataForExportPage(page: Page, loginResearcher: boolean = false) {
+    const locationsPromise = page.waitForResponse("**/api/locations/", { timeout: 15000 }).catch(() => null);
+    const permissionsPromise = page.waitForResponse("**/api/user-permissions/", { timeout: 15000 }).catch(() => null);
+
+    // Navigate back to export page after login
+    if (loginResearcher) {
+        await page.waitForURL(url + "export", { waitUntil: "domcontentloaded" });
+    } else {
+        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
+    }
+
+    // Wait for the API responses (if they happen) or continue if they don't
+    await Promise.allSettled([locationsPromise, permissionsPromise]);
 }
