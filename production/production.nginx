@@ -59,8 +59,8 @@ http {
     server_tokens off;
 
     # SSL configuration
-    ssl_certificate /etc/nginx/ssl/live/waterwatch.tudelft.nl/fullchain.pem; # Path to your SSL certificate
-    ssl_certificate_key /etc/nginx/ssl/live/waterwatch.tudelft.nl/privkey.pem; # Path to your SSL certificate key
+    ssl_certificate /etc/letsencrypt/live/waterwatch.tudelft.nl/fullchain.pem; # Path to your SSL certificate
+    ssl_certificate_key /etc/letsencrypt/live/waterwatch.tudelft.nl/privkey.pem; # Path to your SSL certificate key
 
     # Path to the root of your static files
     root /usr/share/nginx/html/;
