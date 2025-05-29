@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { computed } from "vue";
-import SearchBar from "@/components/SearchBarComponent.vue";
-import FilterPanel from "@/components/FilterPanelComponent.vue";
-import SearchResults from "@/components/SearchResultsComponent.vue";
-import { useSearch } from "@/composables/useSearch";
-import { useExportData } from "@/composables/useExportData";
+import SearchBar from "../components/SearchBarComponent.vue";
+import FilterPanel from "../components/FilterPanelComponent.vue";
+import SearchResults from "../components/SearchResultsComponent.vue";
+import { useSearch } from "../composables/useSearch";
+import { useExportData } from "../composables/useExportData";
 
 const query = ref("");
 // Reference to the FilterPanel component
