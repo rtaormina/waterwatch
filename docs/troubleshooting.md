@@ -34,3 +34,13 @@ This section contains information on some common issues and how to solve them. I
     dos2unix setup.sh
     ./setup.sh
     ```
+- If bash cannot find test-setup.sh (bad interpreter, no such file or directory), run the following:
+    ```bash
+    dos2unix test-setup.sh
+    ./test-setup.sh
+    ```
+- If bash cannot find test-reset-db.sh (bad interpreter, no such file or directory), run the following:
+    ```bash
+    dos2unix test-reset-db.sh
+    ./test-reset-db.sh
+    ```

@@ -131,7 +131,7 @@ export function useFilters(
     const waterSources = ref<string[]>([]);
 
     /**
-     * Loads the available water sources from the API.
+     * Loads the available water sources.
      * This function fetches the water sources and populates the `waterSources` reactive variable.
      *
      * @returns {Promise<void>} A promise that resolves when the water sources are loaded.

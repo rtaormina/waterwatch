@@ -368,6 +368,7 @@ defineExpose({
                                     <div
                                         v-for="country in filteredCountries"
                                         :key="country"
+                                        data-testid="country-option"
                                         class="multiselect-option"
                                         :class="{
                                             'multiselect-option-selected': selectedCountries.includes(country),
