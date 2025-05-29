@@ -1,0 +1,29 @@
+FROM node:24-alpine3.20 AS BUILD-FRONTEND
+
+WORKDIR /app
+
+COPY ../frontend .
+RUN npm install
+RUN npm run build
+
+FROM python:3.12-bookworm AS BUILD-DOCS
+
+WORKDIR /app
+
+COPY requirements/doc-requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+COPY docs/ /app/source
+
+COPY backend /app/backend
+
+RUN sphinx-build -M html /app/source /app/build_docs
+
+FROM nginx AS PRODUCTION
+
+WORKDIR /app
+
+COPY --from=BUILD-FRONTEND /app/dist /usr/share/nginx/html/
+COPY --from=BUILD-DOCS /app/build_docs /usr/share/nginx/html/docs
+
+# Copy the nginx configuration file
+COPY production/production.nginx /etc/nginx/nginx.conf
