@@ -12,7 +12,10 @@
             },
             "measurement": {
                 "title": "Adding a Measurement",
-                "text": "This tutorial will be covering how to enter measurement data into the WATERWATCH website. \n\nFor information on how to take a temperature measurement, see How to Take Water Temperature Measurements. \n\nUsing the menu bar, select 'Map'. From the map page you can add a measurement by selecting the + button in the bottom left corner of the screen. This will bring you to a screen where you can enter location, water source, and other relevant information. \n\nMake sure to double check the values that you record before hitting submit. If you cannot hit the submit button, check that you have filled in all of the required fields with the appropriate values! \n\nIf you would like to reset the form, you can select 'Clear'. Once you have completed the form, select 'Submit'. You will be prompted to confirm your measurement, at which point you can select 'Cancel' to edit your entry, or 'Submit' to save your measurement."
+                "text1": "This tutorial will be covering how to enter measurement data into the WATERWATCH website. \n\nFor information on how to take a temperature measurement, see 'How to Take Water Temperature Measurements'. \n\nUsing the menu bar, select 'Map'. From the map page you can add a measurement by selecting the + button in the bottom left corner of the screen. \n",
+                "text2": "This will bring you to a screen where you can enter location, water source, and other relevant information. \n\nMake sure to double check the values that you record before hitting submit. If you cannot hit the submit button, check that you have filled in all of the required fields with the appropriate values! \n\nIf you would like to reset the form, you can select 'Clear'. Once you have completed the form, select 'Submit'. You will be prompted to confirm your measurement, at which point you can select 'Cancel' to edit your entry, or 'Submit' to save your measurement.",
+                "caption1": "Add Measurement Button",
+                "caption2": "Add Measurement Page"
             },
             "map": {
                 "title": "Navigating the Map",
