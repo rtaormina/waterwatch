@@ -102,16 +102,23 @@ type DataPoint = {
     temperature: number;
 };
 
-const { center = L.latLng(51.999, 4.3737), data } = defineProps<{
+const {
+    center = L.latLng(51.999, 4.3737),
+    data,
+    colors,
+    colorScale,
+} = defineProps<{
     center?: L.LatLng;
     data: DataPoint[];
+    colors: string[];
+    colorScale: [number, number];
 }>();
 
 const hexbinOptions: L.HexbinLayerConfig = {
     radius: 30,
     opacity: 0.3,
-    colorRange: ["#3183D4", "#E0563A"],
-    colorScaleExtent: [10, 40],
+    colorRange: colors,
+    colorScaleExtent: colorScale,
     radiusRange: [4, 30],
 };
 

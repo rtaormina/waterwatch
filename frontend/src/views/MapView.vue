@@ -10,13 +10,42 @@
                 <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
                 <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleClose" />
             </div>
-            <HexMap :data="data" @hex-click="handleHexClick" />
+            <div class="relative w-full h-full">
+                <HexMap
+                    :colors="colors"
+                    :data="data"
+                    :colorScale="scale"
+                    @click="showLegend = false"
+                    @hex-click="handleHexClick"
+                />
+                <button
+                    class="absolute top-4 right-4 z-50 bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                    @click="
+                        addMeasurement = false;
+                        viewAnalytics = false;
+                        showLegend = !showLegend;
+                    "
+                >
+                    <AdjustmentsVerticalIcon class="w-10 h-10" />
+                </button>
+                <!-- <Legend v-if="showLegend" :colors="colors" :scale="scale" @close="handleClose" /> -->
+                <Legend
+                    v-if="showLegend"
+                    class="absolute z-40 mt-1"
+                    :class="legendClasses"
+                    :colors="colors"
+                    :scale="scale"
+                    @close="handleClose"
+                />
+            </div>
+
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
                 <button
                     class="bg-main rounded-md p-1 text-white"
                     @click="
                         addMeasurement = true;
                         viewAnalytics = false;
+                        showLegend = false;
                     "
                     v-if="!addMeasurement"
                 >
@@ -37,15 +66,18 @@
 <script setup lang="ts">
 import { PlusCircleIcon, ChartBarIcon } from "@heroicons/vue/24/outline";
 import HexMap from "@/components/HexMap.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
+import Legend from "../components/Legend.vue";
+import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
 
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
+const showLegend = ref(false);
 const campaigns = ref([]);
 const hexLocation = ref<string>("");
 type Location = {
@@ -108,6 +140,15 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
         count: measurement.count,
     }));
 }, [] as MeasurementData[]);
+
+// color and scale values for hexagon visualization
+const colors = ref(["#3183D4", "#E0563A"]);
+const scale = ref<[number, number]>([10, 40]);
+const legendClasses = computed(() => [
+    "top-[4.5rem]", // 4rem (button top) + ~0.5rem gap
+    "right-4", // same right offset as the button
+    "w-72", // fixed width (adjust to taste)
+]);
 
 /**
  * Fetches active campaigns based on the user's location
