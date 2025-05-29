@@ -1,5 +1,5 @@
 user nginx;
-worker_processes 1;
+worker_processes auto;
 error_log /var/log/nginx/error.log warn;
 pid /var/run/nginx.pid;
 events {
@@ -13,6 +13,9 @@ http {
   '"$http_user_agent" "$http_x_forwarded_for"';
   access_log /var/log/nginx/access.log main;
   sendfile on;
+
+  ssl_session_cache   shared:SSL:10m;
+  ssl_session_timeout 10m;
 
   keepalive_timeout 65;
 
@@ -49,9 +52,10 @@ http {
   }
 
   server {
-    listen 443 ssl http2;
+    listen 443 ssl;
     server_name waterwatch.tudelft.nl; # Change this to your host (e.g. localhost or your domain name)
 
+    http2 on;
     server_tokens off;
 
     # SSL configuration
