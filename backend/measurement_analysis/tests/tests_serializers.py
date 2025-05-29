@@ -2,19 +2,13 @@
 
 from datetime import date, timedelta
 
+from django.contrib.gis.geos import Point
 from django.db.models import Avg, Count
 from django.test import TestCase
 from measurements.models import Measurement, Temperature
+from rest_framework import serializers
 
 from measurement_analysis.serializers import LocationField, MeasurementAggregatedSerializer
-
-
-class Point:
-    """Mock Point class for testing."""
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
 
 
 class CollectMeasurementAnalysisSerializersTests(TestCase):
@@ -27,6 +21,34 @@ class CollectMeasurementAnalysisSerializersTests(TestCase):
         result = field.to_representation(point)
         assert result["latitude"] == 1.0
         assert result["longitude"] == 2.0
+
+    def test_location_field_none_representation(self):
+        """Test the LocationField serializer with a None value."""
+        point = None
+        field = LocationField()
+        result = field.to_representation(point)
+        assert result is None
+
+    def test_location_field_to_internal_value(self):
+        """Test the LocationField deserialization."""
+        field = LocationField()
+        data = {"latitude": 1.0, "longitude": 2.0}
+        result = field.to_internal_value(data)
+        assert isinstance(result, Point)
+        assert result.x == 2.0
+        assert result.y == 1.0
+
+    def test_location_field_invalid_data(self):
+        """Test the LocationField with invalid data."""
+        field = LocationField()
+        with self.assertRaises(serializers.ValidationError):
+            field.to_internal_value({"lat": 1.0, "lon": 2.0})
+
+        with self.assertRaises(serializers.ValidationError):
+            field.to_internal_value([1.0, 2.0])
+
+        with self.assertRaises(serializers.ValidationError):
+            field.to_internal_value({"latitude": 1.0, "altitude": 5})
 
     def test_measurement_aggregated_serializer(self):
         """Test the MeasurementAggregatedSerializer."""
