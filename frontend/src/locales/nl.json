@@ -1,0 +1,147 @@
+{
+    "labels": {
+        "measurement": "Het Maken van een Water Temperatuur Meting",
+        "website": "Het Gebruik van de WATERWATCH Website",
+        "app": "Het Gebruik van de WATERWATCH App",
+        "api": "Het Gebruik van de WATERWATCH API"
+    },
+    "measurement": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "step1": {
+            "title": "",
+            "text": ""
+        },
+        "step2": {
+            "title": "",
+            "text": ""
+        },
+        "step3": {
+            "title": "",
+            "text": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        },
+        "next-steps": {
+            "title": "",
+            "text": ""
+        }
+    },
+    "website": {
+        "introduction": {
+            "title": "Introductie",
+            "text": "Welkom op de instructie pagina voor de WATERWATCH website! WATERWATCH is gemaakt zodat onderzoekers en amateurwetenschappers metingen van drinkwater kwaliteit te verzamelen en te kunnen analyseren. Op deze pagina wordt uitgelegd hoe je een meting kan toevoegen, je de kaart kan gebruiken, en de dataset kan exporteren. Deze uitleg is bedoeld voor iedereen, van een niewe gebruiker tot ervaren onderzoeker, die het meeste uit de WATERWATCH wilt halen."
+        },
+        "measurement": {
+            "title": "Metingen Toevoegen",
+            "text1": "In deze instructie wordt uigelegd hoe een meting kan worden toegevoegd in de WATERWATCH website.\n\nVoor meer informatie over hoe je een meting kan maken, zie '@:labels.measurement '.\n\nVia het navigatie menu selecteer de 'Map' pagina. Vanaf de 'Map' pagina kan een meting worden toegevoegd door op de + knop links onder in het scherm te klikken.\n",
+            "text2": "Je krijgt nu een scherm te zien waar je je locatie, water bron, en andere relevante informatie kan toevoegen.\n\nZorg ervoor dat je alles dubbel checkt voordat je de meting verstuurd. Als je niet op 'Submit' kan klikken, controleer dan of je alle verplichte velden hebt ingevuld met de juiste waardes!\n\nAls je alle waardes wilt leegmaken, kan je op de 'Clear' knop klikken. Heb je alles ingevuld, klik dan op 'Submit'. Hier wordt gevraagd of je deze meting wilt bevestigen. Hier kan je op 'Cancel' klikken om nog wijzigingen te maken, of klik op 'Submit' om de meting te versturen",
+            "caption1": "Knop om Meting toe te Voegen",
+            "caption2": "Meting toevoegen pagina"
+        },
+        "map": {
+            "title": "De Kaart gebruiken",
+            "text1": "In deze instructie wordt uitgelegd hoe je de kaart van WATERWATCH kan gebruiken.\n\nGa naar de pagina met de kaart door 'Map' te selecteren in de navigatie balk. Het is mogelijk om in en uit te zoomen door op de + en - knoppen links boven te klikken. Om meer informatie over een hexagon te krijgen kan je erop klikken. Voor meer gedetaileerde data analyse, klik op het grafiek icon links onder in de pagina.",
+            "text2": "\n\nVoor een legenda van kaart klik op de knop linksboven.",
+            "caption1": "Data Analyse knop",
+            "caption2": "Kaart Legenda"
+        },
+        "export": {
+            "title": "Exporteren van Data",
+            "text1": "In deze instructie wordt uitgelegd hoe je de data kan exporteren.",
+            "disclaimer": " \nJe moet ingelogd zijn met onderzoeker rechten om data te kunnen exporteren.",
+            "text2": " \nNavigeer naar 'Data' via de navigatie balk. Dit brengt je naar een pagina waar je filters en bestandstype kan selecteren voor de data die je wilt exporteren.\n\nAls je de hele dataset wilt exporteren, klik dan op 'Search' zonder filters te selecteren. Na filters te specificeren en op 'Search' te klikken kan je een bestandstype om te exporteren. Klik dan op 'Download' om de dataset te downloaden.",
+            "text3": "\n\nOm filters te speciferen selecteer je de keuzes of vull je de velden in. Zodra je alle filters heb gespecificeerd kan je op 'Search' klikken om de filters toe te passen. Als je de filters wilt reseten click 'Reset'.",
+            "caption1": "Download and Bestands Type Selectie",
+            "caption2": "Filters"
+        },
+        "conclusion": {
+            "title": "Conclusie",
+            "text": "Bedankt voor het volgen van deze instructie over het gebruik van de WATERATCH website! Met de hulp van onderzoekers en burgers zoals U kan WATERWATCH belangrijke data verzammellen om wetenschappelijk onderzoek te doen naar drinkwater. Mochten er nog verdere vragen zijn is het team te bereiken via de contact informatie die te vinden is op de 'Contact' pagina."
+        }
+    },
+    "app": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "step1": {
+            "title": "",
+            "text": ""
+        },
+        "step2": {
+            "title": "",
+            "text": ""
+        },
+        "step3": {
+            "title": "",
+            "text": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        },
+        "next-steps": {
+            "title": "",
+            "text": ""
+        }
+    },
+    "api": {
+        "introduction": {
+            "title": "Introductie",
+            "text": "Welkom op de instructie pagina voor de WATERWATCH API! Op deze pagina wordt uitgelegd hoe je een meting kan toevoegen en de dataset kan exporteren met behulp van de API. Deze uitleg is bedoeld voor iedereen, van een niewe gebruiker tot ervaren onderzoeker, die de WATERWATCH API wilt gebruiken voor het toevoegen of exporteren van metingen."
+        },
+        "add": {
+            "title": "Metingen Toevoegen",
+            "text": "### Een Meting Toevoegen gaat via `POST /api/measurements/`\n\nOm een niewe `Measurement` (optioneel met `Temperature` data), stuur een `POST` met een JSON body naar `/api/measurements/`. Indien successvol krijg je de niewe `measurement_id` als antwoord; Indien een error optreed, krijg je de `error` details te zien.\n\n\n\nZie de volgende secties voor voorbeelden van een aanvraag, een aanvraag met curl, en een voorbeeld succes en error antwoord",
+            "request": {
+                "title": "Voorbeeld van een Aanvraag",
+                "text": "### **Aanvraag**\n\n```http\nPOST /api/measurements/ HTTP/1.1\nHost: \nContent-Type: application/json\n\n{\n  \"local_date\": \"2025-05-29\",\n  \"local_time\": \"15:30:00\",\n  \"location\": {\n    \"type\": \"Point\",\n    \"coordinates\": [4.9041, 52.3676]\n  },\n  \"water_source\": \"Well\",\n  \"temperature\": {\n    \"sensor\": \"digital-thermometer\",\n    \"value\": 19.7,\n    \"time_waited\": \"00:02:00\"\n  }\n}\n```\n\n"
+            },
+            "example": {
+                "title": "Voorbeeld van een Aanvraag met `curl`",
+                "text": "#### **Voorbeeld met `curl`**\n\n```bash\ncurl -i -X POST http://waterwatch.tudelft.nl/api/measurements/ \\\n     -H \"Content-Type: application/json\" \\\n     -d '{\n           \"local_date\": \"2025-05-29\",\n           \"local_time\": \"15:30:00\",\n           \"location\": {\n             \"type\": \"Point\",\n             \"coordinates\": [4.9041, 52.3676]\n           },\n           \"water_source\": \"Well\",\n           \"temperature\": {\n             \"sensor\": \"digital-thermometer\",\n             \"value\": 19.7,\n             \"time_waited\": \"00:02:00\"\n           }\n         }'\n```\n\n`"
+            },
+            "success": {
+                "title": "Successvol Antwoord",
+                "text": "### **Successvol Antwoord (201 Created)**\n\n```json\n{\n  \"measurement_id\": 123\n}\n```\n\n"
+            },
+            "error": {
+                "title": "Error Antwoord",
+                "text": "### **Error Antwoord (400 Bad Request)**\n\nIf there is an error adding the measurement, the response will give 400 Bad Request and include serializer errors.\n\n```json\n{\n  \"error\": {\n    \"water_source\": [\"This field is required.\"],\n    \"location\": [\"Invalid GeoJSON.\"]\n  }\n}\n"
+            }
+        },
+        "export": {
+            "title": "Filter & Exporteren van Metingen",
+            "text": "### Filter & Exporteren van Metingen via `POST /api/measurements/search/`\n\nGebruik deze endpoint om metingen te filteren by datum, waterbron, metric waardes, en kies een Antwoord type (JSON, CSV, XML, GeoJSON).\n\nZie de volgende secties voor voorbeelden van een aanvraag, GeoJSON export, CSV export, standaard statistiek antwoord en een voorbeeld error antwoord.",
+            "request": {
+                "title": "Voorbeeld van een Aanvraag",
+                "text": "#### **Aanvraag Body**\n\nBelow you will find an example request. Some important notes on formatting your search:\nHieronder vind je een voorbeeld van een Aanvraag. Een paar belangrijke aandachtspunten:\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\- Bestandstype om te exporter can worden bepaald via het `format` veld.\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\- Filters die niet worden gedefiniëerd omvatten impliciet alle mogelijke waarde.\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\- Indien er wordt gefiltered per continent of land, wordt bij het leeg laten van continenten alle waardes in alle continenten teruggeven. \n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\- Indien continenten zijn gedefieniëerd, maar landen leeg blijft, worden impliciet alle landen in de continenten meegenomen.\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\- Een land dat wordt meegegeven moet van een continent zijn dat ook is meegegeven.\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\\- Alle parameters gaan in de JSON body.\n\n```http\nPOST /api/measurements/search/ HTTP/1.1\nHost: \nContent-Type: application/json\n\n{\n  \"location[continents]\": [\"Europe\",\"Asia\"],\n  \"location[countries]\": [\"Netherlands\",\"China\"],\n  \"measurements_included\": [\"waterSources\",\"temperature\"],\n  \"measurements[waterSources]\": [\"Rooftop Tank\",\"Network\"],\n  \"measurements[temperature][from]\": \"12\",\n  \"measurements[temperature][to]\": \"40\",\n  \"dateRange[from]\": \"2025-05-01\",\n  \"dateRange[to]\":   \"2025-05-29\",\n  \"times\": [{\"from\":\"11:00\",\"to\":\"16:00\"},{\"from\":\"18:00\",\"to\":\"20:00\"}],\n  \"format\":          \"geojson\"\n}\n```"
+            },
+            "geojson": {
+                "title": "GeoJSON Export",
+                "text": "#### **Voorbeeld: GeoJSON Export**\n\n```bash\ncurl -X POST http://waterwatch.tudelft.nl/api/measurements/search/ \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n        \"dateRange[from]\": \"2025-05-01\",\n        \"dateRange[to]\":   \"2025-05-29\",\n        \"measurements_included\": [\"waterSources\",\"temperature\"],\n        \"measurements[waterSources]\": [\"Network\"],\n        \"format\":          \"geojson\"\n      }'\n```\n\n```json\n{\n  \"type\": \"FeatureCollection\",\n  \"features\": [\n    {\n      \"type\": \"Feature\",\n      \"geometry\": { \"type\": \"Point\", \"coordinates\": [4.9041, 52.3676] },\n      \"properties\": {\n        \"id\": 123,\n        \"timestamp\": \"2025-05-29T13:30:00Z\",\n        \"local_date\": \"2025-05-29\",\n        \"local_time\": \"15:30:00\",\n        \"water_source\": \"network\",\n        \"flag\": false,\n        \"user\": null,\n        \"country\": \"Netherlands\",\n        \"continent\": \"Europe\",\n        \"metrics\": [\n          {\n            \"metric_type\": \"temperature\",\n            \"sensor\": \"digital-thermometer\",\n            \"value\": 19.7,\n            \"time_waited\": 120.0\n          }\n        ]\n      }\n    }\n    /* …more features… */\n  ]\n}\n```"
+            },
+            "csv": {
+                "title": "CSV Export",
+                "text": "#### **Voorbeeld: CSV Export**\n\n```bash\ncurl -X POST http://waterwatch.tudelft.nl/api/measurements/search/ \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n        \"measurements_included\":[\"waterSources\",\"temperature\"],\n        \"measurements[waterSources]\": [\"network\"],\n        \"format\":\"csv\"\n      }'\n```\n\n```csv\nid,timestamp,local_date,local_time,latitude,longitude,water_source,flag,country,continent,temperature_sensor,temperature_value,temperature_time_waited,ph_value\n1,2025-05-10T09:00:00Z,2025-05-10,09:00:00,52.3728,4.8936,network,TRUE,Netherlands,Europe,thermistor,21.3,60,7.2\n```\n"
+            },
+            "default": {
+                "title": "Samenvattende Statistiek Antwoord",
+                "text": "#### **Standaard Statistiek Antwoord**\n\nIndien `format` leeg is of een waarde heeft dat niet wordt ondersteund, krijg je als antwoord een samenvatting van het resultaat met totaal aantal metingen en gemidelde temperatuur:\n\n```bash\ncurl -X POST http://waterwatch.tudelft.nl/api/measurements/search/ \\\n  -H \"Content-Type: application/json\" \\\n  -d '{}'\n```\n\n```json\n{\n  \"count\": 256,\n  \"avgTemp\": 18.4\n}\n```"
+            },
+            "error": {
+                "title": "Error Response",
+                "text": "#### **Error Response (400 Bad Request)**\n\n```json\n{\n  \"error\": \"Invalid JSON\"\n}\n```\n\n"
+            }
+        },
+        "conclusion": {
+            "title": "Conclusie",
+            "text": "Bedankt voor het volgen van deze instructie over het gebruik van de WATERATCH API! Met de hulp van onderzoekers en burgers zoals U kan WATERWATCH belangrijke data verzammellen om wetenschappelijk onderzoek te doen naar drinkwater. Mochten er nog verdere vragen zijn is het team te bereiken via de contact informatie die te vinden is op de 'Contact' pagina."
+        }
+    }
+}
