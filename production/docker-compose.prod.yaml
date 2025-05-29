@@ -53,6 +53,7 @@ services:
       - "443:443"
     volumes:
       - ./production.nginx:/etc/nginx/nginx.conf
+      - /etc/letsencrypt/live:/etc/nginx/ssl/live
       - ./certbot/www:/var/www/certbot
       - gunicorn_socket:/run
       - static_files:/backend_app/static
