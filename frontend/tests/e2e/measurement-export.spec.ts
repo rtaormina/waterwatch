@@ -1407,13 +1407,14 @@ async function login(page: Page) {
  * @returns A promise that resolves to the summary data.
  */
 async function getSummary(page: Page) {
-    const [response] = await Promise.all([
-        page.waitForResponse("**/api/measurements/search/**", { timeout: 90_000 }),
-        page.click("button:has-text('Search')"),
-    ]);
+    const searchPromise = page.waitForResponse("**/api/measurements/search/**", { timeout: 90_000 });
 
-    if (!response.ok()) {
-        throw new Error(`Search API failed: ${response.status()}`);
+    await page.click("button:has-text('Search')");
+
+    const response = await Promise.allSettled([searchPromise]);
+
+    if (response[0].status !== "fulfilled") {
+        throw new Error(`Search API failed: ${response[0].reason}`);
     }
 
     await page.locator("text=Number of Results:").waitFor();

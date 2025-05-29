@@ -77,7 +77,7 @@ Researcher
 docker exec frontend npm run test
 ```
 #### End-to-End Tests:
-In case you have the production version of WATERWATCH running:
+In case you have a non-test version of WATERWATCH running:
 ```bash
 docker compose down
 ```
@@ -87,7 +87,7 @@ Then:
 cd frontend
 npm run e2e
 ```
-To reset the test database, run:
+In case you want to reset the test database to its initial state, run:
 ```bash
 ./test-reset-db.sh
 ```
