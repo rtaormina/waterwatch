@@ -8,10 +8,10 @@
                 v-if="viewAnalytics || addMeasurement"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
-                <DataAnalyticsComponent v-if="viewAnalytics" :data="selectedHexData" @close="handleClose" />
+                <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleClose" />
             </div>
             <HexMap :data="data" @hex-click="handleHexClick" />
-            <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4">
+            <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
                 <button
                     class="bg-main rounded-md p-1 text-white"
                     @click="
@@ -47,6 +47,7 @@ import { asyncComputed } from "@vueuse/core";
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const campaigns = ref([]);
+const hexLocation = ref<string>("");
 type Location = {
     latitude: number;
     longitude: number;
@@ -56,7 +57,7 @@ type Location = {
  * Shows the global analytics in the sidebar component.
  */
 function showGlobalAnalytics() {
-    selectedHexData.value = data;
+    hexLocation.value = "";
     viewAnalytics.value = true;
     addMeasurement.value = false;
 }
@@ -66,8 +67,8 @@ function showGlobalAnalytics() {
  *
  * @param data the data of the hexagon clicked
  */
-function handleHexClick(data: unknown[]) {
-    selectedHexData.value = data;
+function handleHexClick(location: string) {
+    hexLocation.value = location;
     viewAnalytics.value = true;
     addMeasurement.value = false;
 }
@@ -94,6 +95,7 @@ type MeasurementResponseDataPoint = {
     avg_temperature: number;
     count: number;
 };
+
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     const res = await fetch("/api/measurements/aggregated");
 
@@ -106,10 +108,6 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
         count: measurement.count,
     }));
 }, [] as MeasurementData[]);
-
-const data = sampleData();
-const hexData = ref<unknown[]>(data);
-const selectedHexData = ref<unknown[]>(sampleData());
 
 /**
  * Fetches active campaigns based on the user's location

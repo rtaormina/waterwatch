@@ -126,16 +126,8 @@ hexbinLayer.colorValue((d) => {
 
 // Set up events
 const emit = defineEmits<{
-    (e: "hex-click", d: unknown[]): void;
+    (e: "hex-click", d: string): void;
 }>();
-
-// hexbinLayer.dispatch().on("click", function (event: MouseEvent, d: unknown[], i: unknown) {
-//     emit(
-//         "hex-click",
-//         d.map((item) => item.o),
-//     );
-//     console.log("Hex clicked:", d, i);
-// });
 
 /**
  * Calculates the corners of a hexagon given its center and radius.
@@ -173,6 +165,7 @@ onMounted(() => {
     if (!mapElement.value) {
         throw new Error("mapElement is not defined");
     }
+
     // Initialize the map
     const map = L.map(mapElement.value, {
         center: center,
@@ -217,15 +210,21 @@ onMounted(() => {
                 corners: corners,
             });
 
-            const boundingGeometry = L.polygon(corners).toGeoJSON();
-            fetch("/api/measurements/?bounding_geometry=" + JSON.stringify(boundingGeometry))
-                .then((response) => response.json())
-                .then((data) => {
-                    console.log("Hexbin data:", data);
-                })
-                .catch((error) => {
-                    console.error("Error fetching hexbin data:", error);
-                });
+            /**
+             * Converts GeoJSON polygon geometry to WKT format.
+             *
+             * @param {number[][][]} geometry The GeoJSON polygon
+             * @returns {string} The WKT representation of the polygon
+             */
+            function geoJsonToWktPolygon(geometry: { coordinates: number[][][] }) {
+                // GeoJSON coordinates: [[[lng, lat], [lng, lat], ...]]
+                const coords = geometry.coordinates[0].map(([lng, lat]) => `${lng} ${lat}`).join(", ");
+                return `POLYGON((${coords}))`;
+            }
+
+            const boundingGeometry = L.polygon(corners).toGeoJSON().geometry;
+            console.log("Bounding Geometry:", boundingGeometry);
+            emit("hex-click", geoJsonToWktPolygon(boundingGeometry));
         });
 });
 </script>

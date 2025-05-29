@@ -4,37 +4,57 @@ import { onMounted, ref, watch } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps({
-    data: {
-        type: Array,
+    location: {
+        type: String,
     },
 });
 
 const graph = ref<HTMLElement | null>(null);
 
 /**
- * Temporari function. Extracts one of the value from the mock data.
+ * Fetches numeric values for the given location and returns them.
  *
- * @param data
+ * @param {string} location The location for the measurements.
+ * @returns the numeric values for the temperatures
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getNumericValues(data: any[]): number[] {
-    return data.map((item) => item.temperature);
+async function getGraphData(location: string): Promise<number[]> {
+    try {
+        const response = await fetch(`/api/measurements/?boundry_geometry=${location}`);
+        const data = await response.json();
+        interface Metric {
+            metric_type: string;
+            value: number;
+        }
+
+        interface Measurement {
+            metrics: Metric[];
+        }
+
+        const values = (data as Measurement[]).flatMap((m: Measurement) =>
+            m.metrics.filter((t: Metric) => t.metric_type === "temperature").map((t: Metric) => t.value),
+        );
+        console.log("Fetched values:", values);
+        return values;
+    } catch (error) {
+        console.error("Error fetching hexbin data:", error);
+        return [];
+    }
 }
 
 /**
  * Renders the histogram using the provided data.
  */
-function render() {
+async function render() {
     if (!graph.value) return;
 
-    const values = getNumericValues(props.data);
+    const values = await getGraphData(props.location);
     drawHistogram(graph.value, values);
 }
 
 const emit = defineEmits(["close"]);
 
 onMounted(render);
-watch(() => props.data, render);
+watch(() => props.location, render);
 </script>
 
 <template>
