@@ -19,13 +19,19 @@
             },
             "map": {
                 "title": "Navigating the Map",
-                "text": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. To see data analysis, click the graph icon in the bottom left. To see the map legend, click the button in the top right. "
+                "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. To see data analysis, click the graph icon in the bottom left.",
+                "text2": "\n\nTo see the map legend, click the button in the top right. ",
+                "caption1": "",
+                "caption2": ""
             },
             "export": {
                 "title": "Exporting Data",
                 "text1": "This tutorial will be covering how to export data.",
                 "disclaimer": " \nYou must be logged in to access export functionality.",
-                "text2": " \nNavigate to 'Data' using the menu bar. This will take you to a page where you can select the export type and filters on the data you will be exporting. \n\nIf you would like to export the entire dataset, click 'Search' and select the desired file type in the dropdown. Then click 'Download'. \n\nTo set filters, select the desired choices from the dropdown or fill in the desired fields and click 'Search' to apply the filters. If you would like to reset the filters, click 'Reset'."
+                "text2": " \nNavigate to 'Data' using the menu bar. This will take you to a page where you can select the export type and filters on the data you will be exporting. \n\nIf you would like to export the entire dataset, click 'Search' and select the desired file type in the dropdown. Then click 'Download'.",
+                "text3": "\n\nTo set filters, select the desired choices from the dropdown or fill in the desired fields and click 'Search' to apply the filters. If you would like to reset the filters, click 'Reset'.",
+                "caption1": "Download and File Type Selection",
+                "caption2": "Search Filters"
             },
             "conclusion": {
                 "title": "Conclusion",

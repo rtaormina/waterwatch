@@ -12,20 +12,27 @@
         },
         "measurement": {
             "title": "",
-            "text": "",
+            "text1": "",
+            "text2": "",
             "caption1": "",
-            "caption12": ""
+            "caption2": ""
         },
         "map": {
             "title": "",
-            "text": ""
+            "text1": "",
+            "text2": "",
+            "caption1": "",
+            "caption2": ""
         },
         "export": {
-                "title": "",
-                "text1": "",
-                "disclaimer": "",
-                "text2": ""
-            },
+            "title": "",
+            "text1": "",
+            "disclaimer": "",
+            "text2": "",
+            "text3": "",
+            "caption1": "",
+            "caption2": ""
+        },
         "conclusion": {
             "title": "",
             "text": ""

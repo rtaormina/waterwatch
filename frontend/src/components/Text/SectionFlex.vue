@@ -2,7 +2,7 @@
     <div class="my-6">
         <h2 v-if="title" class="font-bold text-lg">{{ title }}</h2>
         <USeparator v-if="title" class="mb-1" />
-        <div class="flex flex-wrap md:flex-nowrap gap-4">
+        <div class="flex items-top flex-wrap md:flex-nowrap gap-4">
             <div v-if="slots.left" class="w-full md:w-80 md:flex-shrink-0">
                 <slot name="left" />
             </div>

@@ -82,30 +82,92 @@
                         </TextSubSection>
                     </template>
                 </TextSectionFlex>
-                <TextSectionSplit>
+                <TextSectionFlex :title="t('website.map.title')">
                     <template #left>
-                        <TextSubSection :title="t('website.map.title')">
-                            <p class="whitespace-pre-line">{{ t("website.map.text") }}</p>
+                        <figure class="w-full max-w-sm mx-auto">
+                            <img
+                                src="@/assets/add-measurement-tutorial.png"
+                                alt="Add measurement button"
+                                class="w-full h-auto rounded shadow"
+                            />
+                            <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                {{ t("website.map.caption1") }}
+                            </figcaption>
+                        </figure>
+                    </template>
+                    <template #right>
+                        <TextSubSection>
+                            <p class="whitespace-pre-line">{{ t("website.map.text1") }}</p>
                         </TextSubSection>
                     </template>
-                    <template #right>
-                        <USkeleton class="w-full aspect-video"></USkeleton>
-                    </template>
-                </TextSectionSplit>
-                <TextSectionSplit>
+                </TextSectionFlex>
+                <TextSectionFlex>
                     <template #left>
-                        <USkeleton class="w-full aspect-video"></USkeleton>
+                        <figure class="w-full max-w-sm mx-auto">
+                            <img
+                                src="@/assets/add-measurement-tutorial.png"
+                                alt="Add measurement button"
+                                class="w-full h-auto rounded shadow"
+                            />
+                            <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                {{ t("website.map.caption2") }}
+                            </figcaption>
+                        </figure>
                     </template>
                     <template #right>
-                        <TextSubSection :title="t('website.export.title')">
+                        <TextSubSection>
+                            <p class="whitespace-pre-line">{{ t("website.map.text2") }}</p>
+                        </TextSubSection>
+                    </template>
+                </TextSectionFlex>
+                <TextSectionFlex :title="t('website.export.title')">
+                    <template #default>
+                        <TextSubSection>
                             <p class="whitespace-pre-line">{{ t("website.export.text1") }}</p>
                             <p class="whitespace-pre-line">
                                 <em>{{ t("website.export.disclaimer") }}</em>
                             </p>
+                        </TextSubSection>
+                    </template>
+                </TextSectionFlex>
+                <TextSectionFlex>
+                    <template #left>
+                        <figure class="w-full max-w-sm mx-auto">
+                            <img
+                                src="@/assets/download-export.png"
+                                alt="Download Button"
+                                class="w-full h-auto rounded shadow"
+                            />
+                            <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                {{ t("website.export.caption1") }}
+                            </figcaption>
+                        </figure>
+                    </template>
+                    <template #right>
+                        <TextSubSection>
                             <p class="whitespace-pre-line">{{ t("website.export.text2") }}</p>
                         </TextSubSection>
                     </template>
-                </TextSectionSplit>
+                </TextSectionFlex>
+                <TextSectionFlex>
+                    <template #left>
+                        <figure class="w-full max-w-sm mx-auto">
+                            <img
+                                src="@/assets/filters.png"
+                                alt="Download Filter Screen"
+                                class="w-full h-auto rounded shadow"
+                            />
+                            <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                {{ t("website.export.caption2") }}
+                            </figcaption>
+                        </figure>
+                    </template>
+                    <template #right>
+                        <TextSubSection>
+                            <p class="whitespace-pre-line">{{ t("website.export.text3") }}</p>
+                        </TextSubSection>
+                    </template>
+                </TextSectionFlex>
                 <TextSection :title="t('website.conclusion.title')">
                     <TextSubSection>
                         <p>{{ t("website.conclusion.text") }}</p>
