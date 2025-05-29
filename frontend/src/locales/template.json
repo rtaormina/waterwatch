@@ -5,6 +5,32 @@
         "app": "",
         "api": ""
     },
+    "measurement": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "step1": {
+            "title": "",
+            "text": ""
+        },
+        "step2": {
+            "title": "",
+            "text": ""
+        },
+        "step3": {
+            "title": "",
+            "text": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        },
+        "next-steps": {
+            "title": "",
+            "text": ""
+        }
+    },
     "website": {
         "introduction": {
             "title": "",
@@ -34,6 +60,32 @@
             "caption2": ""
         },
         "conclusion": {
+            "title": "",
+            "text": ""
+        }
+    },
+    "app": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "step1": {
+            "title": "",
+            "text": ""
+        },
+        "step2": {
+            "title": "",
+            "text": ""
+        },
+        "step3": {
+            "title": "",
+            "text": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        },
+        "next-steps": {
             "title": "",
             "text": ""
         }

@@ -86,8 +86,8 @@
                     <template #left>
                         <figure class="w-full max-w-sm mx-auto">
                             <img
-                                src="@/assets/add-measurement-tutorial.png"
-                                alt="Add measurement button"
+                                src="@/assets/data-analysis.png"
+                                alt="Data analysis button"
                                 class="w-full h-auto rounded shadow"
                             />
                             <figcaption class="mt-2 text-sm text-center text-gray-500">
@@ -105,8 +105,8 @@
                     <template #left>
                         <figure class="w-full max-w-sm mx-auto">
                             <img
-                                src="@/assets/add-measurement-tutorial.png"
-                                alt="Add measurement button"
+                                src="@/assets/graph-legend.png"
+                                alt="Graph legendn"
                                 class="w-full h-auto rounded shadow"
                             />
                             <figcaption class="mt-2 text-sm text-center text-gray-500">
@@ -177,60 +177,32 @@
 
             <!-- How to use WATERWATCH app -->
             <template v-else-if="page == 'MobileApp'">
-                <TextSection title="Introduction">
-                    <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam, voluptatibus
-                        nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam tempore dolorem.
-                        Enim, et qui. Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                        voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                        tempore dolorem. Enim, et qui.
-                    </p>
+                <TextSection :title="t('app.introduction.title')">
+                    <p>{{ t("app.introduction.text") }}</p>
                 </TextSection>
                 <TextSectionSplit>
                     <template #left>
-                        <TextSubSection title="Step 1">
-                            <p>
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                                voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore
-                                quibusdam tempore dolorem. Enim, et qui.
-                            </p>
+                        <TextSubSection :title="t('app.step1.title')">
+                            <p>{{ t("app.step1.text") }}</p>
                         </TextSubSection>
-                        <TextSubSection title="Step 2">
-                            <p>
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                                voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore
-                                quibusdam tempore dolorem. Enim, et qui.
-                            </p>
+                        <TextSubSection :title="t('app.step2.title')">
+                            <p>{{ t("app.step2.text") }}</p>
                         </TextSubSection>
                     </template>
 
-                    <TextSubSection title="Step 3">
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                            voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                            tempore dolorem. Enim, et qui. Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                            Alias facilis beatae quae necessitatibus harum ad, autem rem minus, mollitia perspiciatis
-                            magnam. Aspernatur exercitationem vero ad, enim quae dolorum doloremque soluta.
-                        </p>
+                    <TextSubSection :title="t('app.step3.title')">
+                        <p>{{ t("app.step3.text") }}</p>
                     </TextSubSection>
                     <template #right>
                         <USkeleton class="w-full aspect-video"></USkeleton>
                     </template>
                 </TextSectionSplit>
-                <TextSection title="Conclusion">
-                    <TextSubSection title="Conclusion">
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                            voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                            tempore dolorem. Enim, et qui.
-                        </p>
+                <TextSection :title="t('app.conclusion.title')">
+                    <TextSubSection>
+                        <p>{{ t("app.conclusion.text") }}</p>
                     </TextSubSection>
-                    <TextSubSection title="Next Steps">
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                            voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                            tempore dolorem. Enim, et qui.
-                        </p>
+                    <TextSubSection :title="t('app.next-steps.title')">
+                        <p>{{ t("app.next-steps.text") }}</p>
                     </TextSubSection>
                 </TextSection>
             </template>

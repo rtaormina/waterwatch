@@ -5,6 +5,32 @@
         "app": "How to Use the WATERWATCH Mobile App",
         "api": "How to Use the WATERWATCH API"
     },
+    "measurement": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "step1": {
+            "title": "",
+            "text": ""
+        },
+        "step2": {
+            "title": "",
+            "text": ""
+        },
+        "step3": {
+            "title": "",
+            "text": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        },
+        "next-steps": {
+            "title": "",
+            "text": ""
+        }
+    },
     "website": {
         "introduction": {
             "title": "Introduction",
@@ -21,8 +47,8 @@
             "title": "Navigating the Map",
             "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. To see data analysis, click the graph icon in the bottom left.",
             "text2": "\n\nTo see the map legend, click the button in the top right. ",
-            "caption1": "",
-            "caption2": ""
+            "caption1": "Data Analysis Button",
+            "caption2": "Map Legend"
         },
         "export": {
             "title": "Exporting Data",
@@ -36,6 +62,32 @@
         "conclusion": {
             "title": "Conclusion",
             "text": "Thank you for taking the time to follow this tutorial on how to use the WATERWATCH website! With the help of researchers and citizen scientists like you, WATERWATCH is able to gather important water data to support scientific research. If you have any questions, feel free to contact the team by navigating to 'Contact' using the menu bar."
+        }
+    },
+    "app": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "step1": {
+            "title": "",
+            "text": ""
+        },
+        "step2": {
+            "title": "",
+            "text": ""
+        },
+        "step3": {
+            "title": "",
+            "text": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        },
+        "next-steps": {
+            "title": "",
+            "text": ""
         }
     },
     "api": {
@@ -60,7 +112,7 @@
             },
             "error": {
                 "title": "Error Response",
-                "text": "### **Error Response (400 Bad Request)**\n\n```json\n{\n  \"error\": {\n    \"water_source\": [\"This field is required.\"],\n    \"location\": [\"Invalid GeoJSON.\"]\n  }\n}\n"
+                "text": "### **Error Response (400 Bad Request)**\n\nIf there is an error adding the measurement, the response will give 400 Bad Request and include serializer errors.\n\n```json\n{\n  \"error\": {\n    \"water_source\": [\"This field is required.\"],\n    \"location\": [\"Invalid GeoJSON.\"]\n  }\n}\n"
             }
         },
         "export": {
@@ -84,7 +136,7 @@
             },
             "error": {
                 "title": "Error Response",
-                "text": "#### **Error Response (400 Bad Request)**\n\n```json\n{\n  \"error\": \"Invalid JSON\"\n}\n```\n\nOr field-level validation errors:\n\n```json\n{\n  \"error\": {\n    \"local_date_from\": [\"Date has wrong format.\"],\n    \"format\": [\"Invalid format choice.\"]\n  }\n}\n```"
+                "text": "#### **Error Response (400 Bad Request)**\n\n```json\n{\n  \"error\": \"Invalid JSON\"\n}\n```\n\n"
             }
         },
         "conclusion": {
