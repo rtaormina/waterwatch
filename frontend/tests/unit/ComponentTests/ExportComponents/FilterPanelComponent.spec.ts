@@ -1,5 +1,8 @@
 import { mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import FilterPanel from "../../../../src/components/FilterPanelComponent.vue";
+import { nextTick } from "vue";
+import { afterEach } from "node:test";
 
 const mockDataFilters = {
     continents: ["Asia", "Europe"],
@@ -32,10 +35,6 @@ const mockDataFilters = {
 vi.mock("useFilters", () => ({
     useFilters: mockDataFilters,
 }));
-
-import FilterPanel from "../../../src/components/FilterPanelComponent.vue";
-import { nextTick } from "vue";
-import { afterEach } from "node:test";
 
 const StubArrow = { template: "<span/>" };
 const StubCheck = { template: "<span/>" };

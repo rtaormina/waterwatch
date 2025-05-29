@@ -1,6 +1,6 @@
 import { mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import SearchBar from "../../../src/components/SearchBarComponent.vue";
+import SearchBar from "../../../../src/components/SearchBarComponent.vue";
 import { nextTick } from "vue";
 import { afterEach } from "node:test";
 

@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import TextSectionSplitComponent from "../../../src/components/Text/SectionSplit.vue";
+import TextSectionSplitComponent from "../../../../src/components/Text/SectionSplit.vue";
 import { describe, expect, it } from "vitest";
 
 describe("TextSectionSplitComponent", () => {
