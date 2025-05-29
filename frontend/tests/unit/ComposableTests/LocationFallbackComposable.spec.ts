@@ -5,7 +5,7 @@ import {
   createMarker,
   createMap,
   getLocateControl,
-} from "../../src/composables/LocationFallback";
+} from "../../../src/composables/LocationFallback";
 
 // Mock leaflet and DOM-related APIs
 vi.mock("leaflet", async () => {

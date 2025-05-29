@@ -2,7 +2,7 @@ import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 const fakeFetch = vi.fn();
 vi.stubGlobal("fetch", fakeFetch);
-import MeasurementComponent from "../../../src/components/MeasurementComponent.vue";
+import MeasurementComponent from "../../../../src/components/MeasurementComponent.vue";
 import { ref } from "vue";
 import { DateTime } from "luxon";
 

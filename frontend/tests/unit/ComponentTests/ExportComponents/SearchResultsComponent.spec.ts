@@ -1,5 +1,9 @@
 import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi } from "vitest";
+import SearchResults from "../../../../src/components/SearchResultsComponent.vue";
+import { nextTick } from "vue";
+import { afterEach } from "vitest";
+
 vi.stubGlobal(
     "fetch",
     vi.fn(() =>
@@ -27,10 +31,6 @@ vi.mock("@/composables/permissionsLogic", () => {
         }),
     };
 });
-
-import SearchResults from "../../../src/components/SearchResultsComponent.vue";
-import { nextTick } from "vue";
-import { afterEach } from "vitest";
 
 describe("SearchResultsComponent tests", () => {
     let wrapper: VueWrapper<any>;

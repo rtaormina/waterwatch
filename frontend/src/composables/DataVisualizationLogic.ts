@@ -69,13 +69,8 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
 
     const x = d3.scaleLinear().domain(xDomain).nice().range([0, width]);
 
-    let thresholds = x.ticks(20);
-    if (thresholds.length < 2) {
-        thresholds = [xDomain[0], xDomain[1]];
-    }
-
     // Create bins on histogram
-    const bins = d3.bin().domain(x.domain()).thresholds(thresholds)(data);
+    const bins = d3.bin().domain(x.domain()).thresholds(x.ticks(20))(data);
 
     // Create y-axis
     const y = d3

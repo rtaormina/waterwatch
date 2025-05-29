@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import TextSectionComponent from "../../../src/components/Text/Section.vue";
+import TextSectionComponent from "../../../../src/components/Text/Section.vue";
 import { describe, expect, it } from "vitest";
 
 describe("TextSectionComponent", () => {
