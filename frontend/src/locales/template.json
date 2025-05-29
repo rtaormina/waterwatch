@@ -37,5 +37,59 @@
             "title": "",
             "text": ""
         }
+    },
+    "api": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "add": {
+            "title": "",
+            "text": "",
+            "request": {
+                "title": "",
+                "text": ""
+            },
+            "example": {
+                "title": "",
+                "text": ""
+            },
+            "success": {
+                "title": "",
+                "text": ""
+            },
+            "error": {
+                "title": "",
+                "text": ""
+            }
+        },
+        "export": {
+            "title": "",
+            "text": "",
+            "request": {
+                "title": "",
+                "text": ""
+            },
+            "geojson": {
+                "title": "",
+                "text": ""
+            },
+            "csv": {
+                "title": "",
+                "text": ""
+            },
+            "default": {
+                "title": "",
+                "text": ""
+            },
+            "error": {
+                "title": "",
+                "text": ""
+            }
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        }
     }
 }

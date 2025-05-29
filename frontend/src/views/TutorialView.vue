@@ -237,28 +237,30 @@
 
             <!-- How to use WATERWATCH API -->
             <template v-else-if="page == 'API'">
-                <TextSection title="Introduction">
-                    <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam, voluptatibus
-                        nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam tempore dolorem.
-                        Enim, et qui. Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                        voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                        tempore dolorem. Enim, et qui.
-                    </p>
-                    <TextSubSection title="Conclusion">
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                            voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                            tempore dolorem. Enim, et qui.
-                        </p>
-                    </TextSubSection>
-                    <TextSubSection title="Next Steps">
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                            voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                            tempore dolorem. Enim, et qui.
-                        </p>
-                    </TextSubSection>
+                <TextSection :title="t('api.introduction.title')">
+                    <p>{{ t("api.introduction.text") }}</p>
+                </TextSection>
+                <TextSection :title="t('api.add.title')">
+                    <div v-html="addMeasurementAPI" class="whitespace-pre-line" />
+                    <div><TextTabs :items="addMeasurementAPITabs" v-model="api" class="w-full text-center" /></div>
+                    <div v-if="api == 'request'" v-html="addMeasurementReq" class="whitespace-pre-line" />
+                    <div v-if="api == 'example'" v-html="addMeasurementEx" class="whitespace-pre-line" />
+                    <div v-if="api == 'success'" v-html="addMeasurementSuccess" class="whitespace-pre-line" />
+                    <div v-if="api == 'error'" v-html="addMeasurementErr" class="whitespace-pre-line" />
+                </TextSection>
+                <TextSection :title="t('api.export.title')">
+                    <div v-html="exportMeasurementAPI" class="whitespace-pre-line" />
+                    <div>
+                        <TextTabs :items="exportMeasurementAPITabs" v-model="apiExport" class="w-full text-center" />
+                    </div>
+                    <div v-if="apiExport == 'request'" v-html="exportMeasurementReq" class="whitespace-pre-line" />
+                    <div v-if="apiExport == 'geojson'" v-html="exportMeasurementGeoJson" class="whitespace-pre-line" />
+                    <div v-if="apiExport == 'csv'" v-html="exportMeasurementCSV" class="whitespace-pre-line" />
+                    <div v-if="apiExport == 'default'" v-html="exportMeasurementDefault" class="whitespace-pre-line" />
+                    <div v-if="apiExport == 'error'" v-html="exportMeasurementErr" class="whitespace-pre-line" />
+                </TextSection>
+                <TextSection :title="t('api.conclusion.title')">
+                    <p>{{ t("api.conclusion.text") }}</p>
                 </TextSection>
             </template>
         </div>
@@ -274,9 +276,27 @@ import TextTabs from "../components/Text/Tabs.vue";
 import TextSectionFlex from "../components/Text/SectionFlex.vue";
 import { useI18n } from "vue-i18n";
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
+import MarkdownIt from "markdown-it";
+
 const { t } = useI18n();
+const md = new MarkdownIt({ html: true, linkify: true, typographer: true });
+
+const addMeasurementAPI = md.render(t("api.add.text"));
+const addMeasurementReq = md.render(t("api.add.request.text"));
+const addMeasurementEx = md.render(t("api.add.example.text"));
+const addMeasurementSuccess = md.render(t("api.add.success.text"));
+const addMeasurementErr = md.render(t("api.add.error.text"));
+
+const exportMeasurementAPI = md.render(t("api.export.text"));
+const exportMeasurementReq = md.render(t("api.export.request.text"));
+const exportMeasurementGeoJson = md.render(t("api.export.geojson.text"));
+const exportMeasurementCSV = md.render(t("api.export.csv.text"));
+const exportMeasurementDefault = md.render(t("api.export.default.text"));
+const exportMeasurementErr = md.render(t("api.export.error.text"));
 
 const page = ref<string>("Measurements");
+const api = ref<string>("request");
+const apiExport = ref<string>("request");
 
 const tutorials = [
     {
@@ -294,6 +314,48 @@ const tutorials = [
     {
         label: t("labels.api"),
         value: "API",
+    },
+];
+
+const addMeasurementAPITabs = [
+    {
+        label: t("api.add.request.title"),
+        value: "request",
+    },
+    {
+        label: t("api.add.example.title"),
+        value: "example",
+    },
+    {
+        label: t("api.add.success.title"),
+        value: "success",
+    },
+    {
+        label: t("api.add.error.title"),
+        value: "error",
+    },
+];
+
+const exportMeasurementAPITabs = [
+    {
+        label: t("api.export.request.title"),
+        value: "request",
+    },
+    {
+        label: t("api.export.geojson.title"),
+        value: "geojson",
+    },
+    {
+        label: t("api.export.csv.title"),
+        value: "csv",
+    },
+    {
+        label: t("api.export.default.title"),
+        value: "default",
+    },
+    {
+        label: t("api.export.error.title"),
+        value: "error",
     },
 ];
 </script>
