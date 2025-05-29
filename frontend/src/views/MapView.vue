@@ -10,8 +10,8 @@
                 <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
                 <DataAnalyticsComponent v-if="viewAnalytics" :data="selectedHexData" @close="handleClose" />
             </div>
-            <HexMap :data="hexData" @hex-click="handleHexClick" />
-            <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4 z-20">
+            <HexMap :data="data" @hex-click="handleHexClick" />
+            <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4">
                 <button
                     class="bg-main rounded-md p-1 text-white"
                     @click="
@@ -42,6 +42,7 @@ import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
+import { asyncComputed } from "@vueuse/core";
 
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
@@ -80,18 +81,31 @@ function handleClose() {
 }
 
 /**
- * Creates sample data for the map
+ * Fetches measurements from the API and formats them for the HexMap component.
+ * The data is fetched asynchronously and transformed into a format suitable for the map.
  */
-const sampleData = () => {
-    let array = [];
-    for (let index = 0; index < 10_000; index++) {
-        array.push({
-            point: L.latLng(Math.random() * 180 - 90, Math.random() * 360 - 180),
-            temperature: Math.random() * 100,
-        });
-    }
-    return array;
+type MeasurementData = {
+    point: L.LatLng;
+    temperature: number;
+    count: number;
 };
+type MeasurementResponseDataPoint = {
+    location: { latitude: number; longitude: number };
+    avg_temperature: number;
+    count: number;
+};
+const data = asyncComputed(async (): Promise<MeasurementData[]> => {
+    const res = await fetch("/api/measurements/aggregated");
+
+    if (!res.ok) throw new Error(`Status: ${res.status}`);
+    const data = await res.json();
+
+    return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
+        point: L.latLng(measurement.location.latitude, measurement.location.longitude),
+        temperature: measurement.avg_temperature,
+        count: measurement.count,
+    }));
+}, [] as MeasurementData[]);
 
 const data = sampleData();
 const hexData = ref<unknown[]>(data);

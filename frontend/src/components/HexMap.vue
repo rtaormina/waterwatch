@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { createOSMLayer } from "@/composables/LocationFallback";
 import * as L from "leaflet";
-import { onMounted, useTemplateRef } from "vue";
+import { onMounted, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
 
 declare module "leaflet" {
@@ -108,10 +108,11 @@ const { center = L.latLng(51.999, 4.3737), data } = defineProps<{
 }>();
 
 const hexbinOptions: L.HexbinLayerConfig = {
-    radius: 24,
-    opacity: 0.2,
-    colorRange: ["blue", "orange", "red"],
-    radiusRange: [4, 22],
+    radius: 30,
+    opacity: 0.3,
+    colorRange: ["#3183D4", "#E0563A"],
+    colorScaleExtent: [10, 40],
+    radiusRange: [4, 30],
 };
 
 const hexbinLayer: L.HexbinLayer = L.hexbinLayer(hexbinOptions);
@@ -128,13 +129,44 @@ const emit = defineEmits<{
     (e: "hex-click", d: unknown[]): void;
 }>();
 
-hexbinLayer.dispatch().on("click", function (event: MouseEvent, d: unknown[], i: unknown) {
-    emit(
-        "hex-click",
-        d.map((item) => item.o),
-    );
-    console.log("Hex clicked:", d, i);
-});
+// hexbinLayer.dispatch().on("click", function (event: MouseEvent, d: unknown[], i: unknown) {
+//     emit(
+//         "hex-click",
+//         d.map((item) => item.o),
+//     );
+//     console.log("Hex clicked:", d, i);
+// });
+
+/**
+ * Calculates the corners of a hexagon given its center and radius.
+ * @param centerPoint - The center point of the hexagon with latitude and longitude.
+ * @param radius - The radius of the hexagon.
+ * @param toLatLng - Function to convert a point of [latitude, longitude] to a Leaflet LatLng object.
+ * @returns An array of six LatLng objects representing the corners of the hexagon.
+ */
+function getHexagonCorners(
+    centerPoint: { lat: number; lng: number },
+    radius: number,
+    toLatLng: (point: [number, number]) => L.LatLng,
+): [L.LatLng, L.LatLng, L.LatLng, L.LatLng, L.LatLng, L.LatLng] {
+    const corners = [null, null, null, null, null, null] as unknown as [
+        L.LatLng,
+        L.LatLng,
+        L.LatLng,
+        L.LatLng,
+        L.LatLng,
+        L.LatLng,
+    ];
+    for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI / 3) * (i - 0.5); // Offset by 30 degrees
+        const latOffset = radius * Math.cos(angle);
+        const lngOffset = radius * Math.sin(angle);
+
+        const corner: [number, number] = [centerPoint.lat + latOffset, centerPoint.lng + lngOffset];
+        corners[i] = toLatLng(corner);
+    }
+    return corners;
+}
 
 onMounted(() => {
     // Check if the mapElement is properly mounted
@@ -157,6 +189,44 @@ onMounted(() => {
     layer.addTo(map);
     hexbinLayer.addTo(map);
     hexbinLayer.data(data);
+    watch(
+        () => data,
+        (newData) => hexbinLayer.data(newData),
+    );
+
+    hexbinLayer
+        .dispatch()
+        .on("click", function (event: MouseEvent, d: undefined[] & { x: number; y: number }, i: unknown) {
+            const centerPoint = { lat: d.x, lng: d.y };
+            const radius = hexbinLayer.radius();
+
+            const corners = getHexagonCorners(
+                centerPoint,
+                radius,
+                (point: [number, number]): L.LatLng => map.layerPointToLatLng(point),
+            );
+
+            const middlePoint = map.layerPointToLatLng([centerPoint.lng, centerPoint.lat]);
+
+            console.log({
+                type: "click",
+                event: event,
+                d: d,
+                index: i,
+                coordinates: middlePoint,
+                corners: corners,
+            });
+
+            const boundingGeometry = L.polygon(corners).toGeoJSON();
+            fetch("/api/measurements/?bounding_geometry=" + JSON.stringify(boundingGeometry))
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("Hexbin data:", data);
+                })
+                .catch((error) => {
+                    console.error("Error fetching hexbin data:", error);
+                });
+        });
 });
 </script>
 
