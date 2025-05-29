@@ -50,14 +50,14 @@
                     </template>
                     <template #right>
                         <TextSubSection :title="t('website.measurement.title')">
-                            <p>{{ t("website.measurement.text") }}</p>
+                            <p class="whitespace-pre-line">{{ t("website.measurement.text") }}</p>
                         </TextSubSection>
                     </template>
                 </TextSectionSplit>
                 <TextSectionSplit>
                     <template #left>
                         <TextSubSection :title="t('website.map.title')">
-                            <p>{{ t("website.map.text") }}</p>
+                            <p class="whitespace-pre-line">{{ t("website.map.text") }}</p>
                         </TextSubSection>
                     </template>
                     <template #right>
@@ -70,24 +70,15 @@
                     </template>
                     <template #right>
                         <TextSubSection :title="t('website.export.title')">
-                            <p>{{ t("website.export.text") }}</p>
+                            <p class="whitespace-pre-line">{{ t("website.export.text1") }}</p>
+                            <p class="whitespace-pre-line"><em>{{ t("website.export.disclaimer") }}</em></p>
+                            <p class="whitespace-pre-line">{{ t("website.export.text2") }}</p>
                         </TextSubSection>
                     </template>
                 </TextSectionSplit>
-                <TextSection title="Conclusion">
-                    <TextSubSection title="Conclusion">
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                            voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                            tempore dolorem. Enim, et qui.
-                        </p>
-                    </TextSubSection>
-                    <TextSubSection title="Next Steps">
-                        <p>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex magni vero at ipsam,
-                            voluptatibus nemo eum adipisci sunt, deserunt aliquam nihil ipsum quam inventore quibusdam
-                            tempore dolorem. Enim, et qui.
-                        </p>
+                <TextSection :title="t('website.conclusion.title')">
+                    <TextSubSection>
+                        <p>{{ t("website.conclusion.text") }}</p>
                     </TextSubSection>
                 </TextSection>
             </template>

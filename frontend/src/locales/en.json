@@ -12,15 +12,21 @@
             },
             "measurement": {
                 "title": "Adding a Measurement",
-                "text": "This tutorial will be covering how to enter measurement data into the WATERWATCH website. For information on how to take a temperature measurement, see How to Take Water Temperature Measurements. Using the menu bar, select 'Map'. From the map page you can add a measurement by selecting the + button in the bottom left corner of the screen. This will bring you to a screen where you can enter location, water source, and other relevant information. Make sure to double check the values that you record before hitting submit. If you cannot hit the submit button, check that you have filled in all of the required fields with the appropriate values! If you would like to reset the form, you can select 'Clear'. Once you have completed the form, select 'Submit'. You will be prompted to confirm your measurement, at which point you can select 'Cancel' to edit your entry, or 'Submit' to save your measurement."
+                "text": "This tutorial will be covering how to enter measurement data into the WATERWATCH website. \n\nFor information on how to take a temperature measurement, see How to Take Water Temperature Measurements. \n\nUsing the menu bar, select 'Map'. From the map page you can add a measurement by selecting the + button in the bottom left corner of the screen. This will bring you to a screen where you can enter location, water source, and other relevant information. \n\nMake sure to double check the values that you record before hitting submit. If you cannot hit the submit button, check that you have filled in all of the required fields with the appropriate values! \n\nIf you would like to reset the form, you can select 'Clear'. Once you have completed the form, select 'Submit'. You will be prompted to confirm your measurement, at which point you can select 'Cancel' to edit your entry, or 'Submit' to save your measurement."
             },
             "map": {
                 "title": "Navigating the Map",
-                "text": ""
+                "text": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. To see data analysis, click the graph icon in the bottom left. To see the map legend, click the button in the top right. "
             },
             "export": {
                 "title": "Exporting Data",
-                "text": ""
+                "text1": "This tutorial will be covering how to export data.",
+                "disclaimer": " \nYou must be logged in to access export functionality.",
+                "text2": " \nNavigate to 'Data' using the menu bar. This will take you to a page where you can select the export type and filters on the data you will be exporting. \n\nIf you would like to export the entire dataset, click 'Search' and select the desired file type in the dropdown. Then click 'Download'. \n\nTo set filters, select the desired choices from the dropdown or fill in the desired fields and click 'Search' to apply the filters. If you would like to reset the filters, click 'Reset'."
+            },
+            "conclusion": {
+                "title": "Conclusion",
+                "text": "Thank you for taking the time to follow this tutorial on how to use the WATERWATCH website! With the help of researchers and citizen scientists like you, WATERWATCH is able to gather important water data to support scientific research. If you have any questions, feel free to contact the team by navigating to 'Contact' using the menu bar."
             }
     }
     }

@@ -19,6 +19,12 @@
             "text": ""
         },
         "export": {
+                "title": "",
+                "text1": "",
+                "disclaimer": "",
+                "text2": ""
+            },
+        "conclusion": {
             "title": "",
             "text": ""
         }
