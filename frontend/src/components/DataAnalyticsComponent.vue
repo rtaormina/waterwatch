@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { drawHistogram } from "@/composables/DataVisualizationLogic";
+import { drawHistogram } from "../composables/DataVisualizationLogic";
 import { onMounted, ref, watch } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
@@ -21,6 +21,7 @@ async function getGraphData(location: string): Promise<number[]> {
     try {
         const response = await fetch(`/api/measurements/?boundry_geometry=${location}`);
         const data = await response.json();
+
         interface Metric {
             metric_type: string;
             value: number;
@@ -33,7 +34,9 @@ async function getGraphData(location: string): Promise<number[]> {
         const values = (data as Measurement[]).flatMap((m: Measurement) =>
             m.metrics.filter((t: Metric) => t.metric_type === "temperature").map((t: Metric) => t.value),
         );
+
         console.log("Fetched values:", values);
+
         return values;
     } catch (error) {
         console.error("Error fetching hexbin data:", error);
