@@ -5,8 +5,9 @@
 <script setup lang="ts">
 import { createOSMLayer } from "@/composables/LocationFallback";
 import * as L from "leaflet";
-import { onMounted, useTemplateRef, watch } from "vue";
+import { createApp, onMounted, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
+import HexAnalysis from "./HexAnalysis.vue";
 
 declare module "leaflet" {
     /*
@@ -131,9 +132,11 @@ hexbinLayer.colorValue((d) => {
     return color;
 });
 
+
 // Set up events
 const emit = defineEmits<{
-    (e: "hex-click", d: string): void;
+    (e: "hex-click", d:string): void;
+    (e: "open-details"): void;
 }>();
 
 /**
@@ -228,6 +231,35 @@ onMounted(() => {
                 const coords = geometry.coordinates[0].map(([lng, lat]) => `${lng} ${lat}`).join(", ");
                 return `POLYGON((${coords}))`;
             }
+            const layerPoint = L.point(d.x, d.y);
+            const latlng = map.layerPointToLatLng(layerPoint);
+            map.panTo(latlng);
+            const container = document.createElement("div");
+
+            const vm = createApp(HexAnalysis, {
+                points: d,
+                onOpenDetails: () => {
+                    emit("open-details");
+                },
+                onClose: () => {
+                    map.closePopup();
+                },
+            });
+
+            vm.mount(container);
+
+            const popup = L.popup({
+                offset: [0, -hexbinLayer.radius()],
+                autoClose: true,
+                closeOnClick: false,
+            })
+                .setLatLng(latlng)
+                .setContent(container)
+                .openOn(map);
+
+            popup.on("remove", () => {
+                vm.unmount();
+            });
 
             const boundingGeometry = L.polygon(corners).toGeoJSON().geometry;
             console.log("Bounding Geometry:", boundingGeometry);
