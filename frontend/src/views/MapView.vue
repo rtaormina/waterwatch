@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full h-full flex flex-col">
+    <div class="w-full h-full flex flex-col p-0 m-0">
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
 
         <div class="w-full h-full flex flex-row">
@@ -64,7 +64,14 @@
 </template>
 
 <script setup lang="ts">
-import { PlusCircleIcon, ChartBarIcon } from "@heroicons/vue/24/outline";
+/**
+ * MapView
+ *
+ * Displays the campaign banner, measurement input form, and a hex map of sample data.
+ * Provides a button to add new measurements when not in adding mode.
+ */
+defineOptions({ name: "DashboardView" });
+import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 import HexMap from "@/components/HexMap.vue";
 import { ref, onMounted, computed } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
@@ -234,5 +241,15 @@ onMounted(async () => {
             console.error("Error getting location or fetching campaigns:", err);
             campaigns.value = [];
         });
+});
+
+// Expose functions for documentation
+defineExpose({
+    /** Fetches active campaigns based on the user's location. */
+    fetchCampaigns,
+    /** Gets the user's location using Geolocation API or IP fallback. */
+    getLocation,
+    /** Fetches the user's location based on IP address. */
+    getIpLocation,
 });
 </script>
