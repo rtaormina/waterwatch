@@ -132,7 +132,6 @@ function handleHexClick() {
 /**
  * Handles clicking from hexagon analysis to 'see details'
  * @param location the data of the hexagon clicked
-
  */
 function handleOpenAnalysis(location: string) {
     hexLocation.value = location;
@@ -142,7 +141,6 @@ function handleOpenAnalysis(location: string) {
 /**
  * Handles selecting multiple hexagons
  * @param location  the data of the hexagons clicked
-
  */
 function handleSelect(location: string) {
     console.log(location);

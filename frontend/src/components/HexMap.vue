@@ -212,7 +212,10 @@ onMounted(() => {
     }[] = [];
 
     /**
-     * Returns true if hex A and hex B share at least 2 identical corner points.
+     * Returns true if two hexagons are adjacent (sides are touching)
+     * @param cornersA corners of the first hexagon compare
+     * @param cornersB corners of second hexagon to compare
+     * @return {boolean} true if adjacent, false if not
      */
     function isAdjacent(cornersA: L.LatLng[], cornersB: L.LatLng[]): boolean {
         let shared = 0;
@@ -227,6 +230,7 @@ onMounted(() => {
     /**
      * Highlights selected hexagons
      * @param corners corners of WKT polygons to be highlighted
+     * @return {polygon} highlighted polygon to overlay
      */
     function highlightHex(corners: L.LatLng[]): L.Polygon {
         return L.polygon(corners, {
