@@ -7,10 +7,6 @@ Provides a button to add new measurements when not in adding mode.
 
 ## Expose
 
-### sampleData
-
-> Creates sample data for the HexMap.
-
 ### fetchCampaigns
 
 > Fetches active campaigns based on the user's location.

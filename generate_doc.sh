@@ -6,7 +6,9 @@ npx typedoc \
   --plugin typedoc-plugin-vue \
   --tsconfig frontend/tsconfig.app.json \
   --entryPointStrategy expand \
-  frontend/src \
+  --excludeExternals \
+  --readme none \
+  frontend/src/composables \
   --out docs/ts
 
 
