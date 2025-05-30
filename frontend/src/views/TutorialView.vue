@@ -276,6 +276,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * TutorialsView
+ *
+ * Renders a set of tutorial pages (Measurements, Website, Mobile App, API)
+ * using tab navigation and sectional content components.
+ */
+defineOptions({ name: "TutorialsView" });
 import { ref } from "vue";
 import TextSection from "../components/Text/Section.vue";
 import TextSectionSplit from "../components/Text/SectionSplit.vue";
