@@ -17,6 +17,7 @@
                     :colorScale="scale"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
+                    @open-details="handleOpenAnalysis"
                 />
                 <button
                     class="absolute top-4 right-4 z-50 bg-main rounded-md p-1 text-white hover:cursor-pointer"
@@ -28,7 +29,6 @@
                 >
                     <AdjustmentsVerticalIcon class="w-10 h-10" />
                 </button>
-                <!-- <Legend v-if="showLegend" :colors="colors" :scale="scale" @close="handleClose" /> -->
                 <Legend
                     v-if="showLegend"
                     class="absolute z-40 mt-1"
@@ -81,6 +81,7 @@ import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Legend.vue";
 import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
+import { ChartBarIcon } from "@heroicons/vue/24/outline";
 
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
@@ -106,10 +107,16 @@ function showGlobalAnalytics() {
  *
  * @param data the data of the hexagon clicked
  */
-function handleHexClick(location: string) {
+function handleHexClick() {
+    addMeasurement.value = false;
+}
+
+/**
+ * Handles click event from hexagon data on the map to showing analysis.
+ */
+function handleOpenAnalysis(location: string) {
     hexLocation.value = location;
     viewAnalytics.value = true;
-    addMeasurement.value = false;
 }
 
 /**
@@ -127,11 +134,15 @@ function handleClose() {
 type MeasurementData = {
     point: L.LatLng;
     temperature: number;
+    min: number;
+    max: number;
     count: number;
 };
 type MeasurementResponseDataPoint = {
     location: { latitude: number; longitude: number };
     avg_temperature: number;
+    min_temperature: number;
+    max_temperature: number;
     count: number;
 };
 
@@ -144,6 +155,8 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),
         temperature: measurement.avg_temperature,
+        min: measurement.min_temperature,
+        max: measurement.max_temperature,
         count: measurement.count,
     }));
 }, [] as MeasurementData[]);
@@ -151,11 +164,7 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
 // color, styling, and scale values for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);
 const scale = ref<[number, number]>([10, 40]);
-const legendClasses = computed(() => [
-    "top-[4.5rem]",
-    "right-4",
-    "w-72",
-]);
+const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
 
 /**
  * Fetches active campaigns based on the user's location

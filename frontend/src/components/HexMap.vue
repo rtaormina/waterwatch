@@ -5,8 +5,9 @@
 <script setup lang="ts">
 import { createOSMLayer } from "@/composables/LocationFallback";
 import * as L from "leaflet";
-import { onMounted, useTemplateRef, watch } from "vue";
+import { createApp, onMounted, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
+import HexAnalysis from "./HexAnalysis.vue";
 
 declare module "leaflet" {
     /*
@@ -100,6 +101,9 @@ const layer = createOSMLayer({ noWrap: true });
 type DataPoint = {
     point: L.LatLng;
     temperature: number;
+    min: number;
+    max: number;
+    count: number;
 };
 
 const {
@@ -134,6 +138,7 @@ hexbinLayer.colorValue((d) => {
 // Set up events
 const emit = defineEmits<{
     (e: "hex-click", d: string): void;
+    (e: "open-details", d: string): void;
 }>();
 
 /**
@@ -179,6 +184,9 @@ onMounted(() => {
         zoom: 1,
         maxZoom: 16,
         minZoom: 3,
+    });
+    map.on("zoomstart", () => {
+        map.closePopup();
     });
     map.setMaxBounds(
         L.latLngBounds([
@@ -228,9 +236,44 @@ onMounted(() => {
                 const coords = geometry.coordinates[0].map(([lng, lat]) => `${lng} ${lat}`).join(", ");
                 return `POLYGON((${coords}))`;
             }
-
             const boundingGeometry = L.polygon(corners).toGeoJSON().geometry;
             console.log("Bounding Geometry:", boundingGeometry);
+
+            const layerPoint = L.point(d.x, d.y);
+            const latlng = map.layerPointToLatLng(layerPoint);
+            const container = document.createElement("div");
+
+            const vm = createApp(HexAnalysis, {
+                points: d,
+                /**
+                 * Function passed to the popup that sends an emit with the hexagon location info
+                 */
+                onOpenDetails: () => {
+                    emit("open-details", geoJsonToWktPolygon(boundingGeometry));
+                },
+                /**
+                 * Function passed to the popup that closes it when x is selected
+                 */
+                onClose: () => {
+                    map.closePopup();
+                },
+            });
+
+            vm.mount(container);
+
+            const popup = L.popup({
+                offset: [0, -hexbinLayer.radius()],
+                autoClose: true,
+                closeOnClick: false,
+            })
+                .setLatLng(latlng)
+                .setContent(container)
+                .openOn(map);
+
+            popup.on("remove", () => {
+                vm.unmount();
+            });
+
             emit("hex-click", geoJsonToWktPolygon(boundingGeometry));
         });
 });
