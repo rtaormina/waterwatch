@@ -229,7 +229,7 @@ onMounted(() => {
                 return `POLYGON((${coords}))`;
             }
 
-            const boundingGeometry = L.polygon(corners).toGeoJSON().geometry;
+            const boundingGeometry = L.polygon(corners).toGeoJSON().geometry as { coordinates: number[][][] };
             console.log("Bounding Geometry:", boundingGeometry);
             emit("hex-click", geoJsonToWktPolygon(boundingGeometry));
         });

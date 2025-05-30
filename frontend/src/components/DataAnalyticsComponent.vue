@@ -48,8 +48,7 @@ async function getGraphData(location: string): Promise<number[]> {
  * Renders the histogram using the provided data.
  */
 async function render() {
-    if (!graph.value) return;
-
+    if (!graph.value || !props.location) return;
     const values = await getGraphData(props.location);
     drawHistogram(graph.value, values);
 }
