@@ -23,10 +23,6 @@ export function createOSMLayer(options?: { noWrap: boolean }): L.TileLayer {
  * @returns {Leaflet.Marker} The marker
  */
 export function createMarker(location: Ref<L.LatLng>): L.Marker {
-    L.Icon.Default.prototype.options.iconUrl = markerIconUrl;
-    L.Icon.Default.prototype.options.iconRetinaUrl = markerIconRetinaUrl;
-    L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
-    L.Icon.Default.imagePath = ""; // necessary to avoid Leaflet adds some prefix to image path.
     const marker = L.marker(location.value, {
         draggable: true,
         autoPan: true,
