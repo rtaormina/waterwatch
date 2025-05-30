@@ -53,7 +53,7 @@ function createSVGContainer(
  * @param {number[]} data The data to visualize in the histogram.
  */
 export function drawHistogram(el: HTMLElement, data: number[]) {
-    const margin = { top: 40, right: 40, bottom: 40, left: 40 };
+    const margin = { top: 40, right: 20, bottom: 40, left: 40 };
     const width = el.clientWidth - margin.left - margin.right;
     const height = el.clientHeight - margin.top - margin.bottom;
 

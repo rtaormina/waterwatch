@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full h-full flex flex-col">
+    <div class="w-full h-full flex flex-col p-0 m-0">
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
 
         <div class="w-full h-full flex flex-row">
