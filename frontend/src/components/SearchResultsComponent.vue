@@ -2,7 +2,7 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, defineProps, computed } from "vue";
 import { ArrowDownTrayIcon } from "@heroicons/vue/24/solid";
 import Modal from "./Modal.vue";
-import { permissionsLogic } from "@/composables/PermissionsLogic";
+import { permissionsLogic } from "../composables/PermissionsLogic";
 
 // Define the logic for permissions
 const canDownload = ref(false);
@@ -104,34 +104,31 @@ defineExpose({
             <div class="mt-2 space-y-1">
                 <div v-if="searched" class="flex justify-between">
                     <span>Number of Results:</span>
-                    <span>{{ props.results.count }}</span>
+                    <span data-testid="num-results">{{ props.results.count }}</span>
                 </div>
                 <div v-if="searched" class="hidden md:flex md:justify-between">
                     <span>Average Temperature:</span>
-                    <span>{{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}</span>
+                    <span data-testid="avg-temp">{{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}</span>
                 </div>
             </div>
         </div>
         <div class="flex-grow"></div>
         <div class="md:overflow-y-auto flex flex-col items-center mb-4 md:mb-8">
-            <ArrowDownTrayIcon
-                :class="[
-                    'md:min-h-12 md:min-w-12 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200',
-                    canDownload && searched && !props.filtersOutOfSync // Updated condition
-                        ? 'cursor-pointer text-gray-800 hover:text-gray-600'
-                        : 'cursor-not-allowed text-gray-400',
-                ]"
-                @click="
-                    !props.searched || !canDownload || props.filtersOutOfSync ? null : emit('download') // Updated condition
-                "
-            />
+            <button
+                data-testid="download-icon"
+                @click="emit('download')"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync"
+                class="flex items-center justify-center md:min-h-0 md:min-w-0 w-25 h-25 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200 disabled:cursor-not-allowed disabled:text-gray-400 enabled:cursor-pointer enabled:text-gray-800 enabled:hover:text-gray-600"
+            >
+                <ArrowDownTrayIcon class="w-full h-full" />
+            </button>
             <div class="w-11/12 md:w-9/12 flex items-center justify-between space-x-2 mb-4">
                 <label for="format" class="font-semibold">Download as</label>
                 <select
-                    id="format"
+                    data-testid="format"
                     v-model="modelFormat"
                     class="flex-1 border rounded bg-white px-3 py-2"
-                    :disabled="!canDownload || !searched || props.filtersOutOfSync"
+                    :disabled="!canDownload"
                 >
                     <option value="csv">CSV</option>
                     <option value="xml">XML</option>
@@ -151,7 +148,7 @@ defineExpose({
             >
                 Download
             </button>
-            <Modal :visible="props.showModal" @close="emit('close-modal')">
+            <Modal data-testid="export-failed-modal" :visible="props.showModal" @close="emit('close-modal')">
                 <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
                 <div class="flex items-center mt-4 gap-2">
                     <button

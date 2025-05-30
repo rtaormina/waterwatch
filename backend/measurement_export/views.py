@@ -4,6 +4,7 @@ import json
 import logging
 from datetime import time
 
+from django.contrib.gis.geos import GEOSException, GEOSGeometry
 from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 from measurements.metrics import METRIC_MODELS
@@ -15,6 +16,39 @@ from .models import Location, Preset
 from .serializers import MeasurementSerializer, PresetSerializer
 
 logger = logging.getLogger("WATERWATCH")
+
+
+@api_view(["GET"])
+def export_all_view(request):
+    """Export all measurements.
+
+    This view exports all measurements.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object.
+
+    Returns
+    -------
+    JsonResponse
+        JSON response containing all measurements serialized with the MeasurementSerializer.
+    """
+    boundry_geometry = request.GET.get("boundry_geometry")
+    query = Measurement.objects.select_related(*[model.__name__.lower() for model in METRIC_MODELS])
+    if boundry_geometry:
+        try:
+            polygon = GEOSGeometry(boundry_geometry)
+            query = query.filter(location__within=polygon)
+        except GEOSException:
+            logger.exception("Invalid boundry_geometry format: %s")
+            return JsonResponse({"error": "Invalid boundry_geometry format"}, status=400)
+    else:
+        query = query.all()
+
+    data = MeasurementSerializer(query, many=True, context={"included_metrics": ["temperature"]}).data
+
+    return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
 
 
 @api_view(["POST"])
