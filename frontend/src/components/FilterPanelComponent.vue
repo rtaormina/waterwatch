@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted, onUpdated, onBeforeUnmount, computed } from "vue";
+import { ref, reactive, watch, onMounted, onUpdated, onBeforeUnmount, computed, nextTick } from "vue";
 import { PlusIcon, MinusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
 import { useFilters, type DateRangeFilter, type TemperatureFilter, type TimeSlot } from "../composables/useFilters";
 import { useSearch } from "../composables/useSearch";
+import { Filters } from "@/composables/usePresets";
 
 // Define the emits for the component
 const emit = defineEmits(["search"]);
@@ -168,8 +169,6 @@ function toggleWaterSourceDropdown() {
 // Functionality to search for countries
 const countrySearchQuery = ref("");
 const filteredCountries = computed(() => {
-    console.log("Filtering countries with query:", countrySearchQuery.value);
-    console.log("All countries:", allCountries.value);
     if (!countrySearchQuery.value) return allCountries.value;
     return allCountries.value.filter((country) =>
         country.toLowerCase().includes(countrySearchQuery.value.toLowerCase()),
@@ -238,6 +237,60 @@ function reset() {
     resetSearch();
 }
 
+/**
+ * Apply filters from a preset to the current filter state.
+ * This function takes a preset's filters object and applies it to the component's reactive state.
+ *
+ * @param {any} filters - The filters object from a preset
+ * @returns {void}
+ */
+function applyFilters(filters: Filters) {
+    // Reset all filters first
+    reset();
+
+    // Apply location filters
+    if (filters.location) {
+        if (filters.location.continents && Array.isArray(filters.location.continents)) {
+            selectedContinents.value = [...filters.location.continents];
+        }
+        nextTick(() => {
+            if (filters.location.countries && Array.isArray(filters.location.countries)) {
+                selectedCountries.value = [...filters.location.countries];
+            }
+        });
+    }
+
+    // Apply measurement filters
+    if (filters.measurements) {
+        if (filters.measurements.waterSources && Array.isArray(filters.measurements.waterSources)) {
+            selectedWaterSources.value = [...filters.measurements.waterSources];
+        }
+
+        // Apply temperature filters
+        if (filters.measurements.temperature) {
+            temperatureEnabled.value = true;
+            const temp = filters.measurements.temperature;
+            temperature.from = temp.from?.toString() || "";
+            temperature.to = temp.to?.toString() || "";
+            temperature.unit = temp.unit || "C";
+        }
+    }
+
+    // Apply date range filters
+    if (filters.dateRange) {
+        dateRange.from = filters.dateRange.from || "";
+        dateRange.to = filters.dateRange.to || "";
+    }
+
+    // Apply time slot filters
+    if (filters.times && Array.isArray(filters.times)) {
+        times.value = filters.times.map((slot: TimeSlot) => ({
+            from: slot.from || "",
+            to: slot.to || "",
+        }));
+    }
+}
+
 defineExpose({
     /** Calculate dropdown height based on panel size. */ calculateDropdownHeight,
     /** Close dropdowns on outside click. */ handleClickOutside,
@@ -248,6 +301,12 @@ defineExpose({
     /** Reset filters to defaults. */ reset,
     /** Get serialized search parameters for current filters. */ getSearchParams,
     /** Reactive temperature filter object. */ temperature,
+    /** Apply preset filters */ applyFilters,
+    /** Validation flags for search enable/disable */
+    tempRangeValid,
+    dateRangeValid,
+    allSlotsValid,
+    slotsNonOverlapping,
 });
 </script>
 
