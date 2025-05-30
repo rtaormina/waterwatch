@@ -203,11 +203,25 @@ class PresetAdminForm(forms.ModelForm):
         }
 
         if cleaned.get("temperature_enabled"):
-            filters["measurements"]["temperature"] = {
-                "from": float(cleaned["temp_from"]) if cleaned["temp_from"] else None,
-                "to": float(cleaned["temp_to"]) if cleaned["temp_to"] else None,
-                "unit": cleaned.get("temp_unit") or "C",
-            }
+            temp_from_value = cleaned.get("temp_from")
+            temp_to_value = cleaned.get("temp_to")
+            temp_unit_value = cleaned.get("temp_unit")
+
+            temperature_filter = {}
+
+            if temp_from_value is not None:
+                temperature_filter["from"] = float(temp_from_value)
+            else:
+                temperature_filter["from"] = None  # Explicitly None if not provided
+
+            if temp_to_value is not None:
+                temperature_filter["to"] = float(temp_to_value)
+            else:
+                temperature_filter["to"] = None  # Explicitly None if not provided
+
+            temperature_filter["unit"] = temp_unit_value or "C"  # Default to 'C'
+
+            filters["measurements"]["temperature"] = temperature_filter
 
         if df and dt:
             filters["dateRange"] = {
