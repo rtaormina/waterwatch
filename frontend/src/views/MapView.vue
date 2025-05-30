@@ -1,19 +1,62 @@
 <template>
-    <div class="w-full h-full flex flex-col">
+    <div class="w-full h-full flex flex-col p-0 m-0">
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
 
         <div class="w-full h-full flex flex-row">
-            <div class="left-0 bottom-0 w-3/5 relative" v-if="useMeasurementState().addingMeasurement.value">
-                <MeasurementComponent />
+            <div
+                class="left-0 top-[64px] md:top-0 bottom-0 w-screen md:w-3/5 h-screen fixed md:relative z-10 bg-white"
+                v-if="viewAnalytics || addMeasurement"
+            >
+                <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
+                <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleClose" />
             </div>
-            <HexMap :data="data" />
-            <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4">
+            <div class="relative w-full h-full">
+                <HexMap
+                    :colors="colors"
+                    :data="data"
+                    :colorScale="scale"
+                    @click="showLegend = false"
+                    @hex-click="handleHexClick"
+                />
+                <button
+                    class="absolute top-4 right-4 z-50 bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                    @click="
+                        addMeasurement = false;
+                        viewAnalytics = false;
+                        showLegend = !showLegend;
+                    "
+                >
+                    <AdjustmentsVerticalIcon class="w-10 h-10" />
+                </button>
+                <!-- <Legend v-if="showLegend" :colors="colors" :scale="scale" @close="handleClose" /> -->
+                <Legend
+                    v-if="showLegend"
+                    class="absolute z-40 mt-1"
+                    :class="legendClasses"
+                    :colors="colors"
+                    :scale="scale"
+                    @close="handleClose"
+                />
+            </div>
+
+            <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
                 <button
                     class="bg-main rounded-md p-1 text-white"
-                    @click="setTrue()"
-                    v-if="!useMeasurementState().addingMeasurement.value"
+                    @click="
+                        addMeasurement = true;
+                        viewAnalytics = false;
+                        showLegend = false;
+                    "
+                    v-if="!addMeasurement"
                 >
                     <PlusCircleIcon class="w-10 h-10" />
+                </button>
+                <button
+                    class="bg-main rounded-md p-1 text-white"
+                    @click="showGlobalAnalytics"
+                    v-if="!viewAnalytics && !addMeasurement"
+                >
+                    <ChartBarIcon class="w-10 h-10" />
                 </button>
             </div>
         </div>
@@ -21,14 +64,61 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * MapView
+ *
+ * Displays the campaign banner, measurement input form, and a hex map of sample data.
+ * Provides a button to add new measurements when not in adding mode.
+ */
+defineOptions({ name: "DashboardView" });
 import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 import HexMap from "@/components/HexMap.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
-import { setTrue, useMeasurementState } from "@/composables/MeasurementState";
 import * as L from "leaflet";
+import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
+import Legend from "../components/Legend.vue";
+import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
+
+const viewAnalytics = ref(false);
+const addMeasurement = ref(false);
+const showLegend = ref(false);
+const campaigns = ref([]);
+const hexLocation = ref<string>("");
+type Location = {
+    latitude: number;
+    longitude: number;
+};
+
+/**
+ * Shows the global analytics in the sidebar component.
+ */
+function showGlobalAnalytics() {
+    hexLocation.value = "";
+    viewAnalytics.value = true;
+    addMeasurement.value = false;
+}
+
+/**
+ * Handles the click event on a hexagon in the map.
+ *
+ * @param data the data of the hexagon clicked
+ */
+function handleHexClick(location: string) {
+    hexLocation.value = location;
+    viewAnalytics.value = true;
+    addMeasurement.value = false;
+}
+
+/**
+ * Handles the close event for the sidebar components.
+ */
+function handleClose() {
+    viewAnalytics.value = false;
+    addMeasurement.value = false;
+}
 
 /**
  * Fetches measurements from the API and formats them for the HexMap component.
@@ -44,6 +134,7 @@ type MeasurementResponseDataPoint = {
     avg_temperature: number;
     count: number;
 };
+
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     const res = await fetch("/api/measurements/aggregated");
 
@@ -57,11 +148,14 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     }));
 }, [] as MeasurementData[]);
 
-const campaigns = ref([]);
-type Location = {
-    latitude: number;
-    longitude: number;
-};
+// color, styling, and scale values for hexagon visualization
+const colors = ref(["#3183D4", "#E0563A"]);
+const scale = ref<[number, number]>([10, 40]);
+const legendClasses = computed(() => [
+    "top-[4.5rem]",
+    "right-4",
+    "w-72",
+]);
 
 /**
  * Fetches active campaigns based on the user's location
@@ -147,5 +241,15 @@ onMounted(async () => {
             console.error("Error getting location or fetching campaigns:", err);
             campaigns.value = [];
         });
+});
+
+// Expose functions for documentation
+defineExpose({
+    /** Fetches active campaigns based on the user's location. */
+    fetchCampaigns,
+    /** Gets the user's location using Geolocation API or IP fallback. */
+    getLocation,
+    /** Fetches the user's location based on IP address. */
+    getIpLocation,
 });
 </script>
