@@ -46,7 +46,8 @@ def export_all_view(request):
     else:
         query = query.all()
 
-    data = MeasurementSerializer(query, many=True, context={"included_metrics": ["temperature"]}).data
+    # If there are other metrics you want to add, you can include it to data
+    data = [m.temperature.value for m in query if m.temperature is not None]
 
     return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
 
