@@ -3,7 +3,7 @@
 import logging
 
 from django.contrib.gis.geos import GEOSException, GEOSGeometry
-from django.db.models import Avg, Count, Min, Max
+from django.db.models import Avg, Count, Max, Min
 from django.http import JsonResponse
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement

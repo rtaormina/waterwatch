@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 interface Props {
-    points: { o: { temperature: number; min: number; max: number; count: number; } }[];
+    points: { o: { temperature: number; min: number; max: number; count: number } }[];
     onOpenDetails: () => void;
     onClose: () => void;
 }
@@ -29,12 +29,15 @@ const props = defineProps<Props>();
 
 const count = computed(() => props.points.reduce((sum, p) => sum + p.o.count, 0));
 const avgTemp = computed(() => {
-    return (props.points.reduce((sum, p) => sum + (p.o.temperature*p.o.count), 0) / props.points.reduce((sum,p) => sum + p.o.count,0)).toFixed(1);
+    return (
+        props.points.reduce((sum, p) => sum + p.o.temperature * p.o.count, 0) /
+        props.points.reduce((sum, p) => sum + p.o.count, 0)
+    ).toFixed(1);
 });
 const minTemp = computed(() => {
     return Math.min(...props.points.map((p) => p.o.min)).toFixed(1);
 });
 const maxTemp = computed(() => {
     return Math.max(...props.points.map((p) => p.o.max)).toFixed(1);
-})
+});
 </script>

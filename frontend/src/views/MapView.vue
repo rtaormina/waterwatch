@@ -8,11 +8,7 @@
                 v-if="viewAnalytics || addMeasurement"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
-                <DataAnalyticsComponent
-                    v-if="viewAnalytics"
-                    :location="hexLocation"
-                    @close="handleClose"
-                />
+                <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleClose" />
             </div>
             <div class="relative w-full h-full">
                 <HexMap
@@ -111,14 +107,14 @@ function showGlobalAnalytics() {
  *
  * @param data the data of the hexagon clicked
  */
-function handleHexClick(location: string) {
+function handleHexClick() {
     addMeasurement.value = false;
 }
 
 /**
  * Handles click event from hexagon data on the map to showing analysis.
  */
-function handleOpenAnalysis(location :string) {
+function handleOpenAnalysis(location: string) {
     hexLocation.value = location;
     viewAnalytics.value = true;
 }

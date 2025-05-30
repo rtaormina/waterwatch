@@ -245,9 +245,15 @@ onMounted(() => {
 
             const vm = createApp(HexAnalysis, {
                 points: d,
+                /**
+                 * Function passed to the popup that sends an emit with the hexagon location info
+                 */
                 onOpenDetails: () => {
                     emit("open-details", geoJsonToWktPolygon(boundingGeometry));
                 },
+                /**
+                 * Function passed to the popup that closes it when x is selected
+                 */
                 onClose: () => {
                     map.closePopup();
                 },
@@ -267,7 +273,6 @@ onMounted(() => {
             popup.on("remove", () => {
                 vm.unmount();
             });
-
 
             emit("hex-click", geoJsonToWktPolygon(boundingGeometry));
         });
