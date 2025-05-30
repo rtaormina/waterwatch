@@ -3,7 +3,7 @@
 import logging
 
 from django.contrib.gis.geos import GEOSException, GEOSGeometry
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Min, Max
 from django.http import JsonResponse
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
@@ -44,7 +44,12 @@ def analysed_measurements_view(request):
     else:
         query = query.all()
 
-    results = query.values("location").annotate(count=Count("location"), avg_temperature=Avg("temperature__value"))
+    results = query.values("location").annotate(
+        count=Count("location"),
+        avg_temperature=Avg("temperature__value"),
+        min_temperature=Min("temperature__value"),
+        max_temperature=Max("temperature__value"),
+    )
 
     serializer = MeasurementAggregatedSerializer(results, many=True)
     serialized_data = serializer.data

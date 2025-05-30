@@ -112,14 +112,14 @@ function showGlobalAnalytics() {
  * @param data the data of the hexagon clicked
  */
 function handleHexClick(location: string) {
-    hexLocation.value = location;
     addMeasurement.value = false;
 }
 
 /**
  * Handles click event from hexagon data on the map to showing analysis.
  */
-function handleOpenAnalysis() {
+function handleOpenAnalysis(location :string) {
+    hexLocation.value = location;
     viewAnalytics.value = true;
 }
 
@@ -138,11 +138,15 @@ function handleClose() {
 type MeasurementData = {
     point: L.LatLng;
     temperature: number;
+    min: number;
+    max: number;
     count: number;
 };
 type MeasurementResponseDataPoint = {
     location: { latitude: number; longitude: number };
     avg_temperature: number;
+    min_temperature: number;
+    max_temperature: number;
     count: number;
 };
 
@@ -155,6 +159,8 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),
         temperature: measurement.avg_temperature,
+        min: measurement.min_temperature,
+        max: measurement.max_temperature,
         count: measurement.count,
     }));
 }, [] as MeasurementData[]);
