@@ -3,7 +3,7 @@
 from datetime import date, timedelta
 
 from django.contrib.gis.geos import Point
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Max, Min
 from django.test import TestCase
 from measurements.models import Measurement, Temperature
 from rest_framework import serializers
@@ -86,7 +86,12 @@ class CollectMeasurementAnalysisSerializersTests(TestCase):
         query = (
             Measurement.objects.all()
             .values("location")
-            .annotate(count=Count("location"), avg_temperature=Avg("temperature__value"))
+            .annotate(
+                count=Count("location"),
+                avg_temperature=Avg("temperature__value"),
+                min_temperature=Min("temperature__value"),
+                max_temperature=Max("temperature__value"),
+            )
             .order_by("count")
         )
         serializer = MeasurementAggregatedSerializer(query, many=True)
@@ -96,7 +101,11 @@ class CollectMeasurementAnalysisSerializersTests(TestCase):
         assert measurements[0]["location"]["longitude"] == 1.0
         assert measurements[0]["count"] == 1
         assert measurements[0]["avg_temperature"] == 25.5
+        assert measurements[0]["min_temperature"] == 25.5
+        assert measurements[0]["max_temperature"] == 25.5
         assert measurements[1]["location"]["latitude"] == 4.0
         assert measurements[1]["location"]["longitude"] == 3.0
         assert measurements[1]["count"] == 2
         assert measurements[1]["avg_temperature"] == 19.0
+        assert measurements[1]["min_temperature"] == 18.0
+        assert measurements[1]["max_temperature"] == 20.0

@@ -15,20 +15,37 @@
                     :colors="colors"
                     :data="data"
                     :colorScale="scale"
+                    :selectMult="selectMult"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
+                    @hex-select="handleSelect"
+                    @open-details="handleOpenAnalysis"
                 />
-                <button
-                    class="absolute top-4 right-4 z-50 bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                    @click="
-                        addMeasurement = false;
-                        viewAnalytics = false;
-                        showLegend = !showLegend;
-                    "
-                >
-                    <AdjustmentsVerticalIcon class="w-10 h-10" />
-                </button>
-                <!-- <Legend v-if="showLegend" :colors="colors" :scale="scale" @close="handleClose" /> -->
+                <div class="absolute top-4 right-4 z-50 flex align-center z-20 justify-center gap-4">
+                    <button
+                        class="text-white hover:cursor-pointer"
+                        :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
+                        @click="
+                            selectMult = !selectMult;
+                            viewAnalytics = true;
+                            addMeasurement = false;
+                            showLegend = false;
+                        "
+                    >
+                        <SquaresPlusIcon class="w-10 h-10" />
+                    </button>
+                    <button
+                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                        @click="
+                            addMeasurement = false;
+                            viewAnalytics = false;
+                            showLegend = !showLegend;
+                        "
+                    >
+                        <AdjustmentsVerticalIcon class="w-10 h-10" />
+                    </button>
+                </div>
+
                 <Legend
                     v-if="showLegend"
                     class="absolute z-40 mt-1"
@@ -81,10 +98,13 @@ import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Legend.vue";
 import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
+import { ChartBarIcon } from "@heroicons/vue/24/outline";
+import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
+const selectMult = ref(false);
 const campaigns = ref([]);
 const hexLocation = ref<string>("");
 type Location = {
@@ -104,12 +124,28 @@ function showGlobalAnalytics() {
 /**
  * Handles the click event on a hexagon in the map.
  *
- * @param data the data of the hexagon clicked
  */
-function handleHexClick(location: string) {
+function handleHexClick() {
+    addMeasurement.value = false;
+}
+
+/**
+ * Handles clicking from hexagon analysis to 'see details'
+ * @param location the data of the hexagon clicked
+ */
+function handleOpenAnalysis(location: string) {
     hexLocation.value = location;
     viewAnalytics.value = true;
-    addMeasurement.value = false;
+}
+
+/**
+ * Handles selecting multiple hexagons
+ * @param location  the data of the hexagons clicked
+ */
+function handleSelect(location: string) {
+    console.log(location);
+    hexLocation.value = location;
+    viewAnalytics.value = true;
 }
 
 /**
@@ -118,6 +154,7 @@ function handleHexClick(location: string) {
 function handleClose() {
     viewAnalytics.value = false;
     addMeasurement.value = false;
+    selectMult.value = false;
 }
 
 /**
@@ -127,11 +164,15 @@ function handleClose() {
 type MeasurementData = {
     point: L.LatLng;
     temperature: number;
+    min: number;
+    max: number;
     count: number;
 };
 type MeasurementResponseDataPoint = {
     location: { latitude: number; longitude: number };
     avg_temperature: number;
+    min_temperature: number;
+    max_temperature: number;
     count: number;
 };
 
@@ -144,6 +185,8 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),
         temperature: measurement.avg_temperature,
+        min: measurement.min_temperature,
+        max: measurement.max_temperature,
         count: measurement.count,
     }));
 }, [] as MeasurementData[]);

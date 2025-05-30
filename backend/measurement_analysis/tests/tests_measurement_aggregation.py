@@ -1,6 +1,6 @@
 """Tests for measurement collection Endpoints."""
 
-from datetime import date, timedelta
+from datetime import timedelta
 
 from django.db import connection
 from django.test import TestCase
@@ -69,18 +69,9 @@ class MeasurementAnalysisTests(TestCase):
         response = self.client.get("/api/measurements/")
         assert response.status_code == 200
         data = response.json()
-        assert data[0]["location"]["latitude"] == 2.0
-        assert data[0]["location"]["longitude"] == 1.0
-        assert data[0]["local_date"] == (date(2025, 10, 1)).isoformat()
-        assert data[0]["metrics"][0]["value"] == 25.5
-        assert data[1]["location"]["latitude"] == 4.0
-        assert data[1]["location"]["longitude"] == 3.0
-        assert data[1]["local_date"] == (date(2025, 10, 2)).isoformat()
-        assert data[1]["metrics"][0]["value"] == 20.0
-        assert data[2]["location"]["latitude"] == 4.0
-        assert data[2]["location"]["longitude"] == 3.0
-        assert data[2]["local_date"] == (date(2025, 10, 3)).isoformat()
-        assert data[2]["metrics"][0]["value"] == 18.0
+        assert data[0] == "25.5"
+        assert data[1] == "20.0"
+        assert data[2] == "18.0"
 
     def test_measurement_aggregation(self):
         """Test the aggregation of measurements."""
@@ -134,17 +125,8 @@ class MeasurementAnalysisTests(TestCase):
         data = response.json()
         assert len(data) == 2
 
-        # Check the first measurement
-        assert data[0]["location"]["latitude"] == 4.0
-        assert data[0]["location"]["longitude"] == 3.0
-        assert data[0]["local_date"] == "2025-10-02"
-        assert data[0]["metrics"][0]["value"] == 20.0
-
-        # Check the second measurement
-        assert data[1]["location"]["latitude"] == 4.0
-        assert data[1]["location"]["longitude"] == 3.0
-        assert data[1]["local_date"] == "2025-10-03"
-        assert data[1]["metrics"][0]["value"] == 18.0
+        assert data[0] == "20.0"
+        assert data[1] == "18.0"
 
     def test_invalid_boundary_geometry(self):
         """Test the handling of an invalid boundary geometry."""

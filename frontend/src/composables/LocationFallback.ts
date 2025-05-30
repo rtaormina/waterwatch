@@ -3,6 +3,16 @@ import { Spinner, type SpinnerOptions } from "spin.js";
 import "spin.js/spin.css";
 import { toValue, watch, type MaybeRefOrGetter, type Ref } from "vue";
 
+// For Leaflets marker to work properly on production, we need to set the default marker icon URLs explicitly.
+// This is a workaround for the issue where Leaflet does not correctly build the marker icon images in production builds.
+import markerIconUrl from "../../node_modules/leaflet/dist/images/marker-icon.png";
+import markerIconRetinaUrl from "../../node_modules/leaflet/dist/images/marker-icon-2x.png";
+import markerShadowUrl from "../../node_modules/leaflet/dist/images/marker-shadow.png";
+L.Icon.Default.prototype.options.iconUrl = markerIconUrl;
+L.Icon.Default.prototype.options.iconRetinaUrl = markerIconRetinaUrl;
+L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
+L.Icon.Default.imagePath = ""; // necessary to avoid Leaflet adds some prefix to image path.
+
 /**
  * Creates the OSM Layer for the map.
  *
