@@ -215,21 +215,57 @@
                 <TextSection :title="t('api.add.title')">
                     <div v-html="addMeasurementAPI" class="whitespace-pre-line" />
                     <div><TextTabs :items="addMeasurementAPITabs" v-model="api" class="w-full text-center" /></div>
-                    <div v-if="api == 'request'" v-html="addMeasurementReq" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="api == 'example'" v-html="addMeasurementEx" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="api == 'success'" v-html="addMeasurementSuccess" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="api == 'error'" v-html="addMeasurementErr" class="whitespace-pre-line overflow-x-scroll" />
+                    <div
+                        v-if="api == 'request'"
+                        v-html="addMeasurementReq"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="api == 'example'"
+                        v-html="addMeasurementEx"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="api == 'success'"
+                        v-html="addMeasurementSuccess"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="api == 'error'"
+                        v-html="addMeasurementErr"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
                 </TextSection>
                 <TextSection :title="t('api.export.title')">
                     <div v-html="exportMeasurementAPI" class="whitespace-pre-line" />
                     <div>
                         <TextTabs :items="exportMeasurementAPITabs" v-model="apiExport" class="w-full text-center" />
                     </div>
-                    <div v-if="apiExport == 'request'" v-html="exportMeasurementReq" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="apiExport == 'geojson'" v-html="exportMeasurementGeoJson" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="apiExport == 'csv'" v-html="exportMeasurementCSV" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="apiExport == 'default'" v-html="exportMeasurementDefault" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="apiExport == 'error'" v-html="exportMeasurementErr" class="whitespace-pre-line overflow-x-scroll" />
+                    <div
+                        v-if="apiExport == 'request'"
+                        v-html="exportMeasurementReq"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="apiExport == 'geojson'"
+                        v-html="exportMeasurementGeoJson"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="apiExport == 'csv'"
+                        v-html="exportMeasurementCSV"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="apiExport == 'default'"
+                        v-html="exportMeasurementDefault"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="apiExport == 'error'"
+                        v-html="exportMeasurementErr"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
                 </TextSection>
                 <TextSection :title="t('api.conclusion.title')">
                     <p>{{ t("api.conclusion.text") }}</p>
@@ -240,7 +276,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import TextSection from "../components/Text/Section.vue";
 import TextSectionSplit from "../components/Text/SectionSplit.vue";
 import TextSubSection from "../components/Text/SubSection.vue";
@@ -253,24 +289,24 @@ import MarkdownIt from "markdown-it";
 const { t } = useI18n();
 const md = new MarkdownIt({ html: true, linkify: true, typographer: true });
 
-const addMeasurementAPI = md.render(t("api.add.text"));
-const addMeasurementReq = md.render(t("api.add.request.text"));
-const addMeasurementEx = md.render(t("api.add.example.text"));
-const addMeasurementSuccess = md.render(t("api.add.success.text"));
-const addMeasurementErr = md.render(t("api.add.error.text"));
+const addMeasurementAPI = computed(() => md.render(t("api.add.text")));
+const addMeasurementReq = computed(() => md.render(t("api.add.request.text")));
+const addMeasurementEx = computed(() => md.render(t("api.add.example.text")));
+const addMeasurementSuccess = computed(() => md.render(t("api.add.success.text")));
+const addMeasurementErr = computed(() => md.render(t("api.add.error.text")));
 
-const exportMeasurementAPI = md.render(t("api.export.text"));
-const exportMeasurementReq = md.render(t("api.export.request.text"));
-const exportMeasurementGeoJson = md.render(t("api.export.geojson.text"));
-const exportMeasurementCSV = md.render(t("api.export.csv.text"));
-const exportMeasurementDefault = md.render(t("api.export.default.text"));
-const exportMeasurementErr = md.render(t("api.export.error.text"));
+const exportMeasurementAPI = computed(() => md.render(t("api.export.text")));
+const exportMeasurementReq = computed(() => md.render(t("api.export.request.text")));
+const exportMeasurementGeoJson = computed(() => md.render(t("api.export.geojson.text")));
+const exportMeasurementCSV = computed(() => md.render(t("api.export.csv.text")));
+const exportMeasurementDefault = computed(() => md.render(t("api.export.default.text")));
+const exportMeasurementErr = computed(() => md.render(t("api.export.error.text")));
 
 const page = ref<string>("Measurements");
 const api = ref<string>("request");
 const apiExport = ref<string>("request");
 
-const tutorials = [
+const tutorials = computed(() => [
     {
         label: t("labels.measurement"),
         value: "Measurements",
@@ -287,9 +323,9 @@ const tutorials = [
         label: t("labels.api"),
         value: "API",
     },
-];
+]);
 
-const addMeasurementAPITabs = [
+const addMeasurementAPITabs = computed(() => [
     {
         label: t("api.add.request.title"),
         value: "request",
@@ -306,9 +342,9 @@ const addMeasurementAPITabs = [
         label: t("api.add.error.title"),
         value: "error",
     },
-];
+]);
 
-const exportMeasurementAPITabs = [
+const exportMeasurementAPITabs = computed(() => [
     {
         label: t("api.export.request.title"),
         value: "request",
@@ -329,5 +365,5 @@ const exportMeasurementAPITabs = [
         label: t("api.export.error.title"),
         value: "error",
     },
-];
+]);
 </script>
