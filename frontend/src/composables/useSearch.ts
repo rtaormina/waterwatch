@@ -54,7 +54,8 @@ export function useSearch() {
 
             // Update results
             state.count = response.data.count || 0;
-            state.avgTemp = response.data.avgTemp || 0;
+            const raw = response.data.avgTemp ?? 0;
+            state.avgTemp = Math.round(raw * 10) / 10;
         } catch (err) {
             console.error("Search failed:", err);
             state.count = 0;

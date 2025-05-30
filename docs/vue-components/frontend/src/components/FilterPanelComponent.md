@@ -8,14 +8,6 @@
 
 ## Expose
 
-### getSearchParams
-
-> Get serialized search parameters for current filters.
-
-### temperature
-
-> Reactive temperature filter object.
-
 ### calculateDropdownHeight
 
 > Calculate dropdown height based on panel size.
@@ -43,5 +35,13 @@
 ### reset
 
 > Reset filters to defaults.
+
+### getSearchParams
+
+> Get serialized search parameters for current filters.
+
+### temperature
+
+> Reactive temperature filter object.
 
 ---

@@ -6,7 +6,7 @@
             <div class="left-0 bottom-0 w-3/5 relative" v-if="useMeasurementState().addingMeasurement.value">
                 <MeasurementComponent />
             </div>
-            <HexMap :data="sampleData()" />
+            <HexMap :data="data" />
             <div class="fixed left-4 bottom-5 flex align-center justify-center gap-4">
                 <button
                     class="bg-main rounded-md p-1 text-white"
@@ -35,20 +35,34 @@ import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 import { setTrue, useMeasurementState } from "@/composables/MeasurementState";
 import * as L from "leaflet";
+import { asyncComputed } from "@vueuse/core";
 
 /**
- * Creates sample data for the map
+ * Fetches measurements from the API and formats them for the HexMap component.
+ * The data is fetched asynchronously and transformed into a format suitable for the map.
  */
-const sampleData = () => {
-    let array = [];
-    for (let index = 0; index < 10_000; index++) {
-        array.push({
-            point: L.latLng(Math.random() * 180 - 90, Math.random() * 360 - 180),
-            temperature: Math.random() * 100,
-        });
-    }
-    return array;
+type MeasurementData = {
+    point: L.LatLng;
+    temperature: number;
+    count: number;
 };
+type MeasurementResponseDataPoint = {
+    location: { latitude: number; longitude: number };
+    avg_temperature: number;
+    count: number;
+};
+const data = asyncComputed(async (): Promise<MeasurementData[]> => {
+    const res = await fetch("/api/measurements/aggregated");
+
+    if (!res.ok) throw new Error(`Status: ${res.status}`);
+    const data = await res.json();
+
+    return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
+        point: L.latLng(measurement.location.latitude, measurement.location.longitude),
+        temperature: measurement.avg_temperature,
+        count: measurement.count,
+    }));
+}, [] as MeasurementData[]);
 
 const campaigns = ref([]);
 type Location = {
@@ -144,8 +158,6 @@ onMounted(async () => {
 
 // Expose functions for documentation
 defineExpose({
-    /** Creates sample data for the HexMap. */
-    sampleData,
     /** Fetches active campaigns based on the user's location. */
     fetchCampaigns,
     /** Gets the user's location using Geolocation API or IP fallback. */
