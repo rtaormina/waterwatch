@@ -141,13 +141,13 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     }));
 }, [] as MeasurementData[]);
 
-// color and scale values for hexagon visualization
+// color, styling, and scale values for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);
 const scale = ref<[number, number]>([10, 40]);
 const legendClasses = computed(() => [
-    "top-[4.5rem]", // 4rem (button top) + ~0.5rem gap
-    "right-4", // same right offset as the button
-    "w-72", // fixed width (adjust to taste)
+    "top-[4.5rem]",
+    "right-4",
+    "w-72",
 ]);
 
 /**
