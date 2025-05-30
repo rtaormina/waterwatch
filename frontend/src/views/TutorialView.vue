@@ -215,21 +215,57 @@
                 <TextSection :title="t('api.add.title')">
                     <div v-html="addMeasurementAPI" class="whitespace-pre-line" />
                     <div><TextTabs :items="addMeasurementAPITabs" v-model="api" class="w-full text-center" /></div>
-                    <div v-if="api == 'request'" v-html="addMeasurementReq" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="api == 'example'" v-html="addMeasurementEx" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="api == 'success'" v-html="addMeasurementSuccess" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="api == 'error'" v-html="addMeasurementErr" class="whitespace-pre-line overflow-x-scroll" />
+                    <div
+                        v-if="api == 'request'"
+                        v-html="addMeasurementReq"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="api == 'example'"
+                        v-html="addMeasurementEx"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="api == 'success'"
+                        v-html="addMeasurementSuccess"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="api == 'error'"
+                        v-html="addMeasurementErr"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
                 </TextSection>
                 <TextSection :title="t('api.export.title')">
                     <div v-html="exportMeasurementAPI" class="whitespace-pre-line" />
                     <div>
                         <TextTabs :items="exportMeasurementAPITabs" v-model="apiExport" class="w-full text-center" />
                     </div>
-                    <div v-if="apiExport == 'request'" v-html="exportMeasurementReq" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="apiExport == 'geojson'" v-html="exportMeasurementGeoJson" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="apiExport == 'csv'" v-html="exportMeasurementCSV" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="apiExport == 'default'" v-html="exportMeasurementDefault" class="whitespace-pre-line overflow-x-scroll" />
-                    <div v-if="apiExport == 'error'" v-html="exportMeasurementErr" class="whitespace-pre-line overflow-x-scroll" />
+                    <div
+                        v-if="apiExport == 'request'"
+                        v-html="exportMeasurementReq"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="apiExport == 'geojson'"
+                        v-html="exportMeasurementGeoJson"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="apiExport == 'csv'"
+                        v-html="exportMeasurementCSV"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="apiExport == 'default'"
+                        v-html="exportMeasurementDefault"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
+                    <div
+                        v-if="apiExport == 'error'"
+                        v-html="exportMeasurementErr"
+                        class="whitespace-pre-line overflow-x-scroll"
+                    />
                 </TextSection>
                 <TextSection :title="t('api.conclusion.title')">
                     <p>{{ t("api.conclusion.text") }}</p>
@@ -240,6 +276,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * TutorialsView
+ *
+ * Renders a set of tutorial pages (Measurements, Website, Mobile App, API)
+ * using tab navigation and sectional content components.
+ */
+defineOptions({ name: "TutorialsView" });
 import { ref } from "vue";
 import TextSection from "../components/Text/Section.vue";
 import TextSectionSplit from "../components/Text/SectionSplit.vue";

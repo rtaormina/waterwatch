@@ -7,7 +7,7 @@ from django.test import TestCase
 from measurements.models import Measurement, Temperature
 
 
-class CollectMeasurementTests(TestCase):
+class MeasurementAnalysisTests(TestCase):
     """Test cases for measurement collection Endpoints."""
 
     @classmethod
@@ -113,8 +113,8 @@ class CollectMeasurementTests(TestCase):
         assert data["measurements"][0]["count"] == 1
         assert data["measurements"][0]["avg_temperature"] == 25.5
 
-    def test_measurement_multiple_in_boundary(self):
-        """Test the retrieval of multiple measurements in a different specified boundary."""
+    def test_measurement_multiple_in_boundary_with_aggregation(self):
+        """Test the retrieval of multiple measurements in a different specified boundary with aggregation."""
         boundary_geometry = "POLYGON((2 2, 2 5, 5 5, 5 2, 2 2))"
         response = self.client.get(f"/api/measurements/aggregated/?boundry_geometry={boundary_geometry}")
         assert response.status_code == 200
@@ -125,6 +125,26 @@ class CollectMeasurementTests(TestCase):
         assert data["measurements"][0]["location"]["longitude"] == 3.0
         assert data["measurements"][0]["count"] == 2
         assert data["measurements"][0]["avg_temperature"] == 19.0
+
+    def test_measurement_multiple_in_boundary(self):
+        """Test the retrieval of multiple measurements in a different specified boundary."""
+        boundary_geometry = "POLYGON((2 2, 2 5, 5 5, 5 2, 2 2))"
+        response = self.client.get(f"/api/measurements/?boundry_geometry={boundary_geometry}")
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 2
+
+        # Check the first measurement
+        assert data[0]["location"]["latitude"] == 4.0
+        assert data[0]["location"]["longitude"] == 3.0
+        assert data[0]["local_date"] == "2025-10-02"
+        assert data[0]["metrics"][0]["value"] == 20.0
+
+        # Check the second measurement
+        assert data[1]["location"]["latitude"] == 4.0
+        assert data[1]["location"]["longitude"] == 3.0
+        assert data[1]["local_date"] == "2025-10-03"
+        assert data[1]["metrics"][0]["value"] == 18.0
 
     def test_invalid_boundary_geometry(self):
         """Test the handling of an invalid boundary geometry."""

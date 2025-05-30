@@ -2,11 +2,10 @@
 import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
 import Modal from "./Modal.vue";
-import { ref, computed, reactive, defineEmits, defineProps, watch } from "vue";
+import { ref, computed, reactive, defineProps, defineEmits, defineExpose, watch } from "vue";
 import { onSensorInput, validateInputs, createPayload } from "../composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
-import { setFalse, useMeasurementState } from "../composables/MeasurementState";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 const cookies = new Cookies();
@@ -27,12 +26,7 @@ const time = reactive({
     sec: "",
 });
 
-const errors = reactive<{
-    temp: string | null;
-    sensor: string | null;
-    mins: string | null;
-    sec: string | null;
-}>({
+const errors = reactive<{ temp: string | null; sensor: string | null; mins: string | null; sec: string | null }>({
     temp: null,
     sensor: null,
     mins: null,
@@ -92,12 +86,11 @@ function clear() {
     locationMode.value = null;
 }
 
-defineProps<{
-    modelValue?: string;
-}>();
+defineProps<{ modelValue?: string }>();
 
 const emit = defineEmits<{
     (e: "update:modelValue", value: string): void;
+    (e: "close"): void;
 }>();
 
 /**
@@ -192,6 +185,7 @@ const handleTempPress = (event: KeyboardEvent) => {
 
     emit("update:modelValue", String(attempted));
 };
+
 const locationMode = ref<"auto" | "manual" | null>(null);
 
 watch(locAvail, (avail) => {
@@ -241,7 +235,7 @@ const postData = () => {
         })
         .finally(() => {
             clear();
-            setFalse();
+            emit("close");
         });
 };
 
@@ -278,19 +272,32 @@ const postDataCheck = () => {
         return;
     }
 };
-</script>
 
+// Expose methods so vue-docgen-cli can pick them up
+defineExpose({
+    /** Clears the form from all values. */
+    clear,
+    /** Handles key presses for the time input fields. */
+    handleKeyPress,
+    /** Handles paste events for the time input fields. */
+    handlePaste,
+    /** Handles input events for the time input fields. */
+    handleInput,
+    /** Handles key presses for the temperature input field. */
+    handleTempPress,
+    /** Sends the form data to the server, and checks if the response is successful. */
+    postData,
+    /** Checks temperature and displays a confirmation or warning modal. */
+    postDataCheck,
+});
+</script>
 <template>
-    <div class="bg-white m-4 p-4 h-full overflow-y-auto box-border">
+    <div class="bg-white m-4 p-1 md:p-4 h-full overflow-y-auto box-border">
         <h1
             class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
         >
             Record Measurement
-            <button
-                class="bg-main rounded-md p-1 text-white"
-                @click="setFalse()"
-                v-if="useMeasurementState().addingMeasurement.value"
-            >
+            <button class="bg-main rounded-md p-1 text-white" @click="() => emit('close')">
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>

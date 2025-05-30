@@ -88,6 +88,12 @@ onMounted(async () => {
     canDownload.value = hasPermission("measurement_export.can_export");
     perms.value = allPermissions();
 });
+defineExpose({
+    /** Computes the converted average temperature. */
+    avgTempConverted,
+    /** Two-way bound computed property for the download format. */
+    modelFormat,
+});
 </script>
 
 <template>
