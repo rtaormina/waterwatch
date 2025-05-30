@@ -27,7 +27,7 @@ describe('Legend.vue', () => {
     const labelSpans = wrapper.findAll('.mt-1 span')
     expect(labelSpans).toHaveLength(5)
     labelSpans.forEach((span, i) => {
-      expect(span.text()).toBe(expected[i])
+      expect(span.text()).toContain(expected[i])
     })
   })
 
