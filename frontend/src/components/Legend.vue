@@ -22,11 +22,11 @@
 
         <!-- Labels under ticks -->
         <div class="mt-1 flex justify-between text-sm text-gray-700">
-            <span>{{ scale[0] }}°C</span>
+            <span>&leq;{{ scale[0] }}°C</span>
             <span>{{ scale[0] + step }}°C</span>
             <span>{{ scale[0] + step * 2 }}°C</span>
             <span>{{ scale[0] + step * 3 }}°C</span>
-            <span>{{ scale[1] }}°C</span>
+            <span>&geq;{{ scale[1] }}°C</span>
         </div>
     </div>
 </template>
