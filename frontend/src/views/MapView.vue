@@ -21,6 +21,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * MapView
+ *
+ * Displays the campaign banner, measurement input form, and a hex map of sample data.
+ * Provides a button to add new measurements when not in adding mode.
+ */
+defineOptions({ name: "DashboardView" });
 import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 import HexMap from "@/components/HexMap.vue";
 import { ref, onMounted } from "vue";
@@ -147,5 +154,15 @@ onMounted(async () => {
             console.error("Error getting location or fetching campaigns:", err);
             campaigns.value = [];
         });
+});
+
+// Expose functions for documentation
+defineExpose({
+    /** Fetches active campaigns based on the user's location. */
+    fetchCampaigns,
+    /** Gets the user's location using Geolocation API or IP fallback. */
+    getLocation,
+    /** Fetches the user's location based on IP address. */
+    getIpLocation,
 });
 </script>

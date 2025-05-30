@@ -21,6 +21,11 @@ onMounted(() => {
 onUnmounted(() => {
     window.removeEventListener("resize", checkMobile);
 });
+
+defineExpose({
+    /** Checks if user is on mobile. */
+    checkMobile,
+});
 </script>
 
 <template>
