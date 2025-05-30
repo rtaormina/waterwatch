@@ -1174,3 +1174,20 @@ class ExportMeasurementTests(TestCase):
         assert f2["metrics"][0]["sensor"] == "Second Test Sensor"
 
         assert f3["country"] == "Moldova"
+
+    def test_unauthenticated_access(self):
+        """Test that unauthenticated users cannot access the measurement export API."""
+        self.client.logout()
+
+        payload = {
+            "location[continents]": ["Europe"],
+            "location[countries]": ["Netherlands", "Moldova"],
+            "measurements_included": ["waterSources", "temperature"],
+            "measurements[waterSources]": ["Network"],
+            "format": "xml",
+        }
+
+        response = self.client.post(
+            "/api/measurements/search/", data=json.dumps(payload), content_type="application/json"
+        )
+        assert response.status_code == 403
