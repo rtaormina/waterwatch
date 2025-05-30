@@ -86,9 +86,12 @@ class CollectMeasurementAnalysisSerializersTests(TestCase):
         query = (
             Measurement.objects.all()
             .values("location")
-            .annotate(count=Count("location"), avg_temperature=Avg("temperature__value"),
+            .annotate(
+                count=Count("location"),
+                avg_temperature=Avg("temperature__value"),
                 min_temperature=Min("temperature__value"),
-                max_temperature=Max("temperature__value"),)
+                max_temperature=Max("temperature__value"),
+            )
             .order_by("count")
         )
         serializer = MeasurementAggregatedSerializer(query, many=True)
