@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
-import LoginPage from "../../src/components/LoginComponent.vue"; // adjust path!
-import { useLogin } from "../../src/composables/LoginLogic";
+import LoginPage from "../../../../src/components/LoginComponent.vue";
 
 const pushMock = vi.fn();
 vi.mock("vue-router", () => ({

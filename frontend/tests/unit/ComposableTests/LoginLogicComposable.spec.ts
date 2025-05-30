@@ -14,7 +14,7 @@ vi.mock("vue-router", () => ({ useRouter: vi.fn() }));
 
 global.fetch = vi.fn() as unknown as typeof fetch;
 
-import { useLogin, loggedIn } from "../../src/composables/LoginLogic.ts";
+import { useLogin, loggedIn } from "../../../src/composables/LoginLogic.ts";
 import { useRouter } from "vue-router";
 
 describe("useLogin composable", () => {

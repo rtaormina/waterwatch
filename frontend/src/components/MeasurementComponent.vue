@@ -6,7 +6,6 @@ import { ref, computed, reactive, defineProps, defineEmits, defineExpose, watch 
 import { onSensorInput, validateInputs, createPayload } from "../composables/MeasurementCollectionLogic";
 import LocationFallback from "./LocationFallback.vue";
 import * as L from "leaflet";
-import { setFalse, useMeasurementState } from "../composables/MeasurementState";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
 const cookies = new Cookies();
@@ -89,7 +88,10 @@ function clear() {
 
 defineProps<{ modelValue?: string }>();
 
-const emit = defineEmits<{ (e: "update:modelValue", value: string): void }>();
+const emit = defineEmits<{
+    (e: "update:modelValue", value: string): void;
+    (e: "close"): void;
+}>();
 
 /**
  * Handles key presses for the time input fields.
@@ -233,7 +235,7 @@ const postData = () => {
         })
         .finally(() => {
             clear();
-            setFalse();
+            emit("close");
         });
 };
 
@@ -290,16 +292,12 @@ defineExpose({
 });
 </script>
 <template>
-    <div class="bg-white m-4 p-4 h-full overflow-y-auto box-border">
+    <div class="bg-white m-4 p-1 md:p-4 h-full overflow-y-auto box-border">
         <h1
             class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
         >
             Record Measurement
-            <button
-                class="bg-main rounded-md p-1 text-white"
-                @click="setFalse()"
-                v-if="useMeasurementState().addingMeasurement.value"
-            >
+            <button class="bg-main rounded-md p-1 text-white" @click="() => emit('close')">
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>

@@ -35,3 +35,4 @@ repos:
       args:
       -   --config
       -   ./frontend/eslint.config.js
+      -   --no-warn-ignored
