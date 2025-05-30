@@ -4,8 +4,8 @@ this is a list of all Vue views in the application.
 .. toctree::
    :maxdepth: 4
 
-   frontend/src/views/AboutView
-   frontend/src/views/ExportView
-   frontend/src/views/MapView
-   frontend/src/views/TutorialView
+   src/views/AboutView
+   src/views/ExportView
+   src/views/MapView
+   src/views/TutorialView
 ```

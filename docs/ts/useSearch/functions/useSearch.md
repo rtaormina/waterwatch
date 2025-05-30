@@ -25,7 +25,7 @@ An object containing:
 
 ### flattenSearchParams()
 
-> **flattenSearchParams**: (`params`) => `Record`\<`string`, `undefined` \| `string` \| `string`[]\>
+> **flattenSearchParams**: (`params`) => `Record`\<`string`, `string` \| `string`[] \| `undefined`\>
 
 Flattens the nested search parameters for use in API requests.
 This function converts the structured search parameters into a flat object
@@ -41,7 +41,7 @@ The search parameters to flatten.
 
 #### Returns
 
-`Record`\<`string`, `undefined` \| `string` \| `string`[]\>
+`Record`\<`string`, `string` \| `string`[] \| `undefined`\>
 
 A flat object containing the search parameters.
 

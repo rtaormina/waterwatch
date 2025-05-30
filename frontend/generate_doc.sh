@@ -4,18 +4,24 @@ set -e
 npx typedoc \
   --plugin typedoc-plugin-markdown \
   --plugin typedoc-plugin-vue \
-  --tsconfig frontend/tsconfig.app.json \
+  --tsconfig tsconfig.app.json \
   --entryPointStrategy expand \
   --excludeExternals \
   --readme none \
-  frontend/src/composables \
-  --out docs/ts
+  src/composables \
+  --out ../docs/ts
 
 
-npx vue-docgen frontend/src/components docs/vue-components
-npx vue-docgen frontend/src/views docs/vue-views
 
-cd docs/vue-views
+
+npx vue-docgen src/components ../docs/vue-components
+npx vue-docgen src/views ../docs/vue-views
+
+cd ../docs/ts
+
+rm -f README.md
+
+cd ../vue-views
 
 (
   echo "# Vue Views"
@@ -54,7 +60,7 @@ cd ../ts
   echo ".. toctree::"
   echo "   :maxdepth: 4"
   echo
-  find . -maxdepth 3 -type f -name '*.md' ! -name 'modules.md' \
+  find . -maxdepth 2 -type f -name '*.md' ! -name 'modules.md' \
     | sort \
     | sed -E 's#^\./(.+)\.md#   \1#'
   echo "\```\```\```"
