@@ -71,6 +71,7 @@ def search_measurements_view(request):
     """
     related_fields = [model.__name__.lower() for model in METRIC_MODELS]
     qs = Measurement.objects.select_related(*related_fields).all()
+    logger = logging.getLogger("WATERWATCH")
 
     request_data = {}
     if request.body:
@@ -92,6 +93,13 @@ def search_measurements_view(request):
     fmt = str(request_data.get("format", "")).lower()
 
     if fmt in ("csv", "json", "xml", "geojson"):
+        user = request.user
+
+        logger.debug("search_measurements_view called by user: %s", user.groups.all())
+
+        if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
+            return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
+
         data = MeasurementSerializer(qs, many=True, context={"included_metrics": included_metrics}).data
         strategy = get_strategy(fmt)
         return strategy.export(data)

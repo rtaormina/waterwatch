@@ -4,6 +4,7 @@ import json
 import xml.etree.ElementTree as ET
 from datetime import timedelta
 
+from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import Point
 from django.db import connection
 from django.test import TestCase
@@ -16,6 +17,11 @@ class ExportMeasurementTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         """Set up test data for the test cases."""
+        user = get_user_model()
+        cls.superuser = user.objects.create_superuser(
+            username="testsuperuser", email="superuser@example.com", password="superpassword"
+        )
+
         with connection.cursor() as cursor:
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS locations (
@@ -89,6 +95,9 @@ class ExportMeasurementTests(TestCase):
             value=40.2,
             time_waited=timedelta(seconds=1),
         )
+
+    def setUp(self):
+        self.client.login(username="testsuperuser", password="superpassword")
 
     def test_source_filter(self):
         payload = {

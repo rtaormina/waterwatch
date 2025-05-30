@@ -4,6 +4,7 @@ import json
 import xml.etree.ElementTree as ET
 from datetime import timedelta
 
+from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import Point
 from django.db import connection, models
 from django.test import TestCase
@@ -29,9 +30,10 @@ class ExtraMetricTableTests(TestCase):
     def setUpTestData(cls):
         """Set up test data for the test cases."""
         # delete all the data in measurements, temperature, and TestMetric tables
-        Temperature.objects.all().delete()
-
-        Measurement.objects.all().delete()
+        user = get_user_model()
+        cls.superuser = user.objects.create_superuser(
+            username="testsuperuser", email="superuser@example.com", password="superpassword"
+        )
 
         with connection.cursor() as cursor:
             # add countries to the locations table
@@ -97,6 +99,9 @@ class ExtraMetricTableTests(TestCase):
             # add TestMetric with measurement id 2
             TestMetric.objects.create(measurement=cls.measurement2, test_metric="Test Metric 2")
 
+    def setUp(self):
+        self.client.login(username="testsuperuser", password="superpassword")
+
     # testcase 1 --> test empty csv export
     def test_empty_export_xml(self):
         Temperature.objects.all().delete()
@@ -116,7 +121,7 @@ class ExtraMetricTableTests(TestCase):
         entries = root.findall("measurement")
         assert len(entries) == 0
 
-    # testcase 2 --> test if the measurement contains metric and temperature in columns xml
+    # # testcase 2 --> test if the measurement contains metric and temperature in columns xml
     # def test_export_measurements_xml(self):
     #     payload = {
     #         "filters": {},
@@ -144,7 +149,7 @@ class ExtraMetricTableTests(TestCase):
     #     second_value = second.find("metrics/metric/test_metric").text
     #     assert second_value == "Test Metric 2"
 
-    # testcase 3 --> test if the measurement contains metric and temperature in columns csv
+    # # testcase 3 --> test if the measurement contains metric and temperature in columns csv
     # def test_export_measurements_csv(self):
     #     import csv
     #     import io
@@ -167,13 +172,14 @@ class ExtraMetricTableTests(TestCase):
 
     #     m1_metric = m1["metrics"]
     #     m2_metric = m2["metrics"]
+    #     print(m2)
+    #     print(m1, m1_metric)
     #     assert (
-    #         m1_metric
-    #         == '[{"metric_type": "temperature", "sensor": "Test Sensor", "value": 40.0, "time_waited": 1.0}, {"metric_type": "testmetric", "test_metric": "Test Metric 1"}]'
+    #         m1_metric == '[{"metric_type": "temperature", "sensor": "Test Sensor", "value": 40.0, "time_waited": 1.0}, {"metric_type": "testmetric", "test_metric": "Test Metric 1"}]'
     #     )
     #     assert m2_metric == '[{"metric_type": "testmetric", "test_metric": "Test Metric 2"}]'
 
-    # testcase 4 --> test if the measurement contains metric and temperature in columns json
+    # # testcase 4 --> test if the measurement contains metric and temperature in columns json
     # def test_export_measurements_json(self):
     #     payload = {
     #         "filters": {},
@@ -198,7 +204,7 @@ class ExtraMetricTableTests(TestCase):
 
     #     assert m2_metric["test_metric"] == "Test Metric 2"
 
-    # testcase 5 --> test if the measurement contains metric and temperature in columns geojson
+    # # testcase 5 --> test if the measurement contains metric and temperature in columns geojson
     # def test_export_measurements_geojson(self):
     #     payload = {
     #         "filters": {},
