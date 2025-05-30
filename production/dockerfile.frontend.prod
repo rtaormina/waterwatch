@@ -23,7 +23,7 @@ FROM nginx AS PRODUCTION
 WORKDIR /app
 
 COPY --from=BUILD-FRONTEND /app/dist /usr/share/nginx/html/
-COPY --from=BUILD-DOCS /app/build_docs /usr/share/nginx/html/docs
+COPY --from=BUILD-DOCS /app/build_docs/html /usr/share/nginx/html/docs
 
 # Copy the nginx configuration file
 COPY production/production.nginx /etc/nginx/nginx.conf

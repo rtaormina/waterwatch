@@ -1,8 +1,14 @@
 """Create groups and superuser."""
 
+import os
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.core.management.base import BaseCommand
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class Command(BaseCommand):
@@ -15,9 +21,9 @@ class Command(BaseCommand):
         user = get_user_model()
 
         # === Create Superuser ===
-        username = "admin"
-        email = "admin@example.com"
-        password = "admin"
+        username = os.getenv("START_ADMIN_USER", default="admin")
+        email = os.getenv("START_ADMIN_EMAIL", default="admin@example.com")
+        password = os.getenv("START_ADMIN_PASSWORD", default="admin")
 
         if not user.objects.filter(username=username).exists():
             user.objects.create_superuser(username=username, email=email, password=password)
@@ -41,9 +47,9 @@ class Command(BaseCommand):
         group.permissions.add(*perms)
 
         # === Create Researcher User and Assign Group ===
-        researcher_username = "researcher"
-        researcher_email = "researcher@example.com"
-        researcher_password = "researcher"
+        researcher_username = os.getenv("START_RESEARCHER_USER", default="researcher")
+        researcher_email = os.getenv("START_RESEARCHER_EMAIL", default="researcher@example.com")
+        researcher_password = os.getenv("START_RESEARCHER_PASSWORD", default="researcher")
 
         if not user.objects.filter(username=researcher_username).exists():
             researcher_user = user.objects.create_user(

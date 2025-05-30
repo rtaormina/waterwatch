@@ -1,5 +1,5 @@
 user nginx;
-worker_processes 1;
+worker_processes auto;
 error_log /var/log/nginx/error.log warn;
 pid /var/run/nginx.pid;
 events {
@@ -13,6 +13,9 @@ http {
   '"$http_user_agent" "$http_x_forwarded_for"';
   access_log /var/log/nginx/access.log main;
   sendfile on;
+
+  ssl_session_cache   shared:SSL:10m;
+  ssl_session_timeout 10m;
 
   keepalive_timeout 65;
 
@@ -31,10 +34,33 @@ http {
     return 444;
   }
 
-
   server {
     listen 80;
+
+    server_name waterwatch.tudelft.nl www.waterwatch.tudelft.nl; # Change this to your host (e.g. localhost or your domain name)
+    server_tokens off;
+
+    location /.well-known/acme-challenge/ {
+      # Serve the ACME challenge files from the specified directory
+      root /var/www/certbot;
+    }
+
+    location / {
+      # Redirect all HTTP traffic to HTTPS
+      return 301 https://$host$request_uri; # Redirect all HTTP traffic to HTTPS
+    }
+  }
+
+  server {
+    listen 443 ssl;
     server_name waterwatch.tudelft.nl; # Change this to your host (e.g. localhost or your domain name)
+
+    http2 on;
+    server_tokens off;
+
+    # SSL configuration
+    ssl_certificate /etc/letsencrypt/live/waterwatch.tudelft.nl/fullchain.pem; # Path to your SSL certificate
+    ssl_certificate_key /etc/letsencrypt/live/waterwatch.tudelft.nl/privkey.pem; # Path to your SSL certificate key
 
     # Path to the root of your static files
     root /usr/share/nginx/html/;
