@@ -2,18 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import DataAnalyticsComponent from "../../../../src/components/DataAnalyticsComponent.vue";
 import { mount, VueWrapper } from "@vue/test-utils";
 
-const mockMeasurements = [
-    {
-        metrics: [
-            { metric_type: "temperature", value: 23 },
-        ]
-    },
-    {
-        metrics: [
-            { metric_type: "temperature", value: 25 }
-        ]
-    }
-];
+const mockMeasurements = ["23.0", "25.0",];
 
 vi.mock("../../../../src/composables/DataVisualizationLogic", () => ({
     drawHistogram: vi.fn()

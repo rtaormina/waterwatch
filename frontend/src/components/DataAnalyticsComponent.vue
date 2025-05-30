@@ -22,22 +22,9 @@ async function getGraphData(location: string): Promise<number[]> {
         const response = await fetch(`/api/measurements/?boundry_geometry=${location}`);
         const data = await response.json();
 
-        interface Metric {
-            metric_type: string;
-            value: number;
-        }
+        console.log("Fetched values:", data);
 
-        interface Measurement {
-            metrics: Metric[];
-        }
-
-        const values = (data as Measurement[]).flatMap((m: Measurement) =>
-            m.metrics.filter((t: Metric) => t.metric_type === "temperature").map((t: Metric) => t.value),
-        );
-
-        console.log("Fetched values:", values);
-
-        return values;
+        return data.map(Number);
     } catch (error) {
         console.error("Error fetching hexbin data:", error);
         return [];
