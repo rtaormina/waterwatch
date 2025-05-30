@@ -1,7 +1,7 @@
 import {
   formatDateTime,
   updateCountdown,
-} from "../../src/composables/CampaignLogic";
+} from "../../../src/composables/CampaignLogic";
 import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
 
 describe("formatDateTime Logic", () => {

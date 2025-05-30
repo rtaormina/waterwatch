@@ -1,4 +1,4 @@
-import { useLogin } from '../../src/composables/LoginLogic'
+import { useLogin } from '../../../../src/composables/LoginLogic'
 import { nextTick } from 'vue'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { useRouter } from 'vue-router'

@@ -3,7 +3,7 @@ import {
     validateTempRange,
     onSensorInput,
     createPayload,
-} from "../../src/composables/MeasurementCollectionLogic.ts";
+} from "../../../src/composables/MeasurementCollectionLogic.ts";
 import { beforeAll, afterAll, vi, describe, it, expect } from "vitest";
 import { DateTime } from "luxon";
 
