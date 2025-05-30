@@ -111,11 +111,13 @@ const {
     data,
     colors,
     colorScale,
+    selectMult,
 } = defineProps<{
     center?: L.LatLng;
     data: DataPoint[];
     colors: string[];
     colorScale: [number, number];
+    selectMult: boolean;
 }>();
 
 const hexbinOptions: L.HexbinLayerConfig = {
@@ -139,6 +141,7 @@ hexbinLayer.colorValue((d) => {
 const emit = defineEmits<{
     (e: "hex-click", d: string): void;
     (e: "open-details", d: string): void;
+    (e: "hex-select", d: string): void;
 }>();
 
 /**
@@ -187,6 +190,7 @@ onMounted(() => {
     });
     map.on("zoomstart", () => {
         map.closePopup();
+        clearSelection();
     });
     map.setMaxBounds(
         L.latLngBounds([
@@ -201,6 +205,68 @@ onMounted(() => {
         () => data,
         (newData) => hexbinLayer.data(newData),
     );
+    const selected: {
+        wkt: string;
+        corners: L.LatLng[];
+        layer: L.Polygon;
+    }[] = [];
+
+    /**
+     * Returns true if two hexagons are adjacent (sides are touching)
+     * @param cornersA corners of the first hexagon compare
+     * @param cornersB corners of second hexagon to compare
+     * @return {boolean} true if adjacent, false if not
+     */
+    function isAdjacent(cornersA: L.LatLng[], cornersB: L.LatLng[]): boolean {
+        let shared = 0;
+        for (const a of cornersA) {
+            for (const b of cornersB) {
+                if (a.equals(b)) shared += 1;
+                if (shared >= 2) return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Highlights selected hexagons
+     * @param corners corners of WKT polygons to be highlighted
+     * @return {polygon} highlighted polygon to overlay
+     */
+    function highlightHex(corners: L.LatLng[]): L.Polygon {
+        return L.polygon(corners, {
+            color: "orange",
+            weight: 5,
+            fill: false,
+            dashArray: "4 4",
+        }).addTo(map);
+    }
+
+    /**
+     * Clears the highlighted/selected hexagons
+     */
+    function clearSelection() {
+        selected.forEach((s) => map.removeLayer(s.layer));
+        selected.length = 0;
+    }
+
+    /**
+     * Converts an array of WKT polygons to a MultiPolygon
+     * @param polygons Array of objects containing WKT polygon strings
+     * @returns WKT MultiPolygon string
+     */
+    function wktsToMultiPolygon(polygons: Array<{ wkt: string }>): string {
+        if (!Array.isArray(polygons) || polygons.length === 0) {
+            throw new Error("Input must be a non-empty array of polygon objects");
+        }
+        const geometries = polygons.map((polygon) =>
+            polygon.wkt.replace(/^\s*POLYGON\s*\(\(\s*/, "").replace(/\)\)\s*$/, ""),
+        );
+
+        const inner = geometries.map((r) => `((${r}))`).join(",");
+        console.log(inner);
+
+        return `MULTIPOLYGON(${inner})`;
+    }
 
     hexbinLayer
         .dispatch()
@@ -238,6 +304,15 @@ onMounted(() => {
             }
             const boundingGeometry = L.polygon(corners).toGeoJSON().geometry;
             console.log("Bounding Geometry:", boundingGeometry);
+            const wkt = geoJsonToWktPolygon(boundingGeometry);
+
+            if (selectMult && selected.length > 0) {
+                const anyAdjacent = selected.some((sel) => isAdjacent(sel.corners, corners));
+                if (!anyAdjacent) {
+                    console.warn("Hex is not adjacent to current selection, ignoring.");
+                    return;
+                }
+            }
 
             const layerPoint = L.point(d.x, d.y);
             const latlng = map.layerPointToLatLng(layerPoint);
@@ -261,21 +336,46 @@ onMounted(() => {
 
             vm.mount(container);
 
-            const popup = L.popup({
-                offset: [0, -hexbinLayer.radius()],
-                autoClose: true,
-                closeOnClick: false,
-            })
-                .setLatLng(latlng)
-                .setContent(container)
-                .openOn(map);
+            if (!selectMult) {
+                clearSelection();
+            }
+            const idx = selected.findIndex((s) => s.wkt === wkt);
+            if (idx >= 0) {
+                map.removeLayer(selected[idx].layer);
+                selected.splice(idx, 1);
+            } else {
+                const layer = highlightHex(corners);
+                selected.push({ wkt, corners, layer });
+            }
 
-            popup.on("remove", () => {
-                vm.unmount();
-            });
+            if (!selectMult) {
+                const popup = L.popup({
+                    offset: [0, -hexbinLayer.radius()],
+                    autoClose: true,
+                    closeOnClick: false,
+                })
+                    .setLatLng(latlng)
+                    .setContent(container)
+                    .openOn(map);
+                popup.on("remove", () => vm.unmount());
+            }
 
-            emit("hex-click", geoJsonToWktPolygon(boundingGeometry));
+            if (selectMult) {
+                emit("hex-select", wktsToMultiPolygon(selected));
+            } else {
+                emit("hex-click", geoJsonToWktPolygon(boundingGeometry));
+            }
         });
+    watch(
+        () => selectMult,
+        (newVal) => {
+            if (!newVal) {
+                clearSelection();
+            } else {
+                map.closePopup();
+            }
+        },
+    );
 });
 </script>
 
