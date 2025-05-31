@@ -1,0 +1,77 @@
+services:
+  postgres:
+    container_name: postgres
+    image: postgis/postgis
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./.env
+    restart: always
+    volumes:
+      - waterwatch_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 120s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  django_backend_app:
+    container_name: django_backend_app
+    depends_on:
+      - postgres
+    build:
+      context: ../
+      dockerfile: production/dockerfile.backend.prod
+    image: 127.0.0.1:5000/django_backend_app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env
+    volumes:
+      - gunicorn_socket:/run
+      - static_files:/app/static
+      - media_files:/app/media
+    restart: always
+
+  frontend:
+    container_name: nginx_frontend
+    depends_on:
+      - postgres
+      - django_backend_app
+    build:
+      context: ../
+      dockerfile: production/dockerfile.frontend.prod
+    image: 127.0.0.1:5000/nginx_frontend
+    ports:
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
+    volumes:
+      - ./production.nginx:/etc/nginx/nginx.conf
+      - /etc/letsencrypt/:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - gunicorn_socket:/run
+      - static_files:/backend_app/static
+      - media_files:/backend_app/media
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"]
+      interval: 30s
+      retries: 3
+      timeout: 10s
+    restart: always
+
+volumes:
+  waterwatch_data:
+    name: waterwatch_data
+    driver: local
+  gunicorn_socket:
+  static_files:
+  media_files:
