@@ -70,8 +70,6 @@ def search_measurements_view(request):
         If the request has a "format" parameter, it returns the data in that format (CSV, JSON, XML, GeoJSON).
         Otherwise, it returns a JSON response with count and average temperature.
     """
-    logger.debug("Received request for measurements with body: %s", request.body)
-
     related_fields = [model.__name__.lower() for model in METRIC_MODELS]
     qs = Measurement.objects.select_related(*related_fields).all()
     logger = logging.getLogger("WATERWATCH")
