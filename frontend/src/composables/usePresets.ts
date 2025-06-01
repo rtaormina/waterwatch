@@ -89,7 +89,7 @@ export function usePresets() {
     function filterPresets(query: string): Preset[] {
         if (!query.trim()) return presets.value;
 
-        const searchTerm = query.toLowerCase();
+        const searchTerm = query.trim().toLowerCase();
         return presets.value.filter(
             (preset) =>
                 preset.name.toLowerCase().includes(searchTerm) ||

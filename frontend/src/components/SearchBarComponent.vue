@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { usePresets, type Preset } from "@/composables/usePresets";
+import { usePresets, type Preset } from "../composables/usePresets";
 
 const { presets, loading, error, loadPresets, filterPresets } = usePresets();
 
@@ -10,7 +10,6 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    "update:query": [value: string];
     search: [];
     "apply-preset": [preset: Preset];
 }>();
@@ -37,11 +36,6 @@ const showNoResults = computed(() => {
     return inputQuery.value.trim() && filteredPresets.value.length === 0 && !loading.value;
 });
 
-// Watch for input changes
-watch(inputQuery, (newValue) => {
-    emit("update:query", newValue);
-});
-
 // Watch for prop changes
 watch(
     () => props.query,
@@ -58,8 +52,6 @@ watch(
  */
 function clearSearch() {
     inputQuery.value = "";
-    showDropdown.value = false;
-    emit("update:query", "");
 }
 
 /**
@@ -126,6 +118,15 @@ function handleKeydown(event: KeyboardEvent) {
 
 // Load presets on component mount
 loadPresets();
+
+defineExpose({
+    clearSearch,
+    applyPreset,
+    handleSearch,
+    handleFocus,
+    handleBlur,
+    handleKeydown,
+});
 </script>
 
 <template>
@@ -137,7 +138,6 @@ loadPresets();
                 size="lg"
                 :ui="{
                     base: 'relative',
-                    rounded: 'rounded-l-md',
                 }"
                 @focus="handleFocus"
                 @blur="handleBlur"
@@ -147,12 +147,11 @@ loadPresets();
                 <template #trailing>
                     <div class="flex items-center gap-1">
                         <UButton
-                            v-if="inputQuery"
+                            @mousedown.prevent
                             @click="clearSearch"
                             variant="ghost"
-                            size="2xs"
+                            size="xs"
                             icon="i-heroicons-x-mark-20-solid"
-                            :ui="{ rounded: 'rounded-full' }"
                             aria-label="Clear search"
                         />
                         <UButton
@@ -161,9 +160,6 @@ loadPresets();
                             variant="solid"
                             size="xs"
                             icon="i-heroicons-magnifying-glass-20-solid"
-                            :ui="{
-                                rounded: 'rounded-r-md',
-                            }"
                             :class="{
                                 '!bg-gray-300 cursor-not-allowed': props.searchDisabled,
                                 'bg-main cursor-pointer hover:bg-[#0098c4]': !props.searchDisabled,
@@ -178,7 +174,7 @@ loadPresets();
         <!-- Preset Dropdown -->
         <div
             v-if="showDropdown"
-            class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-md shadow-lg z-50 max-h-[50vh] overflow-y-auto mt-1"
+            class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-md shadow-lg z-50 max-h-[50vh] overflow-y-scroll mt-1"
         >
             <div v-if="loading" class="px-4 py-3 text-gray-500 text-sm flex items-center gap-2">
                 <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin" />

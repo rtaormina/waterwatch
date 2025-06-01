@@ -151,11 +151,7 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
 // color, styling, and scale values for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);
 const scale = ref<[number, number]>([10, 40]);
-const legendClasses = computed(() => [
-    "top-[4.5rem]",
-    "right-4",
-    "w-72",
-]);
+const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
 
 /**
  * Fetches active campaigns based on the user's location

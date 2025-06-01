@@ -3,7 +3,7 @@ import { ref, reactive, watch, onMounted, onUpdated, onBeforeUnmount, computed, 
 import { PlusIcon, MinusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
 import { useFilters, type DateRangeFilter, type TemperatureFilter, type TimeSlot } from "../composables/useFilters";
 import { useSearch } from "../composables/useSearch";
-import { Filters } from "@/composables/usePresets";
+import { type Filters } from "@/composables/usePresets";
 
 // Define the emits for the component
 const emit = defineEmits(["search"]);
@@ -248,13 +248,15 @@ function applyFilters(filters: Filters) {
     // Reset all filters first
     reset();
 
+    if (!filters) return;
+
     // Apply location filters
     if (filters.location) {
         if (filters.location.continents && Array.isArray(filters.location.continents)) {
             selectedContinents.value = [...filters.location.continents];
         }
         nextTick(() => {
-            if (filters.location.countries && Array.isArray(filters.location.countries)) {
+            if (filters.location && filters.location.countries && Array.isArray(filters.location.countries)) {
                 selectedCountries.value = [...filters.location.countries];
             }
         });
