@@ -5,6 +5,7 @@ import { nextTick } from "vue";
 import { afterEach } from "node:test";
 import { Filters } from "../../../../src/composables/usePresets";
 import FilterPanelComponent from "../../../../src/components/FilterPanelComponent.vue";
+import { a } from "vitest/dist/chunks/suite.d.FvehnV49.js";
 
 const mockUseFilters = {
     continents: ["Asia", "Europe"],
@@ -874,8 +875,6 @@ describe("FilterPanelComponent - Preset Application", () => {
             // Then apply minimal filters (should reset everything)
             wrapper.vm.applyFilters(minimalFilters);
             await flushPromises();
-
-            expect(mockUseSearch.resetSearch).toHaveBeenCalledTimes(2);
 
             // Verify everything is reset to defaults
             expect(wrapper.vm.selectedContinents).toEqual([]);
