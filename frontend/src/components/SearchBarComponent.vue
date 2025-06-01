@@ -153,6 +153,7 @@ defineExpose({
                             size="xs"
                             icon="i-heroicons-x-mark-20-solid"
                             aria-label="Clear search"
+                            class="cursor-pointer"
                         />
                         <UButton
                             @click="handleSearch"

@@ -14,7 +14,7 @@
       return;
     }
 
-    console.log("Initializing preset form JavaScript"); // Debug log
+    // console.log("Initializing preset form JavaScript"); // Debug log
 
     /**
      * Toggle visibility of temperature fields based on the "Enable temperature filter" checkbox.
@@ -23,11 +23,11 @@
      */
     function toggleTemps() {
       const on = $("#id_temperature_enabled").is(":checked");
-      console.log("Temperature enabled:", on); // Debug log
+      // console.log("Temperature enabled:", on); // Debug log
 
       ["temp_from", "temp_to", "temp_unit"].forEach((f) => {
         const field = $(".field-" + f);
-        console.log("Toggling field:", f, "Found elements:", field.length); // Debug log
+        // console.log("Toggling field:", f, "Found elements:", field.length); // Debug log
         field.toggle(on);
       });
     }
@@ -41,7 +41,7 @@
      * @returns {void}
      */
     function loadCountries() {
-      console.log("Loading countries..."); // Debug log
+      // console.log("Loading countries..."); // Debug log
 
       // Gather checked continent values
       const selected = $("#id_location_continents input[type=checkbox]:checked")
@@ -50,7 +50,7 @@
         })
         .get();
 
-      console.log("Selected continents:", selected); // Debug log
+      // console.log("Selected continents:", selected); // Debug log
 
       const container = $("#id_location_countries");
       const fieldContainer = $(".field-location_countries");
@@ -64,7 +64,7 @@
         .get();
 
       if (!selected.length) {
-        console.log("No continents selected, hiding countries field");
+        // console.log("No continents selected, hiding countries field");
         // Hide smoothly without clearing first
         fieldContainer.fadeOut(150);
         return;
@@ -77,7 +77,8 @@
 
       // Store current content to prevent flash
       const currentContent = container.html();
-      console.log("Current content:", currentContent); // Debug log
+      console.debug("Current content before reload:", currentContent);
+      // console.log("Current content:", currentContent); // Debug log
 
       // Only show loading if container is empty or has error message
       if (!container.find('input[type="checkbox"]').length) {
@@ -86,12 +87,12 @@
         );
       }
 
-      // Fetch your view at /api/locations/
+      // Fetch view at /api/locations/
       $.getJSON("/api/locations/")
         .done(function (data) {
           container.empty(); // Clear previous content
 
-          console.log("Received location data:", data); // Debug log
+          // console.log("Received location data:", data); // Debug log
 
           // Flatten and dedupe
           const countries = Array.from(
@@ -102,7 +103,7 @@
             ),
           ).sort();
 
-          console.log("Available countries:", countries); // Debug log
+          // console.log("Available countries:", countries); // Debug log
 
           // Clear and rebuild content
           container.empty();
