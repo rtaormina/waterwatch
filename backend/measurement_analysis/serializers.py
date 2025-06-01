@@ -41,3 +41,5 @@ class MeasurementAggregatedSerializer(serializers.Serializer):
     location = LocationField()
     count = serializers.FloatField()
     avg_temperature = serializers.FloatField()
+    min_temperature = serializers.FloatField()
+    max_temperature = serializers.FloatField()

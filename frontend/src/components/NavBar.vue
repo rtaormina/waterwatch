@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { UserIcon, XMarkIcon, Bars3Icon } from "@heroicons/vue/24/solid";
-import { useLogin } from "@/composables/LoginLogic.ts";
+import { useLogin } from "../composables/LoginLogic.ts";
 
 const { login, logout, loggedIn } = useLogin();
 
@@ -89,9 +89,6 @@ defineExpose({
             <div class="flex">
                 <div class="text-4xl text-white font-custom mt-6 ml-6">WATERWATCH</div>
             </div>
-            <button @click="closeOverlay" class="absolute top-6 right-6 text-white text-5xl" aria-label="Close">
-                <XMarkIcon class="w-12 h-12" />
-            </button>
             <div class="flex flex-row h-full">
                 <div class="flex flex-col items-center space-y-3 h-full ml-10">
                     <!-- spacer 1/6 -->
@@ -227,7 +224,7 @@ defineExpose({
                 WATERWATCH
             </router-link>
             <div class="mt-2 mr-4">
-                <button @click="showOverlay ? closeOverlay() : openOverlay()">
+                <button @click="showOverlay ? closeOverlay() : openOverlay()" aria-label="Toggle menu">
                     <transition
                         mode="out-in"
                         enter-active-class="transform transition duration-300 ease-out"

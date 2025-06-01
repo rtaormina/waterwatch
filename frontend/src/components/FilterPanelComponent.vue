@@ -194,6 +194,7 @@ watch([countryDropdownOpen], clearSearchOnClose);
  * @returns {void}
  */
 onMounted(() => {
+    reset();
     calculateDropdownHeight();
     window.addEventListener("resize", calculateDropdownHeight);
     document.addEventListener("mousedown", handleClickOutside);
