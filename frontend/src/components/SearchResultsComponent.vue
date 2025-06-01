@@ -142,7 +142,7 @@ defineExpose({
                 class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
                 :class="
                     canDownload && searched && !props.filtersOutOfSync
-                        ? 'bg-main cursor-pointer'
+                        ? 'bg-main cursor-pointer hover:bg-[#0098c4]'
                         : 'bg-gray-300 cursor-not-allowed'
                 "
             >

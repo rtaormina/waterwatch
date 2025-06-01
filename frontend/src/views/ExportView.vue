@@ -14,6 +14,7 @@ import FilterPanel from "../components/FilterPanelComponent.vue";
 import SearchResults from "../components/SearchResultsComponent.vue";
 import { useSearch } from "../composables/useSearch";
 import { useExportData } from "../composables/useExportData";
+import { type Preset } from "@/composables/usePresets";
 
 const query = ref("");
 // Reference to the FilterPanel component
@@ -53,12 +54,34 @@ async function onSearch(): Promise<void> {
     const searchParams = filterPanelRef.value.getSearchParams(query.value);
     lastSearchParams.value = searchParams;
 
-    console.log("Search params:", searchParams);
-
     // Perform search
     await searchMeasurements(searchParams);
     filtersOutOfSync.value = false;
 }
+
+/**
+ * Function to handle preset application.
+ * This function applies the preset's filters to the FilterPanel and triggers a search.
+ *
+ * @param {Preset} preset - The preset to apply
+ * @returns {Promise<void>} A promise that resolves when the preset is applied and search is complete.
+ */
+async function onApplyPreset(preset: Preset): Promise<void> {
+    if (!filterPanelRef.value) return;
+
+    // Apply preset filters to FilterPanel
+    filterPanelRef.value.applyFilters(preset.filters);
+
+    // Trigger search with the new filters
+    await onSearch();
+}
+
+const presetSearchDisabled = computed(() => {
+    const panel = filterPanelRef.value;
+    if (!panel) return true; // disable until panel is mounted
+
+    return !(panel.tempRangeValid && panel.dateRangeValid && panel.allSlotsValid && panel.slotsNonOverlapping);
+});
 
 // Modal state for export failure
 const showModal = ref(false);
@@ -99,34 +122,37 @@ watch(
 </script>
 
 <template>
-    <div class="h-screen bg-white flex flex-col">
-        <div
-            class="w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow md:overflow-y-auto relative z-10"
-        >
-            <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
+    <div
+        class="h-auto bg-white w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow md:overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10"
+    >
+        <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
 
-            <div class="flex flex-col md:flex-row md:space-x-8 flex-grow min-h-0 pb-[14px]">
-                <div class="w-full md:w-7/12 flex flex-col min-h-0">
-                    <div class="mb-4 shrink-0">
-                        <SearchBar v-model:query="query" @search="onSearch" />
-                    </div>
-                    <div class="flex-grow bg-light min-h-0 mb-[14px]">
-                        <FilterPanel ref="filterPanelRef" @search="onSearch" />
-                    </div>
-                </div>
-
-                <div class="w-full md:w-5/12 flex flex-col min-h-0">
-                    <SearchResults
-                        :results="results"
-                        :searched="hasSearched"
-                        v-model:format="format"
-                        @download="onDownload"
-                        :show-modal="showModal"
-                        :temperature-unit="temperatureUnit"
-                        @close-modal="showModal = false"
-                        :filters-out-of-sync="filtersOutOfSync"
+        <div class="flex flex-col md:flex-row md:space-x-8 flex-grow min-h-0 pb-[14px]">
+            <div class="w-full md:w-7/12 flex flex-col min-h-0">
+                <div class="mb-4 shrink-0">
+                    <SearchBar
+                        v-model:query="query"
+                        @search="onSearch"
+                        @apply-preset="onApplyPreset"
+                        :search-disabled="presetSearchDisabled"
                     />
                 </div>
+                <div class="flex-grow bg-light min-h-0 mb-[14px]">
+                    <FilterPanel ref="filterPanelRef" @search="onSearch" />
+                </div>
+            </div>
+
+            <div class="w-full md:w-5/12 flex flex-col min-h-0">
+                <SearchResults
+                    :results="results"
+                    :searched="hasSearched"
+                    v-model:format="format"
+                    @download="onDownload"
+                    :show-modal="showModal"
+                    :temperature-unit="temperatureUnit"
+                    @close-modal="showModal = false"
+                    :filters-out-of-sync="filtersOutOfSync"
+                />
             </div>
         </div>
     </div>
