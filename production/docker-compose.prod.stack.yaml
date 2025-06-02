@@ -15,15 +15,6 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-      update_config:
-        failure_action: rollback
-        parallelism: 1
-        delay: 10s
-        order: start-first
 
   django_backend_app:
     container_name: django_backend_app
@@ -53,7 +44,6 @@ services:
         failure_action: rollback
         parallelism: 1
         delay: 10s
-        order: stop-first
 
 
   frontend:
@@ -100,7 +90,6 @@ services:
         failure_action: rollback
         parallelism: 1
         delay: 10s
-        order: stop-first
 
 volumes:
   waterwatch_data:
