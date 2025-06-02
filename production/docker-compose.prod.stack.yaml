@@ -24,6 +24,9 @@ services:
       context: ../
       dockerfile: production/dockerfile.backend.prod
     image: 127.0.0.1:5000/django_backend_app
+    scripts:
+      - python manage.py migrate
+      - gunicorn --bind unix:/run/gunicorn.sock backend.wsgi:application
     ports:
       - "8000:8000"
     env_file:
