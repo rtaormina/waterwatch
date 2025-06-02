@@ -15,6 +15,15 @@ services:
       retries: 5
       start_period: 30s
       timeout: 10s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      update_config:
+        failure_action: rollback
+        parallelism: 1
+        delay: 10s
+        order: start-first
 
   django_backend_app:
     container_name: django_backend_app
@@ -24,9 +33,6 @@ services:
       context: ../
       dockerfile: production/dockerfile.backend.prod
     image: 127.0.0.1:5000/django_backend_app
-    scripts:
-      - python manage.py migrate
-      - gunicorn --bind unix:/run/gunicorn.sock backend.wsgi:application
     ports:
       - "8000:8000"
     env_file:
@@ -36,6 +42,19 @@ services:
       - static_files:/app/static
       - media_files:/app/media
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 60s
+      update_config:
+        failure_action: rollback
+        parallelism: 1
+        delay: 10s
+        order: start-first
+
 
   frontend:
     container_name: nginx_frontend
@@ -70,6 +89,18 @@ services:
       retries: 3
       timeout: 10s
     restart: always
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 60s
+      update_config:
+        failure_action: rollback
+        parallelism: 1
+        delay: 10s
+        order: start-first
 
 volumes:
   waterwatch_data:
