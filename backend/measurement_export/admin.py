@@ -352,6 +352,13 @@ class PresetAdmin(admin.ModelAdmin):
             {
                 "fields": [
                     "water_sources",
+                ]
+            },
+        ),
+        (
+            "Metric Filters",
+            {
+                "fields": [
                     "temperature_enabled",
                     "temp_from",
                     "temp_to",
