@@ -53,7 +53,7 @@ services:
         failure_action: rollback
         parallelism: 1
         delay: 10s
-        order: start-first
+        order: stop-first
 
 
   frontend:
@@ -100,7 +100,7 @@ services:
         failure_action: rollback
         parallelism: 1
         delay: 10s
-        order: start-first
+        order: stop-first
 
 volumes:
   waterwatch_data:
