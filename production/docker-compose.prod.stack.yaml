@@ -10,7 +10,7 @@ services:
     volumes:
       - waterwatch_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 120s
       retries: 5
       start_period: 30s
@@ -44,7 +44,20 @@ services:
         failure_action: rollback
         parallelism: 1
         delay: 10s
-
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "--fail",
+          "--unix-socket",
+          "/run/gunicorn.sock",
+          "http://localhost/api/health/",
+        ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 
   frontend:
     container_name: nginx_frontend
@@ -75,9 +88,10 @@ services:
       - ./.env
     healthcheck:
       test: ["CMD", "service", "nginx", "status"]
-      interval: 30s
+      interval: 1m30s
       retries: 3
       timeout: 10s
+      start_period: 30s
     restart: always
     deploy:
       replicas: 1
