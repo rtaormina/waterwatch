@@ -69,6 +69,17 @@ const routes = [
             requiresAuth: false,
         },
     },
+    {
+        path: "/contact",
+        name: "Contact",
+        /**
+         *
+         */
+        component: () => import("@/views/ContactView.vue"),
+        meta: {
+            requiresAuth: false,
+        },
+    },
 ];
 
 const router = createRouter({
