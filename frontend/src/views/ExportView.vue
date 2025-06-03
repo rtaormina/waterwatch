@@ -128,7 +128,7 @@ watch(
         <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
 
         <div class="flex flex-col md:flex-row md:space-x-8 flex-grow min-h-0 pb-[14px]">
-            <div class="w-full md:w-7/12 flex flex-col min-h-0 landscape-component">
+            <div class="w-full md:w-7/12 flex flex-col min-h-0 landscape-component component1">
                 <div class="mb-4 shrink-0">
                     <SearchBar
                         v-model:query="query"
@@ -142,7 +142,7 @@ watch(
                 </div>
             </div>
 
-            <div class="w-full md:w-5/12 flex flex-col h-auto overflow-visible landscape-component">
+            <div class="w-full md:w-5/12 flex flex-col h-auto overflow-visible landscape-component component2">
                 <SearchResults
                     :results="results"
                     :searched="hasSearched"
@@ -168,6 +168,15 @@ watch(
         padding: 0.5rem !important;
         overflow-y: visible !important;
         height: auto !important;
+    }
+    .component1 {
+        width: 65% !important;
+        max-width: 65% !important;
+    }
+
+    .component2 {
+        width: 35% !important;
+        max-width: 35% !important;
     }
 }
 </style>
