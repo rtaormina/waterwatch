@@ -7,18 +7,9 @@
                 v-if="viewAnalytics || addMeasurement"
                 class="left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
             >
-                <!--                 class="fixed left-0 top-[64px] bottom-0 w-screen md:w-3/5 overflow-y-auto bg-white z-10"
- -->
                 <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
                 <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleClose" />
             </div>
-            <!-- <div
-                class="left-0 top-[64px] md:top-0 bottom-0 w-screen md:w-3/5 h-screen fixed md:relative z-10 bg-white"
-                v-if="viewAnalytics || addMeasurement"
-            >
-                <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
-                <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleClose" />
-            </div> -->
             <div class="relative w-full h-full">
                 <HexMap
                     :colors="colors"
