@@ -1,6 +1,6 @@
 <template>
     <div class="bg-white text-center">
-        <h4 data-testid="count" class="font-bold mt-2">{{ count }} Measurements</h4>
+        <h4 data-testid="count" class="font-bold mt-2">{{ count }} Measurement{{ count === 1 ? "" : "s" }}</h4>
         <p data-testid="avg">Avg: {{ avgTemp }}°C</p>
         <p data-testid="min">Min: {{ minTemp }}°C</p>
         <p data-testid="max">Max: {{ maxTemp }}°C</p>
