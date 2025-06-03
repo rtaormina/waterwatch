@@ -12,6 +12,7 @@ urlpatterns = [
     path("session/", views.session_view, name="api-session"),
     path("whoami/", views.whoami_view, name="api-whoami"),
     path("home/", views.index_view, name="index"),
+    path("health/", views.health_check_view, name="health"),
     path("user-permissions/", views.user_permissions_view, name="user-permissions"),
     path("measurements/", include("measurements.urls")),
     path("", include("measurement_export.urls")),
