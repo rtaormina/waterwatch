@@ -1,276 +1,293 @@
 <template>
     <div>
-        <div class="flex items-center justify-between mb-4 px-4 md:px-8">
-            <div class="flex-1 text-center">
-                <TextTabs :items="tutorials" v-model="page" class="w-full text-center" />
+        <div class="w-full flex flex-col md:flex-row items-start mb-4 px-4 md:px-8">
+            <!-- <div class="w-full md:w-auto text-center"> -->
+            <div class="flex-grow md:w-auto min-w-0">
+                <!-- How to Take Temperature Measurement -->
+
+                <TextTabs :items="tutorials" v-model="page" class="w-full text-left overflow-y-hidden">
+                    <template #Measurements>
+                        <TextSection :title="t('measurement.introduction.title')">
+                            <p>{{ t("measurement.introduction.text") }}</p>
+                        </TextSection>
+                        <TextSectionSplit>
+                            <template #left>
+                                <USkeleton class="w-full aspect-video"></USkeleton>
+                            </template>
+                            <template #right>
+                                <TextSubSection :title="t('measurement.step1.title')">
+                                    <p>{{ t("measurement.step1.text") }}</p>
+                                </TextSubSection>
+                                <TextSubSection :title="t('measurement.step2.title')">
+                                    <p>{{ t("measurement.step2.text") }}</p>
+                                </TextSubSection>
+                                <TextSubSection :title="t('measurement.step2.title')">
+                                    <p>{{ t("measurement.step2.text") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionSplit>
+                        <TextSection :title="t('measurement.conclusion.title')">
+                            <TextSubSection :title="t('measurement.conclusion.title')">
+                                <p>{{ t("measurement.conclusion.text") }}</p>
+                            </TextSubSection>
+                            <TextSubSection :title="t('measurement.next-steps.title')">
+                                <p>{{ t("measurement.next-steps.text") }}</p>
+                            </TextSubSection>
+                        </TextSection>
+                    </template>
+
+                    <!-- How to use WATERWATCH Website -->
+                    <template #Website>
+                        <TextSection :title="t('website.introduction.title')">
+                            <p>{{ t("website.introduction.text") }}</p>
+                        </TextSection>
+
+                        <TextSectionFlex :title="t('website.measurement.title')">
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/add-measurement-tutorial.png"
+                                        alt="Add measurement button"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("website.measurement.caption1") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p class="whitespace-pre-line">{{ t("website.measurement.text1") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+                        <TextSectionFlex>
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/add-measurement-page.png"
+                                        alt="Add measurement page"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("website.measurement.caption2") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p class="whitespace-pre-line">{{ t("website.measurement.text2") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+                        <TextSectionFlex :title="t('website.map.title')">
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/data-analysis.png"
+                                        alt="Data analysis button"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("website.map.caption1") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p class="whitespace-pre-line">{{ t("website.map.text1") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+                        <TextSectionFlex>
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/graph-legend.png"
+                                        alt="Graph legendn"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("website.map.caption2") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p class="whitespace-pre-line">{{ t("website.map.text2") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+                        <TextSectionFlex :title="t('website.export.title')">
+                            <template #default>
+                                <TextSubSection>
+                                    <p class="whitespace-pre-line">{{ t("website.export.text1") }}</p>
+                                    <p class="whitespace-pre-line">
+                                        <em>{{ t("website.export.disclaimer") }}</em>
+                                    </p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+                        <TextSectionFlex>
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/download-export.png"
+                                        alt="Download Button"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("website.export.caption1") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p class="whitespace-pre-line">{{ t("website.export.text2") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+                        <TextSectionFlex>
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/filters.png"
+                                        alt="Download Filter Screen"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("website.export.caption2") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p class="whitespace-pre-line">{{ t("website.export.text3") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+                        <TextSection :title="t('website.conclusion.title')">
+                            <TextSubSection>
+                                <p>{{ t("website.conclusion.text") }}</p>
+                            </TextSubSection>
+                        </TextSection>
+                    </template>
+
+                    <!-- How to use WATERWATCH app -->
+                    <template #MobileApp>
+                        <TextSection :title="t('app.introduction.title')">
+                            <p>{{ t("app.introduction.text") }}</p>
+                        </TextSection>
+                        <TextSectionSplit>
+                            <template #left>
+                                <TextSubSection :title="t('app.step1.title')">
+                                    <p>{{ t("app.step1.text") }}</p>
+                                </TextSubSection>
+                                <TextSubSection :title="t('app.step2.title')">
+                                    <p>{{ t("app.step2.text") }}</p>
+                                </TextSubSection>
+                            </template>
+
+                            <TextSubSection :title="t('app.step3.title')">
+                                <p>{{ t("app.step3.text") }}</p>
+                            </TextSubSection>
+                            <template #right>
+                                <USkeleton class="w-full aspect-video"></USkeleton>
+                            </template>
+                        </TextSectionSplit>
+                        <TextSection :title="t('app.conclusion.title')">
+                            <TextSubSection>
+                                <p>{{ t("app.conclusion.text") }}</p>
+                            </TextSubSection>
+                            <TextSubSection :title="t('app.next-steps.title')">
+                                <p>{{ t("app.next-steps.text") }}</p>
+                            </TextSubSection>
+                        </TextSection>
+                    </template>
+
+                    <!-- How to use WATERWATCH API -->
+                    <template #API>
+                        <TextSection :title="t('api.introduction.title')">
+                            <p>{{ t("api.introduction.text") }}</p>
+                        </TextSection>
+                        <TextSection :title="t('api.add.title')">
+                            <div v-html="addMeasurementAPI" class="whitespace-pre-line break-words" />
+                            <div class="w-full max-w-full min-w-0">
+                                <TextTabs
+                                    :items="addMeasurementAPITabs"
+                                    v-model="api"
+                                    class="w-full text-left min-w-0 overflow-y-hidden"
+                                >
+                                    <template #requestAdd>
+                                        <div
+                                            v-html="addMeasurementReq"
+                                            class="whitespace-pre-line break-words overflow-x-scroll"
+                                        />
+                                    </template>
+                                    <template #exampleAdd>
+                                        <div v-html="addMeasurementEx" class="whitespace-pre-line break-words" />
+                                    </template>
+                                    <template #successAdd>
+                                        <div v-html="addMeasurementSuccess" class="whitespace-pre-line" />
+                                    </template>
+                                    <template #errorAdd>
+                                        <div v-html="addMeasurementErr" class="whitespace-pre-line break-words" />
+                                    </template>
+                                </TextTabs>
+                            </div>
+                        </TextSection>
+                        <TextSection :title="t('api.export.title')">
+                            <div v-html="exportMeasurementAPI" class="whitespace-pre-line" />
+                            <div class="w-full relative max-w-full min-w-0">
+                                <TextTabs
+                                    :items="exportMeasurementAPITabs"
+                                    v-model="apiExport"
+                                    class="min-w-0 overflow-y-hidden"
+                                >
+                                    <template #requestExport>
+                                        <div
+                                            v-html="exportMeasurementReq"
+                                            class="whitespace-pre-line break-words overflow-x-scroll"
+                                        />
+                                    </template>
+                                    <template #geojsonExport>
+                                        <div
+                                            v-html="exportMeasurementGeoJson"
+                                            class="whitespace-pre-line break-words overflow-x-scroll"
+                                        />
+                                    </template>
+                                    <template #csvExport>
+                                        <div class="relative overflow-x-scroll">
+                                            <div
+                                                v-html="exportMeasurementCSV"
+                                                class="whitespace-pre-line break-words overflow-x-scroll"
+                                            />
+                                        </div>
+                                    </template>
+                                    <template #defaultExport>
+                                        <div
+                                            v-html="exportMeasurementDefault"
+                                            class="whitespace-pre-line break-words overflow-x-scroll"
+                                        />
+                                    </template>
+                                    <template #errorExport>
+                                        <div
+                                            v-html="exportMeasurementErr"
+                                            class="whitespace-pre-line break-words overflow-x-scroll"
+                                        />
+                                    </template>
+                                </TextTabs>
+                            </div>
+                        </TextSection>
+                        <TextSection :title="t('api.conclusion.title')">
+                            <p>{{ t("api.conclusion.text") }}</p>
+                        </TextSection>
+                    </template>
+                </TextTabs>
             </div>
-            <LanguageSwitcher class="ml-4 border border-main rounded p-2" />
-        </div>
-        <div class="mx-4 md:mx-8">
-            <!-- How to Take Temperature Measurement -->
-            <template v-if="page == 'Measurements'">
-                <TextSection :title="t('measurement.introduction.title')">
-                    <p>{{ t("measurement.introduction.text") }}</p>
-                </TextSection>
-                <TextSectionSplit>
-                    <template #left>
-                        <USkeleton class="w-full aspect-video"></USkeleton>
-                    </template>
-                    <template #right>
-                        <TextSubSection :title="t('measurement.step1.title')">
-                            <p>{{ t("measurement.step1.text") }}</p>
-                        </TextSubSection>
-                        <TextSubSection :title="t('measurement.step2.title')">
-                            <p>{{ t("measurement.step2.text") }}</p>
-                        </TextSubSection>
-                        <TextSubSection :title="t('measurement.step2.title')">
-                            <p>{{ t("measurement.step2.text") }}</p>
-                        </TextSubSection>
-                    </template>
-                </TextSectionSplit>
-                <TextSection :title="t('measurement.conclusion.title')">
-                    <TextSubSection :title="t('measurement.conclusion.title')">
-                        <p>{{ t("measurement.conclusion.text") }}</p>
-                    </TextSubSection>
-                    <TextSubSection :title="t('measurement.next-steps.title')">
-                        <p>{{ t("measurement.next-steps.text") }}</p>
-                    </TextSubSection>
-                </TextSection>
-            </template>
-
-            <!-- How to use WATERWATCH Website -->
-            <template v-else-if="page == 'Website'">
-                <TextSection :title="t('website.introduction.title')">
-                    <p>{{ t("website.introduction.text") }}</p>
-                </TextSection>
-
-                <TextSectionFlex :title="t('website.measurement.title')">
-                    <template #left>
-                        <figure class="w-full max-w-sm mx-auto">
-                            <img
-                                src="@/assets/add-measurement-tutorial.png"
-                                alt="Add measurement button"
-                                class="w-full h-auto rounded shadow"
-                            />
-                            <figcaption class="mt-2 text-sm text-center text-gray-500">
-                                {{ t("website.measurement.caption1") }}
-                            </figcaption>
-                        </figure>
-                    </template>
-                    <template #right>
-                        <TextSubSection>
-                            <p class="whitespace-pre-line">{{ t("website.measurement.text1") }}</p>
-                        </TextSubSection>
-                    </template>
-                </TextSectionFlex>
-                <TextSectionFlex>
-                    <template #left>
-                        <figure class="w-full max-w-sm mx-auto">
-                            <img
-                                src="@/assets/add-measurement-page.png"
-                                alt="Add measurement page"
-                                class="w-full h-auto rounded shadow"
-                            />
-                            <figcaption class="mt-2 text-sm text-center text-gray-500">
-                                {{ t("website.measurement.caption2") }}
-                            </figcaption>
-                        </figure>
-                    </template>
-                    <template #right>
-                        <TextSubSection>
-                            <p class="whitespace-pre-line">{{ t("website.measurement.text2") }}</p>
-                        </TextSubSection>
-                    </template>
-                </TextSectionFlex>
-                <TextSectionFlex :title="t('website.map.title')">
-                    <template #left>
-                        <figure class="w-full max-w-sm mx-auto">
-                            <img
-                                src="@/assets/data-analysis.png"
-                                alt="Data analysis button"
-                                class="w-full h-auto rounded shadow"
-                            />
-                            <figcaption class="mt-2 text-sm text-center text-gray-500">
-                                {{ t("website.map.caption1") }}
-                            </figcaption>
-                        </figure>
-                    </template>
-                    <template #right>
-                        <TextSubSection>
-                            <p class="whitespace-pre-line">{{ t("website.map.text1") }}</p>
-                        </TextSubSection>
-                    </template>
-                </TextSectionFlex>
-                <TextSectionFlex>
-                    <template #left>
-                        <figure class="w-full max-w-sm mx-auto">
-                            <img
-                                src="@/assets/graph-legend.png"
-                                alt="Graph legendn"
-                                class="w-full h-auto rounded shadow"
-                            />
-                            <figcaption class="mt-2 text-sm text-center text-gray-500">
-                                {{ t("website.map.caption2") }}
-                            </figcaption>
-                        </figure>
-                    </template>
-                    <template #right>
-                        <TextSubSection>
-                            <p class="whitespace-pre-line">{{ t("website.map.text2") }}</p>
-                        </TextSubSection>
-                    </template>
-                </TextSectionFlex>
-                <TextSectionFlex :title="t('website.export.title')">
-                    <template #default>
-                        <TextSubSection>
-                            <p class="whitespace-pre-line">{{ t("website.export.text1") }}</p>
-                            <p class="whitespace-pre-line">
-                                <em>{{ t("website.export.disclaimer") }}</em>
-                            </p>
-                        </TextSubSection>
-                    </template>
-                </TextSectionFlex>
-                <TextSectionFlex>
-                    <template #left>
-                        <figure class="w-full max-w-sm mx-auto">
-                            <img
-                                src="@/assets/download-export.png"
-                                alt="Download Button"
-                                class="w-full h-auto rounded shadow"
-                            />
-                            <figcaption class="mt-2 text-sm text-center text-gray-500">
-                                {{ t("website.export.caption1") }}
-                            </figcaption>
-                        </figure>
-                    </template>
-                    <template #right>
-                        <TextSubSection>
-                            <p class="whitespace-pre-line">{{ t("website.export.text2") }}</p>
-                        </TextSubSection>
-                    </template>
-                </TextSectionFlex>
-                <TextSectionFlex>
-                    <template #left>
-                        <figure class="w-full max-w-sm mx-auto">
-                            <img
-                                src="@/assets/filters.png"
-                                alt="Download Filter Screen"
-                                class="w-full h-auto rounded shadow"
-                            />
-                            <figcaption class="mt-2 text-sm text-center text-gray-500">
-                                {{ t("website.export.caption2") }}
-                            </figcaption>
-                        </figure>
-                    </template>
-                    <template #right>
-                        <TextSubSection>
-                            <p class="whitespace-pre-line">{{ t("website.export.text3") }}</p>
-                        </TextSubSection>
-                    </template>
-                </TextSectionFlex>
-                <TextSection :title="t('website.conclusion.title')">
-                    <TextSubSection>
-                        <p>{{ t("website.conclusion.text") }}</p>
-                    </TextSubSection>
-                </TextSection>
-            </template>
-
-            <!-- How to use WATERWATCH app -->
-            <template v-else-if="page == 'MobileApp'">
-                <TextSection :title="t('app.introduction.title')">
-                    <p>{{ t("app.introduction.text") }}</p>
-                </TextSection>
-                <TextSectionSplit>
-                    <template #left>
-                        <TextSubSection :title="t('app.step1.title')">
-                            <p>{{ t("app.step1.text") }}</p>
-                        </TextSubSection>
-                        <TextSubSection :title="t('app.step2.title')">
-                            <p>{{ t("app.step2.text") }}</p>
-                        </TextSubSection>
-                    </template>
-
-                    <TextSubSection :title="t('app.step3.title')">
-                        <p>{{ t("app.step3.text") }}</p>
-                    </TextSubSection>
-                    <template #right>
-                        <USkeleton class="w-full aspect-video"></USkeleton>
-                    </template>
-                </TextSectionSplit>
-                <TextSection :title="t('app.conclusion.title')">
-                    <TextSubSection>
-                        <p>{{ t("app.conclusion.text") }}</p>
-                    </TextSubSection>
-                    <TextSubSection :title="t('app.next-steps.title')">
-                        <p>{{ t("app.next-steps.text") }}</p>
-                    </TextSubSection>
-                </TextSection>
-            </template>
-
-            <!-- How to use WATERWATCH API -->
-            <template v-else-if="page == 'API'">
-                <TextSection :title="t('api.introduction.title')">
-                    <p>{{ t("api.introduction.text") }}</p>
-                </TextSection>
-                <TextSection :title="t('api.add.title')">
-                    <div v-html="addMeasurementAPI" class="whitespace-pre-line" />
-                    <div><TextTabs :items="addMeasurementAPITabs" v-model="api" class="w-full text-center" /></div>
-                    <div
-                        v-if="api == 'request'"
-                        v-html="addMeasurementReq"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                    <div
-                        v-if="api == 'example'"
-                        v-html="addMeasurementEx"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                    <div
-                        v-if="api == 'success'"
-                        v-html="addMeasurementSuccess"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                    <div
-                        v-if="api == 'error'"
-                        v-html="addMeasurementErr"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                </TextSection>
-                <TextSection :title="t('api.export.title')">
-                    <div v-html="exportMeasurementAPI" class="whitespace-pre-line" />
-                    <div>
-                        <TextTabs :items="exportMeasurementAPITabs" v-model="apiExport" class="w-full text-center" />
-                    </div>
-                    <div
-                        v-if="apiExport == 'request'"
-                        v-html="exportMeasurementReq"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                    <div
-                        v-if="apiExport == 'geojson'"
-                        v-html="exportMeasurementGeoJson"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                    <div
-                        v-if="apiExport == 'csv'"
-                        v-html="exportMeasurementCSV"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                    <div
-                        v-if="apiExport == 'default'"
-                        v-html="exportMeasurementDefault"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                    <div
-                        v-if="apiExport == 'error'"
-                        v-html="exportMeasurementErr"
-                        class="whitespace-pre-line overflow-x-scroll"
-                    />
-                </TextSection>
-                <TextSection :title="t('api.conclusion.title')">
-                    <p>{{ t("api.conclusion.text") }}</p>
-                </TextSection>
-            </template>
+            <LanguageSwitcher
+                class="w-full mt-2 md:mt-0 md:w-auto md:ml-4 border border-main rounded p-2 text-center"
+            />
         </div>
     </div>
 </template>
@@ -316,61 +333,61 @@ const apiExport = ref<string>("request");
 const tutorials = computed(() => [
     {
         label: t("labels.measurement"),
-        value: "Measurements",
+        slot: "Measurements",
     },
     {
         label: t("labels.website"),
-        value: "Website",
+        slot: "Website",
     },
     {
         label: t("labels.app"),
-        value: "MobileApp",
+        slot: "MobileApp",
     },
     {
         label: t("labels.api"),
-        value: "API",
+        slot: "API",
     },
 ]);
 
 const addMeasurementAPITabs = computed(() => [
     {
         label: t("api.add.request.title"),
-        value: "request",
+        slot: "requestAdd",
     },
     {
         label: t("api.add.example.title"),
-        value: "example",
+        slot: "exampleAdd",
     },
     {
         label: t("api.add.success.title"),
-        value: "success",
+        slot: "successAdd",
     },
     {
         label: t("api.add.error.title"),
-        value: "error",
+        slot: "errorAdd",
     },
 ]);
 
 const exportMeasurementAPITabs = computed(() => [
     {
         label: t("api.export.request.title"),
-        value: "request",
+        slot: "requestExport",
     },
     {
         label: t("api.export.geojson.title"),
-        value: "geojson",
+        slot: "geojsonExport",
     },
     {
         label: t("api.export.csv.title"),
-        value: "csv",
+        slot: "csvExport",
     },
     {
         label: t("api.export.default.title"),
-        value: "default",
+        slot: "defaultExport",
     },
     {
         label: t("api.export.error.title"),
-        value: "error",
+        slot: "errorExport",
     },
 ]);
 </script>

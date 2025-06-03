@@ -291,177 +291,185 @@ defineExpose({
     postDataCheck,
 });
 </script>
+
 <template>
-    <div class="bg-white m-4 p-1 md:p-4 h-full overflow-y-auto box-border">
+    <div
+        class="bg-white m-4 p-1 flex flex-col h-screen overflow-visible box-border md:p-4 md:block md:h-full md:overflow-y-auto"
+    >
         <h1
-            class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
+            class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow w-full md:max-w-screen-md md:mx-auto flex items-center justify-between"
         >
             Record Measurement
             <button class="bg-main rounded-md p-1 text-white" @click="() => emit('close')">
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>
-        <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
-            <h3 class="text-lg font-semibold mb-4">Measurement</h3>
-
-            <div class="w-full h-48">
-                <LocationFallback v-model:location="userLoc" />
-            </div>
-
-            <div class="flex-start min-w-0 mt-2 flex items-center gap-2">
-                <label class="self-center text-sm font-medium text-gray-700">Water Source:</label>
-
-                <select
-                    data-testid="select-water-source"
-                    id="water_source"
-                    v-model="formData.water_source"
-                    class="bg-white self-center border border-gray-300 rounded px-3 py-2"
-                >
-                    <option disabled value="">Select a source</option>
-                    <option v-for="opt in waterSourceOptions" :key="opt.value" :value="opt.value">
-                        {{ opt.label }}
-                    </option>
-                </select>
-            </div>
-        </div>
-
-        <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
-            <h3 class="text-lg font-semibold mb-2">Metric</h3>
-            <label for="metric_choice" class="block text-sm font-medium text-gray-700 mb-1">Metric Type</label>
-            <div class="flex flex-col gap-2">
-                <label
-                    data-testid="metric-checkbox"
-                    v-for="opt in metricOptions"
-                    :key="opt.value"
-                    class="flex items-center space-x-2"
-                >
-                    <input type="checkbox" :value="opt.value" v-model="selectedMetrics" class="accent-primary" />
-                    <span>{{ opt.label }}</span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Temperature Metric -->
-        <div
-            v-if="selectedMetrics.includes('temperature')"
-            class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto space-y-6"
-        >
-            <h3 class="text-lg font-semibold mb-4">Temperature</h3>
-
-            <!-- Sensor Type -->
-            <div class="flex-1 items-start gap-4 mb-4">
-                <div class="flex flex-col">
-                    <div class="flex-start min-w-0 flex items-center gap-2">
-                        <label for="sensor-type" class="text-sm font-medium text-gray-700">Sensor Type</label>
-                        <input
-                            data-testid="sensor-type"
-                            id="sensor-type"
-                            v-model="formData.temperature.sensor"
-                            placeholder="thermometer"
-                            type="text"
-                            :class="[
-                                'flex-grow bg-white border border-gray-300 rounded px-3 py-2 mt-1',
-                                errors.sensor ? 'border-red-500 border-2' : 'border-gray-300',
-                            ]"
-                        />
-                    </div>
-                    <p class="mt-2 h-4 text-red-600 text-xs">
-                        {{ errors.sensor || " " }}
-                    </p>
+        <div class="flex-1 overflow-y-auto pb-16 md:overflow-visible md:pb-0">
+            <!-- Measurement block -->
+            <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
+                <h3 class="text-lg font-semibold mb-4">Measurement</h3>
+                <div class="w-full h-48">
+                    <LocationFallback v-model:location="userLoc" />
+                </div>
+                <div class="flex-start min-w-0 mt-2 flex items-center gap-2">
+                    <label class="self-center text-sm font-medium text-gray-700">Water Source:</label>
+                    <select
+                        data-testid="select-water-source"
+                        id="water_source"
+                        v-model="formData.water_source"
+                        class="bg-white self-center border border-gray-300 rounded px-3 py-2"
+                    >
+                        <option disabled value="">Select a source</option>
+                        <option v-for="opt in waterSourceOptions" :key="opt.value" :value="opt.value">
+                            {{ opt.label }}
+                        </option>
+                    </select>
                 </div>
             </div>
 
-            <!-- Temp Val -->
-            <div class="flex items-center gap-4">
-                <div class="flex-1 flex-col">
-                    <div class="flex items-center gap-4">
-                        <div class="flex-1 min-w-0 flex items-center gap-2">
-                            <label for="temp-val" class="text-sm font-medium text-gray-700">
-                                <span class="hidden sm:inline">Temperature Value</span>
-                                <span class="inline sm:hidden">Temp. Value</span>
-                            </label>
+            <!-- Metric block -->
+            <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
+                <h3 class="text-lg font-semibold mb-2">Metric</h3>
+                <label for="metric_choice" class="block text-sm font-medium text-gray-700 mb-1">Metric Type</label>
+                <div class="flex flex-col gap-2">
+                    <label
+                        data-testid="metric-checkbox"
+                        v-for="opt in metricOptions"
+                        :key="opt.value"
+                        class="flex items-center space-x-2"
+                    >
+                        <input type="checkbox" :value="opt.value" v-model="selectedMetrics" class="accent-primary" />
+                        <span>{{ opt.label }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Temperature Metric (if selected) -->
+            <div
+                v-if="selectedMetrics.includes('temperature')"
+                class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto space-y-6"
+            >
+                <h3 class="text-lg font-semibold mb-4">Temperature</h3>
+
+                <!-- Sensor Type -->
+                <div class="flex-1 items-start gap-4 mb-4">
+                    <div class="flex flex-col">
+                        <div class="flex-start min-w-0 flex items-center gap-2">
+                            <label for="sensor-type" class="text-sm font-medium text-gray-700">Sensor Type</label>
                             <input
-                                data-testid="temp-val"
-                                id="temp-val"
-                                v-model="tempVal"
-                                type="number"
-                                min="0"
-                                @keypress="handleTempPress"
-                                ref="tempRef"
-                                placeholder="e.g. 24.3"
+                                data-testid="sensor-type"
+                                id="sensor-type"
+                                v-model="formData.temperature.sensor"
+                                placeholder="thermometer"
+                                type="text"
                                 :class="[
-                                    'flex-1 bg-white min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
-                                    errors.temp ? 'border-red-500 border-2' : 'border-gray-300',
+                                    'flex-grow bg-white border border-gray-300 rounded px-3 py-2 mt-1',
+                                    errors.sensor ? 'border-red-500 border-2' : 'border-gray-300',
                                 ]"
                             />
-                            <label class="items-center gap-1">
-                                <input data-testid="celsius" name="temp" type="radio" value="C" v-model="tempUnit" />
-                                <span>°C</span>
-                            </label>
-                            <label data-testid="fahrenheit" class="items-center gap-1">
-                                <input name="temp" type="radio" value="F" v-model="tempUnit" />
-                                <span>°F</span>
-                            </label>
+                        </div>
+                        <p class="mt-2 h-4 text-red-600 text-xs">{{ errors.sensor || " " }}</p>
+                    </div>
+                </div>
+
+                <!-- Temperature Value + Unit -->
+                <div class="flex items-center gap-4">
+                    <div class="flex-1 flex-col">
+                        <div class="flex items-center gap-4">
+                            <div class="flex-1 flex-wrap min-w-0 flex items-center gap-2">
+                                <label for="temp-val" class="text-sm font-medium text-gray-700">
+                                    <span class="hidden sm:inline">Temperature Value</span>
+                                    <span class="inline sm:hidden">Temp. Value</span>
+                                </label>
+                                <input
+                                    data-testid="temp-val"
+                                    id="temp-val"
+                                    v-model="tempVal"
+                                    type="number"
+                                    min="0"
+                                    @keypress="handleTempPress"
+                                    ref="tempRef"
+                                    placeholder="e.g. 24.3"
+                                    :class="[
+                                        'flex-1 bg-white min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
+                                        errors.temp ? 'border-red-500 border-2' : 'border-gray-300',
+                                    ]"
+                                />
+                                <label class="items-center gap-1">
+                                    <input
+                                        data-testid="celsius"
+                                        name="temp"
+                                        type="radio"
+                                        value="C"
+                                        v-model="tempUnit"
+                                    />
+                                    <span>°C</span>
+                                </label>
+                                <label data-testid="fahrenheit" class="items-center gap-1">
+                                    <input name="temp" type="radio" value="F" v-model="tempUnit" />
+                                    <span>°F</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Time waited -->
+                <div class="flex items-center gap-2">
+                    <div class="flex flex-col">
+                        <label class="block text-sm font-medium text-gray-700">Time waited</label>
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <input
+                                data-testid="time-waited-mins"
+                                id="time-waited_min"
+                                @input="handleInput"
+                                @keypress="handleKeyPress"
+                                @paste="handlePaste"
+                                v-model="time.mins"
+                                min="0"
+                                max="59"
+                                placeholder="00"
+                                type="number"
+                                ref="minsRef"
+                                :class="[
+                                    'w-16 rounded px-2 py-1 bg-white',
+                                    errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
+                                ]"
+                            />
+                            <label for="time-waited_min">Min</label>
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <input
+                                data-testid="time-waited-sec"
+                                id="time-waited_sec"
+                                @input="handleInput"
+                                @keypress="handleKeyPress"
+                                @paste="handlePaste"
+                                v-model="time.sec"
+                                min="0"
+                                max="59"
+                                placeholder="00"
+                                type="number"
+                                ref="secRef"
+                                :class="[
+                                    'w-16 rounded px-2 py-1 bg-white',
+                                    errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
+                                ]"
+                            />
+                            <label for="time-waited_sec">Sec</label>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Temp time waited -->
-            <div class="flex items-center gap-2">
-                <div class="flex flex-col">
-                    <label class="block text-sm font-medium text-gray-700">Time waited</label>
-                </div>
-
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-2">
-                        <input
-                            data-testid="time-waited-mins"
-                            id="time-waited_min"
-                            @input="handleInput"
-                            @keypress="handleKeyPress"
-                            @paste="handlePaste"
-                            v-model="time.mins"
-                            min="0"
-                            max="59"
-                            placeholder="00"
-                            type="number"
-                            ref="minsRef"
-                            :class="[
-                                'w-16 rounded px-2 py-1 bg-white',
-                                errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
-                            ]"
-                        />
-                        <label for="time-waited_min">Min</label>
-                    </div>
-                </div>
-                <div class="flex flex-col">
-                    <div class="flex items-center gap-2">
-                        <input
-                            data-testid="time-waited-sec"
-                            id="time-waited_sec"
-                            @input="handleInput"
-                            @keypress="handleKeyPress"
-                            @paste="handlePaste"
-                            v-model="time.sec"
-                            min="0"
-                            max="59"
-                            placeholder="00"
-                            type="number"
-                            ref="secRef"
-                            :class="[
-                                'w-16 rounded px-2 py-1 bg-white',
-                                errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
-                            ]"
-                        />
-                        <label for="time-waited_sec">Sec</label>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Submit -->
-        <div class="flex mb-6 max-w-screen-md mx-auto mt-6 gap-2">
+        <div
+            class="/* mobile: pinned row */ flex gap-2 bg-white p-4 shadow fixed bottom-0 left-0 w-full /* md+ : revert to static, original margins & width */ md:relative md:bottom-auto md:left-auto md:w-auto md:bg-transparent md:p-0 md:shadow-none md:mb-6 md:max-w-screen-md md:mx-auto md:mt-6"
+        >
             <button
                 type="button"
                 class="flex-1 bg-white border border-primary text-primary px-4 py-2 rounded hover:bg-primary-light hover:cursor-pointer"
@@ -475,19 +483,21 @@ defineExpose({
                 @click="postDataCheck"
                 style="background-color: #00a6d6"
                 :class="[
-                    'flex-1 px-4 py-2 rounded text-white ',
+                    'flex-1 px-4 py-2 rounded text-white',
                     !validated ? 'bg-gray-400 opacity-50 hover:cursor-not-allowed' : 'bg-main hover:cursor-pointer',
                 ]"
             >
                 Submit
             </button>
+
+            <!-- Modal markup unchanged -->
             <Modal :visible="showModal" @close="showModal = false">
                 <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
                 <p>{{ modalMessage }}</p>
                 <div class="flex items-center mt-4 gap-2">
                     <button
                         @click="showModal = false"
-                        class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 px-4 py-2 rounded hover:cursor-pointer"
+                        class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 rounded hover:cursor-pointer"
                     >
                         Cancel
                     </button>
