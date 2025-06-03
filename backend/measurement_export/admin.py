@@ -162,7 +162,13 @@ class PresetAdminForm(forms.ModelForm):
 
         # ---- Time slots
         slots = data.get("times", [])
-        text = ";".join(f"{s.get('from', '')}-{s.get('to', '')}" for s in slots)
+        text_parts = []
+        for s in slots:
+            start = s.get("from") or ""
+            end = s.get("to") or ""
+            text_parts.append(f"{start}-{end}")
+        text = ";".join(text_parts)
+
         self.fields["times"].initial = text
 
     def clean(self):
@@ -188,8 +194,8 @@ class PresetAdminForm(forms.ModelForm):
         if df and dt and df > dt:
             self.add_error("date_to", "End date must be on or after start date.")
 
-        # --- Parse & validate time slots
-        sorted_slots = self.validate_time_slots(cleaned)
+        # --- Validate time slots
+        self.validate_time_slots(cleaned)
 
         # --- Assemble JSON-friendly filters dict
         filters = {
@@ -223,14 +229,31 @@ class PresetAdminForm(forms.ModelForm):
 
             filters["measurements"]["temperature"] = temperature_filter
 
-        if df and dt:
+        if df is not None or dt is not None:
             filters["dateRange"] = {
                 "from": str(df) if df else None,
                 "to": str(dt) if dt else None,
             }
 
         # use the original string fragments for JSON
-        filters["times"] = [{"from": a.strftime("%H:%M"), "to": b.strftime("%H:%M")} for a, b in sorted_slots]
+        raw = cleaned.get("times", "").strip()
+        slot_dicts = []
+        for part in raw.split(";"):
+            if "-" not in part:
+                # skip any malformed segment
+                continue
+            fr_str, to_str = part.split("-", 1)
+            fr_str = fr_str.strip()
+            to_str = to_str.strip()
+
+            # If the user left “from” empty, keep it as None.
+            # If they typed “08:00”, keep exactly that string.
+            start_val = fr_str if fr_str else None
+            end_val = to_str if to_str else None
+
+            slot_dicts.append({"from": start_val, "to": end_val})
+
+        filters["times"] = slot_dicts
 
         cleaned["filters"] = filters
         return cleaned

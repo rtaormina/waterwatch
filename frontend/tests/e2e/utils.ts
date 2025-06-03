@@ -54,3 +54,22 @@ export async function addMeasurement(page: Page, opts: AddMeasurementOpts, url: 
 
     if (err) throw new Error("addMeasurement failed: " + err);
 }
+
+export interface AddPresetOpts {
+    name: string; // e.g. "My Preset"
+    description: string; // e.g. "A description of my preset"
+    filters: {
+        continents?: string[]; // e.g. ["Europe", "Asia"]
+        countries?: string[]; // e.g. ["Netherlands", "Germany"]
+        waterSources?: string[]; // e.g. ["Well", "Rooftop Tank"]
+        temperatureEnabled?: boolean; // e.g. true
+        temperatureRange?: [number|null, number|null]; // e.g. [10, 30]
+        temperatureUnit?: "C" | "F"; // e.g. "C" for Celsius
+        dateRange?: [string|null, string|null]; // e.g. ["2025-01-01", "2025-12-31"]
+        timeSlots?: {
+            start: string|null; // e.g. "08:00"
+            end: string|null; // e.g. "18:00"
+        }[]; // e.g. [{ start: "08:00", end: "18:00" }]
+    };
+    isPublic: boolean; // e.g. true
+}

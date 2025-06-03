@@ -157,7 +157,7 @@
 
       // build the button
       const btn = $(`
-    <a href="#" class="select-all-toggle"
+    <a href="#" data-testid="select-all-toggle" class="select-all-toggle"
        style="display:block; clear:both; margin:8px 0;">
       Select all
     </a>
