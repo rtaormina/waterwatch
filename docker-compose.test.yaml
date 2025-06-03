@@ -13,7 +13,7 @@ services:
       - waterwatch_data_test:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
+      interval: 1m30s
       retries: 5
       start_period: 30s
       timeout: 10s
@@ -45,6 +45,12 @@ services:
     env_file:
       - ./.env
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/api/health/"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 
   frontend:
     container_name: frontend
@@ -71,9 +77,16 @@ services:
       - ./frontend/src/assets/WATERWATCH_Logo.svg:/usr/share/nginx/html/favicon.svg
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - frontend
-      - backend
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_healthy
     restart: always
+    healthcheck:
+      test: ["CMD", "service", "nginx", "status"]
+      interval: 1m30s
+      retries: 3
+      timeout: 10s
 
 volumes:
   waterwatch_data_test:
