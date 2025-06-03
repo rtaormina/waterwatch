@@ -117,60 +117,52 @@ defineExpose({
                     <!-- spacer 5/6 -->
                     <div class="grow-[5]"></div>
                 </div>
-
-                <!-- registration/login buttons -->
                 <div
-                    v-if="loggedIn"
-                    class="flex flex-col justify-center space-y-4 absolute bottom-0 width-screen left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                    class="absolute inset-x-0 bottom-0 flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-3 pb-6 bg-transparent"
                 >
-                    <div>
-                        <router-link
+                    <!-- logged in -->
+                    <template v-if="loggedIn">
+                        <!-- <router-link
                             to="/preferences"
-                            class="px-7 py-1 rounded-md border-2 border-white text-white text-2xl hover:bg-white hover:text-[#00A6D6] transition-colors duration-200 whitespace-nowrap"
+                            class="w-48 text-center px-7 py-1 rounded-md border-2 border-white text-white text-2xl hover:bg-white hover:text-[#00A6D6] transition-colors duration-200"
                         >
                             Preferences
                         </router-link>
-                    </div>
-                    <div>
+
                         <router-link
                             to="/login"
-                            class="px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
+                            class="w-48 text-center px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
                         >
                             History
-                        </router-link>
-                    </div>
-                    <div>
+                        </router-link> -->
+
                         <router-link
                             @click="logout()"
                             to="/"
-                            class="px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
+                            class="w-48 text-center px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
                         >
                             Logout
                         </router-link>
-                    </div>
-                </div>
-                <div
-                    v-else
-                    class="flex flex-row justify-center space-x-3 absolute bottom-0 width-screen left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                >
-                    <div>
+                    </template>
+
+                    <!-- not logged in -->
+                    <template v-else>
                         <router-link
                             to="/login"
                             @click="closeOverlay()"
-                            class="px-7 py-1 rounded-md border-2 border-white text-white text-2xl hover:bg-white hover:text-[#00A6D6] transition-colors duration-200 whitespace-nowrap"
+                            class="w-48 text-center px-7 py-1 rounded-md border-2 border-white text-white text-2xl hover:bg-white hover:text-[#00A6D6] transition-colors duration-200"
                         >
                             Sign in
                         </router-link>
-                    </div>
-                    <div>
+
                         <router-link
                             to="/register"
                             @click="closeOverlay()"
-                            class="px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
+                            class="w-48 text-center px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
                         >
                             Register
                         </router-link>
-                    </div>
+                    </template>
                 </div>
             </div>
         </div>
