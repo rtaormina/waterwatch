@@ -61,7 +61,7 @@
 
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
                 <button
-                    class="bg-main rounded-md p-1 text-white"
+                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
                     @click="
                         addMeasurement = true;
                         viewAnalytics = false;
@@ -72,7 +72,7 @@
                     <PlusCircleIcon class="w-10 h-10" />
                 </button>
                 <button
-                    class="bg-main rounded-md p-1 text-white"
+                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
                     @click="showGlobalAnalytics"
                     v-if="!viewAnalytics && !addMeasurement"
                 >

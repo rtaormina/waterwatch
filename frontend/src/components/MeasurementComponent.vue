@@ -300,7 +300,7 @@ defineExpose({
             class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow w-full md:max-w-screen-md md:mx-auto flex items-center justify-between"
         >
             Record Measurement
-            <button class="bg-main rounded-md p-1 text-white" @click="() => emit('close')">
+            <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="() => emit('close')">
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>
