@@ -359,6 +359,7 @@ defineExpose({
                                     <div
                                         v-for="continent in continents"
                                         :key="continent"
+                                        data-testid="continent-option"
                                         class="multiselect-option"
                                         :class="{
                                             'multiselect-option-selected': selectedContinents.includes(continent),
@@ -470,13 +471,13 @@ defineExpose({
                         <div class="relative" ref="waterSourceWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleWaterSourceDropdown">
                                 <span
-                                    data-testid="measurement-type-placeholder"
+                                    data-testid="water-source-placeholder"
                                     class="multiselect-placeholder"
                                     v-if="selectedWaterSources.length === 0"
                                 >
                                     {{ waterSourcePlaceholder }}
                                 </span>
-                                <span data-testid="formated-water-sources" class="multiselect-display-text" v-else>
+                                <span data-testid="water-source-text" class="multiselect-display-text" v-else>
                                     {{ formatWaterSourceSelectionText() }}
                                 </span>
                                 <span class="multiselect-arrow">
@@ -495,10 +496,11 @@ defineExpose({
                                     {{ selectedWaterSources.length > 0 ? "Deselect All" : "Select All" }}
                                 </div>
 
-                                <div data-testid="dropdown-options" class="multiselect-options">
+                                <div data-testid="water-source-options" class="multiselect-options">
                                     <div
                                         v-for="waterSource in waterSources"
                                         :key="waterSource"
+                                        data-testid="water-source-option"
                                         class="multiselect-option"
                                         :class="{
                                             'multiselect-option-selected': selectedWaterSources.includes(waterSource),
@@ -673,6 +675,7 @@ defineExpose({
             </button>
             <button
                 @click="emit('search')"
+                data-testid="search-button"
                 :disabled="!tempRangeValid || !dateRangeValid || !allSlotsValid || !slotsNonOverlapping"
                 :class="
                     tempRangeValid && dateRangeValid && allSlotsValid && slotsNonOverlapping

@@ -293,7 +293,7 @@ class PresetAdminFormTests(TestCase):
             "temp_unit": ["C"],
             "date_from": [],
             "date_to": ["2025-05-31"],
-            "times": [],
+            "times": ["-08:00;10:00-12:00;13:00-"],
         }
         data = QueryDict("", mutable=True)
         for k, v in raw.items():
@@ -322,7 +322,16 @@ class PresetAdminFormTests(TestCase):
                     "unit": "C",
                 },
             },
-            "times": [],
+            # to should be present even if from is None
+            "dateRange": {
+                "from": None,
+                "to": "2025-05-31",
+            },
+            "times": [
+                {"from": None, "to": "08:00"},
+                {"from": "10:00", "to": "12:00"},
+                {"from": "13:00", "to": None},
+            ],
         }
 
         # Assert the entire filters dictionary for exactness

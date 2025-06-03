@@ -564,7 +564,7 @@ test.describe("Search Results Tests", () => {
     });
 });
 
-test.describe("Integration Tests", () => {
+test.describe("Full User Flow Tests", () => {
     test.describe.configure({ mode: "serial" });
 
     let measurementWithTemp;

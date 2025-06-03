@@ -143,6 +143,7 @@ defineExpose({
                 @blur="handleBlur"
                 @keydown="handleKeydown"
                 class="flex-1"
+                data-testid="search-input"
             >
                 <template #trailing>
                     <div class="flex items-center gap-1">
@@ -154,6 +155,7 @@ defineExpose({
                             icon="i-heroicons-x-mark-20-solid"
                             aria-label="Clear search"
                             class="cursor-pointer"
+                            data-testid="clear-search-bar-button"
                         />
                         <UButton
                             @click="handleSearch"
@@ -166,6 +168,7 @@ defineExpose({
                                 'bg-main cursor-pointer hover:bg-[#0098c4]': !props.searchDisabled,
                             }"
                             aria-label="Search"
+                            data-testid="search-bar-button"
                         />
                     </div>
                 </template>
@@ -175,6 +178,7 @@ defineExpose({
         <!-- Preset Dropdown -->
         <div
             v-if="showDropdown"
+            data-testid="preset-dropdown"
             class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-md shadow-lg z-50 max-h-[50vh] overflow-y-scroll mt-1"
         >
             <div v-if="loading" class="px-4 py-3 text-gray-500 text-sm flex items-center gap-2">
@@ -195,6 +199,7 @@ defineExpose({
                     :key="preset.id"
                     class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
                     @click="applyPreset(preset)"
+                    data-testid="preset-item"
                 >
                     <div class="flex items-start justify-between">
                         <div class="flex-1 min-w-0">
@@ -212,9 +217,9 @@ defineExpose({
                     </div>
                 </div>
             </div>
-            <div v-else-if="!inputQuery.trim()" class="px-4 py-3 text-gray-500 text-sm">
-                <UIcon name="i-heroicons-cursor-arrow-rays-20-solid" class="inline mr-2" />
-                Start typing to search presets
+            <div v-else-if="!inputQuery.trim()" class="px-4 py-3 text-gray-500 text-sm flex items-center">
+                <UIcon name="i-heroicons-x-circle-20-solid" class="mr-2" data-testid="empty-state-icon" />
+                <span data-testid="no-presets-message">No presets available.</span>
             </div>
         </div>
     </div>
