@@ -42,9 +42,9 @@ onUnmounted(() => {
 });
 
 const items = ref([
-    { label: "Preferences", icon: "i-lucide-settings", to: "/preferences" },
-    { label: "See History", icon: "i-lucide-history", to: "/history" },
-    { type: "separator" },
+    // { label: "Preferences", icon: "i-lucide-settings", to: "/preferences" },
+    // { label: "See History", icon: "i-lucide-history", to: "/history" },
+    // { type: "separator" },
     {
         label: "Log Out",
         icon: "i-lucide-log-out",
