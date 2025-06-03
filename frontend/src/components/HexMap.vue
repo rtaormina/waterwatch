@@ -212,22 +212,6 @@ onMounted(() => {
     }[] = [];
 
     /**
-     * Returns true if two hexagons are adjacent (sides are touching)
-     * @param cornersA corners of the first hexagon compare
-     * @param cornersB corners of second hexagon to compare
-     * @return {boolean} true if adjacent, false if not
-     */
-    function isAdjacent(cornersA: L.LatLng[], cornersB: L.LatLng[]): boolean {
-        let shared = 0;
-        for (const a of cornersA) {
-            for (const b of cornersB) {
-                if (a.equals(b)) shared += 1;
-                if (shared >= 2) return true;
-            }
-        }
-        return false;
-    }
-    /**
      * Highlights selected hexagons
      * @param corners corners of WKT polygons to be highlighted
      * @return {polygon} highlighted polygon to overlay
@@ -306,14 +290,6 @@ onMounted(() => {
             const boundingGeometry = L.polygon(corners).toGeoJSON().geometry as { coordinates: number[][][] };
             console.log("Bounding Geometry:", boundingGeometry);
             const wkt = geoJsonToWktPolygon(boundingGeometry);
-
-            if (selectMult && selected.length > 0) {
-                const anyAdjacent = selected.some((sel) => isAdjacent(sel.corners, corners));
-                if (!anyAdjacent) {
-                    console.warn("Hex is not adjacent to current selection, ignoring.");
-                    return;
-                }
-            }
 
             const layerPoint = L.point(d.x, d.y);
             const latlng = map.layerPointToLatLng(layerPoint);
