@@ -17,9 +17,11 @@ const graph = ref<HTMLElement | null>(null);
  * @param {string} location The location for the measurements.
  * @returns the numeric values for the temperatures
  */
-async function getGraphData(location: string): Promise<number[]> {
+async function getGraphData(location?: string): Promise<number[]> {
     try {
-        const response = await fetch(`/api/measurements/?boundry_geometry=${location}`);
+        const response = location
+            ? await fetch(`/api/measurements/?boundry_geometry=${location}`)
+            : await fetch("/api/measurements/");
         const data = await response.json();
 
         console.log("Fetched values:", data);
@@ -36,7 +38,6 @@ async function getGraphData(location: string): Promise<number[]> {
  */
 async function render() {
     if (!graph.value) return;
-
     const values = await getGraphData(props.location);
     drawHistogram(graph.value, values);
 }
@@ -53,7 +54,7 @@ watch(() => props.location, render);
             class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
         >
             Data Analytics
-            <button class="bg-main rounded-md p-1 text-white" @click="emit('close')">
+            <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="emit('close')">
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>

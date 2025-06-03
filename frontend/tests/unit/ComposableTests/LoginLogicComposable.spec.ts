@@ -64,7 +64,7 @@ describe("useLogin composable", () => {
         it("shows error on invalid credentials", async () => {
             (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
                 ok: false,
-                json: async () => ({ detail: "Invalid username or password." }),
+                json: async () => ({ detail: "Invalid credentials." }),
             });
 
             const { formData, handleSubmit, showError, errorMessage } = useLogin();
@@ -74,6 +74,21 @@ describe("useLogin composable", () => {
             await handleSubmit();
             expect(showError.value).toBe(true);
             expect(errorMessage.value).toBe("Invalid username or password.");
+        });
+
+        it("shows error on network error", async () => {
+            (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+                ok: false,
+                json: async () => ({ detail: "Network error." }),
+            });
+
+            const { formData, handleSubmit, showError, errorMessage } = useLogin();
+            formData.username = "x";
+            formData.password = "y";
+
+            await handleSubmit();
+            expect(showError.value).toBe(true);
+            expect(errorMessage.value).toBe("An error occurred while logging in.");
         });
 
         it("returns true and sets loggedIn when username present", async () => {

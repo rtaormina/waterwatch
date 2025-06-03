@@ -124,9 +124,14 @@ export function useLogin() {
                 }
             }
         } catch (err: unknown) {
-            console.error(err);
+            const error = err as Error;
+            console.error(error.message);
 
-            showErrorMessage("Invalid username or password.");
+            if (error.message === "Invalid credentials.") {
+                showErrorMessage("Invalid username or password.");
+            } else {
+                showErrorMessage("An error occurred while logging in.");
+            }
         }
     };
 
