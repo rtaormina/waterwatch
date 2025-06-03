@@ -302,7 +302,8 @@ onMounted(() => {
                 const coords = geometry.coordinates[0].map(([lng, lat]) => `${lng} ${lat}`).join(", ");
                 return `POLYGON((${coords}))`;
             }
-            const boundingGeometry = L.polygon(corners).toGeoJSON().geometry;
+
+            const boundingGeometry = L.polygon(corners).toGeoJSON().geometry as { coordinates: number[][][] };
             console.log("Bounding Geometry:", boundingGeometry);
             const wkt = geoJsonToWktPolygon(boundingGeometry);
 

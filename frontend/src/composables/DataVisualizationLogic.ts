@@ -7,8 +7,8 @@ import * as d3 from "d3";
  * @param X the x values for which to estimate the density.
  * @returns the kernel density estimator function.
  */
-function kernelDensityEstimator(kernel, X) {
-    return (V) => X.map((x) => [x, d3.mean(V, (v) => kernel(x - v))]);
+function kernelDensityEstimator(kernel: (k: number) => number, X: number[]) {
+    return (V: number[]) => X.map((x) => [x, d3.mean(V, (v: number) => kernel(x - v))]);
 }
 
 /**
@@ -17,8 +17,8 @@ function kernelDensityEstimator(kernel, X) {
  * @param k The bandwidth parameter for the Epanechnikov kernel.
  * @returns The Epanechnikov kernel function.
  */
-function kernelEpanechnikov(k) {
-    return (v) => (Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0);
+function kernelEpanechnikov(k: number) {
+    return (v: number) => (Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0);
 }
 
 /**
@@ -64,18 +64,21 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
 
     const svg = createSVGContainer(el, width, height, margin);
 
-    let xDomain = d3.extent(data);
+    let xDomain = d3.extent(data) as [number, number];
     xDomain = [xDomain[0] - 1, xDomain[1] + 1];
 
     const x = d3.scaleLinear().domain(xDomain).nice().range([0, width]);
 
     // Create bins on histogram
-    const bins = d3.bin().domain(x.domain()).thresholds(x.ticks(20))(data);
+    const bins = d3
+        .bin()
+        .domain(x.domain() as [number, number])
+        .thresholds(x.ticks(20))(data);
 
     // Create y-axis
     const y = d3
         .scaleLinear()
-        .domain([0, d3.max(bins, (d) => d.length)])
+        .domain([0, d3.max(bins, (d) => d.length) as number])
         .nice()
         .range([height, 0]);
 
@@ -84,9 +87,9 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
         .data(bins)
         .enter()
         .append("rect")
-        .attr("x", (d) => x(d.x0))
+        .attr("x", (d) => x(d.x0 as number))
         .attr("y", (d) => y(d.length))
-        .attr("width", (d) => x(d.x1) - x(d.x0) - 1)
+        .attr("width", (d) => x(d.x1 as number) - x(d.x0 as number) - 1)
         .attr("height", (d) => height - y(d.length))
         .attr("fill", barColor);
 
@@ -96,10 +99,10 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
 
     const yKde = d3
         .scaleLinear()
-        .domain([0, d3.max(density, (d) => d[1])])
+        .domain([0, d3.max(density, (d) => d[1]) as number])
         .range([height, 0]);
 
-    const line = d3
+    const line: d3.Line<[number, number]> = d3
         .line()
         .curve(d3.curveBasis)
         .x((d) => x(d[0]))
@@ -111,7 +114,14 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
         .attr("fill", "none")
         .attr("stroke", lineColor)
         .attr("stroke-width", 5)
-        .attr("d", line);
+        .attr(
+            "d",
+            line as d3.ValueFn<
+                SVGPathElement,
+                (number | undefined)[][],
+                string | number | boolean | readonly (string | number)[] | null
+            >,
+        );
 
     // Add axes to svg and format them
     svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
@@ -126,7 +136,7 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
         d3
             .axisLeft(y)
             .ticks(6)
-            .tickFormat((d) => (Number.isInteger(d) ? d : "")),
+            .tickFormat((d) => (Number.isInteger(d) ? d : "") as string),
     );
     svg.append("text")
         .attr("text-anchor", "top")
