@@ -7,23 +7,40 @@ cd "$parent_path"
 
 # Clean start
 echo "Starting clean setup..."
-docker compose -f docker-compose.prod.yaml down -v
-docker compose -f docker-compose.prod.yaml up --build -d
+docker stack rm production
+docker system prune -f
+
+# Build images
+echo "Building Docker images..."
+docker compose -f docker-compose.prod.stack.yaml build
+# Push images to registry
+echo "Pushing Docker images to registry..."
+docker compose -f docker-compose.prod.stack.yaml push
+# Deploy stack
+echo "Deploying Docker stack..."
+docker stack deploy -c docker-compose.prod.stack.yaml production --prune --detach=false
+
+echo "Waiting for deployment to complete..."
+sleep 2  # Wait for services to start
+
+# Apply database migrations
+BACKEND=$(docker ps --format "{{.Names}}" | grep django_backend_app)
+DATABASE=$(docker ps --format "{{.Names}}" | grep postgres)
 
 # Import data
 echo "Importing data..."
-docker cp ../countries_1.sql postgres:/countries_1.sql
-docker cp ../countries_2.sql postgres:/countries_2.sql
-docker compose -f docker-compose.prod.yaml exec postgres psql -U admin -d pg4django -f countries_1.sql
-docker compose -f docker-compose.prod.yaml exec postgres psql -U admin -d pg4django -f countries_2.sql
+docker cp ../countries_1.sql $DATABASE:/countries_1.sql
+docker cp ../countries_2.sql $DATABASE:/countries_2.sql
+docker exec "$DATABASE" psql -U admin -d pg4django -f countries_1.sql
+docker exec "$DATABASE" psql -U admin -d pg4django -f countries_2.sql
 
 # Run migrations
 echo "Running migrations..."
-docker compose -f docker-compose.prod.yaml exec django_backend_app python manage.py makemigrations
-docker compose -f docker-compose.prod.yaml exec django_backend_app python manage.py migrate
+docker exec "$BACKEND" python manage.py makemigrations
+docker exec "$BACKEND" python manage.py migrate
 
 # Create superuser and groups
 echo "Creating superuser and groups..."
-docker compose -f docker-compose.prod.yaml exec django_backend_app python manage.py groups
+docker exec "$BACKEND" python manage.py groups
 
 echo "Setup complete. The application is now running and ready for use."

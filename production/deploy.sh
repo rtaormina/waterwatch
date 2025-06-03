@@ -24,6 +24,6 @@ sleep 2  # Wait for services to start
 
 # Apply database migrations
 BACKEND=$(docker ps --format "{{.Names}}" | grep django_backend_app)
-docker exec -it "$BACKEND" python manage.py migrate
+docker exec "$BACKEND" python manage.py migrate
 
 echo "Deployment completed successfully!"
