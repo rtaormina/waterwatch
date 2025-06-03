@@ -201,11 +201,11 @@ describe("FilterPanelComponent.vue - country filtering UI", () => {
         wrapper.vm.toggleWaterSourceDropdown();
         expect((wrapper.vm as any).waterSourceDropdownOpen).toBe(true);
 
-        const searchInput = wrapper.findAll('[data-testid="measurement-type-placeholder"]')[0];
+        const searchInput = wrapper.findAll('[data-testid="water-source-placeholder"]')[0];
         expect(searchInput.exists()).toBe(true);
         expect(searchInput.text()).toBe("Select water sources");
         await nextTick();
-        const allOptions = wrapper.findAll('[data-testid="dropdown-options"] .multiselect-option');
+        const allOptions = wrapper.findAll('[data-testid="water-source-options"] .multiselect-option');
 
         expect(allOptions.length).toBe(4);
 
@@ -215,7 +215,7 @@ describe("FilterPanelComponent.vue - country filtering UI", () => {
         await secondOption.trigger("click");
         await wrapper.vm.$nextTick();
 
-        const displayText = wrapper.find('[data-testid="formated-water-sources"]');
+        const displayText = wrapper.find('[data-testid="water-source-text"]');
 
         expect(wrapper.vm.selectedWaterSources).toContain("Rooftop Tank");
         expect(displayText.text()).toBe("Rooftop Tank");
@@ -228,7 +228,7 @@ describe("FilterPanelComponent.vue - country filtering UI", () => {
         expect(wrapper.vm.selectedWaterSources).toContain("Well");
 
         const optionLabels = wrapper
-            .findAll('[data-testid="dropdown-options"] .multiselect-option span:last-child')
+            .findAll('[data-testid="water-source-options"] .multiselect-option span:last-child')
             .map((w) => w.text());
 
         expect(optionLabels).toEqual(["Network", "Rooftop Tank", "Well", "Other"]);
