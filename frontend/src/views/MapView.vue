@@ -4,8 +4,8 @@
 
         <div class="w-full h-full flex flex-row">
             <div
-                class="left-0 top-[64px] md:top-0 bottom-0 w-screen md:w-3/5 h-screen fixed md:relative z-10 bg-white"
                 v-if="viewAnalytics || addMeasurement"
+                class="left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
                 <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleClose" />
@@ -21,7 +21,10 @@
                     @hex-select="handleSelect"
                     @open-details="handleOpenAnalysis"
                 />
-                <div class="absolute top-4 right-4 z-50 flex align-center z-20 justify-center gap-4">
+                <div
+                    class="absolute top-4 right-4 z-10 flex align-center z-20 justify-center gap-4"
+                    v-if="!viewAnalytics && !addMeasurement"
+                >
                     <button
                         class="text-white hover:cursor-pointer"
                         :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
@@ -58,7 +61,7 @@
 
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
                 <button
-                    class="bg-main rounded-md p-1 text-white"
+                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
                     @click="
                         addMeasurement = true;
                         viewAnalytics = false;
@@ -69,7 +72,7 @@
                     <PlusCircleIcon class="w-10 h-10" />
                 </button>
                 <button
-                    class="bg-main rounded-md p-1 text-white"
+                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
                     @click="showGlobalAnalytics"
                     v-if="!viewAnalytics && !addMeasurement"
                 >
