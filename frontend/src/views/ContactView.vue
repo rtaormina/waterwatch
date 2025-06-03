@@ -11,11 +11,11 @@
                     If you encounter any issues or bugs while using WATERWATCH, or if you have a feature request, please
                     report them via our
                     <a
-                        href="https://gitlab.ewi.tudelft.nl/cse2000-software-project/2024-2025/cluster-e/06c/06c/-/issues/"
+                        href="https://gitlab.ewi.tudelft.nl/groups/cse2000-software-project/2024-2025/cluster-e/06c/-/issues/"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <span class="underline text-primary-500 hover:text-primary-700">GitLab issue tracker</span>
+                        <span class="underline text-primary hover:text-secondary">GitLab issue tracker</span>
                     </a>
                     . This helps us keep track of all reported issues and prioritize them accordingly. For more
                     information on how to report issues, please refer to our
@@ -24,7 +24,7 @@
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <span class="underline text-primary-500 hover:text-primary-700">contributing guidelines</span>
+                        <span class="underline text-primary hover:text-secondary">contributing guidelines</span>
                     </a>
                     .
                 </p>
