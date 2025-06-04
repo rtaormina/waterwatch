@@ -356,6 +356,7 @@ class ResearcherUser(HttpUser):
         self : HttpUser
             The HTTP user instance
         """
+        self.client.get("/api/session/")
         login(self, "researcher", "researcher")
 
     @task(1)
