@@ -1,4 +1,21 @@
 <template>
+    <div>
+        <Modal :visible="firstTime" @close="firstTime = false">
+            <h2 class="text-lg font-semibold mb-4">Welcome to the WATERWATCH Map!</h2>
+            <p>
+                View local water quality trends by selecting hexagons or record a measurement by pressing the plus
+                button in the bottom left corner. For a tutorial on using the website, visit 'Tutorial'!
+            </p>
+            <div class="flex items-center mt-4 gap-2">
+                <button
+                    @click="firstTime = false"
+                    class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+                >
+                    View Map
+                </button>
+            </div>
+        </Modal>
+    </div>
     <div class="w-full h-full flex flex-col p-0 m-0">
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
 
@@ -104,6 +121,7 @@ import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
 import { ChartBarIcon } from "@heroicons/vue/24/outline";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
+const firstTime = ref(false);
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
@@ -272,6 +290,13 @@ const getIpLocation = (): Promise<Location> => {
 };
 
 onMounted(async () => {
+    const already = localStorage.getItem("myViewVisited");
+    if (!already) {
+        firstTime.value = true;
+        localStorage.setItem("myViewVisited", "true");
+    } else {
+        firstTime.value = false;
+    }
     getLocation()
         .then((position) => {
             const lat = position.latitude;
