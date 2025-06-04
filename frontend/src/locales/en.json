@@ -7,20 +7,63 @@
     },
     "measurement": {
         "introduction": {
-            "title": "",
-            "text": ""
+            "title": "How to a Take Water Temperature Measurement",
+            "text": "Welcome to the tutorial page for taking a water measurement! In this tutorial you will learn how to take a water temperature measurement that can be recorded on the WATERWATCH website or app. This tutorial is intended for citizen scientists and researchers alike. To complete the tutorial you will need a normal or infrared thermometer."
         },
         "step1": {
-            "title": "",
-            "text": ""
+            "title": "Step 1",
+            "text": "Open the kitchen tap.",
+            "taps": {
+                "separate": {
+                    "title": "Separate Hot/Cold Tap",
+                    "text": "Open the cold water tap.",
+                    "caption": "Example of a sink with separate hot and cold taps."
+                },
+                "faucet1": {
+                    "title": "Dual Handle Faucet",
+                    "text": "Open only the cold water tap.",
+                    "caption": "Example of a sink with a faucet with separate cold and hot water valve."
+                },
+                "faucet2": {
+                    "title": "Single Handle Faucet",
+                    "text": "Open the tap with as far as possible to the cold water side to ensure only cold water is being drawn.",
+                    "caption": "Example of a sink with a faucet with a single handle to regulate mixture of cold and hot water."
+                },
+                "thermostatic": {
+                    "title": "Thermostatic Faucet",
+                    "text": "Set the thermostat to as cold as possible, then open the tap.",
+                    "caption": "Example of a sink with a thermostatic faucet."
+                }
+            }
         },
         "step2": {
-            "title": "",
-            "text": ""
+            "title": "Step 2",
+            "text": "Let the water run for one minute. You may want to let the water run into a bucket to avoid wasting any water."
         },
         "step3": {
-            "title": "",
-            "text": ""
+            "title": "Step 3",
+            "text": "Measure the temperature of the water.",
+            "tabs": {
+                "room": {
+                    "title": "Room Thermometer",
+                    "text": "If you are using a thermometer that measures room temperature, place the sensor (bulb at the bottom) into the water stream. Wait at least 20 seconds and read the temperature. Accuracy is +/-0.5C°.",
+                    "caption": "Example of a room thermometer"
+                },
+                "infrared": {
+                    "title": "Infrared Thermometer",
+                    "text": "Point the beam at the water stream. The water stream needs to be sufficiently wide (open the tap fully) for accurate measurements. Wait for a stable reading and read the temperature. Accuracy is +/-0.1°C.",
+                    "caption": "Example of an infrared thermometer"
+                },
+                "fever": {
+                    "title": "Fever Thermometer",
+                    "text": "This type of thermometer will not read temperatures that are too low and is unsuitable for measuring water temperatures for WATERWATCH. It can't be used.",
+                    "caption": "Example of a fever thermometer"
+                }
+            }
+        },
+        "step4": {
+            "title": "Step 4",
+            "text": "Enter the reading on WATERWATCH!"
         },
         "conclusion": {
             "title": "",
