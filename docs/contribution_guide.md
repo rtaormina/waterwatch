@@ -92,3 +92,12 @@ In case you want to reset the test database to its initial state, run:
 ```bash
 docker exec backend python manage.py test
 ```
+
+#### Performance tests
+To run tests, while to project is running in a Docker container, run:
+
+```bash
+locust --host http://localhost --class-picker
+```
+
+Following this you can go to [localhost:8089](http://localhost:8089) to conduct the tests in the Locust GUI.

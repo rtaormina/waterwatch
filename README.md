@@ -206,10 +206,3 @@ This makes sure that the pre-commit hooks will be run before commiting.
 
 
 > Additional thanks to everyone who helped in any way, shape, or form.
-
-generate type doc
-- npm install --save-dev typedoc
-- npm install typedoc-plugin-markdown --save-dev
-- npx typedoc --plugin typedoc-plugin-markdown --out docs/ts
-- npx vue-docgen frontend/src/components docs/vue-components
-- npx vue-docgen frontend/src/views docs/vue-views
