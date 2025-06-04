@@ -16,19 +16,23 @@
             "taps": {
                 "separate": {
                     "title": "",
-                    "text": ""
+                    "text": "",
+                    "caption": ""
                 },
                 "faucet1": {
                     "title": "",
-                    "text": ""
+                    "text": "",
+                    "caption": ""
                 },
                 "faucet2": {
                     "title": "",
-                    "text": ""
+                    "text": "",
+                    "caption": ""
                 },
-                "thermostatic":{
+                "thermostatic": {
                     "title": "",
-                    "text": ""
+                    "text": "",
+                    "caption": ""
                 }
             }
         },
@@ -42,11 +46,18 @@
             "tabs": {
                 "room": {
                     "title": "",
-                    "text": ""
+                    "text": "",
+                    "caption": ""
                 },
                 "infrared": {
                     "title": "",
-                    "text": ""
+                    "text": "",
+                    "caption": ""
+                },
+                "fever": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
                 }
             }
         },
