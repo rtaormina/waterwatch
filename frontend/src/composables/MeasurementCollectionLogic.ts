@@ -1,4 +1,61 @@
 import { DateTime } from "luxon";
+import { toValue, type MaybeRefOrGetter } from "vue";
+
+export type TemperatureSensor =
+    | "analog thermomether"
+    | "digital thermomether"
+    | "infrared thermomether"
+    | "thermocouple"
+    | "thermistor"
+    | "bimetallic thermomether"
+    | "other";
+
+export type TemperatureUnit = "C" | "F";
+export type Temperature = {
+    sensor?: TemperatureSensor;
+    time_waited: Duration;
+    value?: number;
+    unit: TemperatureUnit;
+};
+
+/**
+ * Converts a temperature value to Celsius, rounding to one decimal place.
+ *
+ * If the temperature is already in Celsius ("C"), it returns the value rounded to one decimal.
+ * If the temperature is in Fahrenheit ("F"), it converts it to Celsius and rounds to one decimal.
+ * If the unit is unrecognized, returns `undefined`.
+ *
+ * @param temperature - An object containing the temperature value and its unit ("C" or "F").
+ * @returns The temperature in Celsius rounded to one decimal place, or `undefined` if the unit is not supported.
+ */
+export function getTemperatureInCelsius(temperature: Temperature): number | undefined {
+    if (temperature.unit === "C") {
+        return Math.round((temperature.value ?? 0) * 10) / 10;
+    } else if (temperature.unit === "F") {
+        return Math.round(((temperature.value ?? 0) - 32) * (5 / 9) * 10) / 10;
+    }
+    return undefined;
+}
+
+export type Duration = {
+    minutes?: number;
+    seconds?: number;
+};
+
+export type LabelValuePairs<ValueType> = { label: string; value: ValueType };
+export type SensorOptions = LabelValuePairs<TemperatureSensor>[];
+export type WaterSourceOptions = LabelValuePairs<WaterSource>[];
+export type MetricOptions = LabelValuePairs<Metric>[];
+
+export type Metric = "temperature" | never;
+
+export type WaterSource = "network" | "rooftop tank" | "well" | "other";
+export type MeasurementData = {
+    location: L.LatLng;
+    waterSource?: WaterSource;
+    temperature: Temperature;
+    selectedMetrics: Metric[];
+};
 
 /**
  * Validates the temperature range based on the selected temperature unit.
@@ -55,41 +112,46 @@ export function onSensorInput(
  * @param {string} tempUnit - The unit of temperature measurement ("C" for Celsius or "F" for Fahrenheit).
  * @returns {boolean} `true` if all required inputs are valid; otherwise, `false`.
  */
-export function validateInputs(
-    longitude: number | undefined,
-    latitude: number | undefined,
-    waterSource: string,
-    sensor: string,
-    tempVal: string,
-    selectedMetrics: string[],
+export function validateInputs(data: {
+    longitude: number | undefined;
+    latitude: number | undefined;
+    waterSource: string;
+    sensor: string;
+    tempVal: string;
+    selectedMetrics: string[];
     errors: {
         temp: string | null;
         sensor: string | null;
         mins: string | null;
         sec: string | null;
-    },
+    };
     time: {
         mins: string;
         sec: string;
-    },
-    tempUnit: string,
-) {
-    if (longitude === undefined || latitude === undefined || waterSource === "" || selectedMetrics.length === 0) {
+    };
+    tempUnit: string;
+}) {
+    if (
+        data.longitude === undefined ||
+        data.latitude === undefined ||
+        data.waterSource === "" ||
+        data.selectedMetrics.length === 0
+    ) {
         return false;
     }
-    if (selectedMetrics.includes("temperature")) {
+    if (data.selectedMetrics.includes("temperature")) {
         if (
-            sensor === "" ||
-            tempVal === "" ||
-            isNaN(Number(tempVal)) ||
-            errors.temp !== null ||
-            errors.sensor !== null ||
-            errors.sec != null ||
-            errors.mins != null ||
-            ((time.mins === "" || +time.mins === 0) && (time.sec === "" || +time.sec === 0)) ||
-            +time.mins < 0 ||
-            +time.sec < 0 ||
-            !validateTempRange(tempVal, tempUnit)
+            data.sensor === "" ||
+            data.tempVal === "" ||
+            isNaN(Number(data.tempVal)) ||
+            data.errors.temp !== null ||
+            data.errors.sensor !== null ||
+            data.errors.sec != null ||
+            data.errors.mins != null ||
+            ((data.time.mins === "" || +data.time.mins === 0) && (data.time.sec === "" || +data.time.sec === 0)) ||
+            +data.time.mins < 0 ||
+            +data.time.sec < 0 ||
+            !validateTempRange(data.tempVal, data.tempUnit)
         ) {
             return false;
         }
@@ -111,37 +173,17 @@ export function validateInputs(
  * @param {number | undefined} latitude - The latitude coordinate
  * @returns {{ timestamp_local: string; location: { type: string; coordinates: [number | undefined, number | undefined] }; water_source: string; temperature: { sensor: string; value: number; time_waited: string } }} the payload
  */
-export function createPayload(
-    tempUnit: string,
-    selectedMetrics: string[],
-    temperature: {
-        sensor: string;
-        value: number;
-        time_waited: string;
-    },
-    tempVal: string,
-    time: {
-        mins: string;
-        sec: string;
-    },
-    waterSource: string,
-    longitude: number | undefined,
-    latitude: number | undefined,
-) {
-    if (selectedMetrics.includes("temperature")) {
-        if (tempUnit === "F") {
-            temperature.value = Math.round((+tempVal - 32) * (5 / 9) * 10) / 10;
-        } else {
-            temperature.value = Math.round(+tempVal * 10) / 10;
-        }
-        const mins = time.mins;
-        const secs = time.sec;
-        const mm = String(mins).padStart(2, "0");
-        const ss = String(secs).padStart(2, "0");
-        temperature.time_waited = `00:${mm}:${ss}`;
-    }
-    const longitudeRounded = longitude !== undefined ? Number(longitude.toFixed(3)) : undefined;
-    const latitudeRounded = latitude !== undefined ? Number(latitude.toFixed(3)) : undefined;
+export function createPayload(data: MaybeRefOrGetter<MeasurementData>, selectedMetrics: MaybeRefOrGetter<Metric[]>) {
+    const measurementData = toValue(data);
+    const temperature = toValue(selectedMetrics).includes("temperature")
+        ? {
+              sensor: measurementData.temperature.sensor,
+              value: getTemperatureInCelsius(measurementData.temperature),
+              time_waited: `00:${String(measurementData.temperature.time_waited.seconds ?? 0).padStart(2, "0")}:${String(measurementData.temperature.time_waited.minutes ?? 0).padStart(2, "0")}`,
+          }
+        : undefined;
+    const longitudeRounded = Number(measurementData.location.lng.toFixed(3));
+    const latitudeRounded = Number(measurementData.location.lat.toFixed(3));
     const localISO = DateTime.local().toISO();
     const local_date = localISO ? localISO.split("T")[0] : undefined;
     const local_time = localISO ? localISO.split("T")[1].split(".")[0] : undefined;
@@ -153,7 +195,7 @@ export function createPayload(
             type: "Point",
             coordinates: [longitudeRounded, latitudeRounded],
         },
-        water_source: waterSource,
+        water_source: measurementData.waterSource,
         temperature: temperature,
     };
 }
