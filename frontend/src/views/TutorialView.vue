@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="w-full flex flex-col md:flex-row items-start mb-4 px-4 md:px-8">
+        <div class="w-full flex flex-col-reverse md:flex-row items-start mb-4 px-4 md:px-8 tutorial">
             <!-- <div class="w-full md:w-auto text-center"> -->
             <div class="flex-grow md:w-auto min-w-0 w-full max-w-full">
                 <!-- How to Take Temperature Measurement -->

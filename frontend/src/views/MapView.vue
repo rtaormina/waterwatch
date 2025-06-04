@@ -5,7 +5,7 @@
         <div class="w-full h-full flex flex-row">
             <div
                 v-if="viewAnalytics || addMeasurement"
-                class="left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
+                class="analytics-panel left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleClose" />
                 <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleClose" />
@@ -82,6 +82,14 @@
         </div>
     </div>
 </template>
+
+<style>
+@media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
+    .analytics-panel {
+        width: 100% !important;
+    }
+}
+</style>
 
 <script setup lang="ts">
 /**
