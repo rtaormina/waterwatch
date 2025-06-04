@@ -12,13 +12,45 @@
         },
         "step1": {
             "title": "",
-            "text": ""
+            "text": "",
+            "taps": {
+                "separate": {
+                    "title": "",
+                    "text": ""
+                },
+                "faucet1": {
+                    "title": "",
+                    "text": ""
+                },
+                "faucet2": {
+                    "title": "",
+                    "text": ""
+                },
+                "thermostatic":{
+                    "title": "",
+                    "text": ""
+                }
+            }
         },
         "step2": {
             "title": "",
             "text": ""
         },
         "step3": {
+            "title": "",
+            "text": "",
+            "tabs": {
+                "room": {
+                    "title": "",
+                    "text": ""
+                },
+                "infrared": {
+                    "title": "",
+                    "text": ""
+                }
+            }
+        },
+        "step4": {
             "title": "",
             "text": ""
         },
