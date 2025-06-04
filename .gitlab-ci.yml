@@ -149,13 +149,13 @@ deploy_production:
   stage: deploy
   image: ubuntu:latest
   before_script:
-  - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - ssh-keyscan waterwatch.tudelft.nl >> ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
+    - "command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )"
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan waterwatch.tudelft.nl >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
   script:
     - ssh gitlab_deployment@waterwatch.tudelft.nl "cd WATERWATCH && git pull && ./production/deploy.sh"
   rules:
