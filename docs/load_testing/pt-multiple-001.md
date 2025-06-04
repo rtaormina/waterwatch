@@ -1,3 +1,4 @@
+# Performance Test Application 1
 ## Test Case ID
 `PT-MULTIPLE-001`
 
@@ -38,7 +39,7 @@ Options used:
 - `/`
 
 ## Expected Result
-The application is able to function with a small failure rate under normal workloads
+The application can function with a small failure rate under normal workloads
 
 ## Actual Result
 

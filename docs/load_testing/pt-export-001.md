@@ -1,3 +1,4 @@
+# Performance Test Export Endpoint 1
 ## Test Case ID
 `PT-EXPORT-001`
 
@@ -11,7 +12,7 @@ Export API Performance Test
 `2025-06-04`
 
 ## Summary
-Test that the API endpoint that is used for searching and downloading measurements on the export page is performant enough to serve multiple researcher user's downloads at the same time.
+Test that the API endpoint used for searching and downloading measurements on the export page is performant enough to serve multiple researcher users' downloads simultaneously.
 
 Options used:
 - Max Users: 10
@@ -26,7 +27,7 @@ Options used:
 
 
 ## Expected Result
-The endpoint is able to serve the searches and downloads of at least 10 researcher users simultaneously.
+The endpoint is capable of serving searches and downloads for at least 10 researcher users simultaneously.
 
 ## Actual Result
 The normal search requests that only show aggregated data and do not download anything get served properly, however the downloads time out.

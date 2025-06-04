@@ -1,3 +1,4 @@
+# Stress Test Analytics Endpoint 1
 ## Test Case ID
 `ST-ANALYTICS-001`
 
@@ -24,7 +25,7 @@ Options used:
 - `/api/measurements/aggregated/`
 
 ## Expected Result
-The application is able to serve the requests with minimal failure rate.
+The application can serve the requests with minimal failure rate.
 
 ## Actual Result
 

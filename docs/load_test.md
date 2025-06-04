@@ -1,12 +1,12 @@
 # Load Testing
-To guarantee the performance of our application, it is possible to conduct performance tests on the application with Locust.
+To guarantee the performance of WATERWATCH, it is possible to conduct performance tests on the application with Locust.
 
 Locust should automatically install with the dev requirements. In case it is not found, run:
 
 ```python -m pip install locust```
 
 ## Creating and Conducting Tests
-To run tests, while to project is running in a Docker container, run:
+To run tests, while the project is running in a Docker container, run:
 
 ```locust --host http://localhost --class-picker```
 
@@ -22,12 +22,12 @@ For instructions on how to create tests or how to use the Locust GUI, please see
 - `ST`: Stress tests — continuously ramping up the load on the application to discover breaking boundaries
 - `PT`: Performance (Soak) tests — simulating real word traffic to verify application performance
 
-`ENDPOINT` describes the main API endpoint that is targeted by the test. If there are more than one, say `MULTIPLE` and please list all of them in the *Involved endpoints* section
+`ENDPOINT` describes the main API endpoint that is targeted by the test. If there are more than one, say `MULTIPLE` and please list all of them in the *Involved endpoints* section.
 
 ### Severity
 
 The severity of the issue should be recorded as such:
-- High: The test caused a service to go down and it did not recover after a certain amount of time.
+- High: The test caused a service to go down and it did not recover after a certain amount of time, or a service ran into errors when servicing almost all requests.
 - Medium: The test caused a service to go down, but it recovered. A service with a high ratio of failure should also be considered on this severity.
 - Low: The tests caused occasional failures on a service.
 

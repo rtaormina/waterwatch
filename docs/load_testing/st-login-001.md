@@ -1,3 +1,4 @@
+# Stress Test Login Endpoint 1
 ## Test Case ID
 `ST-LOGIN-001`
 
@@ -24,7 +25,7 @@ Options used:
 - `/api/login/`
 
 ## Expected Result
-The login API is able to function under severe workload with minimal failure rate.
+The login API can function under severe workloads with minimal failure rate.
 
 ## Actual Result
 
