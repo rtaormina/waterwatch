@@ -1,9 +1,12 @@
 """Load testing script for the website using Locust."""
+# ruff: noqa: UP017
 
 import random
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from locust import HttpUser, between, task
+
+UTC = timezone.utc
 
 
 def generate_payload():
@@ -55,7 +58,6 @@ def login(user, username, password):
     password : String
         The password of the user to log in
     """
-    user.client.get("/api/session/")
     user.client.post(
         "/api/login/",
         json={"username": username, "password": password},
@@ -309,6 +311,16 @@ class LoginUser(HttpUser):
 
     wait_time = between(1, 3)
     weight = 5
+
+    def on_start(self):
+        """Call once when a simulated user starts.
+
+        Attributes
+        ----------
+        self : HttpUser
+            The HTTP user instance
+        """
+        self.client.get("/api/session/")
 
     @task
     def try_to_log_in(self):
