@@ -4,7 +4,16 @@
             <h2 class="text-lg font-semibold mb-4">Welcome to the WATERWATCH Map!</h2>
             <p>
                 View local water quality trends by selecting hexagons or record a measurement by pressing the plus
-                button in the bottom left corner. For a tutorial on using the website, visit 'Tutorial'!
+                button in the bottom left corner. To view global analytics, select the bar chart icon in the bottom left
+                corner. For an in-depth tutorial on using the website, visit
+                <router-link
+                    to="/tutorial"
+                    @click="firstTime = false"
+                    class="underline text-primary hover:text-secondary"
+                >
+                    Tutorial
+                </router-link>
+                .
             </p>
             <div class="flex items-center mt-4 gap-2">
                 <button
@@ -290,6 +299,9 @@ const getIpLocation = (): Promise<Location> => {
 };
 
 onMounted(async () => {
+    /**
+     * Display modal only to firsttime users through saving value in localStorage
+     */
     const already = localStorage.getItem("myViewVisited");
     if (!already) {
         firstTime.value = true;
@@ -297,6 +309,9 @@ onMounted(async () => {
     } else {
         firstTime.value = false;
     }
+    /**
+     * Get location for campaigns
+     */
     getLocation()
         .then((position) => {
             const lat = position.latitude;
