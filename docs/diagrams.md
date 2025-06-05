@@ -6,4 +6,5 @@ This section links to diagrams associated with the WATERWATCH system architectur
    :maxdepth: 2
 
    schema
+   architecture
 ```
