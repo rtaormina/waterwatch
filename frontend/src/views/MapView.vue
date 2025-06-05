@@ -1,4 +1,31 @@
 <template>
+    <div>
+        <Modal data-testid="modal" :visible="firstTime" @close="firstTime = false">
+            <h2 class="text-lg font-semibold mb-4">Welcome to the WATERWATCH Map!</h2>
+            <p>
+                View local water quality trends by selecting hexagons or record a measurement by pressing the plus
+                button in the bottom left corner. To view global analytics, select the bar chart icon in the bottom left
+                corner. For an in-depth tutorial on using the website, visit
+                <router-link
+                    to="/tutorial"
+                    @click="firstTime = false"
+                    class="underline text-primary hover:text-secondary"
+                >
+                    Tutorial
+                </router-link>
+                .
+            </p>
+            <div class="flex items-center mt-4 gap-2">
+                <button
+                    data-testid="view-button"
+                    @click="firstTime = false"
+                    class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+                >
+                    View Map
+                </button>
+            </div>
+        </Modal>
+    </div>
     <div class="w-full h-full flex flex-col p-0 m-0">
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
 
@@ -100,18 +127,19 @@
  */
 defineOptions({ name: "DashboardView" });
 import { PlusCircleIcon } from "@heroicons/vue/24/outline";
-import HexMap from "@/components/HexMap.vue";
+import HexMap from "../components/HexMap.vue";
 import { ref, onMounted, computed } from "vue";
-import MeasurementComponent from "@/components/MeasurementComponent.vue";
-import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
+import MeasurementComponent from "../components/MeasurementComponent.vue";
+import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
-import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
+import DataAnalyticsComponent from "../components/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Legend.vue";
 import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
 import { ChartBarIcon } from "@heroicons/vue/24/outline";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 
+const firstTime = ref(false);
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
@@ -280,6 +308,19 @@ const getIpLocation = (): Promise<Location> => {
 };
 
 onMounted(async () => {
+    /**
+     * Display modal only to firsttime users through saving value in localStorage
+     */
+    const already = localStorage.getItem("mapViewVisited");
+    if (!already) {
+        firstTime.value = true;
+        localStorage.setItem("mapViewVisited", "true");
+    } else {
+        firstTime.value = false;
+    }
+    /**
+     * Get location for campaigns
+     */
     getLocation()
         .then((position) => {
             const lat = position.latitude;
