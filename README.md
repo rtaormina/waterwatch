@@ -144,6 +144,7 @@ docker exec backend python manage.py test
     dos2unix test-reset-db.sh
     ./test-reset-db.sh
     ```
+> For more troubleshooting steps visit [Troubleshooting](https://waterwatch.tudelft.nl/docs/troubleshooting.html)
 
 ## Contributing
 To avoid having to run individual installation commands, run:
@@ -182,6 +183,8 @@ After pre-commit is installed, to create the commit hook:
 pre-commit install
 ```
 This makes sure that the pre-commit hooks will be run before commiting.
+
+> For more information visit our [Contribution Guide](https://waterwatch.tudelft.nl/docs/contribution_guide.html).
 
 
 ## License
