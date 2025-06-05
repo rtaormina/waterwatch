@@ -27,6 +27,7 @@ New to WATERWATCH? Check out the following links:
    installation
    troubleshooting
    contribution_guide
+   e2e_test
    manual_test
    load_test
    development
