@@ -154,10 +154,10 @@
  */
 defineOptions({ name: "DashboardView" });
 import { PlusCircleIcon } from "@heroicons/vue/24/outline";
-import HexMap from "@/components/HexMap.vue";
+import HexMap from "../components/HexMap.vue";
 import { ref, onMounted, computed, nextTick } from "vue";
-import MeasurementComponent from "@/components/MeasurementComponent.vue";
-import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
+import MeasurementComponent from "../components/MeasurementComponent.vue";
+import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
@@ -166,8 +166,8 @@ import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
 import { ChartBarIcon } from "@heroicons/vue/24/outline";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 import { ScaleIcon } from "@heroicons/vue/24/outline";
-import DataAnalyticsCompare from "@/components/DataAnalyticsCompare.vue";
-import ComparisonBar from "@/components/ComparisonBar.vue";
+import DataAnalyticsCompare from "../components/DataAnalyticsCompare.vue";
+import ComparisonBar from "../components/ComparisonBar.vue";
 
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
