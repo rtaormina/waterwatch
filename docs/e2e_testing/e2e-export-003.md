@@ -35,6 +35,6 @@ n/a
 ## Attachments
 
 ## Related Test File
-![test file](./../../frontend/tests/e2e/measurement-export.spec.ts)
+`/frontend/tests/e2e/measurement-export.spec.ts`
 
 ## Additional Notes

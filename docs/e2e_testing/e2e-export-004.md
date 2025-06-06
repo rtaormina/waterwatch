@@ -59,6 +59,6 @@ const presetOptsAllFilters: AddPresetOpts = {
 ## Attachments
 
 ## Related Test File
-![test file](./../../frontend/tests/e2e/export-presets.spec.ts)
+`/frontend/tests/e2e/export-presets.spec.ts`
 
 ## Additional Notes
