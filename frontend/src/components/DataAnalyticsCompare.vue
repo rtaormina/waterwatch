@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, watch, ref, nextTick } from "vue";
-import { getGraphData, drawHistogramWithKDE, drawOverlayedKDE } from "../composables/DataVisualizationLogic";
+import { getGraphData, drawHistogramWithKDE, drawComparisonGraph } from "../composables/DataVisualizationLogic";
 import { XMarkIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
@@ -16,10 +16,11 @@ const graphOverlay = ref<HTMLElement | null>(null);
 const openItems = ref<Set<string>>(new Set(["overlaid"]));
 
 /**
- * Toggles the visibility of an accordion item.
+ * Toggles the visibility of an accordion item,
+ * then re‐renders all visible charts.
  *
  * @param itemKey The key of the accordion item to toggle.
- * @return {void}
+ * @returns {void}
  */
 function toggleAccordion(itemKey: string) {
     if (openItems.value.has(itemKey)) {
@@ -27,90 +28,88 @@ function toggleAccordion(itemKey: string) {
     } else {
         openItems.value.add(itemKey);
     }
-    // Trigger reactivity
+    // Force reactivity on the Set
     openItems.value = new Set(openItems.value);
 
-    // Re-render graphs after DOM updates
+    // After DOM changes, re‐render
     nextTick(() => {
         renderCompare();
     });
 }
 
 /**
- * Checks if an accordion item is currently open.
+ * Returns true if that accordion key is open.
  *
  * @param itemKey The key of the accordion item to check.
- * @return {boolean} True if the item is open, false otherwise.
+ * @returns {boolean} True if the item is open, false otherwise.
  */
 function isOpen(itemKey: string): boolean {
     return openItems.value.has(itemKey);
 }
 
 /**
- * Renders the comparison graphs for the two groups and the graphs for each group separately.
- * This function fetches the data for each group, checks which accordion items are open,
- * and draws the appropriate graphs using the provided data.
+ * Fetches data for each group (with error catching),
+ * then draws only those charts whose accordion is open.
  *
- * @return {Promise<void>} A promise that resolves when the graphs are rendered.
+ * @returns {Promise<void>} A promise that resolves when all charts are rendered.
  */
 async function renderCompare() {
-    // Wait for DOM to be ready
-    await nextTick();
+    await nextTick(); // ensure the DOM refs exist
 
-    // Get separate arrays
-    const [vals1, vals2] = await Promise.all([getGraphData(props.group1WKT), getGraphData(props.group2WKT)]);
+    let vals1: number[] = [];
+    let vals2: number[] = [];
 
-    // Only render graphs that are currently visible (accordion open)
+    // Catch errors when fetching data
+    try {
+        vals1 = await getGraphData(props.group1WKT);
+    } catch {
+        vals1 = [];
+    }
+
+    try {
+        vals2 = await getGraphData(props.group2WKT);
+    } catch {
+        vals2 = [];
+    }
+
+    // Overlaid KDE (only if that section is open)
     if (isOpen("overlaid") && graphOverlay.value) {
-        // Small delay to ensure element is fully rendered
-        setTimeout(() => {
-            if (graphOverlay.value) {
-                drawOverlayedKDE(graphOverlay.value, vals1, vals2, {
-                    barOpacity: 0.15,
-                    barColor1: "steelblue",
-                    lineColor1: "steelblue",
-                    barColor2: "crimson",
-                    lineColor2: "crimson",
-                });
-            }
-        }, 50);
+        drawComparisonGraph(graphOverlay.value, vals1, vals2, {
+            barOpacity: 0.15,
+            barColor1: "steelblue",
+            lineColor1: "steelblue",
+            barColor2: "crimson",
+            lineColor2: "crimson",
+        });
     }
 
+    // Group 1 histogram
     if (isOpen("group1") && graph1.value) {
-        setTimeout(() => {
-            if (graph1.value) {
-                drawHistogramWithKDE(graph1.value, vals1, "steelblue", "orange", {
-                    barOpacity: 0.5,
-                });
-            }
-        }, 50);
+        drawHistogramWithKDE(graph1.value, vals1, "steelblue", "orange", {
+            barOpacity: 0.5,
+        });
     }
 
+    // Group 2 histogram
     if (isOpen("group2") && graph2.value) {
-        setTimeout(() => {
-            if (graph2.value) {
-                drawHistogramWithKDE(graph2.value, vals2, "crimson", "orange", {
-                    barOpacity: 0.5,
-                });
-            }
-        }, 50);
+        drawHistogramWithKDE(graph2.value, vals2, "crimson", "orange", {
+            barOpacity: 0.5,
+        });
     }
 }
 
 /**
- * Lifecycle hook to render the comparison graphs when the component is mounted.
- * It uses a timeout to ensure the DOM is ready before rendering.
+ * Lifecycle: immediately render once on mount
  */
 onMounted(() => {
-    // Initial render with delay to ensure DOM is ready
-    setTimeout(renderCompare, 100);
+    renderCompare();
 });
 
-// Watch for changes in the WKT strings and re-render the graphs
+// Watch WKT‐prop changes, then re‐render immediately
 watch(
     () => [props.group1WKT, props.group2WKT],
     () => {
-        setTimeout(renderCompare, 50);
+        renderCompare();
     },
 );
 </script>
@@ -141,7 +140,7 @@ watch(
                     <ChevronUpIcon v-if="isOpen('overlaid')" class="w-5 h-5" />
                     <ChevronDownIcon v-else class="w-5 h-5" />
                 </button>
-                <div v-if="isOpen('overlaid')" class="p-4 border-t border-gray-200">
+                <div v-if="isOpen('overlaid')" class="p-4 border-t border-gray-200" data-testid="overlaid-content">
                     <div class="bg-white rounded-lg p-4 shadow">
                         <div ref="graphOverlay" class="w-full h-64"></div>
                     </div>

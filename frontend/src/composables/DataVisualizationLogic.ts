@@ -5,7 +5,7 @@ import * as d3 from "d3";
  * Creates an Epanechnikov kernel function with a specified bandwidth.
  *
  * @param bandwidth  The smoothing bandwidth (h). Larger h → smoother curve.
- * @returns          A function k(v) that returns the kernel‐weighted density at distance v.
+ * @returns {Function} A kernel function that takes a value v and returns the kernel density estimate.
  */
 export function kernelEpanechnikov(bandwidth: number): (v: number) => number {
     return (v: number) => {
@@ -23,7 +23,7 @@ export function kernelEpanechnikov(bandwidth: number): (v: number) => number {
  *
  * @param kernel  A kernel function (e.g. kernelEpanechnikov(bandwidth)).
  * @param X       An array of x-values at which to evaluate the density.
- * @returns       A function that, given an array V of sample values, returns an array of [x, density].
+ * @returns {Function} A function that takes an array of values V and returns an array of [x, density] pairs.
  */
 export function kernelDensityEstimator(
     kernel: (x: number) => number,
@@ -43,7 +43,7 @@ export function kernelDensityEstimator(
  * @param width    The inner width (excluding left/right margins).
  * @param height   The inner height (excluding top/bottom margins).
  * @param margin   An object with { top, right, bottom, left } margins.
- * @returns        A D3 selection of the `<g>` inside the newly created `<svg>`.
+ * @returns {d3.Selection<SVGGElement, unknown, null, undefined>} The top‐level <g> group.
  */
 export function createSVGContainer(
     el: HTMLElement,
@@ -64,7 +64,7 @@ export function createSVGContainer(
  * Fetches measurement data (as an array of numbers) from a WKT boundary.
  *
  * @param wkt  A Well‐Known Text string representing the boundary geometry.
- * @returns    A Promise that resolves to an array of numeric measurements.
+ * @returns {Promise<number[]>} A promise that resolves to an array of numeric values.
  */
 export async function getGraphData(wkt: string): Promise<number[]> {
     if (!wkt) return [];
@@ -91,6 +91,7 @@ export async function getGraphData(wkt: string): Promise<number[]> {
  *   - bandwidth?: number      If provided, overrides default (extent/30).
  *   - numBins?: number        Number of histogram bins (default: 20).
  *   - numKdePoints?: number   Number of points at which to evaluate KDE (default: 100).
+ * @returns {void}
  */
 export function drawHistogramWithKDE(
     el: HTMLElement,
@@ -241,8 +242,9 @@ export function drawHistogramWithKDE(
  *   - bandwidth?: number      If provided, overrides default (extent/30).
  *   - numBins?: number        Number of histogram bins (default: 20).
  *   - numKdePoints?: number   Number of points at which to evaluate KDE (default: 100).
+ * @return {void}
  */
-export function drawOverlayedKDE(
+export function drawComparisonGraph(
     el: HTMLElement,
     vals1: number[],
     vals2: number[],
