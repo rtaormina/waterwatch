@@ -5,10 +5,10 @@ import { mount, VueWrapper } from "@vue/test-utils";
 const mockMeasurements = ["23.0", "25.0",];
 
 vi.mock("../../../../src/composables/DataVisualizationLogic", () => ({
-    drawHistogram: vi.fn()
+    drawHistogramWithKDE: vi.fn()
 }));
 
-import { drawHistogram } from "../../../../src/composables/DataVisualizationLogic";
+import { drawHistogramWithKDE } from "../../../../src/composables/DataVisualizationLogic";
 
 describe("DataAnalyticsComponent good weather tests", () => {
     let wrapper: VueWrapper<any>;
@@ -35,9 +35,9 @@ describe("DataAnalyticsComponent good weather tests", () => {
             "/api/measurements/"
         );
 
-        expect(drawHistogram).toHaveBeenCalled();
+        expect(drawHistogramWithKDE).toHaveBeenCalled();
 
-        const callArgs = (drawHistogram as any).mock.calls[0];
+        const callArgs = (drawHistogramWithKDE as any).mock.calls[0];
         expect(callArgs[1]).toEqual([23, 25]);
     });
 
@@ -80,9 +80,9 @@ describe("DataAnalyticsComponent bad weather tests", () => {
     });
 
     it("getGraphData fails but it still shows data", async () => {
-        expect(drawHistogram).toHaveBeenCalled();
+        expect(drawHistogramWithKDE).toHaveBeenCalled();
 
-        const callArgs = (drawHistogram as any).mock.calls[0];
+        const callArgs = (drawHistogramWithKDE as any).mock.calls[0];
         console.log(callArgs);
         expect(callArgs[1]).toEqual([]);
     });
