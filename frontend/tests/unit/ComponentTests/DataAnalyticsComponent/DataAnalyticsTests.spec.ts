@@ -49,7 +49,7 @@ describe("DataAnalyticsComponent good weather tests", () => {
         await wrapper.setProps({ location: "new-location" });
 
         expect(fetch).toHaveBeenCalledWith(
-            "/api/measurements/?boundry_geometry=new-location"
+            "/api/measurements/?boundary_geometry=new-location"
         );
     });
 
