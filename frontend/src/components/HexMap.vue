@@ -112,12 +112,14 @@ const {
     colors,
     colorScale,
     selectMult,
+    colorByTemp,
 } = defineProps<{
     center?: L.LatLng;
     data: DataPoint[];
     colors: string[];
     colorScale: [number, number];
     selectMult: boolean;
+    colorByTemp: boolean;
 }>();
 
 const hexbinOptions: L.HexbinLayerConfig = {
@@ -133,7 +135,9 @@ const hexbinLayer: L.HexbinLayer = L.hexbinLayer(hexbinOptions);
 hexbinLayer.lat((d: DataPoint) => d.point.lat);
 hexbinLayer.lng((d: DataPoint) => d.point.lng);
 hexbinLayer.colorValue((d) => {
-    const color = d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length;
+    const color = colorByTemp
+        ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length
+        : d.map((v) => v.o.count).reduce((a, b) => a + b, 0) / d.length;
     return color;
 });
 
@@ -378,6 +382,19 @@ onMounted(() => {
         },
     );
 });
+
+watch(
+    () => colorByTemp,
+    (newVal) => {
+        hexbinLayer.colorValue((d) => {
+            return newVal
+                ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length
+                : d.map((v) => v.o.count).reduce((a, b) => a + b, 0) / d.length;
+        });
+        hexbinLayer.redraw();
+    },
+    { immediate: true },
+);
 </script>
 
 <style scoped>

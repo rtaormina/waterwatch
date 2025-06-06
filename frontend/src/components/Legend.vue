@@ -28,16 +28,59 @@
             <span>{{ scale[0] + step * 3 }}°C</span>
             <span>&geq;{{ scale[1] }}°C</span>
         </div>
+
+        <div>
+            <button
+                @click="toTempMode"
+                :class="{ 'bg-main text-white': colorByTemp }"
+                class="cursor-pointer px-3 rounded border"
+            >
+                Temperature
+            </button>
+            <button
+                @click="toCountMode"
+                :class="{ 'bg-main text-white': !colorByTemp }"
+                class="cursor-pointer px-3 rounded border"
+            >
+                Count
+            </button>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
 
+import { ref } from "vue";
+
+const colorByTemp = ref(true);
+
 const props = defineProps<{
     colors: string[];
     scale: [number, number];
 }>();
+
+const emit = defineEmits<{
+    (e: "switch"): void;
+}>();
+
+/**
+ * Switch to count mode.
+ */
+function toCountMode() {
+    if (!colorByTemp.value) return;
+    colorByTemp.value = false;
+    emit("switch");
+}
+
+/**
+ * Switch to temperature mode.
+ */
+function toTempMode() {
+    if (colorByTemp.value) return;
+    colorByTemp.value = true;
+    emit("switch");
+}
 
 const step = computed(() => (props.scale[1] - props.scale[0]) / 4);
 const { colors, scale } = props;
