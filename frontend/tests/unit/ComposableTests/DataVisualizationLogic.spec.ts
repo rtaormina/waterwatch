@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 
 import {
     kernelEpanechnikov,
@@ -51,16 +51,27 @@ describe("kernelDensityEstimator", () => {
 
 describe("createSVGContainer", () => {
     let container: HTMLElement;
+    let window: Window;
 
     beforeEach(() => {
-        // Use JSDOM so that d3.select(...) works in a Node environment
-        const dom = new JSDOM(`<body><div id="root"></div></body>`);
-        global.document = dom.window.document;
-        container = document.getElementById("root") as HTMLElement;
+        // Create a new Happy DOM window for each test
+        window = new Window();
+        global.document = window.document as any;
+        global.window = window as any;
 
-        // Override clientWidth/clientHeight so that D3 scales make sense
-        Object.defineProperty(container, "clientWidth", { value: 400 });
-        Object.defineProperty(container, "clientHeight", { value: 300 });
+        // Set up the DOM structure
+        window.document.body.innerHTML = '<div id="root"></div>';
+        container = window.document.getElementById("root") as unknown as HTMLElement;
+
+        // Mock container dimensions for D3 scales
+        Object.defineProperty(container, "clientWidth", {
+            value: 400,
+            configurable: true,
+        });
+        Object.defineProperty(container, "clientHeight", {
+            value: 300,
+            configurable: true,
+        });
     });
 
     it("appends an <svg> with correct width/height and returns a <g> translated by margins", () => {
@@ -116,13 +127,27 @@ describe("getGraphData", () => {
 
 describe("drawHistogramWithKDE", () => {
     let container: HTMLElement;
+    let window: Window;
 
     beforeEach(() => {
-        const dom = new JSDOM(`<body><div id="chart"></div></body>`);
-        global.document = dom.window.document;
-        container = document.getElementById("chart") as HTMLElement;
-        Object.defineProperty(container, "clientWidth", { value: 500 });
-        Object.defineProperty(container, "clientHeight", { value: 400 });
+        // Create a new Happy DOM window for each test
+        window = new Window();
+        global.document = window.document as any;
+        global.window = window as any;
+
+        // Set up the DOM structure
+        window.document.body.innerHTML = '<div id="chart"></div>';
+        container = window.document.getElementById("chart") as unknown as HTMLElement;
+
+        // Mock container dimensions
+        Object.defineProperty(container, "clientWidth", {
+            value: 500,
+            configurable: true,
+        });
+        Object.defineProperty(container, "clientHeight", {
+            value: 400,
+            configurable: true,
+        });
     });
 
     it("does nothing when data array is empty", () => {
@@ -175,13 +200,27 @@ describe("drawHistogramWithKDE", () => {
 
 describe("drawComparisonGraph", () => {
     let container: HTMLElement;
+    let window: Window;
 
     beforeEach(() => {
-        const dom = new JSDOM(`<body><div id="comparison"></div></body>`);
-        global.document = dom.window.document;
-        container = document.getElementById("comparison") as HTMLElement;
-        Object.defineProperty(container, "clientWidth", { value: 600 });
-        Object.defineProperty(container, "clientHeight", { value: 500 });
+        // Create a new Happy DOM window for each test
+        window = new Window();
+        global.document = window.document as any;
+        global.window = window as any;
+
+        // Set up the DOM structure
+        window.document.body.innerHTML = '<div id="comparison"></div>';
+        container = window.document.getElementById("comparison") as unknown as HTMLElement;
+
+        // Mock container dimensions
+        Object.defineProperty(container, "clientWidth", {
+            value: 600,
+            configurable: true,
+        });
+        Object.defineProperty(container, "clientHeight", {
+            value: 500,
+            configurable: true,
+        });
     });
 
     it("does nothing when both value arrays are empty", () => {
