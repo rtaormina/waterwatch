@@ -177,3 +177,19 @@ def user_permissions_view(request):
             "is_superuser": user.is_superuser,
         }
     )
+
+
+def health_check_view(_request):
+    """Perform a health check to ensure the server is running.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object.
+
+    Returns
+    -------
+    JsonResponse
+        JSON with {"status": "ok"} indicating the server is healthy.
+    """
+    return JsonResponse({"status": "ok"})

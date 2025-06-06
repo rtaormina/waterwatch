@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Modal from "./Modal.vue";
 import { ref, defineProps, onMounted, onUnmounted } from "vue";
-import { formatDateTime, updateCountdown } from "@/composables/CampaignLogic";
+import { formatDateTime, updateCountdown } from "../composables/CampaignLogic";
 
 const showModal = ref(false);
 interface Campaign {

@@ -1,11 +1,38 @@
 <template>
+    <div>
+        <Modal data-testid="modal" :visible="firstTime" @close="firstTime = false">
+            <h2 class="text-lg font-semibold mb-4">Welcome to the WATERWATCH Map!</h2>
+            <p>
+                View local water quality trends by selecting hexagons or record a measurement by pressing the plus
+                button in the bottom left corner. To view global analytics, select the bar chart icon in the bottom left
+                corner. For an in-depth tutorial on using the website, visit
+                <router-link
+                    to="/tutorial"
+                    @click="firstTime = false"
+                    class="underline text-primary hover:text-secondary"
+                >
+                    Tutorial
+                </router-link>
+                .
+            </p>
+            <div class="flex items-center mt-4 gap-2">
+                <button
+                    data-testid="view-button"
+                    @click="firstTime = false"
+                    class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+                >
+                    View Map
+                </button>
+            </div>
+        </Modal>
+    </div>
     <div class="w-full h-full flex flex-col p-0 m-0">
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
 
         <div class="w-full h-full flex flex-row">
             <div
                 v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
-                class="left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto bg-white z-10"
+                class="analytics-panel left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
                 <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleCloseAll" />
@@ -110,6 +137,14 @@
     </div>
 </template>
 
+<style>
+@media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
+    .analytics-panel {
+        width: 100% !important;
+    }
+}
+</style>
+
 <script setup lang="ts">
 /**
  * MapView
@@ -124,7 +159,7 @@ import { ref, onMounted, computed, nextTick } from "vue";
 import MeasurementComponent from "@/components/MeasurementComponent.vue";
 import CampaignBannerComponent from "@/components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
-import DataAnalyticsComponent from "@/components/DataAnalyticsComponent.vue";
+import DataAnalyticsComponent from "../components/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Legend.vue";
 import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
@@ -136,6 +171,7 @@ import ComparisonBar from "@/components/ComparisonBar.vue";
 
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
+const firstTime = ref(false);
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
@@ -457,6 +493,19 @@ const getIpLocation = (): Promise<Location> => {
 
 // Lifecycle hook to get the user's location and fetch campaigns when the component is mounted
 onMounted(async () => {
+    /**
+     * Display modal only to firsttime users through saving value in localStorage
+     */
+    const already = localStorage.getItem("mapViewVisited");
+    if (!already) {
+        firstTime.value = true;
+        localStorage.setItem("mapViewVisited", "true");
+    } else {
+        firstTime.value = false;
+    }
+    /**
+     * Get location for campaigns
+     */
     getLocation()
         .then((position) => {
             const lat = position.latitude;

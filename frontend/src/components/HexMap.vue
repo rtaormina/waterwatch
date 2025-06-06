@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { createOSMLayer } from "@/composables/LocationFallback";
+import { createOSMLayer } from "../composables/LocationFallback";
 import * as L from "leaflet";
 import { createApp, onMounted, ref, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";

@@ -314,12 +314,12 @@ defineExpose({
 </script>
 
 <template>
-    <div class="bg-light p-6 rounded-lg flex flex-col h-full max-h-full" ref="filterPanelRef">
+    <div class="bg-light p-6 rounded-lg flex flex-col h-full max-h-full panel-component" ref="filterPanelRef">
         <!-- Filter Header -->
         <div class="font-bold text-lg mb-2 shrink-0">Filter By</div>
 
         <!-- Scrollable Filter Content Area -->
-        <div class="overflow-y-scroll flex-grow flex flex-col pr-6 mb-4" ref="scrollableAreaRef">
+        <div class="overflow-y-scroll flex-grow flex flex-col pr-6 mb-4 panel-subcomponent" ref="scrollableAreaRef">
             <!-- Location: two‑column grid -->
             <div class="mb-2">
                 <div class="font-semibold mb-1">Location</div>
@@ -691,6 +691,57 @@ defineExpose({
 </template>
 
 <style>
+@media (max-height: 500px) {
+    .panel-component {
+        padding: 0.5rem !important;
+        overflow-y: visible !important;
+        height: auto !important;
+        margin-bottom: 1% !important;
+    }
+
+    .panel-subcomponent {
+        overflow-y: visible !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .panel-component .font-bold {
+        font-size: 1rem !important;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.25rem;
+    }
+
+    .panel-component .font-semibold {
+        font-size: 0.875rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .panel-component label.block.text-sm {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .panel-component .mb-2 {
+        margin-bottom: 0.25rem !important;
+    }
+    .panel-component .mb-4 {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .panel-component input[type="text"],
+    .panel-component input[type="number"],
+    .panel-component input[type="date"],
+    .panel-component input[type="time"] {
+        padding: 0.25rem 0.5rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .panel-component .multiselect-custom-wrapper,
+    .panel-component .multiselect-custom-dropdown {
+        padding: 0.25rem !important;
+        font-size: 0.75rem !important;
+    }
+}
+
 .multiselect-custom-wrapper {
     width: 100%;
     min-height: 38px;

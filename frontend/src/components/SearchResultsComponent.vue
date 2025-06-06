@@ -97,8 +97,8 @@ defineExpose({
 </script>
 
 <template>
-    <div class="flex flex-col flex-grow min-h-0">
-        <div class="md:overflow-y-auto space-y-4 px-4 md:pt-6 md:mt-[54px]">
+    <div class="flex flex-col flex-grow result-component">
+        <div class="md:overflow-y-auto space-y-4 px-4 md:pt-6 md:mt-[54px] result-component">
             <h3 class="font-bold text-lg mb-4 hidden md:block">Search Results</h3>
             <h4 class="font-semibold text-lg hidden md:block">Summary</h4>
             <div class="mt-2 space-y-1">
@@ -112,7 +112,7 @@ defineExpose({
                 </div>
             </div>
         </div>
-        <div class="flex-grow"></div>
+        <div class="flex-grow result-component"></div>
         <div class="md:overflow-y-auto flex flex-col items-center mb-4 md:mb-8">
             <button
                 data-testid="download-icon"
@@ -162,3 +162,52 @@ defineExpose({
         </div>
     </div>
 </template>
+<style>
+@media (max-height: 500px) {
+    .result-component {
+        padding: 0.5rem !important;
+        overflow-y: visible !important;
+        height: auto !important;
+    }
+
+    .result-component .font-bold {
+        font-size: 1rem !important;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.25rem;
+    }
+
+    .result-component .font-semibold {
+        font-size: 0.875rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .result-component label.block.text-sm {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.25rem !important;
+    }
+
+    .result-component .gap-4 {
+        gap: 0.5rem !important;
+    }
+    .result-component .gap-2 {
+        gap: 0.25rem !important;
+    }
+
+    .result-component .mb-2 {
+        margin-bottom: 0.25rem !important;
+    }
+    .result-component .mb-4 {
+        margin-bottom: 0.5rem !important;
+    }
+
+    .result-component .text-sm {
+        font-size: 0.625rem !important;
+    }
+
+    .result-component svg.h-5,
+    .result-component svg.w-5 {
+        height: 0.75rem !important;
+        width: 0.75rem !important;
+    }
+}
+</style>
