@@ -104,13 +104,13 @@ import TextTabs from "../components/Text/Tabs.vue";
 const aboutPages = [
     {
         label: "About WATERWATCH",
-        value: "About WATERWATCH",
+        slot: "About WATERWATCH",
     },
     {
         label: "The WATERWATCH Team",
-        value: "The WATERWATCH Team",
+        slot: "The WATERWATCH Team",
     },
 ];
 
-const page = ref<string>(aboutPages[0].value);
+const page = ref<string>(aboutPages[0].slot);
 </script>

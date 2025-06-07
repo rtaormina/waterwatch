@@ -89,7 +89,7 @@ describe("Navbar.vue", () => {
         });
     });
 
-    it("renders desktop nav when width ≥ 768", async () => {
+    it("renders desktop nav when width ≥ 1024", async () => {
         window.innerWidth = 1024;
         const wrapper = mount(Navbar, {
             global: {

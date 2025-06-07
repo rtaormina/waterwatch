@@ -1,41 +1,56 @@
+// DataVisualizationLogic.ts
 import * as d3 from "d3";
+
+/**
+ * Creates an Epanechnikov kernel function with a specified bandwidth.
+ *
+ * @param bandwidth  The smoothing bandwidth (h). Larger h → smoother curve.
+ * @returns {Function} A kernel function that takes a value v and returns the kernel density estimate.
+ */
+export function kernelEpanechnikov(bandwidth: number): (v: number) => number {
+    return (v: number) => {
+        const u = v / bandwidth;
+        if (Math.abs(u) <= 1) {
+            return (0.75 * (1 - u * u)) / bandwidth;
+        } else {
+            return 0;
+        }
+    };
+}
 
 /**
  * Creates a kernel density estimator function.
  *
- * @param kernel the kernel function to use for the density estimation.
- * @param X the x values for which to estimate the density.
- * @returns the kernel density estimator function.
+ * @param kernel  A kernel function (e.g. kernelEpanechnikov(bandwidth)).
+ * @param X       An array of x-values at which to evaluate the density.
+ * @returns {Function} A function that takes an array of values V and returns an array of [x, density] pairs.
  */
-function kernelDensityEstimator(kernel: (k: number) => number, X: number[]) {
-    return (V: number[]) => X.map((x) => [x, d3.mean(V, (v: number) => kernel(x - v))]);
+export function kernelDensityEstimator(
+    kernel: (x: number) => number,
+    X: number[],
+): (V: number[]) => Array<[number, number]> {
+    return (V: number[]) =>
+        X.map((x) => {
+            const meanDensity = d3.mean(V, (v: number) => kernel(x - v)) || 0;
+            return [x, meanDensity];
+        });
 }
 
 /**
- * Creates an Epanechnikov kernel function with a specified bandwith.
+ * Utility: Creates an SVG container and a top‐level <g> group translated by the margins.
  *
- * @param k The bandwidth parameter for the Epanechnikov kernel.
- * @returns The Epanechnikov kernel function.
+ * @param el       The HTML element to append the <svg> to.
+ * @param width    The inner width (excluding left/right margins).
+ * @param height   The inner height (excluding top/bottom margins).
+ * @param margin   An object with { top, right, bottom, left } margins.
+ * @returns {d3.Selection<SVGGElement, unknown, null, undefined>} The top‐level <g> group.
  */
-function kernelEpanechnikov(k: number) {
-    return (v: number) => (Math.abs((v /= k)) <= 1 ? (0.75 * (1 - v * v)) / k : 0);
-}
-
-/**
- * Creates an SVG container for the graphs.
- *
- * @param {HTMLElement} el The HTML element to append the SVG to.
- * @param {number} width the width of the SVG container.
- * @param {number} height the height of the SVG container.
- * @param margin the margins of the SVG container.
- * @returns The created SVG container as a D3 selection.
- */
-function createSVGContainer(
+export function createSVGContainer(
     el: HTMLElement,
     width: number,
     height: number,
     margin: { top: number; right: number; bottom: number; left: number },
-) {
+): d3.Selection<SVGGElement, unknown, null, undefined> {
     return d3
         .select(el)
         .append("svg")
@@ -46,116 +61,160 @@ function createSVGContainer(
 }
 
 /**
- * Draws a histogram with the x axis being the measurement data points and the y axis their frequency.
- * It also estimates the kernel density of the data using a Epanechnikov kernel and draws it as a line on top of the histogram.
+ * Fetches measurement data (as an array of numbers) from a WKT boundary.
  *
- * @param {HTMLElement} el The HTML element to draw the histogram in.
- * @param {number[]} data The data to visualize in the histogram.
+ * @param wkt  A Well‐Known Text string representing the boundary geometry.
+ * @returns {Promise<number[]>} A promise that resolves to an array of numeric values.
  */
-export function drawHistogram(el: HTMLElement, data: number[]) {
-    const margin = { top: 40, right: 20, bottom: 40, left: 40 };
+export async function getGraphData(wkt: string): Promise<number[]> {
+    if (!wkt) return [];
+    try {
+        const response = await fetch(`/api/measurements/?boundary_geometry=${encodeURIComponent(wkt)}`);
+        const data = await response.json();
+        // Convert each returned value to a Number
+        return data.map(Number);
+    } catch (err) {
+        console.error("Error fetching data for WKT:", err);
+        return [];
+    }
+}
+
+/**
+ * Draws a single‐group histogram with an overlaid KDE curve.
+ *
+ * @param el          The container HTMLElement.
+ * @param data        An array of numeric values (e.g. temperatures).
+ * @param barColor    CSS color for the histogram bars (e.g. "#1f449c").
+ * @param lineColor   CSS color for the KDE curve (e.g. "#f05039").
+ * @param options?    Optional settings:
+ *   - barOpacity?: number     Opacity for the bars, between 0.0 and 1.0 (default: 1.0).
+ *   - bandwidth?: number      If provided, overrides default (extent/30).
+ *   - numBins?: number        Number of histogram bins (default: 20).
+ *   - numKdePoints?: number   Number of points at which to evaluate KDE (default: 100).
+ * @returns {void}
+ */
+export function drawHistogramWithKDE(
+    el: HTMLElement,
+    data: number[],
+    barColor: string,
+    lineColor: string,
+    options?: {
+        barOpacity?: number;
+        bandwidth?: number;
+        numBins?: number;
+        numKdePoints?: number;
+    },
+) {
+    // 1. Set up margins and dimensions
+    const margin = { top: 40, right: 20, bottom: 40, left: 50 };
     const width = el.clientWidth - margin.left - margin.right;
     const height = el.clientHeight - margin.top - margin.bottom;
 
-    const barColor = "#1f449c";
-    const lineColor = "#f05039";
+    const numBins = options?.numBins ?? 20;
+    const numKdePoints = options?.numKdePoints ?? 100;
+    const barOpacity = options?.barOpacity ?? 1.0; // default to fully opaque
 
+    // Clear any old content
     d3.select(el).selectAll("*").remove();
 
+    if (!data || data.length === 0) {
+        // Nothing to draw
+        return;
+    }
+
+    // 2. Create the SVG container (appends <svg> + <g translated by margins>)
     const svg = createSVGContainer(el, width, height, margin);
 
-    let xDomain = d3.extent(data) as [number, number];
-    xDomain = [xDomain[0] - 1, xDomain[1] + 1];
+    // 3. Compute x‐domain (with padding of ±1)
+    let xExtent: [number, number] = d3.extent(data) as [number, number];
+    xExtent = [xExtent[0] - 1, xExtent[1] + 1];
+    const x = d3.scaleLinear().domain(xExtent).nice().range([0, width]);
 
-    const x = d3.scaleLinear().domain(xDomain).nice().range([0, width]);
-
-    // Create bins on histogram
-    const bins = d3
-        .bin()
+    // 4. Create histogram bins
+    const histogramGenerator = d3
+        .bin<number, number>()
         .domain(x.domain() as [number, number])
-        .thresholds(x.ticks(20))(data);
+        .thresholds(x.ticks(numBins));
+    const bins = histogramGenerator(data);
 
-    // Create y-axis
-    const y = d3
-        .scaleLinear()
-        .domain([0, d3.max(bins, (d) => d.length) as number])
-        .nice()
-        .range([height, 0]);
+    // 5. Y‐scale for histogram (frequency)
+    const maxFreq = d3.max(bins, (d) => d.length) || 0;
+    const yFreq = d3.scaleLinear().domain([0, maxFreq]).nice().range([height, 0]);
 
-    // Add bars to the svg
+    // 6. Draw histogram bars
     svg.selectAll("rect")
         .data(bins)
         .enter()
         .append("rect")
-        .attr("x", (d) => x(d.x0 as number))
-        .attr("y", (d) => y(d.length))
-        .attr("width", (d) => x(d.x1 as number) - x(d.x0 as number) - 1)
-        .attr("height", (d) => height - y(d.length))
-        .attr("fill", barColor);
+        .attr("x", (d) => x(d.x0!))
+        .attr("y", (d) => yFreq(d.length))
+        .attr("width", (d) => x(d.x1!) - x(d.x0!) - 1)
+        .attr("height", (d) => height - yFreq(d.length))
+        .attr("fill", barColor)
+        .attr("fill-opacity", barOpacity);
 
-    // Create KDE line
-    const kde = kernelDensityEstimator(kernelEpanechnikov(7), x.ticks(100));
-    const density = kde(data);
+    // 7. Compute bandwidth (either user‐supplied or rule‐of‐thumb)
+    const domainSpan = xExtent[1] - xExtent[0];
+    const bandwidth = options?.bandwidth ?? domainSpan / 30;
 
-    const yKde = d3
-        .scaleLinear()
-        .domain([0, d3.max(density, (d) => d[1]) as number])
-        .range([height, 0]);
+    // 8. Compute the KDE curve on a grid of numKdePoints
+    const xTicksArr = x.ticks(numKdePoints);
+    const kdeEstimator = kernelDensityEstimator(kernelEpanechnikov(bandwidth), xTicksArr);
+    const density: Array<[number, number]> = kdeEstimator(data);
 
-    const line: d3.Line<[number, number]> = d3
-        .line()
+    // 9. Y‐scale for KDE (density)
+    const maxDensity = d3.max(density, (d) => d[1]) || 0;
+    const yKde = d3.scaleLinear().domain([0, maxDensity]).nice().range([height, 0]);
+
+    // 10. Draw KDE line
+    const kdeLine: d3.Line<[number, number]> = d3
+        .line<[number, number]>()
         .curve(d3.curveBasis)
         .x((d) => x(d[0]))
         .y((d) => yKde(d[1]));
 
-    // Add KDE line to svg
     svg.append("path")
         .datum(density)
         .attr("fill", "none")
         .attr("stroke", lineColor)
-        .attr("stroke-width", 5)
-        .attr(
-            "d",
-            line as d3.ValueFn<
-                SVGPathElement,
-                (number | undefined)[][],
-                string | number | boolean | readonly (string | number)[] | null
-            >,
-        );
+        .attr("stroke-width", 2)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .attr("d", kdeLine as any);
 
-    // Add axes to svg and format them
-    svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
-    svg.append("text")
-        .attr("text-anchor", "middle")
-        .attr("x", width / 2)
-        .attr("y", height + margin.bottom - 5)
-        .attr("fill", "#333")
-        .text("Measurement Value");
-
+    // 11. Draw axes and labels
+    // Y‐axis (frequency)
     svg.append("g").call(
         d3
-            .axisLeft(y)
+            .axisLeft(yFreq)
             .ticks(6)
-            .tickFormat((d) => (Number.isInteger(d) ? d : "") as string),
+            .tickFormat((d) => (Number.isInteger(d as number) ? d : "") as string),
     );
     svg.append("text")
-        .attr("text-anchor", "top")
-        .attr("x", -margin.left)
-        .attr("y", margin.top - 50)
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", -margin.left + 15)
+        .attr("text-anchor", "middle")
         .attr("fill", "#333")
         .text("Frequency");
 
-    // After creating the SVG container
-    const outerSvg = d3.select(el).select("svg");
+    // X‐axis (measurement)
+    svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#333")
+        .text("Measurement Value");
 
-    // Add legend at the top right of the plot area
+    // 12. Add a small legend for "KDE (density)" in the top‐right corner
+    const outerSvg = d3.select(el).select("svg");
     outerSvg
         .append("rect")
         .attr("x", width + margin.left - 28)
         .attr("y", margin.top - 16)
         .attr("width", 18)
         .attr("height", 6)
-        .attr("fill", "#ff6600");
+        .attr("fill", lineColor);
 
     outerSvg
         .append("text")
@@ -166,4 +225,219 @@ export function drawHistogram(el: HTMLElement, data: number[]) {
         .attr("fill", "#333")
         .style("font-size", "12px")
         .text("KDE (density)");
+}
+
+/**
+ * Draws two semi‐transparent histograms (Group 1 + Group 2) plus their overlaid KDE curves.
+ *
+ * @param el        The container HTMLElement.
+ * @param vals1     Numeric values for Group 1 (e.g. [11, 12, 12, 13, …]).
+ * @param vals2     Numeric values for Group 2 (e.g. [20, 21, 22, …]).
+ * @param options?  Optional settings:
+ *   - barOpacity?: number     Opacity for both groups' bars (default: 0.15).
+ *   - barColor1?: string      Color for Group 1 bars (default: "steelblue").
+ *   - lineColor1?: string     Color for Group 1 KDE line (default: "steelblue").
+ *   - barColor2?: string      Color for Group 2 bars (default: "crimson").
+ *   - lineColor2?: string     Color for Group 2 KDE line (default: "crimson").
+ *   - bandwidth?: number      If provided, overrides default (extent/30).
+ *   - numBins?: number        Number of histogram bins (default: 20).
+ *   - numKdePoints?: number   Number of points at which to evaluate KDE (default: 100).
+ * @return {void}
+ */
+export function drawComparisonGraph(
+    el: HTMLElement,
+    vals1: number[],
+    vals2: number[],
+    options?: {
+        barOpacity?: number;
+        barColor1?: string;
+        lineColor1?: string;
+        barColor2?: string;
+        lineColor2?: string;
+        bandwidth?: number;
+        numBins?: number;
+        numKdePoints?: number;
+    },
+) {
+    // 1. Set up margins and dimensions
+    const margin = { top: 60, right: 20, bottom: 40, left: 50 };
+    const width = el.clientWidth - margin.left - margin.right;
+    const height = el.clientHeight - margin.top - margin.bottom;
+
+    const numBins = options?.numBins ?? 20;
+    const numKdePoints = options?.numKdePoints ?? 100;
+    const barOpacity = options?.barOpacity ?? 0.15;
+
+    // Default colors if not provided
+    const barColor1 = options?.barColor1 ?? "steelblue";
+    const lineColor1 = options?.lineColor1 ?? "steelblue";
+    const barColor2 = options?.barColor2 ?? "crimson";
+    const lineColor2 = options?.lineColor2 ?? "crimson";
+
+    // Clear any previous content
+    d3.select(el).selectAll("*").remove();
+
+    // If both groups are empty, do nothing
+    if ((!vals1 || vals1.length === 0) && (!vals2 || vals2.length === 0)) {
+        return;
+    }
+
+    // 2. Compute a common x‐domain over both groups (with ±1 padding)
+    const allVals = (vals1 || []).concat(vals2 || []);
+    let xExtent = d3.extent(allVals) as [number, number];
+    xExtent = [xExtent[0] - 1, xExtent[1] + 1];
+    const x = d3.scaleLinear().domain(xExtent).nice().range([0, width]);
+
+    // 3. Create the SVG container
+    const svg = createSVGContainer(el, width, height, margin);
+
+    // 4. Generate histogram bins for each group using the same thresholds
+    const histogramGenerator = d3
+        .bin<number, number>()
+        .domain(x.domain() as [number, number])
+        .thresholds(x.ticks(numBins));
+
+    const bins1 = histogramGenerator(vals1 || []);
+    const bins2 = histogramGenerator(vals2 || []);
+
+    // 5. Find max frequency across both groups
+    const maxFreq1 = d3.max(bins1, (d) => d.length) || 0;
+    const maxFreq2 = d3.max(bins2, (d) => d.length) || 0;
+    const maxFreq = Math.max(maxFreq1, maxFreq2);
+
+    // Y‐scale for frequency
+    const yFreq = d3.scaleLinear().domain([0, maxFreq]).nice().range([height, 0]);
+
+    // 6. Draw semi‐transparent bars for Group 1
+    svg.selectAll("rect.group1")
+        .data(bins1)
+        .enter()
+        .append("rect")
+        .attr("class", "group1")
+        .attr("x", (d) => x(d.x0!))
+        .attr("y", (d) => yFreq(d.length))
+        .attr("width", (d) => x(d.x1!) - x(d.x0!) - 1)
+        .attr("height", (d) => height - yFreq(d.length))
+        .attr("fill", barColor1)
+        .attr("fill-opacity", barOpacity);
+
+    // 7. Draw semi‐transparent bars for Group 2 (offset by +1 px)
+    svg.selectAll("rect.group2")
+        .data(bins2)
+        .enter()
+        .append("rect")
+        .attr("class", "group2")
+        .attr("x", (d) => x(d.x0!) + 1) // shift right by 1px so you can see overlap
+        .attr("y", (d) => yFreq(d.length))
+        .attr("width", (d) => x(d.x1!) - x(d.x0!) - 1)
+        .attr("height", (d) => height - yFreq(d.length))
+        .attr("fill", barColor2)
+        .attr("fill-opacity", barOpacity);
+
+    // 8. Draw Y‐axis (frequency)
+    svg.append("g").call(
+        d3
+            .axisLeft(yFreq)
+            .ticks(6)
+            .tickFormat((d) => (Number.isInteger(d as number) ? d : "") as string),
+    );
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -height / 2)
+        .attr("y", -margin.left + 15)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#333")
+        .text("Frequency");
+
+    // 9. Draw X‐axis (measurement)
+    svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 5)
+        .attr("text-anchor", "middle")
+        .attr("fill", "#333")
+        .text("Measurement Value");
+
+    // 10. Compute shared bandwidth and KDE curves for both groups
+    const domainSpan = xExtent[1] - xExtent[0];
+    const bandwidth = options?.bandwidth ?? domainSpan / 30;
+    const xTicksArr = x.ticks(numKdePoints);
+
+    const kdeEstimator = kernelDensityEstimator(kernelEpanechnikov(bandwidth), xTicksArr);
+    const kde1: Array<[number, number]> = kdeEstimator(vals1 || []);
+    const kde2: Array<[number, number]> = kdeEstimator(vals2 || []);
+
+    // Y‐scale for density (so both curves share the same vertical scale)
+    const maxDensity1 = d3.max(kde1, (d) => d[1]) || 0;
+    const maxDensity2 = d3.max(kde2, (d) => d[1]) || 0;
+    const maxDensity = Math.max(maxDensity1, maxDensity2);
+    const yKde = d3.scaleLinear().domain([0, maxDensity]).nice().range([height, 0]);
+
+    // 11. Draw KDE lines
+    const kdeLine: d3.Line<[number, number]> = d3
+        .line<[number, number]>()
+        .curve(d3.curveBasis)
+        .x((d) => x(d[0]))
+        .y((d) => yKde(d[1]));
+
+    // Group 1 KDE
+    svg.append("path")
+        .datum(kde1)
+        .attr("fill", "none")
+        .attr("stroke", lineColor1)
+        .attr("stroke-width", 2)
+        .attr("opacity", 0.6)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .attr("d", kdeLine as any);
+
+    // Group 2 KDE
+    svg.append("path")
+        .datum(kde2)
+        .attr("fill", "none")
+        .attr("stroke", lineColor2)
+        .attr("stroke-width", 2)
+        .attr("opacity", 0.6)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .attr("d", kdeLine as any);
+
+    // 12. Add a two‐entry legend in the top‐right corner
+    const legendWidth = 100;
+    const legendHeight = 50;
+    const legendX = width - legendWidth;
+    const legendY = -60; // place inside the top margin
+
+    const legend = svg.append("g").attr("transform", `translate(${legendX}, ${legendY})`);
+
+    // Background rectangle for legend
+    legend
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .attr("fill", "white")
+        .attr("stroke", "#ccc")
+        .attr("rx", 4);
+
+    // Group 1 legend entry
+    legend
+        .append("line")
+        .attr("x1", 10)
+        .attr("y1", 15)
+        .attr("x2", 30)
+        .attr("y2", 15)
+        .attr("stroke", lineColor1)
+        .attr("stroke-width", 2);
+    legend.append("text").attr("x", 35).attr("y", 18).attr("fill", "#333").style("font-size", "12px").text("Group 1");
+
+    // Group 2 legend entry
+    legend
+        .append("line")
+        .attr("x1", 10)
+        .attr("y1", 35)
+        .attr("x2", 30)
+        .attr("y2", 35)
+        .attr("stroke", lineColor2)
+        .attr("stroke-width", 2);
+    legend.append("text").attr("x", 35).attr("y", 38).attr("fill", "#333").style("font-size", "12px").text("Group 2");
 }
