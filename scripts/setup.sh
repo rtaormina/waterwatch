@@ -11,8 +11,8 @@ then
     docker compose up --build -d
 
     # Import data
-    docker cp countries_1.sql postgres:/countries_1.sql
-    docker cp countries_2.sql postgres:/countries_2.sql
+    docker cp ../assets/countries_1.sql postgres:/countries_1.sql
+    docker cp ../assets/countries_2.sql postgres:/countries_2.sql
     docker compose exec postgres psql -U admin -d pg4django -f countries_1.sql
     docker compose exec postgres psql -U admin -d pg4django -f countries_2.sql
 
