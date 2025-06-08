@@ -1,11 +1,10 @@
 import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import FilterPanel from "../../../../src/components/FilterPanelComponent.vue";
+import FilterPanel from "../../../../src/components/Export/FilterPanelComponent.vue";
 import { nextTick } from "vue";
 import { afterEach } from "node:test";
-import { Filters } from "../../../../src/composables/usePresets";
-import FilterPanelComponent from "../../../../src/components/FilterPanelComponent.vue";
-import { a } from "vitest/dist/chunks/suite.d.FvehnV49.js";
+import { Filters } from "../../../../src/composables/Export/usePresets";
+import FilterPanelComponent from "../../../../src/components/Export/FilterPanelComponent.vue";
 
 const mockUseFilters = {
     continents: ["Asia", "Europe"],
@@ -47,7 +46,7 @@ vi.mock("useFilters", () => ({
     useFilters: mockUseFilters,
 }));
 
-vi.mock("../../../../src/composables/useSearch", () => ({
+vi.mock("../../../../src/composables/Export/useSearch", () => ({
     useSearch: () => mockUseSearch,
 }));
 

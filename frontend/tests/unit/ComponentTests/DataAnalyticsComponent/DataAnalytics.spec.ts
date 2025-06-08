@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import DataAnalyticsComponent from "../../../../src/components/DataAnalyticsComponent.vue";
+import DataAnalyticsComponent from "../../../../src/components/Analysis/DataAnalyticsComponent.vue";
 import { mount, VueWrapper } from "@vue/test-utils";
 
 const mockMeasurements = ["23.0", "25.0",];
 
-vi.mock("../../../../src/composables/DataVisualizationLogic", () => ({
+vi.mock("../../../../src/composables/Analysis/DataVisualizationLogic", () => ({
     drawHistogramWithKDE: vi.fn()
 }));
 
-import { drawHistogramWithKDE } from "../../../../src/composables/DataVisualizationLogic";
+import { drawHistogramWithKDE } from "../../../../src/composables/Analysis/DataVisualizationLogic";
 
 describe("DataAnalyticsComponent good weather tests", () => {
     let wrapper: VueWrapper<any>;

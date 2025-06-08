@@ -4,6 +4,7 @@ set -e
 # Make paths relative to this script's location
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"
+cd ../
 
 if [ -f .env ]; then
   echo "[DB Reset] Sourcing .env file..."

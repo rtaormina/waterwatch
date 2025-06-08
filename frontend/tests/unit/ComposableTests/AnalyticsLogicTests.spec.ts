@@ -1,4 +1,4 @@
-import { drawHistogramWithKDE } from '../../../src/composables/DataVisualizationLogic';
+import { drawHistogramWithKDE } from '../../../src/composables/Analysis/DataVisualizationLogic';
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
 describe('drawHistogramWithKDE', () => {

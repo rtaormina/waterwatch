@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { usePresets, type Preset } from "../../../src/composables/usePresets";
+import { usePresets, type Preset } from "../../../src/composables/Export/usePresets";
 
 // Mock fetch globally
 const mockFetch = vi.fn();

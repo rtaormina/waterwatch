@@ -8,7 +8,7 @@ import {
     getGraphData,
     drawHistogramWithKDE,
     drawComparisonGraph,
-} from "../../../src/composables/DataVisualizationLogic";
+} from "../../../src/composables/Analysis/DataVisualizationLogic";
 
 describe("kernelEpanechnikov", () => {
     it("returns correct density inside bandwidth and zero outside", () => {

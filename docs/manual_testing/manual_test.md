@@ -35,5 +35,5 @@ In this section provide the related epic, issue, or requireement that the bug re
 .. toctree::
    :maxdepth: 1
 
-   manual_testing/index.md
+   index.md
 ```

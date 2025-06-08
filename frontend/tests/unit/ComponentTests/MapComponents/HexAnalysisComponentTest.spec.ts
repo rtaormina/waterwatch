@@ -1,6 +1,6 @@
-import { mount, VueWrapper } from "@vue/test-utils";
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import HexAnalysis from "../../../../src/components/HexAnalysis.vue";
+import { mount } from "@vue/test-utils";
+import { describe, it, expect, vi } from "vitest";
+import HexAnalysis from "../../../../src/components/Analysis/HexAnalysis.vue";
 
 
 describe("HexAnalysis.vue", () => {

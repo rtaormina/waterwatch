@@ -8,4 +8,5 @@ this is a list of all Vue views in the application.
    src/views/ExportView
    src/views/MapView
    src/views/TutorialView
+   src/views/ContactView
 ```

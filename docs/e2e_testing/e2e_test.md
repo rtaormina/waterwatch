@@ -36,5 +36,5 @@ In this section provide a path or link to the file containing the relevant end-t
 .. toctree::
    :maxdepth: 1
 
-   e2e_testing/index.md
+   index.md
 ```

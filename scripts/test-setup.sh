@@ -4,7 +4,7 @@ set -e
 # Make paths relative to this script's location
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
 cd "$parent_path"
-
+cd ../
 if [ -f .env ]; then
   echo "Sourcing .env file..."
   set -o allexport
@@ -23,8 +23,8 @@ docker compose -f docker-compose.test.yaml down -v
 docker compose -f docker-compose.test.yaml up --build -d
 
 # Import data to test database
-docker cp countries_1.sql postgres:/countries_1.sql
-docker cp countries_2.sql postgres:/countries_2.sql
+docker cp assets/countries_1.sql postgres:/countries_1.sql
+docker cp assets/countries_2.sql postgres:/countries_2.sql
 docker compose -f docker-compose.test.yaml exec postgres psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -f countries_1.sql
 docker compose -f docker-compose.test.yaml exec postgres psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -f countries_2.sql
 

@@ -1,7 +1,7 @@
 // __tests__/SelectHexagonsCard.spec.ts
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, vi } from 'vitest'
-import SelectHexagonsCard from '../../../../src/components/SelectBar.vue'
+import SelectHexagonsCard from '../../../../src/components/Analysis/SelectBar.vue'
 
 describe('SelectHexagonsCard', () => {
   const factory = (count: number) =>

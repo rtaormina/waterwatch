@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { onMounted, watch, ref, nextTick } from "vue";
-import { getGraphData, drawHistogramWithKDE, drawComparisonGraph } from "../composables/DataVisualizationLogic";
+import {
+    getGraphData,
+    drawHistogramWithKDE,
+    drawComparisonGraph,
+} from "../../composables/Analysis/DataVisualizationLogic";
 import { XMarkIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps<{
