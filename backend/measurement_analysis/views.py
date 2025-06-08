@@ -16,7 +16,7 @@ logger = logging.getLogger("WATERWATCH")
 
 # Create your views here.
 @api_view(["GET"])
-def analysed_measurements_view(request):
+def analyzed_measurements_view(request):
     """Export aggregated measurements.
 
     This view exports aggregated measurements.
