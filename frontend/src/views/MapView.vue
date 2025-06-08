@@ -63,7 +63,7 @@
                     :count="count"
                     @cancel-select="exitSelectMode"
                     @select="handleSelectContinue"
-                    />
+                />
                 <HexMap
                     ref="hexMapRef"
                     :colors="colors"
@@ -80,7 +80,7 @@
                 />
                 <div
                     class="absolute top-4 right-4 flex align-center z-20 justify-center gap-4"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode  && !selectMode"
+                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                 >
                     <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
                         <ScaleIcon class="w-10 h-10" />
@@ -122,7 +122,7 @@
                         viewAnalytics = false;
                         showLegend = false;
                     "
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode  && !selectMode"
+                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                 >
                     <PlusCircleIcon class="w-10 h-10" />
                 </button>
@@ -169,7 +169,7 @@ import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 import { ScaleIcon } from "@heroicons/vue/24/outline";
 import DataAnalyticsCompare from "../components/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/ComparisonBar.vue";
-import SelectBar from "../components/SelectBar.vue"
+import SelectBar from "../components/SelectBar.vue";
 
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
@@ -243,20 +243,35 @@ function handleSelect(location: string) {
     hexIntermediary.value = location;
 }
 
+/**
+ * Handles submitting selected hexagons to see analysis
+ * 
+ * @return {void}
+ */
 function handleSelectContinue() {
     viewAnalytics.value = true;
-    hexLocation.value = hexIntermediary.value
+    hexLocation.value = hexIntermediary.value;
 }
 
+/**
+ * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
+ * 
+ * @returns {void}
+ */
 function enterSelectMode() {
     selectMode.value = true;
     selectMult.value = true;
     addMeasurement.value = false;
     showLegend.value = false;
-    compareMode.value =false;
+    compareMode.value = false;
     count.value = 0;
 }
 
+/**
+ * Exits select multiple hexagon mode, resets necessary states
+ * 
+ * @returns {void}
+ */
 function exitSelectMode() {
     selectMode.value = false;
     viewAnalytics.value = false;

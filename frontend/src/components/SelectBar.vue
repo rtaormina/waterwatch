@@ -44,7 +44,6 @@ const emit = defineEmits<{
     (e: "select"): void;
 }>();
 
-
 const rightButtonDisabled = computed(() => {
     return props.count <= 0;
 });
@@ -52,7 +51,6 @@ const rightButtonDisabled = computed(() => {
 const rightButtonColor = computed(() => {
     return rightButtonDisabled.value ? "neutral" : "primary";
 });
-
 </script>
 
 <style scoped>
