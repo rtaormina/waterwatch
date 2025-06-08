@@ -245,7 +245,7 @@ function handleSelect(location: string) {
 
 /**
  * Handles submitting selected hexagons to see analysis
- * 
+ *
  * @return {void}
  */
 function handleSelectContinue() {
@@ -255,7 +255,7 @@ function handleSelectContinue() {
 
 /**
  * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
- * 
+ *
  * @returns {void}
  */
 function enterSelectMode() {
@@ -269,7 +269,7 @@ function enterSelectMode() {
 
 /**
  * Exits select multiple hexagon mode, resets necessary states
- * 
+ *
  * @returns {void}
  */
 function exitSelectMode() {
