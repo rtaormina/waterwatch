@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import DataAnalyticsCompare from "../../../../src/components/DataAnalyticsCompare.vue";
+import DataAnalyticsCompare from "../../../../src/components/Analysis/DataAnalyticsCompare.vue";
 import { mount, VueWrapper } from "@vue/test-utils";
 import { nextTick } from "vue";
 
 const mockMeasurements1 = ["23.0", "25.0", "24.5", "26.0"];
 const mockMeasurements2 = ["28.0", "30.0", "29.5", "31.0"];
 
-vi.mock("../../../../src/composables/DataVisualizationLogic", () => ({
+vi.mock("../../../../src/composables/Analysis/DataVisualizationLogic", () => ({
     getGraphData: vi.fn(),
     drawHistogramWithKDE: vi.fn(),
     drawComparisonGraph: vi.fn(),
@@ -16,7 +16,7 @@ import {
     getGraphData,
     drawHistogramWithKDE,
     drawComparisonGraph,
-} from "../../../../src/composables/DataVisualizationLogic";
+} from "../../../../src/composables/Analysis/DataVisualizationLogic";
 
 describe("DataAnalyticsCompare good weather tests", () => {
     let wrapper: VueWrapper<any>;

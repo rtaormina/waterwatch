@@ -12,16 +12,16 @@ import { computed } from "vue";
 import SearchBar from "../components/Export/SearchBarComponent.vue";
 import FilterPanel from "../components/Export/FilterPanelComponent.vue";
 import SearchResults from "../components/Export/SearchResultsComponent.vue";
-import { useSearch } from "../composables/useSearch";
-import { useExportData } from "../composables/useExportData";
-import { type Preset } from "../composables/usePresets";
+import { useSearch } from "../composables/Export/useSearch";
+import { useExportData } from "../composables/Export/useExportData";
+import { type Preset } from "../composables/Export/usePresets";
 
 const query = ref("");
 // Reference to the FilterPanel component
 const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 
 // Store last search parameters to detect changes in filters
-const lastSearchParams = ref<import("@/composables/useSearch").MeasurementSearchParams | null>(null);
+const lastSearchParams = ref<import("@/composables/Export/useSearch").MeasurementSearchParams | null>(null);
 
 // Flag to indicate if filters are out of sync with the last search
 const filtersOutOfSync = ref(false);

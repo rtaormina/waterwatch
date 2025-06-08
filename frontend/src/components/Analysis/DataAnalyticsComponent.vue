@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { drawHistogramWithKDE } from "../../composables/DataVisualizationLogic";
+import { drawHistogramWithKDE } from "../../composables/Analysis/DataVisualizationLogic";
 import { onMounted, ref, watch } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
