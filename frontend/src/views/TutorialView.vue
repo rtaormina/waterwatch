@@ -23,7 +23,7 @@
                                             <template #left>
                                                 <figure class="w-full max-w-sm mx-auto">
                                                     <img
-                                                        src="@/assets/separate-tap.png"
+                                                        src="@/assets/images/separate-tap.png"
                                                         alt="Sink with separate taps"
                                                         class="w-full h-auto rounded shadow"
                                                     />
@@ -47,7 +47,7 @@
                                             <template #left>
                                                 <figure class="w-full max-w-sm mx-auto">
                                                     <img
-                                                        src="@/assets/faucet1-tap.png"
+                                                        src="@/assets/images/faucet1-tap.png"
                                                         alt="Sink with a faucet with separate cold/hot valves"
                                                         class="w-full h-auto rounded shadow"
                                                     />
@@ -71,7 +71,7 @@
                                             <template #left>
                                                 <figure class="w-full max-w-sm mx-auto">
                                                     <img
-                                                        src="@/assets/faucet2-tap.png"
+                                                        src="@/assets/images/faucet2-tap.png"
                                                         alt="Sink with faucet with single handle"
                                                         class="w-full h-auto rounded shadow"
                                                     />
@@ -95,7 +95,7 @@
                                             <template #left>
                                                 <figure class="w-full max-w-sm mx-auto">
                                                     <img
-                                                        src="@/assets/thermostatic-tap.png"
+                                                        src="@/assets/images/thermostatic-tap.png"
                                                         alt="Sink with thermostatic faucet"
                                                         class="w-full h-auto rounded shadow"
                                                     />
@@ -135,7 +135,7 @@
                                             <template #left>
                                                 <figure class="w-full max-w-sm mx-auto">
                                                     <img
-                                                        src="@/assets/room-thermometer.png"
+                                                        src="@/assets/images/room-thermometer.png"
                                                         alt="Room thermometer"
                                                         class="w-full h-auto rounded shadow"
                                                     />
@@ -160,7 +160,7 @@
                                             <template #left>
                                                 <figure class="w-full max-w-sm mx-auto">
                                                     <img
-                                                        src="@/assets/infrared-thermometer.png"
+                                                        src="@/assets/images/infrared-thermometer.png"
                                                         alt="Infrared thermometer"
                                                         class="w-full h-auto rounded shadow"
                                                     />
@@ -184,7 +184,7 @@
                                             <template #left>
                                                 <figure class="w-full max-w-sm mx-auto">
                                                     <img
-                                                        src="@/assets/fever-thermometer.png"
+                                                        src="@/assets/images/fever-thermometer.png"
                                                         alt="Fever thermometer"
                                                         class="w-full h-auto rounded shadow"
                                                     />
@@ -227,7 +227,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/add-measurement-tutorial.png"
+                                        src="@/assets/images/add-measurement-tutorial.png"
                                         alt="Add measurement button"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -246,7 +246,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/add-measurement-page.png"
+                                        src="@/assets/images/add-measurement-page.png"
                                         alt="Add measurement page"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -265,7 +265,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/data-analysis.png"
+                                        src="@/assets/images/data-analysis.png"
                                         alt="Data analysis button"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -284,8 +284,8 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/graph-legend.png"
-                                        alt="Graph legendn"
+                                        src="@/assets/images/graph-legend.png"
+                                        alt="Graph legend"
                                         class="w-full h-auto rounded shadow"
                                     />
                                     <figcaption class="mt-2 text-sm text-center text-gray-500">
@@ -313,7 +313,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/download-export.png"
+                                        src="@/assets/images/download-export.png"
                                         alt="Download Button"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -332,7 +332,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/filters.png"
+                                        src="@/assets/images/filters.png"
                                         alt="Download Filter Screen"
                                         class="w-full h-auto rounded shadow"
                                     />
