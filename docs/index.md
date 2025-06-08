@@ -21,16 +21,16 @@ New to WATERWATCH? Check out the following links:
    :caption: Contents:
 
    reference/index
-   frontend_docs
-   api_specs
-   diagrams
-   installation
-   troubleshooting
-   contribution_guide
-   e2e_test
-   manual_test
-   load_test
-   development
+   development/frontend_docs
+   api_specs/api_specs
+   diagrams/diagrams
+   development/installation
+   development/troubleshooting
+   development/contribution_guide
+   e2e_testing/e2e_test
+   manual_testing/manual_test
+   load_testing/load_test
+   development/development
 ```
 
 ## Contributing / Reporting Issues
