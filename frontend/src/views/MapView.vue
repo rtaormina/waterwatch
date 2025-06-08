@@ -58,6 +58,12 @@
                     @restart="goToPhase1"
                     @exit="exitCompareMode"
                 />
+                <SelectBar
+                    v-if="selectMode"
+                    :count="count"
+                    @cancel-select="exitSelectMode"
+                    @select="handleSelectContinue"
+                    />
                 <HexMap
                     ref="hexMapRef"
                     :colors="colors"
@@ -74,7 +80,7 @@
                 />
                 <div
                     class="absolute top-4 right-4 flex align-center z-20 justify-center gap-4"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode"
+                    v-if="!viewAnalytics && !addMeasurement && !compareMode  && !selectMode"
                 >
                     <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
                         <ScaleIcon class="w-10 h-10" />
@@ -82,12 +88,7 @@
                     <button
                         class="text-white hover:cursor-pointer"
                         :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
-                        @click="
-                            selectMult = !selectMult;
-                            viewAnalytics = true;
-                            addMeasurement = false;
-                            showLegend = false;
-                        "
+                        @click="enterSelectMode"
                     >
                         <SquaresPlusIcon class="w-10 h-10" />
                     </button>
@@ -121,14 +122,14 @@
                         viewAnalytics = false;
                         showLegend = false;
                     "
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode"
+                    v-if="!viewAnalytics && !addMeasurement && !compareMode  && !selectMode"
                 >
                     <PlusCircleIcon class="w-10 h-10" />
                 </button>
                 <button
                     class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
                     @click="showGlobalAnalytics"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode"
+                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                 >
                     <ChartBarIcon class="w-10 h-10" />
                 </button>
@@ -168,6 +169,7 @@ import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 import { ScaleIcon } from "@heroicons/vue/24/outline";
 import DataAnalyticsCompare from "../components/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/ComparisonBar.vue";
+import SelectBar from "../components/SelectBar.vue"
 
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
@@ -177,6 +179,7 @@ const addMeasurement = ref(false);
 const showLegend = ref(false);
 const selectMult = ref(false);
 const campaigns = ref([]);
+const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
 type Location = {
     latitude: number;
@@ -184,6 +187,7 @@ type Location = {
 };
 
 const compareMode = ref(false);
+const selectMode = ref(false);
 const comparePhaseString = ref<"phase1" | "phase2" | "phase3">("phase1");
 const comparePhaseNum = computed<1 | 2 | null>(() => {
     if (comparePhaseString.value === "phase1") return 1;
@@ -194,6 +198,7 @@ const group1WKT = ref("");
 const group2WKT = ref("");
 const group1HexCount = ref(0);
 const group2HexCount = ref(0);
+const count = ref(0);
 const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
@@ -234,9 +239,29 @@ function handleOpenAnalysis(location: string) {
  * @return {void}
  */
 function handleSelect(location: string) {
-    console.log(location);
-    hexLocation.value = location;
+    count.value = (location.match(/\(\(/g) || []).length;
+    hexIntermediary.value = location;
+}
+
+function handleSelectContinue() {
     viewAnalytics.value = true;
+    hexLocation.value = hexIntermediary.value
+}
+
+function enterSelectMode() {
+    selectMode.value = true;
+    selectMult.value = true;
+    addMeasurement.value = false;
+    showLegend.value = false;
+    compareMode.value =false;
+    count.value = 0;
+}
+
+function exitSelectMode() {
+    selectMode.value = false;
+    viewAnalytics.value = false;
+    selectMult.value = false;
+    count.value = 0;
 }
 
 /**
@@ -254,6 +279,8 @@ function handleCloseAll() {
     showCompareAnalytics.value = false;
     if (compareMode.value) {
         exitCompareMode();
+    } else if (selectMode.value) {
+        exitSelectMode();
     }
 }
 
