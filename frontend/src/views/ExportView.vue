@@ -9,12 +9,12 @@
 defineOptions({ name: "DataDownloadView" });
 import { ref, watch } from "vue";
 import { computed } from "vue";
-import SearchBar from "../components/SearchBarComponent.vue";
-import FilterPanel from "../components/FilterPanelComponent.vue";
-import SearchResults from "../components/SearchResultsComponent.vue";
+import SearchBar from "../components/Export/SearchBarComponent.vue";
+import FilterPanel from "../components/Export/FilterPanelComponent.vue";
+import SearchResults from "../components/Export/SearchResultsComponent.vue";
 import { useSearch } from "../composables/useSearch";
 import { useExportData } from "../composables/useExportData";
-import { type Preset } from "@/composables/usePresets";
+import { type Preset } from "../composables/usePresets";
 
 const query = ref("");
 // Reference to the FilterPanel component

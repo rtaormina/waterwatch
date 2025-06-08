@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { usePresets, type Preset } from "../composables/usePresets";
+import { usePresets, type Preset } from "../../composables/usePresets";
 
 const { presets, loading, error, loadPresets, filterPresets } = usePresets();
 

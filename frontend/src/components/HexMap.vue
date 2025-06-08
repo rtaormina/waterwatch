@@ -7,7 +7,7 @@ import { createOSMLayer } from "../composables/LocationFallback";
 import * as L from "leaflet";
 import { createApp, onMounted, ref, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
-import HexAnalysis from "./HexAnalysis.vue";
+import HexAnalysis from "./Analysis/HexAnalysis.vue";
 
 declare module "leaflet" {
     /*

@@ -160,16 +160,16 @@ import { ref, onMounted, computed, nextTick } from "vue";
 import MeasurementComponent from "../components/MeasurementComponent.vue";
 import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
-import DataAnalyticsComponent from "../components/DataAnalyticsComponent.vue";
+import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Legend.vue";
 import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
 import { ChartBarIcon } from "@heroicons/vue/24/outline";
 import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
 import { ScaleIcon } from "@heroicons/vue/24/outline";
-import DataAnalyticsCompare from "../components/DataAnalyticsCompare.vue";
-import ComparisonBar from "../components/ComparisonBar.vue";
-import SelectBar from "../components/SelectBar.vue";
+import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
+import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
+import SelectBar from "../components/Analysis/SelectBar.vue";
 
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
