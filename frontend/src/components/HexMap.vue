@@ -135,9 +135,7 @@ const hexbinLayer: L.HexbinLayer = L.hexbinLayer(hexbinOptions);
 hexbinLayer.lat((d: DataPoint) => d.point.lat);
 hexbinLayer.lng((d: DataPoint) => d.point.lng);
 hexbinLayer.colorValue((d) => {
-    const color = colorByTemp
-        ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length
-        : d.map((v) => v.o.count).reduce((a, b) => a + b, 0) / d.length;
+    const color = colorByTemp ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length : d.length;
     return color;
 });
 
@@ -383,14 +381,11 @@ onMounted(() => {
     );
 });
 
+// Refresh the color scale
 watch(
-    () => colorByTemp,
+    () => colorScale,
     (newVal) => {
-        hexbinLayer.colorValue((d) => {
-            return newVal
-                ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length
-                : d.map((v) => v.o.count).reduce((a, b) => a + b, 0) / d.length;
-        });
+        hexbinLayer.colorScaleExtent(newVal);
         hexbinLayer.redraw();
     },
     { immediate: true },
