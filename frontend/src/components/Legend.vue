@@ -67,21 +67,18 @@ function onChange(val: string | string[]) {
     if (val.length == 0 || val === "Past 30 Days" || (Array.isArray(val) && val.includes("Past 30 Days"))) {
         internalValue.value = ["Past 30 Days"];
         emit("update", "Past 30 Days");
-        console.log("Past 30 Days");
         return;
     }
 
     if (typeof val === "string") {
         internalValue.value = [val];
         emit("update", [val]);
-        console.log("val is " + val);
         return;
     }
 
     if (Array.isArray(val)) {
         internalValue.value = val;
         emit("update", val);
-        console.log("val is " + val);
 
         return;
     }
