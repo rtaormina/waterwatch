@@ -109,8 +109,8 @@
     },
     "app": {
         "introduction": {
-            "title": "",
-            "text": ""
+            "title": "How to Use the WATERWATCH Mobile App",
+            "text": "Welcome to the tutorial page for using the WATERWATCH mobile app! The WATERWATCH app was created for researchers and citizen scientists to report water quality measurements and gather data offline. In this tutorial you will learn how to download the app and add your first measurement. This guide is designed for first-time users and experienced researchers looking to get the most out of the WATERWATCH app."
         },
         "step1": {
             "title": "",
