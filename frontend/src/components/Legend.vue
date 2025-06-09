@@ -29,18 +29,19 @@
             <span>&geq;{{ scale[1] }}°C</span>
         </div>
 
-        <div>
+        <h4 class="text-lg font-bold mb-2">Map Coloring</h4>
+        <div class="flex gap-2 w-full">
             <button
                 @click="toTempMode"
                 :class="{ 'bg-main text-white': colorByTemp }"
-                class="cursor-pointer px-3 rounded border"
+                class="flex-1 text-center cursor-pointer px-3 rounded border"
             >
                 Temperature
             </button>
             <button
                 @click="toCountMode"
                 :class="{ 'bg-main text-white': !colorByTemp }"
-                class="cursor-pointer px-3 rounded border"
+                class="flex-1 text-center cursor-pointer px-3 rounded border"
             >
                 Count
             </button>
