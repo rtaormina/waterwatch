@@ -32,9 +32,9 @@ describe("Legend.vue filtering tests", () => {
         factory();
         await select.vm.$emit("update:model-value", "April");
 
-        expect(wrapper.vm.internalValue).toBe("April");
+        expect(wrapper.vm.internalValue).toEqual(["April"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[0]).toEqual(["April"]);
+        expect(ev[0][0]).toEqual(["April"]);
     });
 
     it("when you pick multiple months, emits array of those months", async () => {
@@ -44,22 +44,22 @@ describe("Legend.vue filtering tests", () => {
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
         expect(ev[0]).toEqual([["March", "May"]]);
         await select.vm.$emit("update:model-value", "Past 30 Days");
-        expect(wrapper.vm.internalValue).toEqual("Past 30 Days");
+        expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
     });
 
-    it('filters out "Past 30 Days" if combined in multi-select', async () => {
+    it('defaults to past 30 days when selected', async () => {
         factory();
         await select.vm.$emit("update:model-value", ["Past 30 Days", "June"]);
-        expect(wrapper.vm.internalValue).toEqual(["June"]);
+        expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[0]).toEqual([["June"]]);
+        expect(ev[0]).toEqual(["Past 30 Days"]);
     });
 
     it('goes back to single-select if you explicitly pick "Past 30 Days"', async () => {
         factory();
         await select.vm.$emit("update:model-value", "February");
         await select.vm.$emit("update:model-value", "Past 30 Days");
-        expect(wrapper.vm.internalValue).toBe("Past 30 Days");
+        expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
         expect(ev[1]).toEqual(["Past 30 Days"]);
     });

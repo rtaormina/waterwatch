@@ -64,14 +64,29 @@ const internalValue = ref<string | string[]>("Past 30 Days");
  * @return {void}
  */
 function onChange(val: string | string[]) {
-    internalValue.value = val;
-    if (Array.isArray(val) && val.includes("Past 30 Days")) {
-        val = val.filter((v) => v !== "Past 30 Days");
-        internalValue.value = val;
+    if (val.length == 0 || val === "Past 30 Days" || (Array.isArray(val) && val.includes("Past 30 Days"))) {
+        internalValue.value = ["Past 30 Days"];
+        emit("update", "Past 30 Days");
+        console.log("Past 30 Days");
+        return;
     }
 
-    emit("update", val);
+    if (typeof val === "string") {
+        internalValue.value = [val];
+        emit("update", [val]);
+        console.log("val is " + val);
+        return;
+    }
+
+    if (Array.isArray(val)) {
+        internalValue.value = val;
+        emit("update", val);
+        console.log("val is " + val);
+
+        return;
+    }
 }
+
 const items = ref([
     "Past 30 Days",
     "January",
