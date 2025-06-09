@@ -2,6 +2,7 @@ import { reactive, computed } from "vue";
 import axios from "axios";
 import type { LocationFilter, MeasurementFilter, DateRangeFilter, TimeSlot } from "./useFilters";
 import Cookies from "universal-cookie";
+import { useExportStore } from "../../stores/ExportStore";
 
 // Define the structure of the search parameters
 export interface MeasurementSearchParams {
@@ -14,10 +15,11 @@ export interface MeasurementSearchParams {
 
 // Define the structure of the search results
 export const state = reactive({
-    hasSearched: false,
     count: 0,
     avgTemp: 0,
 });
+
+const exportStore = useExportStore();
 
 /**
  * Composable for searching measurements with various filters.
@@ -41,7 +43,7 @@ export function useSearch() {
      * @return {Promise<void>} A promise that resolves when the search is complete.
      */
     async function searchMeasurements(params: MeasurementSearchParams): Promise<void> {
-        state.hasSearched = true;
+        exportStore.hasSearched = true;
         const flatParams = flattenSearchParams(params);
 
         try {
@@ -78,7 +80,7 @@ export function useSearch() {
      * @return {void}
      */
     function resetSearch(): void {
-        state.hasSearched = false;
+        exportStore.hasSearched = false;
         state.count = 0;
         state.avgTemp = 0;
     }
@@ -140,9 +142,6 @@ export function useSearch() {
     }
 
     return {
-        // Expose primitive state value directly
-        hasSearched: computed(() => state.hasSearched),
-
         // Expose results as a computed property
         results,
 

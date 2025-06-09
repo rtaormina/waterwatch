@@ -7,7 +7,7 @@
  * to warn the user when filters are out of sync with the last executed search.
  */
 defineOptions({ name: "DataDownloadView" });
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { computed } from "vue";
 import SearchBar from "../components/Export/SearchBarComponent.vue";
 import FilterPanel from "../components/Export/FilterPanelComponent.vue";
@@ -15,6 +15,11 @@ import SearchResults from "../components/Export/SearchResultsComponent.vue";
 import { useSearch } from "../composables/Export/useSearch";
 import { useExportData } from "../composables/Export/useExportData";
 import { type Preset } from "../composables/Export/usePresets";
+import { useRouter } from "vue-router";
+import { useExportStore } from "../stores/ExportStore";
+
+const router = useRouter();
+const exportStore = useExportStore();
 
 const query = ref("");
 // Reference to the FilterPanel component
@@ -26,6 +31,13 @@ const lastSearchParams = ref<import("@/composables/Export/useSearch").Measuremen
 // Flag to indicate if filters are out of sync with the last search
 const filtersOutOfSync = ref(false);
 
+/**
+ * Shows the export data on a map.
+ */
+function handleShowOnMap() {
+    router.push({ name: "ExportMap" });
+}
+
 // Computed property to get the temperature unit from FilterPanel or default to "C"
 const temperatureUnit = computed(() => {
     if (filterPanelRef.value) {
@@ -35,7 +47,7 @@ const temperatureUnit = computed(() => {
 });
 
 // Use measurements composable
-const { results, hasSearched, searchMeasurements } = useSearch();
+const { results, searchMeasurements } = useSearch();
 
 // Use export data composable
 const { exportData } = useExportData();
@@ -53,6 +65,7 @@ async function onSearch(): Promise<void> {
     // Get current filters from FilterPanel
     const searchParams = filterPanelRef.value.getSearchParams(query.value);
     lastSearchParams.value = searchParams;
+    exportStore.filters = searchParams;
 
     // Perform search
     await searchMeasurements(searchParams);
@@ -96,6 +109,14 @@ async function onDownload(): Promise<void> {
     showModal.value = !ok;
 }
 
+onMounted(() => {
+    console.log(exportStore.hasSearched, filterPanelRef.value, filtersOutOfSync.value);
+    if (exportStore.hasSearched && filterPanelRef.value) {
+        filterPanelRef.value.applyFilters(exportStore.filters);
+        onSearch();
+    }
+});
+
 // Watch for filter changes that occur *after* a search has been made
 watch(
     () => {
@@ -105,7 +126,7 @@ watch(
         return null;
     },
     (currentParams) => {
-        if (hasSearched.value) {
+        if (exportStore.hasSearched) {
             // Only act if a search has already been performed
             if (currentParams && lastSearchParams.value) {
                 if (JSON.stringify(currentParams) !== JSON.stringify(lastSearchParams.value)) {
@@ -145,13 +166,14 @@ watch(
             <div class="w-full md:w-5/12 flex flex-col h-auto overflow-visible landscape-component component2">
                 <SearchResults
                     :results="results"
-                    :searched="hasSearched"
+                    :searched="exportStore.hasSearched"
                     v-model:format="format"
                     @download="onDownload"
                     :show-modal="showModal"
                     :temperature-unit="temperatureUnit"
                     @close-modal="showModal = false"
                     :filters-out-of-sync="filtersOutOfSync"
+                    @show-on-map="handleShowOnMap"
                 />
             </div>
         </div>
