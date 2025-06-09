@@ -109,10 +109,12 @@ const aboutPages = [
     {
         label: "About WATERWATCH",
         slot: "about",
+        value: "about",
     },
     {
         label: "The WATERWATCH Team",
         slot: "why",
+        value: "why",
     },
 ];
 
