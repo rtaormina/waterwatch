@@ -36,4 +36,29 @@ describe('Legend.vue', () => {
     const wrapper = mount(Legend, { props: { colors, scale, colorByTemp } })
     expect(wrapper.classes()).toContain('legend-popup')
   })
+
+  it('updates scale when button is clicked', async () => {
+    const wrapper = mount(Legend, {
+      props: { colors, scale: scale, colorByTemp: true }
+    });
+
+    wrapper.vm.$.emit = (event: string) => {
+      if (event === "switch") {
+        wrapper.setProps({ scale: scale, colorByTemp: false });
+      }
+    };
+
+    await wrapper.findAll("button")[1].trigger("click");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.props("scale")).toEqual(scale);
+
+    const expected = [`≤10`, `20`, `30`, `40`, `≥50`]
+
+    const labelSpans = wrapper.findAll('.mt-1 span')
+    expect(labelSpans).toHaveLength(5)
+    labelSpans.forEach((span, i) => {
+      expect(span.text()).toContain(expected[i])
+    })
+  });
 })
