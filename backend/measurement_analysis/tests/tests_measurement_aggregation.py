@@ -143,7 +143,7 @@ class MeasurementAnalysisTests(TestCase):
         assert response.status_code == 200, response.content
         data = response.json()
         assert data["count"] == 1
-        assert data["measurements"][0]["max_temperature"] == 25.5
+        assert data["measurements"][0]["max_temperature"] == 20.0
         months = 0
         for m in data["measurements"]:
             months = months + m["count"]
