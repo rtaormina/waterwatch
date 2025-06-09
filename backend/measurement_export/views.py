@@ -96,14 +96,16 @@ def search_measurements_view(request):
     if fmt in ("csv", "json", "xml", "geojson"):
         user = request.user
 
-        # logger.debug("search_measurements_view called by user: %s", user.groups.all())
-
         if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
             return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
 
         data = MeasurementSerializer(qs, many=True, context={"included_metrics": included_metrics}).data
         strategy = get_strategy(fmt)
         return strategy.export(data)
+
+    if fmt == "map-format":
+        strategy = get_strategy(fmt)
+        return strategy.export(qs)
 
     # Otherwise, we return the data in JSON format
     stats = qs.aggregate(

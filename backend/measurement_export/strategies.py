@@ -7,7 +7,9 @@ from abc import ABC, abstractmethod
 from xml.dom import minidom
 from xml.etree.ElementTree import Element, SubElement
 
+from django.db.models import Avg, Count, Max, Min
 from django.http import HttpResponse, JsonResponse
+from measurement_analysis.serializers import MeasurementAggregatedSerializer
 
 
 class ExportStrategy(ABC):
@@ -236,3 +238,49 @@ def prettify_xml(element: ET.Element) -> bytes:
     rough_string = ET.tostring(element, "utf-8")
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ", encoding="utf-8")
+
+
+class MapFormatExport(ExportStrategy):
+    """Export measurements in MapFormat.
+
+    This class implements the `export` method to handle export of measurement data,
+    so that it can be visualized on the Hex-Map.
+
+    Parameters
+    ----------
+    ExportStrategy : Abstract Base Class
+        Inherits from the abstract base class `ExportStrategy`.
+
+    Methods
+    -------
+    export(data)
+        Given serialized data, return an HttpResponse with MapFormat content.
+    """
+
+    def export(self, data):
+        """Export the given data to MapFormat.
+
+        Parameters
+        ----------
+        data : list
+            List of serialized measurement data to be exported.
+
+        Returns
+        -------
+        HttpResponse
+            HTTP response containing the exported data in MapFormat.
+        """
+        results = data.values("location").annotate(
+            count=Count("location"),
+            avg_temperature=Avg("temperature__value"),
+            min_temperature=Min("temperature__value"),
+            max_temperature=Max("temperature__value"),
+        )
+
+        serializer = MeasurementAggregatedSerializer(results, many=True)
+        serialized_data = serializer.data
+
+        # Return as JSON response
+        return JsonResponse(
+            {"measurements": serialized_data, "count": len(serialized_data), "status": "success"}, safe=True
+        )
