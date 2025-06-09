@@ -133,7 +133,9 @@ const hexbinLayer: L.HexbinLayer = L.hexbinLayer(hexbinOptions);
 hexbinLayer.lat((d: DataPoint) => d.point.lat);
 hexbinLayer.lng((d: DataPoint) => d.point.lng);
 hexbinLayer.colorValue((d) => {
-    const color = props.colorByTemp ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length : d.length;
+    const color = props.colorByTemp
+        ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length
+        : d.map((v) => v.o.count).reduce((a, b) => a + b, 0);
     return color;
 });
 
