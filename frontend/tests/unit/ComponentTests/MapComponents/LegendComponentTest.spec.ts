@@ -6,7 +6,7 @@ import { shallowMount } from "@vue/test-utils";
 
 type UpdateEvent = string | string[];
 
-describe("Legend.vue", () => {
+describe("Legend.vue filtering tests", () => {
     let wrapper: VueWrapper<any>;
     let select: VueWrapper<any>;
 
@@ -65,7 +65,7 @@ describe("Legend.vue", () => {
     });
 });
 
-describe("Legend.vue", () => {
+describe("Legend.vue gradient tests", () => {
     const colors = ["#0000ff", "#ff0000"];
     const scale: [number, number] = [10, 50];
 
