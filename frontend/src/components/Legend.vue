@@ -28,11 +28,37 @@
             <span>{{ scale[0] + step * 3 }}°C</span>
             <span>&geq;{{ scale[1] }}°C</span>
         </div>
+
+        <h4 class="text-lg font-bold mb-2">Time Range</h4>
+        <div>
+            <USelect v-model="value" :items="items" class="w-48" @update:model-value="emit('update', $event)" />
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+
+const emit = defineEmits<{
+    (e: "update", value: string): void;
+}>();
+
+const value = ref("Past 30 Days");
+const items = ref([
+    "Past 30 Days",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+]);
 
 const props = defineProps<{
     colors: string[];
