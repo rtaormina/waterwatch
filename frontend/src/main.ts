@@ -9,6 +9,7 @@ import "leaflet/dist/leaflet.css";
 import App from "@/App.vue";
 import router from "@/router";
 import ui from "@nuxt/ui/vue-plugin";
+import { createPinia } from "pinia";
 
 // mount the app
-createApp(App).use(ui).use(router).use(i18n).mount("#app");
+createApp(App).use(ui).use(router).use(i18n).use(createPinia()).mount("#app");
