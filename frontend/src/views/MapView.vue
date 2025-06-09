@@ -203,8 +203,8 @@ const count = ref(0);
 const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
-const range = ref("Past 30 Days");
-const month = ref(0);
+const range = ref<string | string[]>("Past 30 Days");
+const month = ref<string>("0");
 const items = [
     "Past 30 Days",
     "January",
@@ -227,9 +227,15 @@ const items = [
  * @param timeRange the time range of measurements to include in the hexmap
  * @returns {void}
  */
-function updateMapFilters(timeRange: string) {
+function updateMapFilters(timeRange: string | string[]) {
+    if (Array.isArray(timeRange)) {
+        const months = (timeRange as string[]).map((label) => items.indexOf(label)).filter((i) => i > 0);
+        month.value = months.join(",");
+    } else {
+        const idx = items.indexOf(timeRange as string);
+        month.value = "" + idx;
+    }
     range.value = timeRange;
-    month.value = items.indexOf(range.value);
 }
 
 /**

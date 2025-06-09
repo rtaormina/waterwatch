@@ -34,7 +34,6 @@ def analyzed_measurements_view(request):
         JSON response containing aggregated measurements.
     """
     boundary_geometry = request.GET.get("boundary_geometry")
-    month_param = request.GET.get("month")
 
     query = Measurement.objects.select_related(*[model.__name__.lower() for model in METRIC_MODELS])
 
@@ -47,19 +46,20 @@ def analyzed_measurements_view(request):
             return JsonResponse({"error": "Invalid boundary_geometry"}, status=400)
 
     # date filter
-    if month_param:
-        try:
-            month = int(month_param)
-        except ValueError:
-            return JsonResponse({"error": "Invalid month parameter; must be 0-12"}, status=400)
-
-        if month == 0:
+    if month_param := request.GET.get("month"):
+        parts = [p.strip() for p in month_param.split(",") if p.strip()]
+        if parts == ["0"]:
             cutoff = timezone.now().date() - timedelta(days=30)
-            query = query.filter(timestamp__date__gte=cutoff)
-        elif 1 <= month <= 12:
-            query = query.filter(timestamp__month=month)
+            query = query.filter(local_date__gte=cutoff)
         else:
-            return JsonResponse({"error": "Invalid month parameter; must be 0-12"}, status=400)
+            try:
+                months = [int(p) for p in parts]
+            except ValueError:
+                return JsonResponse({"error": "Invalid month parameter; must be 0 or comma-separated 1-12"}, status=400)
+            months = [m for m in months if 1 <= m <= 12]
+            if not months:
+                return JsonResponse({"error": "No valid month numbers provided; must be 0 or 1-12"}, status=400)
+            query = query.filter(local_date__month__in=months)
 
     # aggregate
     results = query.values("location").annotate(

@@ -32,7 +32,7 @@ class MeasurementAnalysisTests(TestCase):
             """)
         cls.measurement = Measurement.objects.create(
             location="POINT(1.0 2.0)",
-            local_date="2025-10-01",
+            local_date="2025-11-01",
             local_time="12:34:56",
         )
         cls.temperature = Temperature.objects.create(
@@ -54,7 +54,7 @@ class MeasurementAnalysisTests(TestCase):
         )
         cls.measurement3 = Measurement.objects.create(
             location="POINT(3.0 4.0)",
-            local_date="2025-10-03",
+            local_date="2025-04-03",
             local_time="16:25:34",
         )
         cls.temperature3 = Temperature.objects.create(
@@ -139,16 +139,29 @@ class MeasurementAnalysisTests(TestCase):
 
     def test_calendar_month_filter(self):
         """Test that passing month=10 returns only October measurements."""
-        Measurement.objects.filter(pk=self.measurement.pk).update(timestamp="2021-10-01T12:00:00Z")
-        Measurement.objects.filter(pk=self.measurement2.pk).update(timestamp="2021-11-02T12:00:00Z")
-        Measurement.objects.filter(pk=self.measurement3.pk).update(timestamp="2021-10-15T12:00:00Z")
-
         response = self.client.get("/api/measurements/aggregated/?month=10")
         assert response.status_code == 200, response.content
         data = response.json()
+        assert data["count"] == 1
+        assert data["measurements"][0]["max_temperature"] == 25.5
+        months = 0
+        for m in data["measurements"]:
+            months = months + m["count"]
+        assert months == 1
+
+    def test_calendar_months_filter(self):
+        """Test that passing month=10,11 returns October and November measurements."""
+        response = self.client.get("/api/measurements/aggregated/?month=10,11")
+        assert response.status_code == 200
+        data = response.json()
         assert data["count"] == 2
-        months = { m["count"] for m in data["measurements"] }
-        assert months == {1}
+        assert data["measurements"][0]["max_temperature"] == 25.5
+        assert data["measurements"][1]["max_temperature"] == 20.0
+
+        months = 0
+        for m in data["measurements"]:
+            months = months + m["count"]
+        assert months == 2
 
     def test_past_30_days_filter(self):
         """Test that passing month=0 returns only data from the last 30 days."""
@@ -181,3 +194,30 @@ class MeasurementAnalysisTests(TestCase):
         assert (1.0, 2.0) not in locations
         assert (3.0, 4.0) not in locations
         assert (5.0, 5.0) not in locations
+
+    def test_invalid_text_month_filter(self):
+        """Test that passing non 1-12 parameters returns 400."""
+        response = self.client.get("/api/measurements/aggregated/?month=0,abc10")
+        assert response.status_code == 400
+        data = response.json()
+        assert data["error"] == "Invalid month parameter; must be 0 or comma-separated 1-12"
+
+    def test_invalid_out_of_range_month_filter(self):
+        """Test that passing out of range parameters returns 400."""
+        response = self.client.get("/api/measurements/aggregated/?month=13,-1")
+        assert response.status_code == 400
+        data = response.json()
+        assert data["error"] == "No valid month numbers provided; must be 0 or 1-12"
+
+    def test_some_valid_month_filter(self):
+        """Test that passing out of range parameters returns 400."""
+        response = self.client.get("/api/measurements/aggregated/?month=13,-1,4")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["count"] == 1
+        assert data["measurements"][0]["max_temperature"] == 18.0
+
+        months = 0
+        for m in data["measurements"]:
+            months = months + m["count"]
+        assert months == 1

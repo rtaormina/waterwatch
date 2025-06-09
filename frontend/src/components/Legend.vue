@@ -33,10 +33,11 @@
         <h4 class="text-lg font-bold mb-2 mt-2">Time Range</h4>
         <div>
             <USelect
-                v-model="value"
+                v-model="internalValue"
                 :items="items"
+                :multiple="isMulti"
                 class="w-full"
-                @update:model-value="emit('update', $event)"
+                @update:model-value="onChange"
                 :ui="{
                     content: 'z-[9999]',
                 }"
@@ -49,10 +50,28 @@
 import { computed, ref } from "vue";
 
 const emit = defineEmits<{
-    (e: "update", value: string): void;
+    (e: "update", value: string | string[]): void;
 }>();
 
-const value = ref("Past 30 Days");
+const isMulti = computed(() => internalValue.value !== "Past 30 Days");
+const internalValue = ref<string | string[]>("Past 30 Days");
+
+/**
+ * Handles selection of dropdown such that either multiselect of months is possible or
+ * only past 30 days is selected and then emits selection
+ *
+ * @param val updated value that is selected
+ * @return {void}
+ */
+function onChange(val: string | string[]) {
+    internalValue.value = val;
+    if (Array.isArray(val) && val.includes("Past 30 Days")) {
+        val = val.filter((v) => v !== "Past 30 Days");
+        internalValue.value = val;
+    }
+
+    emit("update", val);
+}
 const items = ref([
     "Past 30 Days",
     "January",
