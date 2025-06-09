@@ -7,7 +7,7 @@
             <div
                 class="absolute inset-0"
                 :style="{
-                    background: `linear-gradient(to right, ${colors[0]}, ${colors[1]})`,
+                    background: `linear-gradient(to right, ${props.colors[0]}, ${props.colors[1]})`,
                 }"
             ></div>
             <!-- ticks -->
@@ -22,11 +22,26 @@
 
         <!-- Labels under ticks -->
         <div class="mt-1 flex justify-between text-sm text-gray-700">
-            <span>&leq;{{ scale[0] }}°C</span>
-            <span>{{ scale[0] + step }}°C</span>
-            <span>{{ scale[0] + step * 2 }}°C</span>
-            <span>{{ scale[0] + step * 3 }}°C</span>
-            <span>&geq;{{ scale[1] }}°C</span>
+            <span>
+                &leq;{{ props.scale[0] }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+            <span>
+                {{ props.scale[0] + step }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+            <span>
+                {{ props.scale[0] + step * 2 }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+            <span>
+                {{ props.scale[0] + step * 3 }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+            <span>
+                &geq;{{ props.scale[1] }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
         </div>
 
         <h4 class="text-lg font-bold mb-2">Map Coloring</h4>
@@ -52,13 +67,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { ref } from "vue";
-
-const colorByTemp = ref(true);
-
 const props = defineProps<{
     colors: string[];
     scale: [number, number];
+    colorByTemp: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -69,8 +81,7 @@ const emit = defineEmits<{
  * Switch to count mode.
  */
 function toCountMode() {
-    if (!colorByTemp.value) return;
-    colorByTemp.value = false;
+    if (!props.colorByTemp) return;
     emit("switch");
 }
 
@@ -78,13 +89,11 @@ function toCountMode() {
  * Switch to temperature mode.
  */
 function toTempMode() {
-    if (colorByTemp.value) return;
-    colorByTemp.value = true;
+    if (props.colorByTemp) return;
     emit("switch");
 }
 
 const step = computed(() => (props.scale[1] - props.scale[0]) / 4);
-const { colors, scale } = props;
 </script>
 
 <style scoped>
