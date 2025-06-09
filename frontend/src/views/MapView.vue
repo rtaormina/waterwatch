@@ -83,6 +83,7 @@
                     :class="legendClasses"
                     :colors="colors"
                     :scale="scale"
+                    :colorByTemp="colorByTemp"
                     @close="handleClose"
                     @switch="handleSwitch"
                 />
@@ -168,6 +169,7 @@ function showGlobalAnalytics() {
  */
 function handleSwitch() {
     colorByTemp.value = !colorByTemp.value;
+    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
 }
 
 /**
