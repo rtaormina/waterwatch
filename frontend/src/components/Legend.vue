@@ -29,9 +29,18 @@
             <span>&geq;{{ scale[1] }}°C</span>
         </div>
 
-        <h4 class="text-lg font-bold mb-2">Time Range</h4>
+        <!-- Time range selector -->
+        <h4 class="text-lg font-bold mb-2 mt-2">Time Range</h4>
         <div>
-            <USelect v-model="value" :items="items" class="w-48" @update:model-value="emit('update', $event)" />
+            <USelect
+                v-model="value"
+                :items="items"
+                class="w-full"
+                @update:model-value="emit('update', $event)"
+                :ui="{
+                    content: 'z-[9999]',
+                }"
+            />
         </div>
     </div>
 </template>
