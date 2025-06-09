@@ -135,4 +135,49 @@ class MeasurementAnalysisTests(TestCase):
         assert response.status_code == 400
         data = response.json()
         assert "error" in data
-        assert data["error"] == "Invalid boundary_geometry format"
+        assert data["error"] == "Invalid boundary_geometry"
+
+    def test_calendar_month_filter(self):
+        """Test that passing month=10 returns only October measurements."""
+        Measurement.objects.filter(pk=self.measurement.pk).update(timestamp="2021-10-01T12:00:00Z")
+        Measurement.objects.filter(pk=self.measurement2.pk).update(timestamp="2021-11-02T12:00:00Z")
+        Measurement.objects.filter(pk=self.measurement3.pk).update(timestamp="2021-10-15T12:00:00Z")
+
+        response = self.client.get("/api/measurements/aggregated/?month=10")
+        assert response.status_code == 200, response.content
+        data = response.json()
+        assert data["count"] == 2
+        months = { m["count"] for m in data["measurements"] }
+        assert months == {1}
+
+    def test_past_30_days_filter(self):
+        """Test that passing month=0 returns only data from the last 30 days."""
+        from datetime import timedelta
+
+        from django.utils import timezone
+
+        today = timezone.now().date()
+
+        old = Measurement.objects.create(
+            location="POINT(5 5)",
+            local_date=(today - timedelta(days=40)).isoformat(),
+            local_time="00:00:00",
+        )
+        recent = Measurement.objects.create(
+            location="POINT(6 6)",
+            local_date=(today - timedelta(days=10)).isoformat(),
+            local_time="00:00:00",
+        )
+
+        Measurement.objects.filter(pk=old.pk).update(timestamp=(timezone.now() - timedelta(days=40)))
+        Measurement.objects.filter(pk=recent.pk).update(timestamp=(timezone.now() - timedelta(days=10)))
+
+        response = self.client.get("/api/measurements/aggregated/?month=0")
+        assert response.status_code == 200, response.content
+        data = response.json()
+
+        locations = {(m["location"]["latitude"], m["location"]["longitude"]) for m in data["measurements"]}
+        assert (6.0, 6.0) in locations
+        assert (1.0, 2.0) not in locations
+        assert (3.0, 4.0) not in locations
+        assert (5.0, 5.0) not in locations
