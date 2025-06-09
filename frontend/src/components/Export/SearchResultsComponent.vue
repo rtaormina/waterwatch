@@ -15,6 +15,7 @@ const emit = defineEmits<{
     (e: "update:format", newFormat: typeof props.format): void;
     (e: "download"): void;
     (e: "close-modal"): void;
+    (e: "show-on-map"): void;
 }>();
 
 // Define the props for the component
@@ -147,6 +148,18 @@ defineExpose({
                 "
             >
                 Download
+            </button>
+            <button
+                @click="emit('show-on-map')"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync"
+                class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg mt-3"
+                :class="
+                    canDownload && searched && !props.filtersOutOfSync
+                        ? 'bg-main cursor-pointer hover:bg-[#0098c4]'
+                        : 'bg-gray-300 cursor-not-allowed'
+                "
+            >
+                See Results on Map
             </button>
             <Modal data-testid="export-failed-modal" :visible="props.showModal" @close="emit('close-modal')">
                 <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
