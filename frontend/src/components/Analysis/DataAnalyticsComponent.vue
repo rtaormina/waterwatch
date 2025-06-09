@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { drawHistogram } from "../composables/DataVisualizationLogic";
+import { drawHistogramWithKDE } from "../../composables/Analysis/DataVisualizationLogic";
 import { onMounted, ref, watch } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
@@ -20,7 +20,7 @@ const graph = ref<HTMLElement | null>(null);
 async function getGraphData(location?: string): Promise<number[]> {
     try {
         const response = location
-            ? await fetch(`/api/measurements/?boundry_geometry=${location}`)
+            ? await fetch(`/api/measurements/?boundary_geometry=${location}`)
             : await fetch("/api/measurements/");
         const data = await response.json();
 
@@ -39,7 +39,9 @@ async function getGraphData(location?: string): Promise<number[]> {
 async function render() {
     if (!graph.value) return;
     const values = await getGraphData(props.location);
-    drawHistogram(graph.value, values);
+    drawHistogramWithKDE(graph.value, values, "steelblue", "orange", {
+        barOpacity: 0.5,
+    });
 }
 
 const emit = defineEmits(["close"]);
@@ -58,8 +60,8 @@ watch(() => props.location, render);
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>
-        <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
-            <h3 class="text-lg font-semibold mb-4">Frequency analysis</h3>
+        <div class="bg-white rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
+            <h3 class="text-lg font-semibold mb-4">Frequency Analysis</h3>
             <div ref="graph" class="w-full h-64"></div>
         </div>
     </div>

@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted, onUpdated, onBeforeUnmount, computed, nextTick } from "vue";
 import { PlusIcon, MinusIcon, ChevronDownIcon, CheckIcon } from "@heroicons/vue/24/solid";
-import { useFilters, type DateRangeFilter, type TemperatureFilter, type TimeSlot } from "../composables/useFilters";
-import { useSearch } from "../composables/useSearch";
-import { type Filters } from "@/composables/usePresets";
+import {
+    useFilters,
+    type DateRangeFilter,
+    type TemperatureFilter,
+    type TimeSlot,
+} from "../../composables/Export/useFilters";
+import { useSearch } from "../../composables/Export/useSearch";
+import { type Filters } from "../../composables/Export/usePresets";
 
 // Define the emits for the component
 const emit = defineEmits(["search"]);

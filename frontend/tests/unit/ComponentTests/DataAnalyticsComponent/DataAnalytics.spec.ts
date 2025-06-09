@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import DataAnalyticsComponent from "../../../../src/components/DataAnalyticsComponent.vue";
+import DataAnalyticsComponent from "../../../../src/components/Analysis/DataAnalyticsComponent.vue";
 import { mount, VueWrapper } from "@vue/test-utils";
 
 const mockMeasurements = ["23.0", "25.0",];
 
-vi.mock("../../../../src/composables/DataVisualizationLogic", () => ({
-    drawHistogram: vi.fn()
+vi.mock("../../../../src/composables/Analysis/DataVisualizationLogic", () => ({
+    drawHistogramWithKDE: vi.fn()
 }));
 
-import { drawHistogram } from "../../../../src/composables/DataVisualizationLogic";
+import { drawHistogramWithKDE } from "../../../../src/composables/Analysis/DataVisualizationLogic";
 
 describe("DataAnalyticsComponent good weather tests", () => {
     let wrapper: VueWrapper<any>;
@@ -35,9 +35,9 @@ describe("DataAnalyticsComponent good weather tests", () => {
             "/api/measurements/"
         );
 
-        expect(drawHistogram).toHaveBeenCalled();
+        expect(drawHistogramWithKDE).toHaveBeenCalled();
 
-        const callArgs = (drawHistogram as any).mock.calls[0];
+        const callArgs = (drawHistogramWithKDE as any).mock.calls[0];
         expect(callArgs[1]).toEqual([23, 25]);
     });
 
@@ -49,7 +49,7 @@ describe("DataAnalyticsComponent good weather tests", () => {
         await wrapper.setProps({ location: "new-location" });
 
         expect(fetch).toHaveBeenCalledWith(
-            "/api/measurements/?boundry_geometry=new-location"
+            "/api/measurements/?boundary_geometry=new-location"
         );
     });
 
@@ -80,9 +80,9 @@ describe("DataAnalyticsComponent bad weather tests", () => {
     });
 
     it("getGraphData fails but it still shows data", async () => {
-        expect(drawHistogram).toHaveBeenCalled();
+        expect(drawHistogramWithKDE).toHaveBeenCalled();
 
-        const callArgs = (drawHistogram as any).mock.calls[0];
+        const callArgs = (drawHistogramWithKDE as any).mock.calls[0];
         console.log(callArgs);
         expect(callArgs[1]).toEqual([]);
     });

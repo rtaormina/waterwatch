@@ -93,7 +93,7 @@ class MeasurementAnalysisTests(TestCase):
     def test_measurement_within_boundary(self):
         """Test the retrieval of measurements within a specified boundary."""
         boundary_geometry = "POLYGON((0 0, 0 3, 3 3, 3 0, 0 0))"
-        response = self.client.get(f"/api/measurements/aggregated/?boundry_geometry={boundary_geometry}")
+        response = self.client.get(f"/api/measurements/aggregated/?boundary_geometry={boundary_geometry}")
         assert response.status_code == 200
         data = response.json()
         assert "measurements" in data
@@ -107,7 +107,7 @@ class MeasurementAnalysisTests(TestCase):
     def test_measurement_multiple_in_boundary_with_aggregation(self):
         """Test the retrieval of multiple measurements in a different specified boundary with aggregation."""
         boundary_geometry = "POLYGON((2 2, 2 5, 5 5, 5 2, 2 2))"
-        response = self.client.get(f"/api/measurements/aggregated/?boundry_geometry={boundary_geometry}")
+        response = self.client.get(f"/api/measurements/aggregated/?boundary_geometry={boundary_geometry}")
         assert response.status_code == 200
         data = response.json()
         assert len(data["measurements"]) == 1
@@ -120,7 +120,7 @@ class MeasurementAnalysisTests(TestCase):
     def test_measurement_multiple_in_boundary(self):
         """Test the retrieval of multiple measurements in a different specified boundary."""
         boundary_geometry = "POLYGON((2 2, 2 5, 5 5, 5 2, 2 2))"
-        response = self.client.get(f"/api/measurements/?boundry_geometry={boundary_geometry}")
+        response = self.client.get(f"/api/measurements/?boundary_geometry={boundary_geometry}")
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 2
@@ -131,8 +131,8 @@ class MeasurementAnalysisTests(TestCase):
     def test_invalid_boundary_geometry(self):
         """Test the handling of an invalid boundary geometry."""
         boundary_geometry = "INVALID_GEOMETRY"
-        response = self.client.get(f"/api/measurements/aggregated/?boundry_geometry={boundary_geometry}")
+        response = self.client.get(f"/api/measurements/aggregated/?boundary_geometry={boundary_geometry}")
         assert response.status_code == 400
         data = response.json()
         assert "error" in data
-        assert data["error"] == "Invalid boundry_geometry format"
+        assert data["error"] == "Invalid boundary_geometry format"

@@ -1,7 +1,7 @@
 import { mount, VueWrapper, flushPromises } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { nextTick, ref } from "vue";
-import SearchBarComponent from "../../../../src/components/SearchBarComponent.vue";
+import SearchBarComponent from "../../../../src/components/Export/SearchBarComponent.vue";
 
 const mockPresets = ref<Array<{ id: string; name: string }>>([
   { id: "1", name: "Preset One" },
@@ -17,7 +17,7 @@ const mockFilterPresets = vi.fn((query: string) =>
   )
 );
 
-vi.mock("../../../../src/composables/usePresets", () => ({
+vi.mock("../../../../src/composables/Export/usePresets", () => ({
   usePresets: () => ({
     presets: mockPresets,
     loading: mockLoading,

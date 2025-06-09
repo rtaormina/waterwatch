@@ -13,7 +13,7 @@ const showOverlay = ref(false);
  * Check if the user is on a mobile device
  */
 const checkMobile = () => {
-    isMobile.value = window.innerWidth < 768;
+    isMobile.value = window.innerWidth < 1024;
 };
 
 /**
