@@ -3,6 +3,7 @@
 from campaigns.models import Campaign
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
+from django.contrib.gis.db.models import indexes as gis_indexes
 from django.db import models
 from django.utils import timezone
 
@@ -44,6 +45,16 @@ class Measurement(models.Model):
     campaigns = models.ManyToManyField(Campaign, blank=True)
     user = models.ForeignKey(User, blank=True, null=True, on_delete=models.DO_NOTHING)
 
+    class Meta:
+        indexes = [
+            gis_indexes.GistIndex(fields=["location"]),
+            models.Index(fields=["water_source"]),
+            models.Index(fields=["local_date"]),
+            models.Index(fields=["local_time"]),
+            models.Index(fields=["flag"]),
+            models.Index(fields=["local_date", "local_time"]),
+        ]
+
     def __str__(self):
         return f"Measurement: {self.timestamp} - {self.location} - {self.water_source}"
 
@@ -80,6 +91,10 @@ class Temperature(models.Model):
                 check=models.Q(value__lte=100),
                 name="temperature_value_less_than_100",
             ),
+            models.UniqueConstraint(fields=["measurement"], name="unique_measurement_id"),
+        ]
+        indexes = [
+            models.Index(fields=["value"]),
         ]
 
     def __str__(self):

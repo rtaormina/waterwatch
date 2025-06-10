@@ -1,6 +1,7 @@
 """Define models associated with campaigns."""
 
 from django.contrib.gis.db import models as geomodels
+from django.contrib.gis.db.models import indexes as gis_indexes
 from django.db import models
 
 
@@ -27,6 +28,14 @@ class Campaign(models.Model):
     end_time = models.DateTimeField()
     name = models.CharField(max_length=255)
     description = models.TextField()
+
+    class Meta:
+        indexes = [
+            gis_indexes.GistIndex(fields=["region"]),
+            models.Index(fields=["start_time"]),
+            models.Index(fields=["end_time"]),
+            models.Index(fields=["start_time", "end_time"]),
+        ]
 
     def __str__(self):
         return f"Campaign: {self.name} ({self.format_time()})"
