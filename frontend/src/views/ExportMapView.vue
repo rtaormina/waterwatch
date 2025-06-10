@@ -170,7 +170,7 @@ const flattenSearchParams = useSearch().flattenSearchParams;
  * Returns to the export view, resetting all states and closing any open components.
  */
 function returnToExport() {
-    router.push({ name: "Export" });
+    router.push({ name: "Export", query: { fromMap: "1" } });
 }
 
 /**

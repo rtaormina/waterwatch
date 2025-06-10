@@ -15,10 +15,11 @@ import SearchResults from "../components/Export/SearchResultsComponent.vue";
 import { useSearch } from "../composables/Export/useSearch";
 import { useExportData } from "../composables/Export/useExportData";
 import { type Preset } from "../composables/Export/usePresets";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useExportStore } from "../stores/ExportStore";
 
 const router = useRouter();
+const route = useRoute();
 const exportStore = useExportStore();
 
 const query = ref("");
@@ -110,8 +111,7 @@ async function onDownload(): Promise<void> {
 }
 
 onMounted(() => {
-    console.log(exportStore.hasSearched, filterPanelRef.value, filtersOutOfSync.value);
-    if (exportStore.hasSearched && filterPanelRef.value) {
+    if (route.query.fromMap === "1" && exportStore.hasSearched && filterPanelRef.value) {
         filterPanelRef.value.applyFilters(exportStore.filters);
         onSearch();
     }

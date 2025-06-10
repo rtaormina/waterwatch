@@ -9,6 +9,9 @@ import {
 } from "../../composables/Export/useFilters";
 import { useSearch } from "../../composables/Export/useSearch";
 import { type Filters } from "../../composables/Export/usePresets";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 // Define the emits for the component
 const emit = defineEmits(["search"]);
@@ -199,7 +202,7 @@ watch([countryDropdownOpen], clearSearchOnClose);
  * @returns {void}
  */
 onMounted(() => {
-    // reset();
+    if (route.query.fromMap !== "1") reset();
     calculateDropdownHeight();
     window.addEventListener("resize", calculateDropdownHeight);
     document.addEventListener("mousedown", handleClickOutside);
