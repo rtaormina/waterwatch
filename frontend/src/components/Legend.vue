@@ -24,7 +24,8 @@
         <!-- Labels under ticks -->
         <div class="mt-1 flex justify-between text-sm text-gray-700">
             <span>
-                &leq;{{ props.scale[0] }}
+                <span v-if="colorByTemp">&leq;</span>
+                {{ props.scale[0] }}
                 <span v-if="colorByTemp">°C</span>
             </span>
             <span>

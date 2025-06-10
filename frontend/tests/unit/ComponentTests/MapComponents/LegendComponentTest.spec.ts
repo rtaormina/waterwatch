@@ -86,10 +86,11 @@ describe("Legend.vue gradient tests", () => {
       props: { colors, scale, colorByTemp }
     })
 
-    const expected = [`≤10`, `°C`, `20`, `°C`, `30`, `°C`, `40`, `°C`, `≥50`, `°C`]
+    // Order is messed up because how the wrapper returns the spans from the DOM
+    const expected = [`10`, `≤`, `°C`, `20`, `°C`, `30`, `°C`, `40`, `°C`, `≥50`, `°C`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
-    expect(labelSpans).toHaveLength(10) // 5 labels with 2 spans each
+    expect(labelSpans).toHaveLength(11) // 5 labels: 1 with 3, 4 with 2 labels
     labelSpans.forEach((span, i) => {
       expect(span.text()).toContain(expected[i])
     })
@@ -116,7 +117,7 @@ describe("Legend.vue gradient tests", () => {
 
     expect(wrapper.props("scale")).toEqual(scale);
 
-    const expected = [`≤10`, `20`, `30`, `40`, `≥50`]
+    const expected = [`10`, `20`, `30`, `40`, `≥50`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
     expect(labelSpans).toHaveLength(5)
