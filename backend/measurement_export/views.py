@@ -2,10 +2,11 @@
 
 import json
 import logging
-from datetime import time
 
+from campaigns.models import Campaign
 from django.contrib.gis.geos import GEOSException, GEOSGeometry
-from django.db.models import Avg, Count, Q
+from django.db.models import Avg, Count
+from django.db.models.expressions import RawSQL
 from django.http import JsonResponse
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
@@ -13,112 +14,13 @@ from rest_framework.decorators import api_view
 
 from .factories import get_strategy
 from .models import Location, Preset
-from .serializers import MeasurementSerializer, PresetSerializer
+from .serializers import PresetSerializer
+from .utils import apply_measurement_filters
 
 logger = logging.getLogger("WATERWATCH")
 
 
 @api_view(["GET"])
-def export_all_view(request):
-    """Export all measurements.
-
-    This view exports all measurements.
-
-    Parameters
-    ----------
-    request : HttpRequest
-        The HTTP request object.
-
-    Returns
-    -------
-    JsonResponse
-        JSON response containing all measurements serialized with the MeasurementSerializer.
-    """
-    boundary_geometry = request.GET.get("boundary_geometry")
-    query = Measurement.objects.select_related(*[model.__name__.lower() for model in METRIC_MODELS])
-    if boundary_geometry:
-        try:
-            polygon = GEOSGeometry(boundary_geometry)
-            query = query.filter(location__within=polygon)
-        except GEOSException:
-            logger.exception("Invalid boundary_geometry format: %s")
-            return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
-    else:
-        query = query.all()
-
-    # If there are other metrics you want to add, you can include it to data
-    data = [m.temperature.value for m in query if m.temperature is not None]
-
-    return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
-
-
-@api_view(["POST"])
-def search_measurements_view(request):
-    """Get measurements based on filters.
-
-    This view handles filtering measurements based on location, temperature, date, and time range.
-
-    Parameters
-    ----------
-    request : HttpRequest
-        The HTTP request object.
-
-    Returns
-    -------
-    JsonResponse
-        JSON response containing the filtered measurements or aggregated statistics.
-        If the request has a "format" parameter, it returns the data in that format (CSV, JSON, XML, GeoJSON).
-        Otherwise, it returns a JSON response with count and average temperature.
-    """
-    related_fields = [model.__name__.lower() for model in METRIC_MODELS]
-    qs = Measurement.objects.select_related(*related_fields).all()
-    logger = logging.getLogger("WATERWATCH")
-
-    request_data = {}
-    if request.body:
-        try:
-            request_data = json.loads(request.body)
-        except json.JSONDecodeError:
-            logger.exception("Invalid JSON received in POST request.")
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-    qs = apply_measurement_filters(request_data, qs)
-
-    included_metrics = request_data.get("measurements_included", [])
-
-    if not isinstance(included_metrics, list):
-        logger.warning("measurements_included was not a list: %s", included_metrics)
-        included_metrics = []
-
-    # If the request has a "format" parameter, we will return the data in that format
-    fmt = str(request_data.get("format", "")).lower()
-
-    if fmt in ("csv", "json", "xml", "geojson"):
-        user = request.user
-
-        # logger.debug("search_measurements_view called by user: %s", user.groups.all())
-
-        if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
-            return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
-
-        data = MeasurementSerializer(qs, many=True, context={"included_metrics": included_metrics}).data
-        strategy = get_strategy(fmt)
-        return strategy.export(data)
-
-    # Otherwise, we return the data in JSON format
-    stats = qs.aggregate(
-        count=Count("id"),
-        avgTemp=Avg("temperature__value"),
-    )
-
-    return JsonResponse(
-        {
-            "count": stats["count"] or 0,
-            "avgTemp": float(stats["avgTemp"] or 0.0),
-        }
-    )
-
-
 def location_list(_request):
     """Get a list of countries by continent.
 
@@ -146,6 +48,7 @@ def location_list(_request):
     return JsonResponse(result)
 
 
+@api_view(["GET"])
 def preset_list(_self):
     """Get a list of all presets.
 
@@ -181,249 +84,319 @@ def preset_list(_self):
     return JsonResponse({"presets": serializer.data})
 
 
-def apply_measurement_filters(data, qs):
-    """Apply filters to the measurement queryset based on request parameters.
+def build_base_queryset(ordered=False):
+    """Build the base queryset with all necessary select_related and prefetch_related operations.
 
-    This function filters measurements based on location, temperature, date range, and time slots.
+    This function creates the foundation queryset that both views need, including:
+    - Related fields for all metric models
+    - User relationship
+    - Campaign prefetch for efficient loading
+    - Optional ordering by ID for consistent results (when needed)
 
     Parameters
     ----------
-    data : dict
-        The request data containing filter parameters.
-    qs : QuerySet
-        The initial queryset of measurements to filter.
+    ordered : bool, optional
+        Whether to order the queryset by ID. Default is False for better performance.
+        Only use True when you specifically need consistent ordering.
 
     Returns
     -------
     QuerySet
-        The filtered queryset of measurements.
+        A queryset with all base optimizations applied
     """
-    # Location filter
-    qs = filter_by_continents(qs, data)
-    qs = filter_by_countries(qs, data)
+    related_fields = [model.__name__.lower() for model in METRIC_MODELS]
+    qs = Measurement.objects.select_related("user", *related_fields).prefetch_related("campaigns")
 
-    # Temperature filter
-    qs = filter_by_water_sources(qs, data)
-    qs = filter_measurement_by_temperature(qs, data)
-
-    # Date range filter
-    qs = filter_by_date_range(qs, data)
-
-    # Time slots filter
-    return filter_by_time_slots(qs, data)
-
-
-def filter_by_continents(qs, data):
-    """Filter the queryset by continents.
-
-    This function filters measurements based on continents provided in the request.
-
-    Parameters
-    ----------
-    qs : QuerySet
-        The initial queryset of measurements to filter.
-    data : dict
-        The request data containing filter parameters.
-
-    Returns
-    -------
-    QuerySet
-        The filtered queryset of measurements.
-    """
-    continents = data.get("location[continents]", [])
-    if continents and not isinstance(continents, list):
-        logger.warning("Continents data is not a list: %s", continents)
-        continents = []
-
-    if continents:
-        polys = Location.objects.filter(continent__in=continents)
-        loc_q = Q()
-        for poly in polys:
-            loc_q |= Q(location__within=poly.geom)
-        qs = qs.filter(loc_q)
-    return qs
-
-
-def filter_by_countries(qs, data):
-    """Filter the queryset by countries.
-
-    This function filters measurements based on countries provided in the request.
-
-    Parameters
-    ----------
-    qs : QuerySet
-        The initial queryset of measurements to filter.
-    data : dict
-        The request data containing filter parameters.
-
-    Returns
-    -------
-    QuerySet
-        The filtered queryset of measurements.
-    """
-    countries = data.get("location[countries]", [])
-    if countries and not isinstance(countries, list):
-        logger.warning("Countries data is not a list: %s", countries)
-        countries = []
-
-    if countries:
-        polys = Location.objects.filter(country_name__in=countries)
-        loc_q = Q()
-        for poly in polys:
-            loc_q |= Q(location__within=poly.geom)
-        qs = qs.filter(loc_q)
-    return qs
-
-
-def filter_by_water_sources(qs, data):
-    """Filter the queryset by water sources.
-
-    This function filters measurements based on water sources provided in the request.
-
-    Parameters
-    ----------
-    qs : QuerySet
-        The initial queryset of measurements to filter.
-    data : dict
-        The request data containing filter parameters.
-
-    Returns
-    -------
-    QuerySet
-        The filtered queryset of measurements.
-    """
-    water_sources = data.get("measurements[waterSources]", [])
-    if water_sources and not isinstance(water_sources, list):
-        logger.warning("Water sources data is not a list: %s", water_sources)
-        water_sources = []
-
-    water_sources = [ws.lower() for ws in water_sources if isinstance(ws, str)]
-
-    if water_sources:
-        qs = qs.filter(water_source__in=water_sources)
-    return qs
-
-
-def filter_measurement_by_temperature(qs, data):
-    """Filter the queryset by temperature range.
-
-    This function filters measurements based on a temperature range provided in the request.
-
-    Parameters
-    ----------
-    qs : QuerySet
-        The initial queryset of measurements to filter.
-    data : dict
-        The request data containing filter parameters.
-
-    Returns
-    -------
-    QuerySet
-        The filtered queryset of measurements.
-    """
-    temp_from_str = data.get("measurements[temperature][from]")
-    temp_to_str = data.get("measurements[temperature][to]")
-
-    try:
-        if temp_from_str:
-            qs = qs.filter(temperature__value__gte=float(temp_from_str))
-        if temp_to_str:
-            qs = qs.filter(temperature__value__lte=float(temp_to_str))
-    except ValueError as e:
-        logger.warning("Invalid temperature value: %s. From: '%s', To: '%s'", e, temp_from_str, temp_to_str)
-    return qs
-
-
-def filter_by_date_range(qs, data):
-    """Filter the queryset by date range.
-
-    This function filters measurements based on a date range provided in the request.
-
-    Parameters
-    ----------
-    qs : QuerySet
-        The initial queryset of measurements to filter.
-    data : dict
-        The request data containing filter parameters.
-
-    Returns
-    -------
-    QuerySet
-        The filtered queryset of measurements.
-    """
-    date_from = data.get("dateRange[from]")
-    date_to = data.get("dateRange[to]")
-
-    if date_from and not isinstance(date_from, str):
-        logger.warning("dateRange[from] is not a string: %s", date_from)
-        date_from = None
-
-    if date_to and not isinstance(date_to, str):
-        logger.warning("dateRange[to] is not a string: %s", date_to)
-        date_to = None
-
-    if date_from:
-        qs = qs.filter(local_date__gte=date_from)
-
-    if date_to:
-        qs = qs.filter(local_date__lte=date_to)
+    if ordered:
+        qs = qs.order_by("id")
 
     return qs
 
 
-def filter_by_time_slots(qs, data):
-    """Filter the queryset by time slots.
+def apply_location_annotations(queryset):
+    """Apply geographic annotations to include country, continent, and coordinates.
 
-    This function filters measurements based on time slots provided in the request.
-    It filters by the local time component of the timestamp, ignoring timezone offsets.
+    This function performs the complex spatial join with the Location table and adds
+    computed latitude/longitude fields. The spatial join uses ST_Contains to find
+    which location polygon contains each measurement point.
 
     Parameters
     ----------
-    qs : QuerySet
-        The initial queryset of measurements to filter.
-    data : dict
-        The request data containing filter parameters.
+    queryset : QuerySet
+        The base measurement queryset to annotate
 
     Returns
     -------
     QuerySet
-        The filtered queryset of measurements.
+        Queryset with geographic fields: country, continent, latitude, longitude
     """
-    times_json_str = data.get("times")
-    if not times_json_str:
-        return qs
+    measurement_table = Measurement._meta.db_table
+    location_table = Location._meta.db_table
 
-    try:
-        if isinstance(times_json_str, str):
-            slots = json.loads(times_json_str)
-        elif isinstance(times_json_str, list):
-            slots = times_json_str
-        else:
-            logger.warning("Times data is not a string or list: %s", type(times_json_str))
-            return qs
+    return queryset.extra(
+        tables=[location_table],
+        # This WHERE clause acts as our JOIN condition - find locations that contain each measurement
+        where=[f"ST_Contains({location_table}.geom, {measurement_table}.location)"],
+        # Select additional fields from the joined Location table
+        select={
+            "country": f"{location_table}.country_name",
+            "continent": f"{location_table}.continent",
+        },
+    ).annotate(
+        # Extract longitude and latitude from the PostGIS Point geometry
+        longitude=RawSQL("ST_X(location)", []),
+        latitude=RawSQL("ST_Y(location)", []),
+    )
 
-        if not isinstance(slots, list):
-            logger.warning("Parsed times data is not a list: %s", slots)
-            return qs  # Or qs.none() if invalid format means no results
-    except json.JSONDecodeError:
-        logger.warning("Invalid JSON for time_slots string: %s", times_json_str)
-        return qs
 
-    time_q = Q()
-    for slot_data in slots:
-        if not isinstance(slot_data, dict):
-            logger.warning("Slot data is not a dictionary: %s", slot_data)
+def fetch_metrics_for_measurements(measurement_ids, included_metrics=None):
+    """Fetch all metrics for the given measurement IDs efficiently.
+
+    This function solves the N+1 query problem by fetching all metrics in separate
+    queries (one per metric type) rather than doing individual lookups. It groups
+    metrics by measurement ID for easy lookup.
+
+    Parameters
+    ----------
+    measurement_ids : list
+        List of measurement IDs to fetch metrics for
+    included_metrics : list, optional
+        List of metric types to include. If None, includes all metrics.
+
+    Returns
+    -------
+    dict
+        Dictionary mapping measurement_id -> list of metric dictionaries
+        Each metric dict includes a 'metric_type' field for identification
+    """
+    if included_metrics is None:
+        included_metrics = [model.__name__.lower() for model in METRIC_MODELS]
+
+    all_metrics = {}
+    for metric_cls in METRIC_MODELS:
+        name = metric_cls.__name__.lower()
+        if name not in included_metrics:
             continue
-        try:
-            start_str = slot_data.get("from")
-            end_str = slot_data.get("to")
-            start = time.fromisoformat(start_str) if start_str else time(0, 0, 0)
-            end = time.fromisoformat(end_str) if end_str else time(23, 59, 59)
-            time_q |= Q(local_time__range=(start, end))
-        except ValueError:
-            logger.warning("Invalid time format in slot: %s. From: '%s', To: '%s'", slot_data, start_str, end_str)
-            continue  # Skip this slot
 
-    if time_q:  # Only apply filter if at least one valid time condition was generated
-        return qs.filter(time_q)
-    return qs
+        # Fetch all metrics of this type for our measurements in one query
+        metrics_qs = metric_cls.objects.filter(measurement_id__in=measurement_ids).values()
+        for metric in metrics_qs:
+            measurement_id = metric.pop("measurement_id")
+            metric["metric_type"] = name  # Add type identifier for client use
+            all_metrics.setdefault(measurement_id, []).append(metric)
+
+    return all_metrics
+
+
+def fetch_campaigns_for_measurements(measurement_ids):
+    """Fetch campaign names for the given measurement IDs efficiently.
+
+    This function handles the many-to-many relationship between measurements and campaigns.
+    It uses the through table to get associations, then fetches campaign names in bulk
+    to avoid N+1 queries.
+
+    Parameters
+    ----------
+    measurement_ids : list
+        List of measurement IDs to fetch campaigns for
+
+    Returns
+    -------
+    dict
+        Dictionary mapping measurement_id -> list of campaign names
+    """
+    through = Measurement.campaigns.through
+
+    # Get all (measurement_id, campaign_id) pairs for our measurements
+    pairs = through.objects.filter(measurement_id__in=measurement_ids).values_list("measurement_id", "campaign_id")
+
+    # Extract unique campaign IDs and fetch their names in one query
+    campaign_ids = {camp_id for _, camp_id in pairs}
+    id_to_name = dict(Campaign.objects.filter(id__in=campaign_ids).values_list("id", "name"))
+
+    # Build the final mapping: measurement_id -> [campaign_names]
+    campaigns_map = {}
+    for m_id, camp_id in pairs:
+        campaigns_map.setdefault(m_id, []).append(id_to_name[camp_id])
+
+    return campaigns_map
+
+
+def prepare_measurement_data(queryset, included_metrics=None):
+    """Prepare complete measurement data with metrics and campaigns.
+
+    This is the main coordination function that ties together all the data fetching
+    operations. It takes a filtered queryset and returns fully populated measurement
+    data ready for export or API response.
+
+    Parameters
+    ----------
+    queryset : QuerySet
+        Filtered measurement queryset (should already have location annotations)
+    included_metrics : list, optional
+        List of metric types to include
+
+    Returns
+    -------
+    list
+        List of measurement dictionaries with metrics and campaigns included
+    """
+    # Get the list of measurement IDs to work with
+    measurement_ids = list(queryset.values_list("id", flat=True))
+
+    # Fetch related data efficiently
+    all_metrics = fetch_metrics_for_measurements(measurement_ids, included_metrics)
+    campaigns_map = fetch_campaigns_for_measurements(measurement_ids)
+
+    # Convert queryset to flat dictionaries with only the fields we need
+    flat_measurements = queryset.values(
+        "id",
+        "timestamp",
+        "local_date",
+        "local_time",
+        "flag",
+        "water_source",
+        "user_id",
+        "country",
+        "continent",
+        "latitude",
+        "longitude",
+    )
+
+    # Combine measurement data with metrics and campaigns
+    data = []
+    for row in flat_measurements:
+        m_id = row["id"]
+        row["metrics"] = all_metrics.get(m_id, [])
+        row["campaigns"] = campaigns_map.get(m_id, [])
+        data.append(row)
+
+    return data
+
+
+@api_view(["GET"])
+def export_all_view(request):
+    """Export all measurements with related metrics, campaigns, and user info.
+
+    Supports optional boundary_geometry filter to limit results to a geographic area.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object, which may contain a "boundary_geometry" parameter.
+
+    Returns
+    -------
+    JsonResponse
+        JSON response containing measurements with related metrics and campaigns.
+        If "boundary_geometry" is provided, it filters measurements within that geometry.
+        If the geometry is invalid, it returns a 400 error with an appropriate message.
+    """
+    logger = logging.getLogger("WATERWATCH")
+
+    # Start with our base queryset
+    qs = build_base_queryset(ordered=True)
+
+    # Apply geographic filter if provided
+    boundary_geometry = request.GET.get("boundary_geometry")
+    if boundary_geometry:
+        try:
+            polygon = GEOSGeometry(boundary_geometry)
+            qs = qs.filter(location__within=polygon)
+        except GEOSException:
+            logger.exception("Invalid boundary_geometry format: %s", boundary_geometry)
+            return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
+
+    # Add geographic annotations and prepare complete data
+    qs = apply_location_annotations(qs)
+    data = prepare_measurement_data(qs)
+
+    return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
+
+
+@api_view(["POST"])
+def search_measurements_view(request):
+    """Get measurements based on filters.
+
+    This view handles filtering measurements based on location, water source, temperature,
+    date, and time range. It can return either summary statistics or full export data
+    depending on the format parameter.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object with filter parameters in the request body.
+
+    Returns
+    -------
+    JsonResponse
+        If format is specified (csv, json, xml, geojson): returns full measurement data
+        Otherwise: returns JSON with count and average temperature statistics
+    """
+    logger = logging.getLogger("WATERWATCH")
+
+    # Parse request data
+    try:
+        request_data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        logger.exception("Invalid JSON")
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    # Start with base queryset and apply filters
+    qs = build_base_queryset()
+    qs = apply_measurement_filters(request_data, qs)
+
+    # Check if this is a data export request
+    fmt = str(request_data.get("format", "")).lower()
+
+    if fmt in ("csv", "json", "xml", "geojson"):
+        # Check permissions for data export
+        user = request.user
+        if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
+            return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
+
+        # Validate included metrics parameter
+        included_metrics = request_data.get("measurements_included", [])
+        if not isinstance(included_metrics, list):
+            logger.warning("measurements_included was not a list: %s", included_metrics)
+            included_metrics = []
+
+        # Prepare data for export
+        qs = apply_location_annotations(qs)
+
+        # Get measurement IDs and fetch related data
+        measurement_ids = list(qs.values_list("id", flat=True))
+        all_metrics = fetch_metrics_for_measurements(measurement_ids, included_metrics)
+        campaigns_map = fetch_campaigns_for_measurements(measurement_ids)
+
+        # Flatten queryset for export
+        qs = qs.values(
+            "id",
+            "timestamp",
+            "local_date",
+            "local_time",
+            "flag",
+            "water_source",
+            "user_id",
+            "country",
+            "continent",
+            "latitude",
+            "longitude",
+        )
+
+        # Use strategy pattern for different export formats
+        strategy = get_strategy(fmt)
+        return strategy.export(qs, extra_data={"metrics": all_metrics, "campaigns": campaigns_map})
+
+    # For non-export requests, return summary statistics
+    stats = qs.aggregate(
+        count=Count("id"),
+        avgTemp=Avg("temperature__value"),
+    )
+
+    return JsonResponse(
+        {
+            "count": stats["count"] or 0,
+            "avgTemp": float(stats["avgTemp"] or 0.0),
+        }
+    )

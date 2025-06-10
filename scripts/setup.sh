@@ -24,9 +24,6 @@ then
 
     docker compose exec backend python manage.py groups
 
-    # Initialize geometry cache
-    docker compose exec backend python manage.py shell -c "from measurement_export.utils import initialize_location_geometries; initialize_location_geometries(); print('Geoms cached')"
-
 else
     echo "Volume already exists, skipping data import."
 
