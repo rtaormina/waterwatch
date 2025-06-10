@@ -325,20 +325,16 @@ class XmlExport(ExportStrategy):
     def export(self, data, extra_data=None):
         """Export the given data as an XML file.
 
-        Parameters
-        ----------
-        data : QuerySet or iterable
-            The main data to be exported.
-        extra_data : dict, optional
-            A dictionary containing supplementary data such as 'metrics' and 'campaigns'.
-
-        Returns
-        -------
-        HttpResponse or StreamingHttpResponse
-            The response containing the exported XML data.
+        Always builds the full XML tree to avoid streaming complexities.
         """
-        # Always build the full XML tree and prettify—streaming XML is error-prone
-        rows = list(data) if hasattr(data, "__iter__") else []
+        # Determine rows from either a QuerySet-like object or iterable
+        if hasattr(data, "iterator") and callable(data.iterator):
+            # Consume the iterator to build full list
+            rows = list(data.iterator(chunk_size=500))
+        else:
+            # Fallback for any iterable like list
+            rows = list(data)
+
         return self._build_xml(rows, extra_data)
 
     def _build_xml(self, rows, extra_data=None):
@@ -362,7 +358,7 @@ class XmlExport(ExportStrategy):
 
     def _append_measurement(self, parent, item):
         # 1) Metrics block
-        if item["metrics"]:
+        if item.get("metrics"):
             mets = ET.SubElement(parent, "metrics")
             for met in item["metrics"]:
                 me = ET.SubElement(mets, "metric")
@@ -370,7 +366,7 @@ class XmlExport(ExportStrategy):
                     ET.SubElement(me, mk).text = "" if mv is None else str(mv)
 
         # 2) Campaigns block
-        if item["campaigns"]:
+        if item.get("campaigns"):
             camps = ET.SubElement(parent, "campaigns")
             for camp_name in item["campaigns"]:
                 ce = ET.SubElement(camps, "campaign")

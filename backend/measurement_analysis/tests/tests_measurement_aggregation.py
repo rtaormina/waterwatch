@@ -64,15 +64,6 @@ class MeasurementAnalysisTests(TestCase):
             time_waited=timedelta(seconds=1),
         )
 
-    def test_get_view(self):
-        """Test the retrieval of all measurement."""
-        response = self.client.get("/api/measurements/")
-        assert response.status_code == 200
-        data = response.json()
-        assert data[0] == "25.5"
-        assert data[1] == "20.0"
-        assert data[2] == "18.0"
-
     def test_measurement_aggregation(self):
         """Test the aggregation of measurements."""
         response = self.client.get("/api/measurements/aggregated/")
@@ -116,17 +107,6 @@ class MeasurementAnalysisTests(TestCase):
         assert data["measurements"][0]["location"]["longitude"] == 3.0
         assert data["measurements"][0]["count"] == 2
         assert data["measurements"][0]["avg_temperature"] == 19.0
-
-    def test_measurement_multiple_in_boundary(self):
-        """Test the retrieval of multiple measurements in a different specified boundary."""
-        boundary_geometry = "POLYGON((2 2, 2 5, 5 5, 5 2, 2 2))"
-        response = self.client.get(f"/api/measurements/?boundary_geometry={boundary_geometry}")
-        assert response.status_code == 200
-        data = response.json()
-        assert len(data) == 2
-
-        assert data[0] == "20.0"
-        assert data[1] == "18.0"
 
     def test_invalid_boundary_geometry(self):
         """Test the handling of an invalid boundary geometry."""

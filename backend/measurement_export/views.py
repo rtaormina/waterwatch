@@ -7,7 +7,7 @@ from campaigns.models import Campaign
 from django.contrib.gis.geos import GEOSException, GEOSGeometry
 from django.db.models import Avg, Count
 from django.db.models.expressions import RawSQL
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework.decorators import api_view
@@ -303,7 +303,7 @@ def export_all_view(request):
         try:
             polygon = GEOSGeometry(boundary_geometry)
             qs = qs.filter(location__within=polygon)
-        except GEOSException:
+        except (GEOSException, ValueError):
             logger.exception("Invalid boundary_geometry format: %s", boundary_geometry)
             return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
 
@@ -386,7 +386,10 @@ def search_measurements_view(request):
 
         # Use strategy pattern for different export formats
         strategy = get_strategy(fmt)
-        return strategy.export(qs, extra_data={"metrics": all_metrics, "campaigns": campaigns_map})
+        exported = strategy.export(qs, extra_data={"metrics": all_metrics, "campaigns": campaigns_map})
+        if not isinstance(exported, HttpResponse):
+            return HttpResponse(exported)
+        return exported
 
     # For non-export requests, return summary statistics
     stats = qs.aggregate(

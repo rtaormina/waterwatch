@@ -3,7 +3,7 @@
 import json
 import logging
 import pickle
-from datetime import time
+from datetime import datetime, time
 
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
 from django.core.cache import cache
@@ -207,6 +207,23 @@ def filter_by_date_range(qs, data):
 
     if date_to and not isinstance(date_to, str):
         logger.warning("dateRange[to] is not a string: %s", date_to)
+        date_to = None
+
+    # check if date_from and date_to are valid ISO format dates
+    def is_valid_iso_date(date_str):
+        try:
+            datetime.fromisoformat(date_str)
+        except (TypeError, ValueError):
+            return False
+        else:
+            return True
+
+    if date_from and not is_valid_iso_date(date_from):
+        logger.warning("dateRange[from] is not a valid ISO date: %s", date_from)
+        date_from = None
+
+    if date_to and not is_valid_iso_date(date_to):
+        logger.warning("dateRange[to] is not a valid ISO date: %s", date_to)
         date_to = None
 
     if date_from:

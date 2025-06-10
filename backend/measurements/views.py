@@ -77,13 +77,13 @@ def temperature_view(request):
         try:
             polygon = GEOSGeometry(boundary_geometry)
             query = query.filter(location__within=polygon)
-        except GEOSException:
+        except (GEOSException, ValueError):
             logger.exception("Invalid boundary_geometry format: %s")
             return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
     else:
         query = query.all()
 
     # If there are other metrics you want to add, you can include it to data
-    data = [m.temperature.value for m in query if m.temperature is not None]
+    data = [m.temperature.value for m in query if hasattr(m, "temperature") and m.temperature is not None]
 
     return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
