@@ -128,6 +128,15 @@
                                 <AdjustmentsVerticalIcon class="w-10 h-10" />
                             </button>
                         </UTooltip>
+                        <UTooltip :delay-duration="0" text="Show Global Analytics" v-if="open">
+                            <button
+                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                                @click="showGlobalAnalytics"
+                                v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                            >
+                                <ChartBarIcon class="w-10 h-10" />
+                            </button>
+                        </UTooltip>
                     </transition-group>
                 </div>
 
@@ -156,15 +165,6 @@
                         v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                     >
                         <PlusCircleIcon class="w-10 h-10" />
-                    </button>
-                </UTooltip>
-                <UTooltip :delay-duration="0" text="Show Global Analytics">
-                    <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        @click="showGlobalAnalytics"
-                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                    >
-                        <ChartBarIcon class="w-10 h-10" />
                     </button>
                 </UTooltip>
             </div>
