@@ -1,6 +1,7 @@
 <template>
     <div class="legend-popup">
-        <h4 class="text-lg font-bold mb-2">Average Temperature</h4>
+        <h4 v-if="colorByTemp" class="text-lg font-bold mb-2">Average Temperature</h4>
+        <h4 v-if="!colorByTemp" class="text-lg font-bold mb-2">Number of Measurements</h4>
 
         <!-- Gradient bar -->
         <div class="relative w-full h-3 rounded overflow-hidden">
@@ -49,14 +50,14 @@
             <button
                 @click="toTempMode"
                 :class="{ 'bg-main text-white': colorByTemp }"
-                class="flex-1 text-center cursor-pointer px-3 rounded border"
+                class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
             >
                 Temperature
             </button>
             <button
                 @click="toCountMode"
                 :class="{ 'bg-main text-white': !colorByTemp }"
-                class="flex-1 text-center cursor-pointer px-3 rounded border"
+                class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
             >
                 Count
             </button>
