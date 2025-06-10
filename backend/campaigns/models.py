@@ -1,7 +1,6 @@
 """Define models associated with campaigns."""
 
 from django.contrib.gis.db import models as geomodels
-from django.contrib.gis.db.models import indexes as gis_indexes
 from django.db import models
 
 
@@ -31,7 +30,7 @@ class Campaign(models.Model):
 
     class Meta:
         indexes = [
-            gis_indexes.GistIndex(fields=["region"]),
+            geomodels.Index(fields=["region"]),
             models.Index(fields=["start_time"]),
             models.Index(fields=["end_time"]),
             models.Index(fields=["start_time", "end_time"]),

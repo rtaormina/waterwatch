@@ -3,7 +3,6 @@
 from campaigns.models import Campaign
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as geomodels
-from django.contrib.gis.db.models import indexes as gis_indexes
 from django.db import models
 from django.utils import timezone
 
@@ -47,11 +46,10 @@ class Measurement(models.Model):
 
     class Meta:
         indexes = [
-            gis_indexes.GistIndex(fields=["location"]),
+            geomodels.Index(fields=["location"]),
             models.Index(fields=["water_source"]),
             models.Index(fields=["local_date"]),
             models.Index(fields=["local_time"]),
-            models.Index(fields=["flag"]),
             models.Index(fields=["local_date", "local_time"]),
         ]
 

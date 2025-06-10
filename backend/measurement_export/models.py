@@ -2,7 +2,6 @@
 
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models
-from django.contrib.gis.db.models import indexes as gis_indexes
 
 
 class Location(models.Model):
@@ -27,12 +26,6 @@ class Location(models.Model):
         db_table = "locations"
         permissions = [
             ("can_export", "can export measurements"),
-        ]
-        indexes = [
-            models.Index(fields=["continent"]),
-            models.Index(fields=["country_name"]),
-            models.Index(fields=["continent", "country_name"]),
-            gis_indexes.GistIndex(fields=["geom"]),
         ]
 
 
