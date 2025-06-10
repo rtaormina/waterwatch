@@ -61,20 +61,83 @@
                 Count
             </button>
         </div>
+
+        <!-- Time range selector -->
+        <h4 class="text-lg font-bold mb-2 mt-2">Time Range</h4>
+        <div>
+            <USelect
+                v-model="internalValue"
+                :items="items"
+                :multiple="isMulti"
+                class="w-full"
+                @update:model-value="onChange"
+                :ui="{
+                    content: 'z-[9999]',
+                }"
+            />
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+
+const emit = defineEmits<{
+    (e: "update", value: string | string[]): void;
+    (e: "switch"): void;
+}>();
+
+const isMulti = computed(() => internalValue.value !== "Past 30 Days");
+const internalValue = ref<string | string[]>("Past 30 Days");
+
+/**
+ * Handles selection of dropdown such that either multiselect of months is possible or
+ * only past 30 days is selected and then emits selection
+ *
+ * @param val updated value that is selected
+ * @return {void}
+ */
+function onChange(val: string | string[]) {
+    if (val.length == 0 || val === "Past 30 Days" || (Array.isArray(val) && val.includes("Past 30 Days"))) {
+        internalValue.value = ["Past 30 Days"];
+        emit("update", "Past 30 Days");
+        return;
+    }
+
+    if (typeof val === "string") {
+        internalValue.value = [val];
+        emit("update", [val]);
+        return;
+    }
+
+    if (Array.isArray(val)) {
+        internalValue.value = val;
+        emit("update", val);
+
+        return;
+    }
+}
+
+const items = ref([
+    "Past 30 Days",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+]);
 
 const props = defineProps<{
     colors: string[];
     scale: [number, number];
     colorByTemp: boolean;
-}>();
-
-const emit = defineEmits<{
-    (e: "switch"): void;
 }>();
 
 /**
