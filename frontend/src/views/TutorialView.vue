@@ -1,11 +1,9 @@
 <template>
     <div>
-        <div class="w-full flex flex-col-reverse md:flex-row items-start mb-4 px-4 md:px-8 tutorial">
-            <!-- <div class="w-full md:w-auto text-center"> -->
+        <div class="items-center w-full flex flex-col-reverse md:flex-row items-start mb-4 px-4 md:px-8 tutorial">
             <div class="flex-grow md:w-auto min-w-0 w-full max-w-full">
-                <!-- How to Take Temperature Measurement -->
-
                 <TextTabs :items="tutorials" v-model="page" class="w-full text-left overflow-y-hidden">
+                    <!-- How to Take Temperature Measurement -->
                     <template #Measurements>
                         <TextSection :title="t('measurement.introduction.title')">
                             <p>{{ t("measurement.introduction.text") }}</p>
@@ -467,7 +465,7 @@
                 </TextTabs>
             </div>
             <LanguageSwitcher
-                class="w-full mt-2 md:mt-0 md:w-auto md:ml-4 border border-main rounded p-2 text-center"
+                class="w-full mt-2 md:mt-1 md:w-auto md:ml-4 border border-main rounded md:p-1 p-2 text-center"
             />
         </div>
     </div>
