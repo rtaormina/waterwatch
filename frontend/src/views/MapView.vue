@@ -78,35 +78,61 @@
                     @hex-group-select="handleGroupSelect"
                     @open-details="handleOpenAnalysis"
                 />
+
                 <div
-                    class="absolute top-4 right-4 flex align-center z-20 justify-center gap-4"
+                    class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
                     v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                 >
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
-                        <ScaleIcon class="w-10 h-10" />
-                    </button>
-                    <button
-                        class="text-white hover:cursor-pointer"
-                        :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
-                        @click="enterSelectMode"
-                    >
-                        <SquaresPlusIcon class="w-10 h-10" />
-                    </button>
-                    <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        @click="
-                            addMeasurement = false;
-                            viewAnalytics = false;
-                            showLegend = !showLegend;
-                        "
-                    >
-                        <AdjustmentsVerticalIcon class="w-10 h-10" />
-                    </button>
+                    <UTooltip :text="open ? 'Close' : 'Options'">
+                        <button
+                            @click="
+                                open = !open;
+                                showLegend = false;
+                            "
+                            class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                        >
+                            <component :is="open ? XMarkIcon : EllipsisHorizontalCircleIcon" class="w-10 h-10" />
+                        </button>
+                    </UTooltip>
+
+                    <transition-group name="fab" tag="div" class="flex flex-row-reverse items-center gap-4">
+                        <UTooltip :delay-duration="0" text="Compare Hexagon Groups" v-if="open" key="compare">
+                            <button
+                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                                @click="enterCompareMode"
+                            >
+                                <ScaleIcon class="w-10 h-10" />
+                            </button>
+                        </UTooltip>
+
+                        <UTooltip :delay-duration="0" text="Select Multiple Hexagons" v-if="open" key="select">
+                            <button
+                                class="text-white hover:cursor-pointer"
+                                :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
+                                @click="enterSelectMode"
+                            >
+                                <SquaresPlusIcon class="w-10 h-10" />
+                            </button>
+                        </UTooltip>
+
+                        <UTooltip :delay-duration="0" text="Map Settings" v-if="open" key="legend">
+                            <button
+                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                                @click="
+                                    addMeasurement = false;
+                                    viewAnalytics = false;
+                                    showLegend = !showLegend;
+                                "
+                            >
+                                <AdjustmentsVerticalIcon class="w-10 h-10" />
+                            </button>
+                        </UTooltip>
+                    </transition-group>
                 </div>
 
                 <Legend
-                    v-if="showLegend"
-                    class="absolute z-40 mt-1 h-auto"
+                    v-if="showLegend && open"
+                    class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
                     :scale="scale"
@@ -116,24 +142,28 @@
             </div>
 
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
-                <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                    @click="
-                        addMeasurement = true;
-                        viewAnalytics = false;
-                        showLegend = false;
-                    "
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                >
-                    <PlusCircleIcon class="w-10 h-10" />
-                </button>
-                <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                    @click="showGlobalAnalytics"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                >
-                    <ChartBarIcon class="w-10 h-10" />
-                </button>
+                <UTooltip :delay-duration="0" text="Add a Measurement">
+                    <button
+                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                        @click="
+                            addMeasurement = true;
+                            viewAnalytics = false;
+                            showLegend = false;
+                        "
+                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    >
+                        <PlusCircleIcon class="w-10 h-10" />
+                    </button>
+                </UTooltip>
+                <UTooltip :delay-duration="0" text="Show Global Analytics">
+                    <button
+                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                        @click="showGlobalAnalytics"
+                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    >
+                        <ChartBarIcon class="w-10 h-10" />
+                    </button>
+                </UTooltip>
             </div>
         </div>
     </div>
@@ -155,7 +185,7 @@
  * Provides a button to add new measurements when not in adding mode.
  */
 defineOptions({ name: "DashboardView" });
-import { PlusCircleIcon } from "@heroicons/vue/24/outline";
+import { EllipsisHorizontalCircleIcon, PlusCircleIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import HexMap from "../components/HexMap.vue";
 import { ref, onMounted, computed, nextTick } from "vue";
 import MeasurementComponent from "../components/MeasurementComponent.vue";
@@ -172,6 +202,7 @@ import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vu
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
 
+const open = ref(false);
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
 const firstTime = ref(false);
@@ -606,3 +637,24 @@ defineExpose({
     getIpLocation,
 });
 </script>
+
+<style scoped>
+.fab-enter-from,
+.fab-leave-to {
+    opacity: 0;
+    transform: translateX(20px) scale(0.8);
+}
+
+.fab-enter-active,
+.fab-leave-active {
+    transition:
+        opacity 600ms ease-out,
+        transform 600ms ease-out;
+}
+
+.fab-enter-to,
+.fab-leave-from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+}
+</style>

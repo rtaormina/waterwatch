@@ -124,7 +124,7 @@ const { colors, scale } = props;
     content: "";
     position: absolute;
     top: 0.15rem;
-    right: 1rem;
+    right: 13rem;
     transform: translateY(-100%);
     border-width: 0 0.6rem 0.6rem 0.6rem;
     border-style: solid;
