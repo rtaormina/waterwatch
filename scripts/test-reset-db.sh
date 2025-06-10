@@ -88,4 +88,8 @@ echo "[DB Reset] Starting backend service now that the database is restored..."
 # 'up -d' will create and start backend if it doesn't exist, or just start it.
 docker compose -f docker-compose.test.yaml up -d backend
 
+# Initialize geometry cache
+docker compose exec backend python manage.py shell -c "from measurement_export.utils import initialize_location_geometries; initialize_location_geometries(); print('Geoms cached')"
+
+
 echo "[DB Reset] Test database reset process complete."
