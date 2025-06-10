@@ -106,11 +106,12 @@
 
                 <Legend
                     v-if="showLegend"
-                    class="absolute z-40 mt-1"
+                    class="absolute z-40 mt-1 h-auto"
                     :class="legendClasses"
                     :colors="colors"
                     :scale="scale"
                     @close="handleCloseAll"
+                    @update="updateMapFilters"
                 />
             </div>
 
@@ -202,6 +203,40 @@ const count = ref(0);
 const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
+const range = ref<string | string[]>("Past 30 Days");
+const month = ref<string>("0");
+const items = [
+    "Past 30 Days",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+];
+
+/**
+ * Handles filtering observations by time
+ *
+ * @param timeRange the time range of measurements to include in the hexmap
+ * @returns {void}
+ */
+function updateMapFilters(timeRange: string | string[]) {
+    if (Array.isArray(timeRange)) {
+        const months = (timeRange as string[]).map((label) => items.indexOf(label)).filter((i) => i > 0);
+        month.value = months.join(",");
+    } else {
+        const idx = items.indexOf(timeRange as string);
+        month.value = "" + idx;
+    }
+    range.value = timeRange;
+}
 
 /**
  * Shows the global analytics in the sidebar component.
@@ -441,7 +476,7 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
-    const res = await fetch("/api/measurements/aggregated");
+    const res = await fetch(`/api/measurements/aggregated?month=${month.value}`);
 
     if (!res.ok) throw new Error(`Status: ${res.status}`);
     const data = await res.json();
