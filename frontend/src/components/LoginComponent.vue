@@ -62,7 +62,7 @@ defineExpose({
 
                     <button
                         type="submit"
-                        class="w-full py-2 text-white bg-[#00A6D6] rounded-md hover:bg-sky-600 transition"
+                        class="w-full py-2 text-white bg-[#00A6D6] rounded-md hover:bg-sky-600 transition cursor-pointer"
                     >
                         Log In
                     </button>

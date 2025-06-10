@@ -15,6 +15,7 @@ export interface MeasurementSearchParams {
 // Define the structure of the search results
 export const state = reactive({
     hasSearched: false,
+    isLoading: false,
     count: 0,
     avgTemp: 0,
 });
@@ -41,7 +42,7 @@ export function useSearch() {
      * @return {Promise<void>} A promise that resolves when the search is complete.
      */
     async function searchMeasurements(params: MeasurementSearchParams): Promise<void> {
-        state.hasSearched = true;
+        state.isLoading = true;
         const flatParams = flattenSearchParams(params);
 
         try {
@@ -53,13 +54,16 @@ export function useSearch() {
             });
 
             // Update results
-            state.count = response.data.count || 0;
-            const raw = response.data.avgTemp ?? 0;
+            state.count = response.data.count;
+            const raw = response.data.avgTemp;
             state.avgTemp = Math.round(raw * 10) / 10;
+            state.hasSearched = true;
         } catch (err) {
             console.error("Search failed:", err);
             state.count = 0;
             state.avgTemp = 0;
+        } finally {
+            state.isLoading = false;
         }
     }
 
@@ -79,6 +83,7 @@ export function useSearch() {
      */
     function resetSearch(): void {
         state.hasSearched = false;
+        state.isLoading = false;
         state.count = 0;
         state.avgTemp = 0;
     }
@@ -142,6 +147,7 @@ export function useSearch() {
     return {
         // Expose primitive state value directly
         hasSearched: computed(() => state.hasSearched),
+        isLoading: computed(() => state.isLoading),
 
         // Expose results as a computed property
         results,
