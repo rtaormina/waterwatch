@@ -32,7 +32,7 @@ describe("DataAnalyticsComponent good weather tests", () => {
 
     it("calls fetch and processes temperature values", async () => {
         expect(fetch).toHaveBeenCalledWith(
-            "/api/measurements/"
+            "/api/measurements/temperatures"
         );
 
         expect(drawHistogramWithKDE).toHaveBeenCalled();
@@ -43,13 +43,13 @@ describe("DataAnalyticsComponent good weather tests", () => {
 
     it("calls fetch again when location prop changes", async () => {
         expect(fetch).toHaveBeenCalledWith(
-            "/api/measurements/"
+            "/api/measurements/temperatures"
         );
 
         await wrapper.setProps({ location: "new-location" });
 
         expect(fetch).toHaveBeenCalledWith(
-            "/api/measurements/?boundary_geometry=new-location"
+            "/api/measurements/temperatures/?boundary_geometry=new-location"
         );
     });
 

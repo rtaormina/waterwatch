@@ -20,8 +20,8 @@ const graph = ref<HTMLElement | null>(null);
 async function getGraphData(location?: string): Promise<number[]> {
     try {
         const response = location
-            ? await fetch(`/api/measurements/?boundary_geometry=${location}`)
-            : await fetch("/api/measurements/");
+            ? await fetch(`/api/measurements/temperatures/?boundary_geometry=${location}`)
+            : await fetch("/api/measurements/temperatures/");
         const data = await response.json();
 
         console.log("Fetched values:", data);
