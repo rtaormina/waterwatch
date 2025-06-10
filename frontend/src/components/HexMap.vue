@@ -113,6 +113,7 @@ const props = defineProps<{
     colors: string[];
     colorScale: [number, number];
     selectMult: boolean;
+    colorByTemp: boolean;
     compareMode: boolean;
     activePhase: 1 | 2 | null;
 }>();
@@ -132,8 +133,10 @@ const hexbinLayer: L.HexbinLayer = L.hexbinLayer(hexbinOptions);
 hexbinLayer.lat((d: DataPoint) => d.point.lat);
 hexbinLayer.lng((d: DataPoint) => d.point.lng);
 hexbinLayer.colorValue((d) => {
-    const sum = d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0);
-    return sum / d.length;
+    const color = props.colorByTemp
+        ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length
+        : d.map((v) => v.o.count).reduce((a, b) => a + b, 0);
+    return color;
 });
 
 const selectedPhase1 = ref<Array<{ wkt: string; corners: L.LatLng[]; layer: L.Polygon }>>([]);
@@ -543,6 +546,16 @@ function drawPhase3Highlights(params: { corners1: Array<L.LatLng[]>; corners2: A
         phase3Layers.value.push(poly);
     });
 }
+
+// Refresh the color scale
+watch(
+    () => props.colorScale,
+    (newVal) => {
+        hexbinLayer.colorScaleExtent(newVal);
+        hexbinLayer.redraw();
+    },
+    { immediate: true },
+);
 
 // Expose the drawPhase3Highlights function so it can be called from outside
 defineExpose({

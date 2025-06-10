@@ -1,13 +1,14 @@
 <template>
     <div class="legend-popup">
-        <h4 class="text-lg font-bold mb-2">Average Temperature</h4>
+        <h4 v-if="colorByTemp" class="text-lg font-bold mb-2">Average Temperature</h4>
+        <h4 v-if="!colorByTemp" class="text-lg font-bold mb-2">Number of Measurements</h4>
 
         <!-- Gradient bar -->
         <div class="relative w-full h-3 rounded overflow-hidden">
             <div
                 class="absolute inset-0"
                 :style="{
-                    background: `linear-gradient(to right, ${colors[0]}, ${colors[1]})`,
+                    background: `linear-gradient(to right, ${props.colors[0]}, ${props.colors[1]})`,
                 }"
             ></div>
             <!-- ticks -->
@@ -22,11 +23,45 @@
 
         <!-- Labels under ticks -->
         <div class="mt-1 flex justify-between text-sm text-gray-700">
-            <span>&leq;{{ scale[0] }}°C</span>
-            <span>{{ scale[0] + step }}°C</span>
-            <span>{{ scale[0] + step * 2 }}°C</span>
-            <span>{{ scale[0] + step * 3 }}°C</span>
-            <span>&geq;{{ scale[1] }}°C</span>
+            <span>
+                <span v-if="colorByTemp">&leq;</span>
+                {{ props.scale[0] }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+            <span>
+                {{ props.scale[0] + step }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+            <span>
+                {{ props.scale[0] + step * 2 }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+            <span>
+                {{ props.scale[0] + step * 3 }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+            <span>
+                &geq;{{ props.scale[1] }}
+                <span v-if="colorByTemp">°C</span>
+            </span>
+        </div>
+
+        <h4 class="text-lg font-bold mb-2">Map Coloring</h4>
+        <div class="flex gap-2 w-full">
+            <button
+                @click="toTempMode"
+                :class="{ 'bg-main text-white': colorByTemp }"
+                class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
+            >
+                Temperature
+            </button>
+            <button
+                @click="toCountMode"
+                :class="{ 'bg-main text-white': !colorByTemp }"
+                class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
+            >
+                Count
+            </button>
         </div>
 
         <!-- Time range selector -->
@@ -51,6 +86,7 @@ import { computed, ref } from "vue";
 
 const emit = defineEmits<{
     (e: "update", value: string | string[]): void;
+    (e: "switch"): void;
 }>();
 
 const isMulti = computed(() => internalValue.value !== "Past 30 Days");
@@ -103,10 +139,26 @@ const items = ref([
 const props = defineProps<{
     colors: string[];
     scale: [number, number];
+    colorByTemp: boolean;
 }>();
 
+/**
+ * Switch to count mode.
+ */
+function toCountMode() {
+    if (!props.colorByTemp) return;
+    emit("switch");
+}
+
+/**
+ * Switch to temperature mode.
+ */
+function toTempMode() {
+    if (props.colorByTemp) return;
+    emit("switch");
+}
+
 const step = computed(() => (props.scale[1] - props.scale[0]) / 4);
-const { colors, scale } = props;
 </script>
 
 <style scoped>
