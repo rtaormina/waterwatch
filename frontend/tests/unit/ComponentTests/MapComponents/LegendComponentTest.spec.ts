@@ -15,6 +15,7 @@ describe("Legend.vue filtering tests", () => {
             props: {
                 colors: ["#111", "#eee"],
                 scale: [0, 40] as [number, number],
+                colorByTemp: true,
             },
             global: {
                 stubs: { USelect: true },
@@ -68,10 +69,11 @@ describe("Legend.vue filtering tests", () => {
 describe("Legend.vue gradient tests", () => {
     const colors = ["#0000ff", "#ff0000"];
     const scale: [number, number] = [10, 50];
+    const colorByTemp = true;
 
     it("renders gradient style correctly", () => {
         const wrapper = mount(Legend, {
-            props: { colors, scale },
+            props: { colors, scale, colorByTemp },
         });
 
         const gradientDiv = wrapper.find(".relative > div");
@@ -79,22 +81,48 @@ describe("Legend.vue gradient tests", () => {
         expect(style).toContain(`linear-gradient(to right, ${colors[0]}, ${colors[1]})`);
     });
 
-    it("computes step and renders five labels", () => {
-        const wrapper = mount(Legend, {
-            props: { colors, scale },
-        });
+    it('computes step and renders five labels', () => {
+    const wrapper = mount(Legend, {
+      props: { colors, scale, colorByTemp }
+    })
 
-        const expected = [10, 20, 30, 40, 50].map((n) => `${n}°C`);
+    // Order is messed up because how the wrapper returns the spans from the DOM
+    const expected = [`10`, `≤`, `°C`, `20`, `°C`, `30`, `°C`, `40`, `°C`, `≥50`, `°C`]
 
-        const labelSpans = wrapper.findAll(".mt-1 span");
-        expect(labelSpans).toHaveLength(5);
-        labelSpans.forEach((span, i) => {
-            expect(span.text()).toContain(expected[i]);
-        });
+    const labelSpans = wrapper.findAll('.mt-1 span')
+    expect(labelSpans).toHaveLength(11) // 5 labels: 1 with 3, 4 with 2 labels
+    labelSpans.forEach((span, i) => {
+      expect(span.text()).toContain(expected[i])
+    })
+  })
+
+  it('has the correct root class', () => {
+    const wrapper = mount(Legend, { props: { colors, scale, colorByTemp } })
+    expect(wrapper.classes()).toContain('legend-popup')
+  })
+
+  it('updates scale when button is clicked', async () => {
+    const wrapper = mount(Legend, {
+      props: { colors, scale: scale, colorByTemp: true }
     });
 
-    it("has the correct root class", () => {
-        const wrapper = mount(Legend, { props: { colors, scale } });
-        expect(wrapper.classes()).toContain("legend-popup");
-    });
+    wrapper.vm.$.emit = (event: string) => {
+      if (event === "switch") {
+        wrapper.setProps({ scale: scale, colorByTemp: false });
+      }
+    };
+
+    await wrapper.findAll("button")[1].trigger("click");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.props("scale")).toEqual(scale);
+
+    const expected = [`10`, `20`, `30`, `40`, `≥50`]
+
+    const labelSpans = wrapper.findAll('.mt-1 span')
+    expect(labelSpans).toHaveLength(5)
+    labelSpans.forEach((span, i) => {
+      expect(span.text()).toContain(expected[i])
+    })
+  });
 });

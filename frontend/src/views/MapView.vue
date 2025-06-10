@@ -72,6 +72,7 @@
                     :selectMult="selectMult && !compareMode"
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
+                    :colorByTemp="colorByTemp"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -110,7 +111,9 @@
                     :class="legendClasses"
                     :colors="colors"
                     :scale="scale"
+                    :colorByTemp="colorByTemp"
                     @close="handleCloseAll"
+                    @switch="handleSwitch"
                     @update="updateMapFilters"
                 />
             </div>
@@ -179,6 +182,7 @@ const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
 const selectMult = ref(false);
+const colorByTemp = ref(true);
 const campaigns = ref([]);
 const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
@@ -247,6 +251,14 @@ function showGlobalAnalytics() {
     hexLocation.value = "";
     viewAnalytics.value = true;
     addMeasurement.value = false;
+}
+
+/**
+ * Handles the switch between temperature and count color modes in the legend.
+ */
+function handleSwitch() {
+    colorByTemp.value = !colorByTemp.value;
+    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
 }
 
 /**
