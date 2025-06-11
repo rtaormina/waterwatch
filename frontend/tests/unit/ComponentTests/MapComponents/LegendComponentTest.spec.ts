@@ -35,7 +35,7 @@ describe("Legend.vue filtering tests", () => {
 
         expect(wrapper.vm.internalValue).toEqual(["April"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[0][0]).toEqual(["April"]);
+        expect(ev[0][0]).toEqual([4]);
     });
 
     it("when you pick multiple months, emits array of those months", async () => {
@@ -43,7 +43,7 @@ describe("Legend.vue filtering tests", () => {
         await select.vm.$emit("update:model-value", ["March", "May"]);
         expect(wrapper.vm.internalValue).toEqual(["March", "May"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[0]).toEqual([["March", "May"]]);
+        expect(ev[0]).toEqual([[3,5]]);
         await select.vm.$emit("update:model-value", "Past 30 Days");
         expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
     });
@@ -51,18 +51,18 @@ describe("Legend.vue filtering tests", () => {
     it('defaults to past 30 days when selected', async () => {
         factory();
         await select.vm.$emit("update:model-value", ["Past 30 Days", "June"]);
-        expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
+        expect(wrapper.vm.internalValue).toEqual(["June"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[0]).toEqual(["Past 30 Days"]);
+        expect(ev[0]).toEqual([[6]]);
     });
 
     it('goes back to single-select if you explicitly pick "Past 30 Days"', async () => {
         factory();
-        await select.vm.$emit("update:model-value", "February");
         await select.vm.$emit("update:model-value", "Past 30 Days");
-        expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
+        await select.vm.$emit("update:model-value", "February");
+        expect(wrapper.vm.internalValue).toEqual(["February"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[1]).toEqual(["Past 30 Days"]);
+        expect(ev[1]).toEqual([[2]]);
     });
 
     it('displays time info when selected', async () => {

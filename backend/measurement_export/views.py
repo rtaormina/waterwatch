@@ -46,6 +46,22 @@ def export_all_view(request):
     else:
         query = query.all()
 
+    if month_param := request.GET.get("month"):
+        parts = [p.strip() for p in month_param.split(",") if p.strip()]
+        if parts == ["0"]:
+            cutoff = timezone.now().date() - timedelta(days=30)
+            query = query.filter(local_date__gte=cutoff)
+        else:
+            try:
+                months = [int(p) for p in parts]
+            except ValueError:
+                return JsonResponse({"error": "Invalid month parameter; must be 0 or comma-separated 1-12"}, status=400)
+            months = [m for m in months if 1 <= m <= 12]
+            if not months:
+                return JsonResponse({"error": "No valid month numbers provided; must be 0 or 1-12"}, status=400)
+            query = query.filter(local_date__month__in=months)
+
+
     # If there are other metrics you want to add, you can include it to data
     data = [m.temperature.value for m in query if m.temperature is not None]
 

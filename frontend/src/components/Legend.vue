@@ -129,7 +129,7 @@ import { InformationCircleIcon } from "@heroicons/vue/24/outline";
 import { computed, ref } from "vue";
 
 const emit = defineEmits<{
-    (e: "update", value: string | string[]): void;
+    (e: "update", value: number[]): void;
     (e: "switch"): void;
 }>();
 
@@ -156,6 +156,21 @@ function toggleInfoTextTimeRange() {
     showInfoTextTime.value = !showInfoTextTime.value;
 }
 
+const monthMap = new Map<string, number>([
+    ["January", 1],
+    ["February", 2],
+    ["March", 3],
+    ["April", 4],
+    ["May", 5],
+    ["June", 6],
+    ["July", 7],
+    ["August", 8],
+    ["September", 9],
+    ["October", 10],
+    ["November", 11],
+    ["December", 12],
+]);
+
 /**
  * Handles selection of dropdown such that either multiselect of months is possible or
  * only past 30 days is selected and then emits selection
@@ -164,21 +179,28 @@ function toggleInfoTextTimeRange() {
  * @return {void}
  */
 function onChange(val: string | string[]) {
-    if (val.length == 0 || val === "Past 30 Days" || (Array.isArray(val) && val.includes("Past 30 Days"))) {
+    if (
+        (typeof val === "string" && val === "Past 30 Days") ||
+        (Array.isArray(val) && (val.length === 0 || val[val.length - 1] === "Past 30 Days"))
+    ) {
         internalValue.value = ["Past 30 Days"];
-        emit("update", "Past 30 Days");
+        console.log("0");
+        emit("update", [0]);
         return;
     }
 
     if (typeof val === "string") {
         internalValue.value = [val];
-        emit("update", [val]);
+        console.log(monthMap.get(val));
+        emit("update", [monthMap.get(val) ?? 0]);
         return;
     }
 
     if (Array.isArray(val)) {
-        internalValue.value = val;
-        emit("update", val);
+        const nums = val.map((x) => monthMap.get(x) ?? 0).filter((x) => x != 0);
+        console.log(nums);
+        internalValue.value = val.filter((x) => x != "Past 30 Days");
+        emit("update", nums);
 
         return;
     }
