@@ -21,7 +21,7 @@ describe("DataAnalyticsComponent good weather tests", () => {
         ) as any;
 
         wrapper = mount(DataAnalyticsComponent, {
-            props: { location: "" },
+            props: { location: "", month: "0" },
             stubs: [ "XMarkIcon" ]
         });
     });
@@ -32,7 +32,7 @@ describe("DataAnalyticsComponent good weather tests", () => {
 
     it("calls fetch and processes temperature values", async () => {
         expect(fetch).toHaveBeenCalledWith(
-            "/api/measurements/temperatures/"
+            "/api/measurements/temperatures/?month=0"
         );
 
         expect(drawHistogramWithKDE).toHaveBeenCalled();
@@ -43,13 +43,13 @@ describe("DataAnalyticsComponent good weather tests", () => {
 
     it("calls fetch again when location prop changes", async () => {
         expect(fetch).toHaveBeenCalledWith(
-            "/api/measurements/temperatures/"
+            "/api/measurements/temperatures/?month=0"
         );
 
         await wrapper.setProps({ location: "new-location" });
 
         expect(fetch).toHaveBeenCalledWith(
-            "/api/measurements/temperatures/?boundary_geometry=new-location"
+            "/api/measurements/temperatures/?boundary_geometry=new-location&month=0"
         );
     });
 
@@ -83,7 +83,6 @@ describe("DataAnalyticsComponent bad weather tests", () => {
         expect(drawHistogramWithKDE).toHaveBeenCalled();
 
         const callArgs = (drawHistogramWithKDE as any).mock.calls[0];
-        console.log(callArgs);
         expect(callArgs[1]).toEqual([]);
     });
 });

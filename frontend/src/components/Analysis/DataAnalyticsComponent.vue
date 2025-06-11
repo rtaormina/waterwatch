@@ -7,6 +7,9 @@ const props = defineProps({
     location: {
         type: String,
     },
+    month: {
+        type: String,
+    },
 });
 
 const graph = ref<HTMLElement | null>(null);
@@ -17,14 +20,12 @@ const graph = ref<HTMLElement | null>(null);
  * @param {string} location The location for the measurements.
  * @returns the numeric values for the temperatures
  */
-async function getGraphData(location?: string): Promise<number[]> {
+async function getGraphData(location?: string, month?: string): Promise<number[]> {
     try {
         const response = location
-            ? await fetch(`/api/measurements/temperatures/?boundary_geometry=${location}`)
-            : await fetch("/api/measurements/temperatures/");
+            ? await fetch(`/api/measurements/temperatures/?boundary_geometry=${location}&month=${month}`)
+            : await fetch(`/api/measurements/temperatures/?month=${month}`);
         const data = await response.json();
-
-        console.log("Fetched values:", data);
 
         return data.map(Number);
     } catch (error) {
@@ -38,7 +39,7 @@ async function getGraphData(location?: string): Promise<number[]> {
  */
 async function render() {
     if (!graph.value) return;
-    const values = await getGraphData(props.location);
+    const values = await getGraphData(props.location, props.month);
     drawHistogramWithKDE(graph.value, values, "steelblue", "orange", {
         barOpacity: 0.5,
     });
@@ -48,6 +49,7 @@ const emit = defineEmits(["close"]);
 
 onMounted(render);
 watch(() => props.location, render);
+watch(() => props.month, render);
 </script>
 
 <template>

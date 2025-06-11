@@ -53,24 +53,26 @@ defineExpose({
                             placeholder="Your Password"
                             class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none italic focus:ring-2 focus:ring-blue-400"
                         />
-                        <div class="text-left">
+                        <!-- Add once we have account system -->
+                        <!-- <div class="text-left">
                             <a href="#" class="text-sm text-gray-500 underline italic">Forgot password?</a>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div v-if="showError" class="text-red-500 text-sm mt-1">{{ errorMessage }}</div>
 
                     <button
                         type="submit"
-                        class="w-full py-2 text-white bg-[#00A6D6] rounded-md hover:bg-sky-600 transition cursor-pointer"
+                        class="w-full py-2 text-white bg-[#00A6D6] rounded-md hover:bg-sky-600 transition hover:cursor-pointer"
                     >
                         Log In
                     </button>
 
-                    <p class="text-center text-sm text-gray-600 underline">
+                    <!-- add back for when we have accounts -->
+                    <!-- <p class="text-center text-sm text-gray-600 underline">
                         Don’t have an account?
                         <a href="#" class="font-semibold text-black hover:underline">Sign up.</a>
-                    </p>
+                    </p> -->
                 </form>
             </div>
         </div>
