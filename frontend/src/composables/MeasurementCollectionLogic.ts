@@ -119,46 +119,41 @@ export function onSensorInput(
  * @param {string} tempUnit - The unit of temperature measurement ("C" for Celsius or "F" for Fahrenheit).
  * @returns {boolean} `true` if all required inputs are valid; otherwise, `false`.
  */
-export function validateInputs(data: {
-    longitude: number | undefined;
-    latitude: number | undefined;
-    waterSource: string;
-    sensor: string;
-    tempVal: string;
-    selectedMetrics: string[];
+export function validateInputs(
+    longitude: number | undefined,
+    latitude: number | undefined,
+    waterSource: string,
+    sensor: string,
+    tempVal: string,
+    selectedMetrics: string[],
     errors: {
         temp: string | null;
         sensor: string | null;
         mins: string | null;
         sec: string | null;
-    };
+    },
     time: {
         mins: string;
         sec: string;
-    };
-    tempUnit: string;
-}) {
-    if (
-        data.longitude === undefined ||
-        data.latitude === undefined ||
-        data.waterSource === "" ||
-        data.selectedMetrics.length === 0
-    ) {
+    },
+    tempUnit: string,
+) {
+    if (longitude === undefined || latitude === undefined || waterSource === "" || selectedMetrics.length === 0) {
         return false;
     }
-    if (data.selectedMetrics.includes("temperature")) {
+    if (selectedMetrics.includes("temperature")) {
         if (
-            data.sensor === "" ||
-            data.tempVal === "" ||
-            isNaN(Number(data.tempVal)) ||
-            data.errors.temp !== null ||
-            data.errors.sensor !== null ||
-            data.errors.sec != null ||
-            data.errors.mins != null ||
-            ((data.time.mins === "" || +data.time.mins === 0) && (data.time.sec === "" || +data.time.sec === 0)) ||
-            +data.time.mins < 0 ||
-            +data.time.sec < 0 ||
-            !validateTempRange(data.tempVal, data.tempUnit)
+            sensor === "" ||
+            tempVal === "" ||
+            isNaN(Number(tempVal)) ||
+            errors.temp !== null ||
+            errors.sensor !== null ||
+            errors.sec != null ||
+            errors.mins != null ||
+            ((time.mins === "" || +time.mins === 0) && (time.sec === "" || +time.sec === 0)) ||
+            +time.mins < 0 ||
+            +time.sec < 0 ||
+            !validateTempRange(tempVal, tempUnit)
         ) {
             return false;
         }
@@ -170,14 +165,8 @@ export function validateInputs(data: {
 /**
  * Creates a payload object for measurement collection.
  *
- * @param {string} tempUnit - The unit of temperature measurement ("C" for Celsius or "F" for Fahrenheit).
- * @param {string[]} selectedMetrics - An array of selected metric names to include in the payload.
- * @param {{ sensor: string; value: number; time_waited: string }} temperature - An object containing temperature information
- * @param {string} tempVal - The raw temperature value as a string (to be parsed and converted).
- * @param {{ mins: string; sec: string }} time - An object containing the time waited for the measurement
- * @param {string} waterSource - The water source.
- * @param {number | undefined} longitude - The longitude coordinate
- * @param {number | undefined} latitude - The latitude coordinate
+ * @param {MeasurementData} data - The measurement data containing location, water source, and temperature information.
+ * @param {Metric[]} selectedMetrics - An array of selected metrics to include in the payload.
  * @returns {{ timestamp_local: string; location: { type: string; coordinates: [number | undefined, number | undefined] }; water_source: string; temperature: { sensor: string; value: number; time_waited: string } }} the payload
  */
 export function createPayload(data: MaybeRefOrGetter<MeasurementData>, selectedMetrics: MaybeRefOrGetter<Metric[]>) {
@@ -186,7 +175,7 @@ export function createPayload(data: MaybeRefOrGetter<MeasurementData>, selectedM
         ? {
               sensor: measurementData.temperature.sensor,
               value: getTemperatureInCelsius(measurementData.temperature),
-              time_waited: `00:${String(measurementData.temperature.time_waited.seconds ?? 0).padStart(2, "0")}:${String(measurementData.temperature.time_waited.minutes ?? 0).padStart(2, "0")}`,
+              time_waited: `00:${String(measurementData.temperature.time_waited.minutes ?? 0).padStart(2, "0")}:${String(measurementData.temperature.time_waited.seconds ?? 0).padStart(2, "0")}`,
           }
         : undefined;
     const longitudeRounded = Number(measurementData.location.lng.toFixed(3));
