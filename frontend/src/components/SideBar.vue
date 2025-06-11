@@ -14,7 +14,7 @@ import { XMarkIcon } from "@heroicons/vue/24/outline";
             class="bg-primary text-lg font-bold text-inverted rounded-lg p-4 mb-6 mt-2 shadow w-full md:max-w-screen-md md:mx-auto flex items-center justify-between"
         >
             {{ title }}
-            <button class="bg-primary rounded-md p-1 text-inverted hover:cursor-pointer" @click="() => emit('close')">
+            <button class="bg-primary rounded-md p-1 text-inverted hover:cursor-pointer" @click="emit('close')">
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>

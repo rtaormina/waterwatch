@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import * as L from "leaflet";
 import type { WaterSource, WaterSourceOptions } from "@/composables/MeasurementCollectionLogic";
 
@@ -42,6 +42,15 @@ const error = ref<string | false>(false);
  * @returns {boolean} True if all fields are valid, false otherwise.
  */
 function verify(): boolean {
+    resetErrorAfterFirstVerify();
+    return verifyWaterSource();
+}
+
+/**
+ * Verifies the validity or status of a water source.
+ * @returns {boolean} True if the water source is valid, otherwise false.
+ */
+function verifyWaterSource(): boolean {
     if (!waterSource.value) {
         error.value = "Water source is required.";
     } else {
@@ -49,6 +58,16 @@ function verify(): boolean {
     }
     return error.value === false;
 }
+
+const resetErrorAfterFirstVerify = (() => {
+    let hasBeenCalled = false;
+    return function () {
+        if (!hasBeenCalled) {
+            watch(waterSource, verifyWaterSource);
+            hasBeenCalled = true;
+        }
+    };
+})();
 
 defineExpose({
     verify,

@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
+import MeasurementBasisBlock from "./Measurement/MeasurementBlock.vue";
 import Modal from "./Modal.vue";
-import { ref, defineEmits, defineExpose } from "vue";
+import { ref, defineEmits, defineExpose, useTemplateRef } from "vue";
 import {
     createPayload,
     type MeasurementData,
     type Metric,
     type MetricOptions,
-    type SensorOptions,
-    type WaterSourceOptions,
+    sensorOptions,
+    waterSourceOptions,
 } from "@/composables/MeasurementCollectionLogic";
 import * as L from "leaflet";
 import { templateRef } from "@vueuse/core";
@@ -17,24 +18,8 @@ import { templateRef } from "@vueuse/core";
 const cookies = new Cookies();
 const router = useRouter();
 
-const sensorOptions: SensorOptions = [
-    { label: "Analog Thermomether", value: "analog thermomether" },
-    { label: "Digital Thermomether", value: "digital thermomether" },
-    { label: "Infrared Thermomether", value: "infrared thermomether" },
-    { label: "Thermocouple", value: "thermocouple" },
-    { label: "Thermistor", value: "thermistor" },
-    { label: "Bimetallic Thermomether", value: "bimetallic thermomether" },
-    { label: "Other", value: "other" },
-];
 const selectedMetrics = ref<Metric[]>(["temperature"]);
 const metricOptions: MetricOptions = [{ label: "Temperature", value: "temperature" }];
-
-const waterSourceOptions: WaterSourceOptions = [
-    { label: "Network", value: "network" },
-    { label: "Rooftop Tank", value: "rooftop tank" },
-    { label: "Well", value: "well" },
-    { label: "Other", value: "other" },
-];
 
 const defaultData: MeasurementData = {
     location: L.latLng(0, 0),
@@ -54,7 +39,7 @@ const defaultData: MeasurementData = {
 const data = ref<MeasurementData>(defaultData);
 
 const TemperatureMetricComponent = templateRef("TemperatureMetric");
-const MeasurementBlock = templateRef("MeasurementBlock");
+const MeasurementBlock = useTemplateRef("MeasurementBlock");
 
 /**
  * Clears the form from all values.
@@ -67,7 +52,7 @@ function clear() {
  * Handles the submission of measurement data and delegates validating inputs.
  */
 function submitData() {
-    const validMeasurement = MeasurementBlock.value?.verify();
+    const validMeasurement = MeasurementBlock.value?.verify() ?? false;
     const validTemperature =
         !selectedMetrics.value.includes("temperature") || TemperatureMetricComponent.value?.verify();
     if (validMeasurement && validTemperature) postDataCheck();
@@ -165,12 +150,12 @@ defineExpose({
     <SideBar title="Record Measurement" @close="emit('close')">
         <div class="flex-1 overflow-y-auto pb-16 md:overflow-visible md:pb-0">
             <!-- Measurement block -->
-            <MeasurementBlock
+            <MeasurementBasisBlock
                 v-model:location="data.location"
                 v-model:water-source="data.waterSource"
                 :water-source-options="waterSourceOptions"
                 ref="MeasurementBlock"
-            ></MeasurementBlock>
+            ></MeasurementBasisBlock>
 
             <!-- Metric block -->
             <Block title="Metric Type">

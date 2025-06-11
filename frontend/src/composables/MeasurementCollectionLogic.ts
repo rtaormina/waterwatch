@@ -1,14 +1,14 @@
 import { DateTime } from "luxon";
 import { toValue, type MaybeRefOrGetter } from "vue";
 
-export type TemperatureSensor =
-    | "analog thermomether"
-    | "digital thermomether"
-    | "infrared thermomether"
-    | "thermocouple"
-    | "thermistor"
-    | "bimetallic thermomether"
-    | "other";
+export type TemperatureSensor = "analog thermomether" | "digital thermomether" | "infrared thermomether" | "other";
+
+export const sensorOptions: SensorOptions = [
+    { label: "Analog Thermomether", value: "analog thermomether" },
+    { label: "Digital Thermomether", value: "digital thermomether" },
+    { label: "Infrared Thermomether", value: "infrared thermomether" },
+    { label: "Other", value: "other" },
+];
 
 export type TemperatureUnit = "C" | "F";
 export type Temperature = {
@@ -50,6 +50,13 @@ export type MetricOptions = LabelValuePairs<Metric>[];
 export type Metric = "temperature" | never;
 
 export type WaterSource = "network" | "rooftop tank" | "well" | "other";
+export const waterSourceOptions: WaterSourceOptions = [
+    { label: "Network", value: "network" },
+    { label: "Rooftop Tank", value: "rooftop tank" },
+    { label: "Well", value: "well" },
+    { label: "Other", value: "other" },
+];
+
 export type MeasurementData = {
     location: L.LatLng;
     waterSource?: WaterSource;
