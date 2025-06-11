@@ -155,8 +155,8 @@ deploy_production:
     - ssh-add "$SSH_PRIVATE_KEY"
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    # - ssh-keyscan waterwatch.tudelft.nl >> ~/.ssh/known_hosts
-    # - chmod 644 ~/.ssh/known_hosts
+    - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
   script:
     - ssh gitlab_deployment@waterwatch.tudelft.nl "cd WATERWATCH && git pull && ./production/deploy.sh"
   rules:
