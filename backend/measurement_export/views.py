@@ -2,11 +2,12 @@
 
 import json
 import logging
-from datetime import time
+from datetime import time, timedelta
 
 from django.contrib.gis.geos import GEOSException, GEOSGeometry
 from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
+from django.utils import timezone
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework.decorators import api_view

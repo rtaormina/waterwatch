@@ -60,7 +60,7 @@
                     class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('show-global')"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    v-if="!props.viewAnalytics && !props.addMeasurement && !props.compareMode && !props.selectMode"
                     style="--delay: 0.4s"
                 >
                     <ChartBarIcon class="w-10 h-10" />
