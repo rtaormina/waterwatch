@@ -42,7 +42,7 @@ build_frontend_image:
   # Log in to Docker registry and build the image
   script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker build -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v0.2-frontend .
+    - docker build --no-cache -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v0.2-frontend .
     - docker push $CI_REGISTRY_IMAGE:v0.2-frontend
 
 # Setup for operations on the frontend
