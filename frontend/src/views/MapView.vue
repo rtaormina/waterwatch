@@ -91,10 +91,6 @@
                 >
                     <MapMenu
                         :selectMult="selectMult"
-                        :viewAnalytics="viewAnalytics"
-                        :addMeasurement="addMeasurement"
-                        :compareMode="compareMode"
-                        :selectMode="selectMode"
                         @open="handleOpenClose"
                         @enter-compare="enterCompareMode"
                         @enter-select="enterSelectMode"

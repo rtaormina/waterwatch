@@ -37,7 +37,7 @@
                 <button
                     class="text-white hover:cursor-pointer menu-button"
                     :class="[
-                        selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1',
+                        props.selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1',
                         { 'menu-visible': showButtons },
                     ]"
                     @click="$emit('enter-select')"
@@ -63,7 +63,6 @@
                     class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('show-global')"
-                    v-if="!props.viewAnalytics && !props.addMeasurement && !props.compareMode && !props.selectMode"
                     style="--delay: 0.4s"
                 >
                     <ChartBarIcon class="w-10 h-10" />
@@ -86,10 +85,6 @@ import {
 
 const props = defineProps<{
     selectMult: boolean;
-    viewAnalytics: boolean;
-    addMeasurement: boolean;
-    compareMode: boolean;
-    selectMode: boolean;
 }>();
 const emit = defineEmits<{
     (e: "enter-compare"): void;
@@ -137,8 +132,5 @@ function toggleMenu() {
     transform: translateX(0) scale(1);
     pointer-events: auto;
     transition-delay: var(--delay, 0s);
-}
-.menu-button:hover {
-    transform: translateX(0) scale(1.05) !important;
 }
 </style>
