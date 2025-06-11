@@ -22,7 +22,7 @@
         </div>
 
         <!-- Labels under ticks -->
-        <div class="mt-1 flex justify-between text-sm text-gray-700">
+        <div class="mt-1 mb-2 flex justify-between text-sm text-gray-700">
             <span>
                 <span v-if="colorByTemp">&leq;</span>
                 {{ props.scale[0] }}
@@ -46,7 +46,26 @@
             </span>
         </div>
 
-        <h4 class="text-lg font-bold mb-2">Map Coloring</h4>
+        <div class="flex items-center gap-2">
+            <h4 class="text-lg font-bold mb-2 mt-2">Hexagon Coloring</h4>
+            <button
+                data-testid="info-button-hex"
+                @click="toggleInfoTextColoring"
+                class="cursor-pointer hover:text-blue-600 transition-colors"
+            >
+                <InformationCircleIcon class="w-5 h-5" />
+            </button>
+        </div>
+        <div
+            data-testid="info-text-hex"
+            v-if="showInfoTextColoring"
+            class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800"
+        >
+            <p>
+                Use the buttons below to toggle between the hexagon overlay being colored according to the average
+                temperature or the number of measurements in the hexagon.
+            </p>
+        </div>
         <div class="flex gap-2 w-full">
             <button
                 @click="toTempMode"
@@ -56,6 +75,7 @@
                 Temperature
             </button>
             <button
+                data-testid="count"
                 @click="toCountMode"
                 :class="{ 'bg-main text-white': !colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
@@ -69,7 +89,7 @@
             <h4 class="text-lg font-bold mb-2 mt-2">Time Range</h4>
             <button
                 data-testid="info-button"
-                @click="toggleInfoText"
+                @click="toggleInfoTextTimeRange"
                 class="cursor-pointer hover:text-blue-600 transition-colors"
             >
                 <InformationCircleIcon class="w-5 h-5" />
@@ -79,7 +99,7 @@
         <!-- Information text -->
         <div
             data-testid="info-text"
-            v-if="showInfoText"
+            v-if="showInfoTextTime"
             class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800"
         >
             <p>
@@ -115,15 +135,25 @@ const emit = defineEmits<{
 
 const isMulti = computed(() => internalValue.value !== "Past 30 Days");
 const internalValue = ref<string | string[]>("Past 30 Days");
-const showInfoText = ref(false);
+const showInfoTextTime = ref(false);
+const showInfoTextColoring = ref(false);
 
 /**
- * Toggle the visibility of the information text
+ * Toggle the visibility of the information text for the hex coloring
  *
  * @return {void}
  */
-function toggleInfoText() {
-    showInfoText.value = !showInfoText.value;
+function toggleInfoTextColoring() {
+    showInfoTextColoring.value = !showInfoTextColoring.value;
+}
+
+/**
+ * Toggle the visibility of the information text for the time range
+ *
+ * @return {void}
+ */
+function toggleInfoTextTimeRange() {
+    showInfoTextTime.value = !showInfoTextTime.value;
 }
 
 /**

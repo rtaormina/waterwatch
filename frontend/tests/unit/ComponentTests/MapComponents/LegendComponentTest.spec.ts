@@ -65,12 +65,20 @@ describe("Legend.vue filtering tests", () => {
         expect(ev[1]).toEqual(["Past 30 Days"]);
     });
 
-    it('displayes info when selected', async () => {
+    it('displays time info when selected', async () => {
       factory();
       const info = wrapper.find('[data-testid="info-button"]')
       await info.trigger("click");
       const text = wrapper.find('[data-testid="info-text"]')
-      expect(wrapper.vm.showInfoText).toBe(true)
+      expect(wrapper.vm.showInfoTextTime).toBe(true)
+    });
+
+    it('displays coloring info when selected', async () => {
+      factory();
+      const info = wrapper.find('[data-testid="info-button-hex"]')
+      await info.trigger("click");
+      const text = wrapper.find('[data-testid="info-text-hex"]')
+      expect(wrapper.vm.showInfoTextColoring).toBe(true)
     });
 });
 
@@ -120,7 +128,7 @@ describe("Legend.vue gradient tests", () => {
       }
     };
 
-    await wrapper.findAll("button")[1].trigger("click");
+    await wrapper.find('[data-testid="count"]').trigger("click");
     await wrapper.vm.$nextTick();
 
     expect(wrapper.props("scale")).toEqual(scale);
@@ -128,6 +136,7 @@ describe("Legend.vue gradient tests", () => {
     const expected = [`10`, `20`, `30`, `40`, `≥50`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
+    console.log(labelSpans)
     expect(labelSpans).toHaveLength(5)
     labelSpans.forEach((span, i) => {
       expect(span.text()).toContain(expected[i])
