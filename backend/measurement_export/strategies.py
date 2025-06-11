@@ -3,7 +3,6 @@
 import csv
 import json
 import logging
-import time
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from xml.dom import minidom
@@ -138,7 +137,6 @@ class CsvExport(ExportStrategy):
         writer = csv.writer(pseudo)
 
         def rowgen():
-            start = time.time()
             first = True
             # Use a larger chunk_size as the query is now much simpler
             for row in qs.iterator(chunk_size=500):
@@ -155,9 +153,6 @@ class CsvExport(ExportStrategy):
                 yield writer.writerow(
                     [json.dumps(v, default=str) if isinstance(v, dict | list) else v for v in row.values()]
                 )
-
-            end = time.time()
-            logger.debug("Actual streaming and Python-side data merging took %.3fs", end - start)
 
         return StreamingHttpResponse(rowgen(), content_type="text/csv")
 

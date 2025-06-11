@@ -13,7 +13,6 @@ from django.test import TestCase
 from measurements.models import Measurement, Temperature
 
 from measurement_export.utils import (
-    _build_exclusion_query,
     _build_geoms,
     _build_inclusion_query,
     analyze_continent_selection_efficiency,
@@ -523,17 +522,6 @@ class LocationOptimizationTests(UtilsTestCase):
         assert result["type"] == "full_continent"
         assert result["continent"] == "Europe"
 
-    def test_analyze_continent_selection_efficiency_exclude_strategy(self):
-        """Test optimization when most countries are selected (exclusion strategy)."""
-        all_countries = {"Netherlands", "Germany", "France"}
-        selected_countries = {"Netherlands", "Germany"}  # 2 out of 3
-
-        result = analyze_continent_selection_efficiency("Europe", selected_countries, all_countries)
-
-        assert result["type"] == "exclude_countries"
-        assert result["continent"] == "Europe"
-        assert result["countries_to_exclude"] == ["France"]
-
     def test_analyze_continent_selection_efficiency_include_strategy(self):
         """Test optimization when few countries are selected (inclusion strategy)."""
         all_countries = {"Netherlands", "Germany", "France"}
@@ -551,7 +539,6 @@ class LocationOptimizationTests(UtilsTestCase):
         # Should select full continents
         assert "Europe" in result["continent_filters"]
         assert len(result["country_include_filters"]) == 0
-        assert len(result["country_exclude_filters"]) == 0
 
     def test_optimize_location_filtering_mixed_strategy(self):
         """Test optimization with mixed strategies across continents."""
@@ -571,7 +558,6 @@ class LocationOptimizationTests(UtilsTestCase):
 
         assert len(result["continent_filters"]) == 0
         assert len(result["country_include_filters"]) == 0
-        assert len(result["country_exclude_filters"]) == 0
 
 
 class LocationFilterApplicationTests(UtilsTestCase):
@@ -694,34 +680,23 @@ class QueryBuildingTests(UtilsTestCase):
 
     def test_build_inclusion_query(self):
         """Test building inclusion query."""
-        strategy = {"continent_filters": ["Europe"], "country_include_filters": ["USA"], "country_exclude_filters": []}
+        strategy = {"continent_filters": ["Europe"], "country_include_filters": ["USA"]}
 
         query = _build_inclusion_query(strategy)
 
         # Should have conditions for both continent and country
         assert query is not None
 
-    def test_build_exclusion_query(self):
-        """Test building exclusion query."""
-        strategy = {"continent_filters": [], "country_include_filters": [], "country_exclude_filters": ["France"]}
-
-        query = _build_exclusion_query(strategy)
-
-        # Should have condition for excluding France
-        assert query is not None
-
     def test_build_empty_queries(self):
         """Test building queries with empty strategies."""
-        empty_strategy = {"continent_filters": [], "country_include_filters": [], "country_exclude_filters": []}
+        empty_strategy = {"continent_filters": [], "country_include_filters": []}
 
         inclusion_query = _build_inclusion_query(empty_strategy)
-        exclusion_query = _build_exclusion_query(empty_strategy)
 
         # Empty queries should still be valid Q objects
         from django.db.models import Q
 
         assert inclusion_query == Q()
-        assert exclusion_query == Q()
 
 
 class WaterSourceEdgeCaseTests(UtilsTestCase):
@@ -868,17 +843,6 @@ class LocationOptimizationEdgeCaseTests(UtilsTestCase):
         assert result["type"] == "include_countries"
         assert result["countries_to_include"] == []
 
-    def test_analyze_continent_selection_efficiency_large_exclusion(self):
-        """Test optimization when exclusion list would be too large."""
-        all_countries = {"Country1", "Country2", "Country3", "Country4", "Country5"}
-        selected_countries = {"Country1"}  # Only 1 out of 5 selected
-
-        result = analyze_continent_selection_efficiency("TestContinent", selected_countries, all_countries)
-
-        # Should use inclusion strategy since exclusion would be 4 countries (> 3)
-        assert result["type"] == "include_countries"
-        assert result["countries_to_include"] == ["Country1"]
-
     def test_optimize_location_filtering_unknown_continent(self):
         """Test optimization with unknown continent names."""
         result = optimize_location_filtering(["UnknownContinent"], ["SomeCountry"])
@@ -886,7 +850,6 @@ class LocationOptimizationEdgeCaseTests(UtilsTestCase):
         # Should return empty filters for unknown continent
         assert len(result["continent_filters"]) == 0
         assert len(result["country_include_filters"]) == 0
-        assert len(result["country_exclude_filters"]) == 0
 
     def test_optimize_location_filtering_countries_not_in_selected_continents(self):
         """Test optimization when selected countries don't belong to selected continents."""
@@ -947,7 +910,6 @@ class QueryBuildingEdgeCaseTests(UtilsTestCase):
         strategy = {
             "continent_filters": ["NonexistentContinent"],
             "country_include_filters": ["NonexistentCountry"],
-            "country_exclude_filters": [],
         }
 
         query = _build_inclusion_query(strategy)
@@ -956,21 +918,6 @@ class QueryBuildingEdgeCaseTests(UtilsTestCase):
         from django.db.models import Q
 
         assert query == Q()
-
-    def test_build_exclusion_query_with_mixed_valid_invalid(self):
-        """Test building exclusion query with mix of valid and invalid countries."""
-        strategy = {
-            "continent_filters": [],
-            "country_include_filters": [],
-            "country_exclude_filters": ["France", "NonexistentCountry"],
-        }
-
-        query = _build_exclusion_query(strategy)
-
-        # Should build query only for valid countries (France exists)
-        from django.db.models import Q
-
-        assert query != Q()  # Should have some condition for France
 
     def test_apply_optimized_location_filter_malformed_data(self):
         """Test location filtering with completely malformed data."""

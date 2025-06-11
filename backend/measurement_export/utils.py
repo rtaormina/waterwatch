@@ -301,7 +301,6 @@ def analyze_continent_selection_efficiency(continent, selected_countries, all_co
     more efficient to:
     1. Include the entire continent (if all countries are selected)
     2. Include specific countries only (if few countries are selected)
-    3. Include continent and exclude specific countries (if most countries are selected)
 
     Parameters
     ----------
@@ -316,28 +315,16 @@ def analyze_continent_selection_efficiency(continent, selected_countries, all_co
     -------
     dict
         Strategy for this continent with keys:
-        - 'type': 'full_continent', 'include_countries', or 'exclude_countries'
+        - 'type': 'full_continent' or 'include_countries'
         - 'continent': continent name (if using continent-level filtering)
         - 'countries_to_include': list of countries to include (if any)
-        - 'countries_to_exclude': list of countries to exclude (if any)
     """
     total_countries = len(all_countries_in_continent)
     selected_count = len(selected_countries)
-    unselected_countries = all_countries_in_continent - selected_countries
-    unselected_count = len(unselected_countries)
-
     # If all countries in this continent are selected, just filter by continent
     # This is the most efficient case - one geometric operation instead of many
     if selected_count == total_countries:
         return {"type": "full_continent", "continent": continent}
-
-    # If more than half the countries are selected, it's often more efficient
-    # to include the continent and exclude the unselected countries
-    # This is especially true when there are many countries in the continent
-    if unselected_count < selected_count and unselected_count <= 3:
-        # Use exclusion strategy: include continent, exclude specific countries
-        # We limit this to 3 or fewer exclusions to avoid complex queries
-        return {"type": "exclude_countries", "continent": continent, "countries_to_exclude": list(unselected_countries)}
 
     # Use inclusion strategy: include only the selected countries
     # This is best when selecting a small subset of countries
@@ -363,10 +350,9 @@ def optimize_location_filtering(selected_continents, selected_countries):
         Optimization strategy with keys:
         - 'continent_filters': list of continents to filter by
         - 'country_include_filters': list of countries to include
-        - 'country_exclude_filters': list of countries to exclude from continent filtering
     """
     if not selected_continents:
-        return {"continent_filters": [], "country_include_filters": [], "country_exclude_filters": []}
+        return {"continent_filters": [], "country_include_filters": []}
 
     # Get the mapping of continents to their countries
     continent_countries = _MAPPING
@@ -381,7 +367,6 @@ def optimize_location_filtering(selected_continents, selected_countries):
     # Analyze each selected continent independently
     continent_filters = []
     country_include_filters = []
-    country_exclude_filters = []
 
     for continent in selected_continents:
         if continent not in continent_countries:
@@ -410,17 +395,12 @@ def optimize_location_filtering(selected_continents, selected_countries):
         if strategy["type"] == "full_continent":
             continent_filters.append(strategy["continent"])
 
-        elif strategy["type"] == "exclude_countries":
-            continent_filters.append(strategy["continent"])
-            country_exclude_filters.extend(strategy["countries_to_exclude"])
-
         elif strategy["type"] == "include_countries":
             country_include_filters.extend(strategy["countries_to_include"])
 
     return {
         "continent_filters": continent_filters,
         "country_include_filters": country_include_filters,
-        "country_exclude_filters": country_exclude_filters,
     }
 
 
@@ -435,15 +415,6 @@ def _build_inclusion_query(strategy):
         if geom:
             inclusion_query |= Q(location__within=geom)
     return inclusion_query
-
-
-def _build_exclusion_query(strategy):
-    exclusion_query = Q()
-    for country in strategy["country_exclude_filters"]:
-        geom = _COUNTRY_GEOMS.get(country)
-        if geom:
-            exclusion_query |= Q(location__within=geom)
-    return exclusion_query
 
 
 def apply_optimized_location_filter(qs, data):
@@ -487,10 +458,5 @@ def apply_optimized_location_filter(qs, data):
     inclusion_query = _build_inclusion_query(strategy)
     if inclusion_query:
         qs = qs.filter(inclusion_query)
-
-    # Build and apply exclusion query
-    exclusion_query = _build_exclusion_query(strategy)
-    if exclusion_query:
-        qs = qs.exclude(exclusion_query)
 
     return qs

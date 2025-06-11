@@ -1,10 +1,12 @@
 """Create views associated with measurement export."""
 
+import hashlib
 import json
 import logging
 
 from campaigns.models import Campaign
 from django.contrib.gis.geos import GEOSException, GEOSGeometry
+from django.core.cache import cache
 from django.db.models import Avg, Count
 from django.db.models.expressions import RawSQL
 from django.http import HttpResponse, JsonResponse
@@ -15,7 +17,15 @@ from rest_framework.decorators import api_view
 from .factories import get_strategy
 from .models import Location, Preset
 from .serializers import PresetSerializer
-from .utils import apply_measurement_filters
+from .utils import (
+    _build_inclusion_query,
+    filter_by_date_range,
+    filter_by_time_slots,
+    filter_by_water_sources,
+    filter_measurement_by_temperature,
+    initialize_location_geometries,
+    optimize_location_filtering,
+)
 
 logger = logging.getLogger("WATERWATCH")
 
@@ -292,8 +302,6 @@ def export_all_view(request):
         If "boundary_geometry" is provided, it filters measurements within that geometry.
         If the geometry is invalid, it returns a 400 error with an appropriate message.
     """
-    logger = logging.getLogger("WATERWATCH")
-
     # Start with our base queryset
     qs = build_base_queryset(ordered=True)
 
@@ -333,8 +341,6 @@ def search_measurements_view(request):
         If format is specified (csv, json, xml, geojson): returns full measurement data
         Otherwise: returns JSON with count and average temperature statistics
     """
-    logger = logging.getLogger("WATERWATCH")
-
     # Parse request data
     try:
         request_data = json.loads(request.body or "{}")
@@ -342,9 +348,24 @@ def search_measurements_view(request):
         logger.exception("Invalid JSON")
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
-    # Start with base queryset and apply filters
-    qs = build_base_queryset()
-    qs = apply_measurement_filters(request_data, qs)
+    # 1) Build per-filter ID sets
+    per_filter_sets = _build_cache_key(request_data)
+
+    # 2) Try full-combo cache
+    combo_key = "measurement_ids:" + hashlib.md5(json.dumps(request_data, sort_keys=True).encode()).hexdigest()
+    cached_combo = cache.get(combo_key)
+    if cached_combo is not None:
+        final_ids = set(cached_combo)
+    else:
+        # 3) intersect (or take all if no filters)
+        if per_filter_sets:
+            final_ids = set.intersection(*per_filter_sets)
+        else:
+            final_ids = set(Measurement.objects.values_list("id", flat=True))
+        cache.set(combo_key, list(final_ids), 60)
+
+    # 4) build the final queryset
+    qs = build_base_queryset().filter(id__in=final_ids)
 
     # Check if this is a data export request
     fmt = str(request_data.get("format", "")).lower()
@@ -403,3 +424,100 @@ def search_measurements_view(request):
             "avgTemp": float(stats["avgTemp"] or 0.0),
         }
     )
+
+
+def _get_or_build_id_list(cache_key, timeout, compute_qs):
+    """Return a list of IDs from cache if present, otherwise cache and return qs."""
+    ids = cache.get(cache_key)
+    if ids is None:
+        ids = list(compute_qs().values_list("id", flat=True))
+        cache.set(cache_key, ids, timeout)
+    return set(ids)
+
+
+def _build_cache_key(data):
+    """Build one cached ID-set per filter category (OR inside each, AND across categories).
+
+    Returns a list of Python sets to intersect.
+    """
+    sets = []
+    sets += _build_water_sources_set(data)
+    sets += _build_temperature_set(data)
+    sets += _build_date_range_set(data)
+    sets += _build_time_slots_set(data)
+    sets += _build_location_set(data)
+    return sets
+
+
+def _build_water_sources_set(data):
+    sets = []
+    ws = data.get("measurements[waterSources]", [])
+    if isinstance(ws, list) and ws:
+        key = f"ids:water_sources:{','.join(sorted(ws))}"
+
+        def qs_water():
+            qs = Measurement.objects.all()
+            return filter_by_water_sources(qs, data)
+
+        sets.append(_get_or_build_id_list(key, 60, qs_water))
+    return sets
+
+
+def _build_temperature_set(data):
+    sets = []
+    if data.get("measurements[temperature][from]") or data.get("measurements[temperature][to]"):
+        key = f"ids:temp:{data.get('measurements[temperature][from]')}_{data.get('measurements[temperature][to]')}"
+
+        def qs_temp():
+            qs = Measurement.objects.all()
+            return filter_measurement_by_temperature(qs, data)
+
+        sets.append(_get_or_build_id_list(key, 60, qs_temp))
+    return sets
+
+
+def _build_date_range_set(data):
+    sets = []
+    if data.get("dateRange[from]") or data.get("dateRange[to]"):
+        key = f"ids:date:{data.get('dateRange[from]')}_{data.get('dateRange[to]')}"
+
+        def qs_date():
+            qs = Measurement.objects.all()
+            return filter_by_date_range(qs, data)
+
+        sets.append(_get_or_build_id_list(key, 60, qs_date))
+    return sets
+
+
+def _build_time_slots_set(data):
+    sets = []
+    if data.get("times"):
+        times_key = json.dumps(data["times"], sort_keys=True)
+        key = f"ids:times:{times_key}"
+
+        def qs_times():
+            qs = Measurement.objects.all()
+            return filter_by_time_slots(qs, data)
+
+        sets.append(_get_or_build_id_list(key, 60, qs_times))
+    return sets
+
+
+def _build_location_set(data):
+    sets = []
+    continents = data.get("location[continents]", [])
+    countries = data.get("location[countries]", [])
+    if (isinstance(continents, list) and continents) or (isinstance(countries, list) and countries):
+        cont_key = ",".join(sorted(continents))
+        ctrs_key = ",".join(sorted(countries))
+        key = f"ids:loc:{cont_key}:{ctrs_key}"
+
+        def qs_loc():
+            qs = Measurement.objects.all()
+            initialize_location_geometries()
+            strategy = optimize_location_filtering(continents, countries)
+            inc_q = _build_inclusion_query(strategy)
+            return qs.filter(inc_q) if inc_q else qs
+
+        sets.append(_get_or_build_id_list(key, 60, qs_loc))
+    return sets
