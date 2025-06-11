@@ -1,0 +1,190 @@
+{
+    "labels": {
+        "measurement": "",
+        "website": "",
+        "app": "",
+        "api": ""
+    },
+    "measurement": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "step1": {
+            "title": "",
+            "text": "",
+            "taps": {
+                "separate": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "faucet1": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "faucet2": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "thermostatic": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                }
+            }
+        },
+        "step2": {
+            "title": "",
+            "text": ""
+        },
+        "step3": {
+            "title": "",
+            "text": "",
+            "tabs": {
+                "room": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "infrared": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "fever": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                }
+            }
+        },
+        "step4": {
+            "title": "",
+            "text": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        },
+        "next-steps": {
+            "title": "",
+            "text": ""
+        }
+    },
+    "website": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "measurement": {
+            "title": "",
+            "text1": "",
+            "text2": "",
+            "caption1": "",
+            "caption2": ""
+        },
+        "map": {
+            "title": "",
+            "text1": "",
+            "text2": "",
+            "caption1": "",
+            "caption2": ""
+        },
+        "export": {
+            "title": "",
+            "text1": "",
+            "disclaimer": "",
+            "text2": "",
+            "text3": "",
+            "caption1": "",
+            "caption2": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        }
+    },
+    "app": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "step1": {
+            "title": "",
+            "text": ""
+        },
+        "step2": {
+            "title": "",
+            "text": ""
+        },
+        "step3": {
+            "title": "",
+            "text": ""
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        },
+        "next-steps": {
+            "title": "",
+            "text": ""
+        }
+    },
+    "api": {
+        "introduction": {
+            "title": "",
+            "text": ""
+        },
+        "add": {
+            "title": "",
+            "text": "",
+            "request": {
+                "title": "",
+                "text": ""
+            },
+            "example": {
+                "title": "",
+                "text": ""
+            },
+            "success": {
+                "title": "",
+                "text": ""
+            },
+            "error": {
+                "title": "",
+                "text": ""
+            }
+        },
+        "export": {
+            "title": "",
+            "text": "",
+            "request": {
+                "title": "",
+                "text": ""
+            },
+            "geojson": {
+                "title": "",
+                "text": ""
+            },
+            "csv": {
+                "title": "",
+                "text": ""
+            },
+            "default": {
+                "title": "",
+                "text": ""
+            },
+            "error": {
+                "title": "",
+                "text": ""
+            }
+        },
+        "conclusion": {
+            "title": "",
+            "text": ""
+        }
+    }
+}

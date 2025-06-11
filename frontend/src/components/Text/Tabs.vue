@@ -1,13 +1,13 @@
 <template>
-    <USelect
-        v-if="smallScreen"
-        v-model="activeTab"
-        :items
-        :class="cssClass + ' px-4 text-lg sm:text-xl cursor-pointer'"
-    />
+    <UAccordion v-if="smallScreen" :items>
+        <template v-for="item in items" :key="item.slot" #[item.slot]>
+            <div>
+                <slot :name="item.slot"></slot>
+            </div>
+        </template>
+    </UAccordion>
     <UTabs
         v-else
-        v-model="activeTab"
         :items
         :class="cssClass"
         variant="link"
@@ -16,7 +16,13 @@
             label: 'text-balance',
             trigger: 'grow cursor-pointer',
         }"
-    />
+    >
+        <template v-for="item in items" :key="item.slot" #[item.slot]>
+            <div class="mx-4 md:mx-8 width-full">
+                <slot :name="item.slot" />
+            </div>
+        </template>
+    </UTabs>
 </template>
 
 <script setup lang="ts">
@@ -30,15 +36,11 @@ const cssClass = computed(() => {
 const { switchPoint = 800, ...props } = defineProps<{
     items: {
         label: string;
-        value: string;
+        slot: string;
     }[];
     switchPoint?: number;
     class?: string;
 }>();
-const activeTab = defineModel("activeTab", {
-    type: String,
-    default: "",
-});
 
 const windowSize = useWindowSize();
 

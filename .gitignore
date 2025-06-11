@@ -29,3 +29,6 @@ coverage.xml
 .venv
 env/
 venv/
+
+# Database files #
+test_initial_state.dump

@@ -4,6 +4,7 @@ import json
 import logging
 from datetime import time
 
+from django.contrib.gis.geos import GEOSException, GEOSGeometry
 from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
 from measurements.metrics import METRIC_MODELS
@@ -15,6 +16,40 @@ from .models import Location, Preset
 from .serializers import MeasurementSerializer, PresetSerializer
 
 logger = logging.getLogger("WATERWATCH")
+
+
+@api_view(["GET"])
+def export_all_view(request):
+    """Export all measurements.
+
+    This view exports all measurements.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object.
+
+    Returns
+    -------
+    JsonResponse
+        JSON response containing all measurements serialized with the MeasurementSerializer.
+    """
+    boundary_geometry = request.GET.get("boundary_geometry")
+    query = Measurement.objects.select_related(*[model.__name__.lower() for model in METRIC_MODELS])
+    if boundary_geometry:
+        try:
+            polygon = GEOSGeometry(boundary_geometry)
+            query = query.filter(location__within=polygon)
+        except GEOSException:
+            logger.exception("Invalid boundary_geometry format: %s")
+            return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
+    else:
+        query = query.all()
+
+    # If there are other metrics you want to add, you can include it to data
+    data = [m.temperature.value for m in query if m.temperature is not None]
+
+    return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
 
 
 @api_view(["POST"])
@@ -37,6 +72,7 @@ def search_measurements_view(request):
     """
     related_fields = [model.__name__.lower() for model in METRIC_MODELS]
     qs = Measurement.objects.select_related(*related_fields).all()
+    logger = logging.getLogger("WATERWATCH")
 
     request_data = {}
     if request.body:
@@ -58,6 +94,13 @@ def search_measurements_view(request):
     fmt = str(request_data.get("format", "")).lower()
 
     if fmt in ("csv", "json", "xml", "geojson"):
+        user = request.user
+
+        # logger.debug("search_measurements_view called by user: %s", user.groups.all())
+
+        if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
+            return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
+
         data = MeasurementSerializer(qs, many=True, context={"included_metrics": included_metrics}).data
         strategy = get_strategy(fmt)
         return strategy.export(data)

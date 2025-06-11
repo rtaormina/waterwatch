@@ -1,6 +1,12 @@
 # Vue Views
+this is a list of all Vue views in the application.
+```{eval-rst}
+.. toctree::
+   :maxdepth: 4
 
-- [frontend/src/views/AboutView](frontend/src/views/AboutView.md)
-- [frontend/src/views/ExportView](frontend/src/views/ExportView.md)
-- [frontend/src/views/MapView](frontend/src/views/MapView.md)
-- [frontend/src/views/TutorialView](frontend/src/views/TutorialView.md)
+   src/views/AboutView
+   src/views/ExportView
+   src/views/MapView
+   src/views/TutorialView
+   src/views/ContactView
+```

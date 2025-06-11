@@ -34,6 +34,8 @@ DEBUG = os.getenv("DJANGO_DEBUG", default=0)
 # should be a list of host/domain names that this Django site can serve.
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="localhost").split(",")
 
+ROOT_URLCONF = "backend.urls"
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -127,7 +129,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/api/static/"
+STATIC_ROOT = Path(BASE_DIR) / "static"
+MEDIA_URL = "/api/media/"
+MEDIA_ROOT = Path(BASE_DIR) / "media"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

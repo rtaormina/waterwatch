@@ -1,0 +1,33 @@
+/* measurement_export/static/measurement_export/css/preset_admin.css */
+
+/* 1. Hide the entire country-field until JS shows it */
+.field-location_countries {
+  display: none; /* start hidden */
+}
+
+/* 2. Countries container: scrollable both ways, one checkbox per row */
+.field-location_countries #id_location_countries {
+  max-height: 200px;
+  width: 90%;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding: 4px;
+  border: 1px solid #ddd;
+}
+
+/* 2. Countries container: scrollable both ways, one checkbox per row */
+.field-location_continents #id_location_continents,
+.field-water_sources #id_water_sources {
+  width: 90%;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* 3. Countries: each checkbox on its own row, like continents */
+.field-location_countries .vCheckboxLabel,
+.field-location_continents .vCheckboxLabel,
+.field-water_sources .vCheckboxLabel {
+  display: block; /* each checkbox on new row */
+  margin: 0 0 4px 0; /* only bottom margin */
+  white-space: nowrap; /* keep text on same line */
+}

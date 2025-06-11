@@ -43,25 +43,59 @@ Researcher
     -password: researcher
 
 ### Production
-TODO
+Requirements before install:
+- docker
+
+
+> **Important**
+> -------------
+> In order to be able to access the production build when the host is not equal to 'waterwatch.tudelft.nl' make sure to modify the server_name of the production.nginx from 'waterwatch.tudelft.nl' to the name of the host you will be using (e.g. localhost) before running the script.
+
+
+Linux:
+```bash
+./production/setup.sh
+```
+After installation the project will run at [localhost](http://127.0.0.1/).
+
+
+There are two standard users after executing the script.
+Admin
+    -username: admin
+    -password: admin
+Researcher
+    -username: researcher
+    -password: researcher
+
+> Important in order to protect user accounts in the production environment make sure to change these passwords immediatly after running the script.
 
 ## Running Tests
 
 ### Frontend
-Unit Tests:
+#### Unit Tests
 ```bash
 docker exec frontend npm run test
 ```
-End-to-End Tests:
+#### End-to-End Tests:
+In case you have a non-test version of WATERWATCH running:
 ```bash
-docker exec frontend npm run e2e
+docker compose down
+```
+Then:
+```bash
+./test-setup.sh
+cd frontend
+npm run e2e
+```
+In case you want to reset the test database to its initial state, run:
+```bash
+./test-reset-db.sh
 ```
 
 ### Backend
 ```bash
 docker exec backend python manage.py test
 ```
-
 
 ## Support
 
@@ -96,9 +130,21 @@ docker exec backend python manage.py test
 - If bash cannot find setup.sh (bad interpreter, no such file or directory), run the following:
     ```bash
     sudo apt-get install dos2unix
+    dos2unix .env
     dos2unix setup.sh
     ./setup.sh
     ```
+- If bash cannot find test-setup.sh (bad interpreter, no such file or directory), run the following:
+    ```bash
+    dos2unix test-setup.sh
+    ./test-setup.sh
+    ```
+- If bash cannot find test-reset-db.sh (bad interpreter, no such file or directory), run the following:
+    ```bash
+    dos2unix test-reset-db.sh
+    ./test-reset-db.sh
+    ```
+> For more troubleshooting steps visit [Troubleshooting](https://waterwatch.tudelft.nl/docs/troubleshooting.html)
 
 ## Contributing
 To avoid having to run individual installation commands, run:
@@ -138,6 +184,8 @@ pre-commit install
 ```
 This makes sure that the pre-commit hooks will be run before commiting.
 
+> For more information visit our [Contribution Guide](https://waterwatch.tudelft.nl/docs/contribution_guide.html).
+
 
 ## License
 [MIT](./LICENSE)
@@ -161,10 +209,3 @@ This makes sure that the pre-commit hooks will be run before commiting.
 
 
 > Additional thanks to everyone who helped in any way, shape, or form.
-
-generate type doc
-- npm install --save-dev typedoc
-- npm install typedoc-plugin-markdown --save-dev
-- npx typedoc --plugin typedoc-plugin-markdown --out docs/ts
-- npx vue-docgen frontend/src/components docs/vue-components
-- npx vue-docgen frontend/src/views docs/vue-views

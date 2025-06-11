@@ -124,11 +124,13 @@ export function useLogin() {
                 }
             }
         } catch (err: unknown) {
-            console.error(err);
-            if (err instanceof Error && err.message === "Failed to fetch") {
-                showErrorMessage("Network error. Please try again later.");
-            } else {
+            const error = err as Error;
+            console.error(error.message);
+
+            if (error.message === "Invalid credentials.") {
                 showErrorMessage("Invalid username or password.");
+            } else {
+                showErrorMessage("An error occurred while logging in.");
             }
         }
     };
