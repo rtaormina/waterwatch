@@ -157,7 +157,13 @@ defineExpose({
 
             <!-- Metric block -->
             <Block title="Metric Type">
-                <UCheckboxGroup v-model="selectedMetrics" :items="metricOptions" color="primary" legend="Metric Type" />
+                <UCheckboxGroup
+                    data-testid="metric-checkbox"
+                    v-model="selectedMetrics"
+                    :items="metricOptions"
+                    color="primary"
+                    legend="Metric Type"
+                />
             </Block>
 
             <!-- Temperature Metric (if selected) -->
