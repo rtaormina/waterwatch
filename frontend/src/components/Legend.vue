@@ -65,7 +65,30 @@
         </div>
 
         <!-- Time range selector -->
-        <h4 class="text-lg font-bold mb-2 mt-2">Time Range</h4>
+        <div class="flex items-center gap-2">
+            <h4 class="text-lg font-bold mb-2 mt-2">Time Range</h4>
+            <button
+                data-testid="info-button"
+                @click="toggleInfoText"
+                class="cursor-pointer hover:text-blue-600 transition-colors"
+            >
+                <InformationCircleIcon class="w-5 h-5" />
+            </button>
+        </div>
+
+        <!-- Information text -->
+        <div
+            data-testid="info-text"
+            v-if="showInfoText"
+            class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800"
+        >
+            <p>
+                Time range corresponds to which measurements are displayed on the map. Selecting a month means that all
+                measurements taken in that month of any year will be displayed. To view all data ever collected, select
+                every month.
+            </p>
+        </div>
+
         <div>
             <USelect
                 v-model="internalValue"
@@ -82,6 +105,7 @@
 </template>
 
 <script setup lang="ts">
+import { InformationCircleIcon } from "@heroicons/vue/24/outline";
 import { computed, ref } from "vue";
 
 const emit = defineEmits<{
@@ -91,6 +115,16 @@ const emit = defineEmits<{
 
 const isMulti = computed(() => internalValue.value !== "Past 30 Days");
 const internalValue = ref<string | string[]>("Past 30 Days");
+const showInfoText = ref(false);
+
+/**
+ * Toggle the visibility of the information text
+ *
+ * @return {void}
+ */
+function toggleInfoText() {
+    showInfoText.value = !showInfoText.value;
+}
 
 /**
  * Handles selection of dropdown such that either multiselect of months is possible or

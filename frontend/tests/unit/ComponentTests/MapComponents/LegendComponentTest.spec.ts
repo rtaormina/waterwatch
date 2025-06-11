@@ -64,6 +64,14 @@ describe("Legend.vue filtering tests", () => {
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
         expect(ev[1]).toEqual(["Past 30 Days"]);
     });
+
+    it('displayes info when selected', async () => {
+      factory();
+      const info = wrapper.find('[data-testid="info-button"]')
+      await info.trigger("click");
+      const text = wrapper.find('[data-testid="info-text"]')
+      expect(wrapper.vm.showInfoText).toBe(true)
+    });
 });
 
 describe("Legend.vue gradient tests", () => {
