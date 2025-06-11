@@ -79,8 +79,8 @@ class TestMeasurementSerializer(TestCase):
         assert data["user"] == self.user.id
         assert data["local_date"] == "2025-06-10"
         assert data["local_time"] == "18:01:00"
-        # Ensure timestamp is a properly formatted string
-        assert "2025-06-10T" in data["timestamp"]
+        # Ensure timestamp is a properly formatted string, e.g., "2025-06-11T11:27:00Z"
+        assert data["timestamp"].replace("Z", "+00:00") == self.measurement1.timestamp.isoformat()
 
     def test_get_flag_inversion(self):
         """Test that the 'flag' field is correctly inverted."""

@@ -45,6 +45,17 @@ class ExportStrategy(ABC):
             measurement IDs to their list of metrics.
         """
 
+    def _invert_flag(self, item):
+        """Invert the boolean flag attribute if it exists.
+
+        Parameters
+        ----------
+        item : dict
+            The data item that may contain a 'flag' attribute.
+        """
+        if "flag" in item and isinstance(item["flag"], bool):
+            item["flag"] = not item["flag"]
+
 
 class CsvExport(ExportStrategy):
     """Exports measurement data in CSV format, supporting both streaming and non-streaming responses.
@@ -104,6 +115,8 @@ class CsvExport(ExportStrategy):
 
         # Add metrics to each row before writing
         for row in rows:
+            # Invert flag attribute
+            self._invert_flag(row)
             row["metrics"] = self._get_metrics_for_row(row.get("id"), metrics_dict)
             row["campaigns"] = self._get_campaigns_for_row(row.get("id"), campaigns_dict)
 
@@ -129,6 +142,8 @@ class CsvExport(ExportStrategy):
             first = True
             # Use a larger chunk_size as the query is now much simpler
             for row in qs.iterator(chunk_size=500):
+                # Invert flag attribute
+                self._invert_flag(row)
                 # Add metrics to the row dictionary
                 row["metrics"] = self._get_metrics_for_row(row.get("id"), metrics_dict)
                 row["campaigns"] = self._get_campaigns_for_row(row.get("id"), campaigns_dict)
@@ -187,6 +202,8 @@ class JsonExport(ExportStrategy):
         campaigns_dict = (extra_data or {}).get("campaigns", {})
         full_data = list(data)
         for obj in full_data:
+            # Invert flag attribute
+            self._invert_flag(obj)
             obj["metrics"] = metrics_dict.get(obj.get("id"), [])
             obj["campaigns"] = campaigns_dict.get(obj.get("id"), [])
         return JsonResponse(full_data, safe=False, json_dumps_params={"indent": 2})
@@ -202,6 +219,8 @@ class JsonExport(ExportStrategy):
                 if not first:
                     yield ",\n"
 
+                # Invert flag attribute
+                self._invert_flag(obj)
                 # Add metrics to the object before serializing
                 obj["metrics"] = metrics_dict.get(obj.get("id"), [])
                 obj["campaigns"] = campaigns_dict.get(obj.get("id"), [])
@@ -252,6 +271,8 @@ class GeoJsonExport(ExportStrategy):
         campaigns_dict = (extra_data or {}).get("campaigns", {})
         features = []
         for item in data:
+            # Invert flag attribute
+            self._invert_flag(item)
             item["metrics"] = metrics_dict.get(item.get("id"), [])
             item["campaigns"] = campaigns_dict.get(item.get("id"), [])
             features.append(self._feature(item))
@@ -285,6 +306,8 @@ class GeoJsonExport(ExportStrategy):
             yield '{"type":"FeatureCollection","features":[\n'
             first = True
             for item in qs.iterator(chunk_size=500):
+                # Invert flag attribute
+                self._invert_flag(item)
                 # Add metrics before creating the feature
                 item["metrics"] = metrics_dict.get(item.get("id"), [])
                 item["campaigns"] = campaigns_dict.get(item.get("id"), [])
@@ -343,6 +366,8 @@ class XmlExport(ExportStrategy):
 
         root = ET.Element("measurements")
         for item in rows:
+            # Invert flag attribute
+            self._invert_flag(item)
             # inject metrics & campaigns lists
             item_id = item.get("id")
             item["metrics"] = metrics_dict.get(item_id, [])

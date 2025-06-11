@@ -12,9 +12,9 @@ export interface MeasurementSearchParams {
     times?: TimeSlot[];
 }
 
-// Define the structure of the search results
-export const state = reactive({
+const state = reactive({
     hasSearched: false,
+    activeSearchCount: 0,
     isLoading: false,
     count: 0,
     avgTemp: 0,
@@ -22,27 +22,17 @@ export const state = reactive({
 
 /**
  * Composable for searching measurements with various filters.
- * This composable provides methods to search for measurements based on
- * user-defined filters, and returns the results including count and average temperature.
- *
- * @returns {Object} An object containing:
- * - `hasSearched`: A computed property indicating if a search has been performed.
- * - `results`: A computed property containing the search results (count and average temperature).
- * - `searchMeasurements`: A method to perform the search with given parameters.
- * - `resetSearch`: A method to reset the search state.
- * - `flattenSearchParams`: A utility method to flatten nested search parameters for API requests.
+ * Each call to useSearch() creates its own isolated state.
  */
 export function useSearch() {
     const cookies = new Cookies();
 
     /**
      * Searches for measurements with the given parameters.
-     *
-     * @param params The search parameters to use.
-     * @return {Promise<void>} A promise that resolves when the search is complete.
      */
     async function searchMeasurements(params: MeasurementSearchParams): Promise<void> {
-        state.isLoading = true;
+        state.activeSearchCount++;
+        state.isLoading = state.activeSearchCount > 0;
         const flatParams = flattenSearchParams(params);
 
         try {
@@ -63,7 +53,8 @@ export function useSearch() {
             state.count = 0;
             state.avgTemp = 0;
         } finally {
-            state.isLoading = false;
+            state.activeSearchCount = Math.max(0, state.activeSearchCount - 1);
+            state.isLoading = state.activeSearchCount > 0;
         }
     }
 
@@ -77,12 +68,10 @@ export function useSearch() {
 
     /**
      * Resets the search state.
-     * This method clears the search results and resets the state to its initial values.
-     *
-     * @return {void}
      */
     function resetSearch(): void {
         state.hasSearched = false;
+        state.activeSearchCount = 0;
         state.isLoading = false;
         state.count = 0;
         state.avgTemp = 0;
@@ -90,11 +79,6 @@ export function useSearch() {
 
     /**
      * Flattens the nested search parameters for use in API requests.
-     * This function converts the structured search parameters into a flat object
-     * suitable for URL query parameters.
-     *
-     * @param params The search parameters to flatten.
-     * @return {Record<string, any>} A flat object containing the search parameters.
      */
     function flattenSearchParams(params: MeasurementSearchParams): Record<string, string | string[] | undefined> {
         const flattened: Record<string, string | string[] | undefined> = {};
