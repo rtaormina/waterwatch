@@ -22,14 +22,25 @@
         </UTooltip>
 
         <div class="flex flex-row-reverse items-center gap-4">
-            <UTooltip :delay-duration="0" text="Compare Hexagon Groups">
+            <UTooltip :delay-duration="0" text="Map Settings">
                 <button
                     class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
                     :class="{ 'menu-visible': showButtons }"
-                    @click="$emit('enter-compare')"
+                    @click="$emit('toggle-legend')"
                     style="--delay: 0.1s"
                 >
-                    <ScaleIcon class="w-10 h-10" />
+                    <AdjustmentsVerticalIcon class="w-10 h-10" />
+                </button>
+            </UTooltip>
+
+            <UTooltip :delay-duration="0" text="Show Global Analytics">
+                <button
+                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
+                    :class="{ 'menu-visible': showButtons }"
+                    @click="$emit('show-global')"
+                    style="--delay: 0.2s"
+                >
+                    <ChartBarIcon class="w-10 h-10" />
                 </button>
             </UTooltip>
 
@@ -41,31 +52,20 @@
                         { 'menu-visible': showButtons },
                     ]"
                     @click="$emit('enter-select')"
-                    style="--delay: 0.2s"
+                    style="--delay: 0.3s"
                 >
                     <SquaresPlusIcon class="w-10 h-10" />
                 </button>
             </UTooltip>
 
-            <UTooltip :delay-duration="0" text="Map Settings">
+            <UTooltip :delay-duration="0" text="Compare Hexagon Groups">
                 <button
                     class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
                     :class="{ 'menu-visible': showButtons }"
-                    @click="$emit('toggle-legend')"
-                    style="--delay: 0.3s"
-                >
-                    <AdjustmentsVerticalIcon class="w-10 h-10" />
-                </button>
-            </UTooltip>
-
-            <UTooltip :delay-duration="0" text="Show Global Analytics">
-                <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
-                    :class="{ 'menu-visible': showButtons }"
-                    @click="$emit('show-global')"
+                    @click="$emit('enter-compare')"
                     style="--delay: 0.4s"
                 >
-                    <ChartBarIcon class="w-10 h-10" />
+                    <ScaleIcon class="w-10 h-10" />
                 </button>
             </UTooltip>
         </div>
