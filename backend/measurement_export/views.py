@@ -62,7 +62,6 @@ def export_all_view(request):
                 return JsonResponse({"error": "No valid month numbers provided; must be 0 or 1-12"}, status=400)
             query = query.filter(local_date__month__in=months)
 
-
     # If there are other metrics you want to add, you can include it to data
     data = [m.temperature.value for m in query if m.temperature is not None]
 
