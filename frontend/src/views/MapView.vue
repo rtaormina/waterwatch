@@ -32,7 +32,7 @@
         <div class="w-full h-full flex flex-row">
             <div
                 v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
-                class="analytics-panel left-0 top-[80px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
+                class="analytics-panel left-0 top-19 md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
                 <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleCloseAll" />
