@@ -1,8 +1,11 @@
-/* File: src/components/OptionsMenu.vue This component encapsulates the toggle button and conditional menu buttons. */
 <template>
     <div class="flex flex-row-reverse items-center z-20 justify-center gap-4">
         <UTooltip :text="open ? 'Close' : 'Options'" class="z-60">
-            <button @click="toggleMenu" class="bg-main rounded-md p-1 text-white hover:cursor-pointer">
+            <button
+                data-testid="open-button"
+                @click="toggleMenu"
+                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+            >
                 <transition
                     mode="out-in"
                     enter-active-class="transform transition duration-300 ease-out"

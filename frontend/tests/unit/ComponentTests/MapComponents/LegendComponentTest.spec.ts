@@ -69,7 +69,6 @@ describe("Legend.vue filtering tests", () => {
       factory();
       const info = wrapper.find('[data-testid="info-button"]')
       await info.trigger("click");
-      const text = wrapper.find('[data-testid="info-text"]')
       expect(wrapper.vm.showInfoTextTime).toBe(true)
     });
 
