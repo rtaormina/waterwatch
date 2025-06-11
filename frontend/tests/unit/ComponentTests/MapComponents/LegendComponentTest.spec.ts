@@ -35,7 +35,7 @@ describe("Legend.vue filtering tests", () => {
 
         expect(wrapper.vm.internalValue).toEqual(["April"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[0][0]).toEqual(["April"]);
+        expect(ev[0][0]).toEqual([4]);
     });
 
     it("when you pick multiple months, emits array of those months", async () => {
@@ -43,7 +43,7 @@ describe("Legend.vue filtering tests", () => {
         await select.vm.$emit("update:model-value", ["March", "May"]);
         expect(wrapper.vm.internalValue).toEqual(["March", "May"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[0]).toEqual([["March", "May"]]);
+        expect(ev[0]).toEqual([[3,5]]);
         await select.vm.$emit("update:model-value", "Past 30 Days");
         expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
     });
@@ -51,18 +51,33 @@ describe("Legend.vue filtering tests", () => {
     it('defaults to past 30 days when selected', async () => {
         factory();
         await select.vm.$emit("update:model-value", ["Past 30 Days", "June"]);
-        expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
+        expect(wrapper.vm.internalValue).toEqual(["June"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[0]).toEqual(["Past 30 Days"]);
+        expect(ev[0]).toEqual([[6]]);
     });
 
     it('goes back to single-select if you explicitly pick "Past 30 Days"', async () => {
         factory();
-        await select.vm.$emit("update:model-value", "February");
         await select.vm.$emit("update:model-value", "Past 30 Days");
-        expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
+        await select.vm.$emit("update:model-value", "February");
+        expect(wrapper.vm.internalValue).toEqual(["February"]);
         const ev = wrapper.emitted<UpdateEvent[]>("update")!;
-        expect(ev[1]).toEqual(["Past 30 Days"]);
+        expect(ev[1]).toEqual([[2]]);
+    });
+
+    it('displays time info when selected', async () => {
+      factory();
+      const info = wrapper.find('[data-testid="info-button"]')
+      await info.trigger("click");
+      expect(wrapper.vm.showInfoTextTime).toBe(true)
+    });
+
+    it('displays coloring info when selected', async () => {
+      factory();
+      const info = wrapper.find('[data-testid="info-button-hex"]')
+      await info.trigger("click");
+      const text = wrapper.find('[data-testid="info-text-hex"]')
+      expect(wrapper.vm.showInfoTextColoring).toBe(true)
     });
 });
 
@@ -112,7 +127,7 @@ describe("Legend.vue gradient tests", () => {
       }
     };
 
-    await wrapper.findAll("button")[1].trigger("click");
+    await wrapper.find('[data-testid="count"]').trigger("click");
     await wrapper.vm.$nextTick();
 
     expect(wrapper.props("scale")).toEqual(scale);
@@ -120,6 +135,7 @@ describe("Legend.vue gradient tests", () => {
     const expected = [`10`, `20`, `30`, `40`, `≥50`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
+    console.log(labelSpans)
     expect(labelSpans).toHaveLength(5)
     labelSpans.forEach((span, i) => {
       expect(span.text()).toContain(expected[i])

@@ -35,7 +35,12 @@
                 class="analytics-panel left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
-                <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleCloseAll" />
+                <DataAnalyticsComponent
+                    v-if="viewAnalytics"
+                    :location="hexLocation"
+                    :month="month"
+                    @close="handleCloseAll"
+                />
 
                 <DataAnalyticsCompare
                     v-if="showCompareAnalytics"
@@ -79,35 +84,30 @@
                     @hex-group-select="handleGroupSelect"
                     @open-details="handleOpenAnalysis"
                 />
+
                 <div
-                    class="absolute top-4 right-4 flex align-center z-20 justify-center gap-4"
+                    class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
                     v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                 >
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
-                        <ScaleIcon class="w-10 h-10" />
-                    </button>
-                    <button
-                        class="text-white hover:cursor-pointer"
-                        :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
-                        @click="enterSelectMode"
-                    >
-                        <SquaresPlusIcon class="w-10 h-10" />
-                    </button>
-                    <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        @click="
-                            addMeasurement = false;
-                            viewAnalytics = false;
-                            showLegend = !showLegend;
+                    <MapMenu
+                        :selectMult="selectMult"
+                        @open="handleOpenClose"
+                        @enter-compare="enterCompareMode"
+                        @enter-select="enterSelectMode"
+                        @toggle-legend="
+                            () => {
+                                addMeasurement = false;
+                                viewAnalytics = false;
+                                showLegend = !showLegend;
+                            }
                         "
-                    >
-                        <AdjustmentsVerticalIcon class="w-10 h-10" />
-                    </button>
+                        @show-global="showGlobalAnalytics"
+                    />
                 </div>
 
                 <Legend
-                    v-if="showLegend"
-                    class="absolute z-40 mt-1 h-auto"
+                    v-show="showLegend"
+                    class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
                     :scale="scale"
@@ -119,24 +119,19 @@
             </div>
 
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
-                <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                    @click="
-                        addMeasurement = true;
-                        viewAnalytics = false;
-                        showLegend = false;
-                    "
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                >
-                    <PlusCircleIcon class="w-10 h-10" />
-                </button>
-                <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                    @click="showGlobalAnalytics"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                >
-                    <ChartBarIcon class="w-10 h-10" />
-                </button>
+                <UTooltip :delay-duration="0" text="Add a Measurement">
+                    <button
+                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                        @click="
+                            addMeasurement = true;
+                            viewAnalytics = false;
+                            showLegend = false;
+                        "
+                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    >
+                        <PlusCircleIcon class="w-10 h-10" />
+                    </button>
+                </UTooltip>
             </div>
         </div>
     </div>
@@ -167,14 +162,12 @@ import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Legend.vue";
-import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
-import { ChartBarIcon } from "@heroicons/vue/24/outline";
-import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
-import { ScaleIcon } from "@heroicons/vue/24/outline";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
+import MapMenu from "../components/MapMenu.vue";
 
+const open = ref(false);
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
 const firstTime = ref(false);
@@ -207,23 +200,23 @@ const count = ref(0);
 const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
-const range = ref<string | string[]>("Past 30 Days");
+const range = ref<number[]>([0]);
 const month = ref<string>("0");
-const items = [
-    "Past 30 Days",
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-];
+
+/**
+ * Handle open and close of map menu
+ *
+ * @return {void}
+ */
+function handleOpenClose() {
+    if (open.value) {
+        showLegend.value = false;
+        open.value = false;
+    } else {
+        showLegend.value = false;
+        open.value = true;
+    }
+}
 
 /**
  * Handles filtering observations by time
@@ -231,15 +224,13 @@ const items = [
  * @param timeRange the time range of measurements to include in the hexmap
  * @returns {void}
  */
-function updateMapFilters(timeRange: string | string[]) {
-    if (Array.isArray(timeRange)) {
-        const months = (timeRange as string[]).map((label) => items.indexOf(label)).filter((i) => i > 0);
-        month.value = months.join(",");
-    } else {
-        const idx = items.indexOf(timeRange as string);
-        month.value = "" + idx;
-    }
+function updateMapFilters(timeRange: number[]) {
     range.value = timeRange;
+    month.value = "";
+    for (let i = 0; i < range.value.length; i++) {
+        month.value += `${range.value[i]},`;
+    }
+    month.value = month.value.substring(0, month.value.length - 1);
 }
 
 /**
@@ -251,6 +242,7 @@ function showGlobalAnalytics() {
     hexLocation.value = "";
     viewAnalytics.value = true;
     addMeasurement.value = false;
+    showLegend.value = false;
 }
 
 /**
@@ -488,7 +480,7 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
-    const res = await fetch(`/api/measurements/aggregated?month=${month.value}`);
+    const res = await fetch(`/api/measurements/aggregated?month=${range.value}`);
 
     if (!res.ok) throw new Error(`Status: ${res.status}`);
     const data = await res.json();
