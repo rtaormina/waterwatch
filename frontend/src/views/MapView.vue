@@ -84,60 +84,73 @@
                     class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
                     v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                 >
-                    <UTooltip :text="open ? 'Close' : 'Options'">
-                        <button
-                            @click="
-                                open = !open;
-                                showLegend = false;
-                            "
-                            class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        >
-                            <component :is="open ? XMarkIcon : EllipsisHorizontalCircleIcon" class="w-10 h-10" />
+                    <UTooltip :text="open ? 'Close' : 'Options'" class="z-60">
+                        <button @click="toggleMenu" class="bg-main rounded-md p-1 text-white hover:cursor-pointer">
+                            <transition
+                                mode="out-in"
+                                enter-active-class="transform transition duration-300 ease-out"
+                                enter-from-class="opacity-0 -rotate-90"
+                                enter-to-class="opacity-100 rotate-0"
+                                leave-active-class="transform transition duration-200 ease-in"
+                                leave-from-class="opacity-100 rotate-0"
+                                leave-to-class="opacity-0 rotate-90"
+                            >
+                                <EllipsisHorizontalCircleIcon v-if="!open" key="bars" class="w-10 h-10" />
+                                <XMarkIcon v-else key="close" class="w-10 h-10" />
+                            </transition>
                         </button>
                     </UTooltip>
 
-                    <transition-group name="fab" tag="div" class="flex flex-row-reverse items-center gap-4">
-                        <UTooltip :delay-duration="0" text="Compare Hexagon Groups" v-if="open" key="compare">
+                    <div class="flex flex-row-reverse items-center gap-4">
+                        <UTooltip :delay-duration="0" text="Compare Hexagon Groups">
                             <button
-                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
+                                :class="{ 'menu-visible': showButtons }"
                                 @click="enterCompareMode"
+                                style="--delay: 0.1s"
                             >
                                 <ScaleIcon class="w-10 h-10" />
                             </button>
                         </UTooltip>
-
-                        <UTooltip :delay-duration="0" text="Select Multiple Hexagons" v-if="open" key="select">
+                        <UTooltip :delay-duration="0" text="Select Multiple Hexagons">
                             <button
-                                class="text-white hover:cursor-pointer"
-                                :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
+                                class="text-white hover:cursor-pointer menu-button"
+                                :class="[
+                                    selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1',
+                                    { 'menu-visible': showButtons },
+                                ]"
                                 @click="enterSelectMode"
+                                style="--delay: 0.2s"
                             >
                                 <SquaresPlusIcon class="w-10 h-10" />
                             </button>
                         </UTooltip>
-
-                        <UTooltip :delay-duration="0" text="Map Settings" v-if="open" key="legend">
+                        <UTooltip :delay-duration="0" text="Map Settings">
                             <button
-                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
+                                :class="{ 'menu-visible': showButtons }"
                                 @click="
                                     addMeasurement = false;
                                     viewAnalytics = false;
                                     showLegend = !showLegend;
                                 "
+                                style="--delay: 0.3s"
                             >
                                 <AdjustmentsVerticalIcon class="w-10 h-10" />
                             </button>
                         </UTooltip>
-                        <UTooltip :delay-duration="0" text="Show Global Analytics" v-if="open">
+                        <UTooltip :delay-duration="0" text="Show Global Analytics">
                             <button
-                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                                class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
+                                :class="{ 'menu-visible': showButtons }"
                                 @click="showGlobalAnalytics"
                                 v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                                style="--delay: 0.4s"
                             >
                                 <ChartBarIcon class="w-10 h-10" />
                             </button>
                         </UTooltip>
-                    </transition-group>
+                    </div>
                 </div>
 
                 <Legend
@@ -171,6 +184,28 @@
         </div>
     </div>
 </template>
+
+<style scoped>
+.menu-button {
+    opacity: 0;
+    transform: translateX(50px) scale(0.8);
+    transition:
+        opacity 0.4s ease-out,
+        transform 0.4s ease-out;
+    pointer-events: none;
+}
+
+.menu-button.menu-visible {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
+    transition-delay: var(--delay, 0s);
+}
+
+.menu-button:hover {
+    transform: translateX(0) scale(1.05) !important;
+}
+</style>
 
 <style>
 @media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
@@ -206,6 +241,7 @@ import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
 
 const open = ref(false);
+const showButtons = ref(false);
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
 const firstTime = ref(false);
@@ -257,6 +293,26 @@ const items = [
 ];
 
 /**
+ * Toggles the menu open/close with animation
+ *
+ * @return {void}
+ */
+function toggleMenu() {
+    if (open.value) {
+        showButtons.value = false;
+        setTimeout(() => {
+            open.value = false;
+        }, 200);
+    } else {
+        open.value = true;
+        showLegend.value = false;
+        setTimeout(() => {
+            showButtons.value = true;
+        }, 50);
+    }
+}
+
+/**
  * Handles filtering observations by time
  *
  * @param timeRange the time range of measurements to include in the hexmap
@@ -282,6 +338,7 @@ function showGlobalAnalytics() {
     hexLocation.value = "";
     viewAnalytics.value = true;
     addMeasurement.value = false;
+    showLegend.value = false;
 }
 
 /**
@@ -649,24 +706,3 @@ defineExpose({
     getIpLocation,
 });
 </script>
-
-<style scoped>
-.fab-enter-from,
-.fab-leave-to {
-    opacity: 0;
-    transform: translateX(20px) scale(0.8);
-}
-
-.fab-enter-active,
-.fab-leave-active {
-    transition:
-        opacity 600ms ease-out,
-        transform 600ms ease-out;
-}
-
-.fab-enter-to,
-.fab-leave-from {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-}
-</style>
