@@ -11,7 +11,7 @@ import {
     type MetricOptions,
     sensorOptions,
     waterSourceOptions,
-} from "@/composables/MeasurementCollectionLogic";
+} from "../composables/MeasurementCollectionLogic.ts";
 import * as L from "leaflet";
 import { templateRef } from "@vueuse/core";
 
@@ -57,8 +57,6 @@ function submitData() {
         !selectedMetrics.value.includes("temperature") || TemperatureMetricComponent.value?.verify();
     if (validMeasurement && validTemperature) postDataCheck();
 }
-
-defineModel<{ modelValue: string }>();
 
 const emit = defineEmits<{
     (e: "close"): void;

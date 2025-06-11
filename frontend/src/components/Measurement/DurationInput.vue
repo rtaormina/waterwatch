@@ -20,7 +20,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
         event.preventDefault();
         return;
     }
-    return;
+    return attempted;
 };
 
 /**
@@ -39,7 +39,7 @@ const handlePaste = (event: ClipboardEvent) => {
         event.preventDefault();
         return;
     }
-    return;
+    return Number(pastedText);
 };
 
 /**
@@ -56,7 +56,7 @@ const handleInput = (event: Event) => {
         event.preventDefault();
         return;
     }
-    return;
+    return attempted;
 };
 
 type Duration = {

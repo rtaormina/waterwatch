@@ -28,7 +28,7 @@ const handleTempPress = (event: KeyboardEvent) => {
         event.preventDefault();
         return;
     }
-    return;
+    return attempted;
 };
 
 const modelValue = defineModel<Temperature>({
