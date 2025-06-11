@@ -22,7 +22,7 @@ const router = useRouter();
 const route = useRoute();
 const exportStore = useExportStore();
 
-const query = ref("");
+const queryRef = ref("");
 // Reference to the FilterPanel component
 const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 
@@ -64,9 +64,14 @@ async function onSearch(): Promise<void> {
     if (!filterPanelRef.value) return;
 
     // Get current filters from FilterPanel
-    const searchParams = filterPanelRef.value.getSearchParams(query.value);
+    const searchParams = filterPanelRef.value.getSearchParams(queryRef.value);
     lastSearchParams.value = searchParams;
-    exportStore.filters = searchParams;
+
+    // Transforming the filters to the right format and saving them
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { query, ...filtersWithoutQuery } = searchParams;
+    const cleanedFilters = Object.fromEntries(Object.entries(filtersWithoutQuery).filter(([, v]) => v !== undefined));
+    exportStore.filters = cleanedFilters;
 
     // Perform search
     await searchMeasurements(searchParams);
@@ -121,7 +126,7 @@ onMounted(() => {
 watch(
     () => {
         if (filterPanelRef.value) {
-            return filterPanelRef.value.getSearchParams(query.value);
+            return filterPanelRef.value.getSearchParams(queryRef.value);
         }
         return null;
     },
@@ -152,7 +157,7 @@ watch(
             <div class="w-full md:w-7/12 flex flex-col min-h-0 landscape-component component1">
                 <div class="mb-4 shrink-0">
                     <SearchBar
-                        v-model:query="query"
+                        v-model:query="queryRef"
                         @search="onSearch"
                         @apply-preset="onApplyPreset"
                         :search-disabled="presetSearchDisabled"
