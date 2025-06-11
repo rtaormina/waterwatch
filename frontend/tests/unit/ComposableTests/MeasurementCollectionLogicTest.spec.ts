@@ -6,6 +6,7 @@ import {
 } from "../../../src/composables/MeasurementCollectionLogic.ts";
 import { beforeAll, afterAll, vi, describe, it, expect } from "vitest";
 import { DateTime } from "luxon";
+import * as L from "leaflet";
 
 describe("validateTemp Tests", () => {
     it("accepts valid temp value", async () => {
@@ -56,14 +57,18 @@ describe("createPayload Tests", () => {
         );
         expect(
             createPayload(
-                "C",
+                {
+                    location: L.latLng(110, 100),
+                    temperature: {
+                        sensor: "digital thermomether",
+                        value: 15.5,
+                        unit: "C",
+                        time_waited: { minutes: 1, seconds: 15 },
+                    },
+                    waterSource: "well",
+                    selectedMetrics: ["temperature"],
+                },
                 ["temperature"],
-                { sensor: "thermometer", value: 0, time_waited: "" },
-                "15.5",
-                { mins: "1", sec: "15" },
-                "well",
-                100,
-                110,
             ),
         ).toStrictEqual({
             timestamp: "2025-01-01T12:00:00.000Z",
@@ -75,7 +80,7 @@ describe("createPayload Tests", () => {
             },
             water_source: "well",
             temperature: {
-                sensor: "thermometer",
+                sensor: "digital thermomether",
                 value: 15.5,
                 time_waited: "00:01:15",
             },
@@ -87,14 +92,18 @@ describe("createPayload Tests", () => {
         );
         expect(
             createPayload(
-                "C",
+                {
+                    location: L.latLng(110.23491, 100.3423),
+                    temperature: {
+                        sensor: "digital thermomether",
+                        value: 15.5,
+                        unit: "C",
+                        time_waited: { minutes: 1, seconds: 15 },
+                    },
+                    waterSource: "well",
+                    selectedMetrics: ["temperature"],
+                },
                 ["temperature"],
-                { sensor: "thermometer", value: 0, time_waited: "" },
-                "15.5",
-                { mins: "1", sec: "15" },
-                "well",
-                100.3423,
-                110.23491,
             ),
         ).toStrictEqual({
             timestamp: "2025-01-01T12:00:00.000Z",
@@ -106,7 +115,7 @@ describe("createPayload Tests", () => {
             },
             water_source: "well",
             temperature: {
-                sensor: "thermometer",
+                sensor: "digital thermomether",
                 value: 15.5,
                 time_waited: "00:01:15",
             },
@@ -118,14 +127,18 @@ describe("createPayload Tests", () => {
         );
         expect(
             createPayload(
-                "F",
+                {
+                    location: L.latLng(110, 100),
+                    temperature: {
+                        sensor: "digital thermomether",
+                        value: 48,
+                        unit: "F",
+                        time_waited: { minutes: 1, seconds: 15 },
+                    },
+                    waterSource: "well",
+                    selectedMetrics: ["temperature"],
+                },
                 ["temperature"],
-                { sensor: "thermometer", value: 0, time_waited: "" },
-                "48",
-                { mins: "1", sec: "15" },
-                "well",
-                100,
-                110,
             ),
         ).toStrictEqual({
             timestamp: "2025-01-01T12:00:00.000Z",
@@ -137,7 +150,7 @@ describe("createPayload Tests", () => {
             },
             water_source: "well",
             temperature: {
-                sensor: "thermometer",
+                sensor: "digital thermomether",
                 value: 8.9,
                 time_waited: "00:01:15",
             },
@@ -149,14 +162,18 @@ describe("createPayload Tests", () => {
         );
         expect(
             createPayload(
-                "F",
+                {
+                    location: L.latLng(110, 100),
+                    temperature: {
+                        sensor: "digital thermomether",
+                        value: 48,
+                        unit: "F",
+                        time_waited: { minutes: 1, seconds: 5 },
+                    },
+                    waterSource: "well",
+                    selectedMetrics: ["temperature"],
+                },
                 ["temperature"],
-                { sensor: "thermometer", value: 0, time_waited: "" },
-                "48",
-                { mins: "1", sec: "5" },
-                "well",
-                100,
-                110,
             ),
         ).toStrictEqual({
             timestamp: "2025-01-01T12:00:00.000Z",
@@ -168,7 +185,7 @@ describe("createPayload Tests", () => {
             },
             water_source: "well",
             temperature: {
-                sensor: "thermometer",
+                sensor: "digital thermomether",
                 value: 8.9,
                 time_waited: "00:01:05",
             },

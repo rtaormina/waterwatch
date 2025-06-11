@@ -1,198 +1,66 @@
 <script setup lang="ts">
 import Cookies from "universal-cookie";
 import { useRouter } from "vue-router";
+import MeasurementBasisBlock from "./Measurement/MeasurementBlock.vue";
 import Modal from "./Modal.vue";
-import { ref, computed, reactive, defineProps, defineEmits, defineExpose, watch } from "vue";
-import { onSensorInput, validateInputs, createPayload } from "../composables/MeasurementCollectionLogic";
-import LocationFallback from "./LocationFallback.vue";
+import { ref, defineEmits, defineExpose, useTemplateRef } from "vue";
+import {
+    createPayload,
+    type MeasurementData,
+    type Metric,
+    type MetricOptions,
+    sensorOptions,
+    waterSourceOptions,
+} from "../composables/MeasurementCollectionLogic.ts";
 import * as L from "leaflet";
-import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { templateRef } from "@vueuse/core";
 
 const cookies = new Cookies();
 const router = useRouter();
 
-const formData = reactive({
-    location: "",
-    water_source: "",
+const selectedMetrics = ref<Metric[]>(["temperature"]);
+const metricOptions: MetricOptions = [{ label: "Temperature", value: "temperature" }];
+
+const defaultData: MeasurementData = {
+    location: L.latLng(0, 0),
+    waterSource: undefined,
     temperature: {
-        sensor: "",
-        value: 0.0,
-        time_waited: "",
+        sensor: undefined,
+        value: undefined,
+        unit: "C",
+        time_waited: {
+            minutes: undefined,
+            seconds: undefined,
+        },
     },
-});
+    selectedMetrics: ["temperature"],
+};
 
-const time = reactive({
-    mins: "",
-    sec: "",
-});
+const data = ref<MeasurementData>(defaultData);
 
-const errors = reactive<{ temp: string | null; sensor: string | null; mins: string | null; sec: string | null }>({
-    temp: null,
-    sensor: null,
-    mins: null,
-    sec: null,
-});
-
-const minsRef = ref<HTMLInputElement>();
-const secRef = ref<HTMLInputElement>();
-const tempRef = ref<HTMLInputElement>();
-const tempUnit = ref<"C" | "F">("C");
-const tempVal = ref("");
-const selectedMetrics = ref<string[]>([]);
-const metricOptions = [{ label: "Temperature", value: "temperature" }];
-const waterSourceOptions = [
-    { label: "Network", value: "network" },
-    { label: "Rooftop Tank", value: "rooftop tank" },
-    { label: "Well", value: "well" },
-    { label: "Other", value: "other" },
-];
-const userLoc = ref<L.LatLng>(L.latLng(0, 0));
-const locAvail = ref(true);
-
-const validated = computed(() => {
-    return validateInputs(
-        userLoc.value?.lng,
-        userLoc.value?.lat,
-        formData.water_source,
-        formData.temperature.sensor,
-        tempVal.value,
-        selectedMetrics.value,
-        errors,
-        time,
-        tempUnit.value,
-    );
-});
-
-watch(
-    () => formData.temperature.sensor,
-    (newVal) => onSensorInput(newVal, errors),
-);
+const TemperatureMetricComponent = templateRef("TemperatureMetric");
+const MeasurementBlock = useTemplateRef("MeasurementBlock");
 
 /**
  * Clears the form from all values.
  */
 function clear() {
-    formData.location = "";
-    formData.water_source = "";
-    formData.temperature.sensor = "";
-    formData.temperature.value = 0.0;
-    time.mins = "";
-    time.sec = "";
-    tempVal.value = "";
-    tempUnit.value = "C";
-    selectedMetrics.value = [];
-    errors.temp = null;
-    errors.sensor = null;
-    locationMode.value = null;
+    data.value = defaultData;
 }
 
-defineProps<{ modelValue?: string }>();
+/**
+ * Handles the submission of measurement data and delegates validating inputs.
+ */
+function submitData() {
+    const validMeasurement = MeasurementBlock.value?.verify() ?? false;
+    const validTemperature =
+        !selectedMetrics.value.includes("temperature") || TemperatureMetricComponent.value?.verify();
+    if (validMeasurement && validTemperature) postDataCheck();
+}
 
 const emit = defineEmits<{
-    (e: "update:modelValue", value: string): void;
     (e: "close"): void;
 }>();
-
-/**
- * Handles key presses for the time input fields.
- *
- * @param {KeyboardEvent} event - The keypress event.
- */
-const handleKeyPress = (event: KeyboardEvent) => {
-    const key = event.key;
-    const target = event.target as HTMLInputElement;
-    let raw = target.value.replace(/[^0-9]/g, "");
-
-    if (!/^\d$/.test(key)) {
-        event.preventDefault();
-        return;
-    }
-
-    const current = raw === "" ? 0 : parseInt(raw, 10);
-    const attempted = current * 10 + Number(key);
-    if (attempted > 59 || attempted < 0) {
-        event.preventDefault();
-        return;
-    }
-
-    emit("update:modelValue", String(attempted));
-};
-
-/**
- * Handles paste events for the time input fields.
- *
- * @param {ClipboardEvent} event - The paste event.
- */
-const handlePaste = (event: ClipboardEvent) => {
-    const pastedText = event.clipboardData?.getData("text");
-
-    if (pastedText && !/^\d+$/.test(pastedText)) {
-        event.preventDefault();
-        return;
-    }
-    if (Number(pastedText) < 0 || Number(pastedText) > 59) {
-        event.preventDefault();
-        return;
-    }
-
-    emit("update:modelValue", String(pastedText));
-};
-
-/**
- * Handles events for the time input fields.
- *
- * @param {Event} event - The input event.
- */
-const handleInput = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    let raw = target.value.replace(/[^0-9]/g, "");
-
-    const attempted = raw === "" ? 0 : parseInt(raw, 10);
-    if (attempted > 59 || attempted < 0) {
-        event.preventDefault();
-        return;
-    }
-
-    emit("update:modelValue", String(attempted));
-};
-
-/**
- * Handles key presses for the temperature input field.
- *
- * @param {KeyboardEvent} event - The keypress event.
- */
-const handleTempPress = (event: KeyboardEvent) => {
-    const key = event.key;
-    const target = event.target as HTMLInputElement;
-
-    if ((!/^\d$/.test(key) && key !== ".") || key === "-") {
-        event.preventDefault();
-        return;
-    }
-    if (key === "." && target.value.includes(".")) {
-        event.preventDefault();
-        return;
-    }
-
-    let raw = target.value.replace(/[^0-9]/g, "");
-
-    const current = raw === "" ? 0 : parseInt(raw, 10);
-    const attempted = current * 10 + Number(key);
-    if (attempted < 0 || attempted > 212) {
-        event.preventDefault();
-        return;
-    }
-
-    emit("update:modelValue", String(attempted));
-};
-
-const locationMode = ref<"auto" | "manual" | null>(null);
-
-watch(locAvail, (avail) => {
-    if (!avail) {
-        locationMode.value = "manual";
-    }
-});
 
 const showModal = ref(false);
 const modalMessage = ref("");
@@ -201,16 +69,7 @@ const modalMessage = ref("");
  * Sends the form data to the server, and check if the response is successful.
  */
 const postData = () => {
-    const payload = createPayload(
-        tempUnit.value,
-        selectedMetrics.value,
-        formData.temperature,
-        tempVal.value,
-        time,
-        formData.water_source,
-        userLoc.value?.lng,
-        userLoc.value?.lat,
-    );
+    const payload = createPayload(data, selectedMetrics);
 
     return fetch("/api/measurements/", {
         method: "POST",
@@ -245,21 +104,22 @@ const postData = () => {
  * If the temperature is within range, it shows a confirmation message.
  */
 const postDataCheck = () => {
+    const temperatureValue = data.value.temperature.value;
+    const temperatureUnit = data.value.temperature.unit;
     let tempCheck;
     if (selectedMetrics.value.includes("temperature")) {
-        if (tempUnit.value === "F") {
-            tempCheck = Math.round((+tempVal.value - 32) * (5 / 9) * 10) / 10;
+        if (temperatureValue === undefined || temperatureValue === null) {
+            TemperatureMetricComponent.value?.verify();
+            return;
+        }
+        if (temperatureUnit === "F") {
+            tempCheck = Math.round((temperatureValue - 32) * (5 / 9) * 10) / 10;
         } else {
-            tempCheck = Math.round(+tempVal.value * 10) / 10;
+            tempCheck = Math.round(temperatureValue * 10) / 10;
         }
         if (tempCheck < 0 || tempCheck > 40) {
             showModal.value = true;
-            modalMessage.value =
-                "Are you sure you would like to submit the temperature value " +
-                tempVal.value +
-                "°" +
-                tempUnit.value +
-                "?";
+            modalMessage.value = `Are you sure you would like to submit the temperature value ${temperatureValue}°${temperatureUnit}?`;
             return;
         } else {
             showModal.value = true;
@@ -277,14 +137,6 @@ const postDataCheck = () => {
 defineExpose({
     /** Clears the form from all values. */
     clear,
-    /** Handles key presses for the time input fields. */
-    handleKeyPress,
-    /** Handles paste events for the time input fields. */
-    handlePaste,
-    /** Handles input events for the time input fields. */
-    handleInput,
-    /** Handles key presses for the temperature input field. */
-    handleTempPress,
     /** Sends the form data to the server, and checks if the response is successful. */
     postData,
     /** Checks temperature and displays a confirmation or warning modal. */
@@ -293,222 +145,68 @@ defineExpose({
 </script>
 
 <template>
-    <div
-        class="bg-white m-4 p-1 flex flex-col h-screen overflow-visible box-border md:p-4 md:block md:h-full md:overflow-y-auto"
-    >
-        <h1
-            class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow w-full md:max-w-screen-md md:mx-auto flex items-center justify-between"
-        >
-            Record Measurement
-            <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="() => emit('close')">
-                <XMarkIcon class="w-10 h-10" />
-            </button>
-        </h1>
+    <SideBar title="Record Measurement" @close="emit('close')">
         <div class="flex-1 overflow-y-auto pb-16 md:overflow-visible md:pb-0">
             <!-- Measurement block -->
-            <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
-                <h3 class="text-lg font-semibold mb-4">Measurement</h3>
-                <div class="w-full h-48">
-                    <LocationFallback v-model:location="userLoc" />
-                </div>
-                <div class="flex-start min-w-0 mt-2 flex items-center gap-2">
-                    <label class="self-center text-sm font-medium text-gray-700">Water Source:</label>
-                    <select
-                        data-testid="select-water-source"
-                        id="water_source"
-                        v-model="formData.water_source"
-                        class="bg-white self-center border border-gray-300 rounded px-3 py-2"
-                    >
-                        <option disabled value="">Select a source</option>
-                        <option v-for="opt in waterSourceOptions" :key="opt.value" :value="opt.value">
-                            {{ opt.label }}
-                        </option>
-                    </select>
-                </div>
-            </div>
+            <MeasurementBasisBlock
+                v-model:location="data.location"
+                v-model:water-source="data.waterSource"
+                :water-source-options="waterSourceOptions"
+                ref="MeasurementBlock"
+            ></MeasurementBasisBlock>
 
             <!-- Metric block -->
-            <div class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
-                <h3 class="text-lg font-semibold mb-2">Metric</h3>
-                <label for="metric_choice" class="block text-sm font-medium text-gray-700 mb-1">Metric Type</label>
-                <div class="flex flex-col gap-2">
-                    <label
-                        data-testid="metric-checkbox"
-                        v-for="opt in metricOptions"
-                        :key="opt.value"
-                        class="flex items-center space-x-2"
-                    >
-                        <input type="checkbox" :value="opt.value" v-model="selectedMetrics" class="accent-primary" />
-                        <span>{{ opt.label }}</span>
-                    </label>
-                </div>
-            </div>
+            <Block title="Metric Type">
+                <UCheckboxGroup
+                    data-testid="metric-checkbox"
+                    v-model="selectedMetrics"
+                    :items="metricOptions"
+                    color="primary"
+                    legend="Metric Type"
+                />
+            </Block>
 
             <!-- Temperature Metric (if selected) -->
-            <div
+            <TemperatureMetric
                 v-if="selectedMetrics.includes('temperature')"
-                class="bg-light rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto space-y-6"
-            >
-                <h3 class="text-lg font-semibold mb-4">Temperature</h3>
-
-                <!-- Sensor Type -->
-                <div class="flex-1 items-start gap-4 mb-4">
-                    <div class="flex flex-col">
-                        <div class="flex-start min-w-0 flex items-center gap-2">
-                            <label for="sensor-type" class="text-sm font-medium text-gray-700">Sensor Type</label>
-                            <input
-                                data-testid="sensor-type"
-                                id="sensor-type"
-                                v-model="formData.temperature.sensor"
-                                placeholder="thermometer"
-                                type="text"
-                                :class="[
-                                    'flex-grow bg-white border border-gray-300 rounded px-3 py-2 mt-1',
-                                    errors.sensor ? 'border-red-500 border-2' : 'border-gray-300',
-                                ]"
-                            />
-                        </div>
-                        <p class="mt-2 h-4 text-red-600 text-xs">{{ errors.sensor || " " }}</p>
-                    </div>
-                </div>
-
-                <!-- Temperature Value + Unit -->
-                <div class="flex items-center gap-4">
-                    <div class="flex-1 flex-col">
-                        <div class="flex items-center gap-4">
-                            <div class="flex-1 flex-wrap min-w-0 flex items-center gap-2">
-                                <label for="temp-val" class="text-sm font-medium text-gray-700">
-                                    <span class="hidden sm:inline">Temperature Value</span>
-                                    <span class="inline sm:hidden">Temp. Value</span>
-                                </label>
-                                <input
-                                    data-testid="temp-val"
-                                    id="temp-val"
-                                    v-model="tempVal"
-                                    type="number"
-                                    min="0"
-                                    @keypress="handleTempPress"
-                                    ref="tempRef"
-                                    placeholder="e.g. 24.3"
-                                    :class="[
-                                        'flex-1 bg-white min-w-0 border border-gray-300 rounded px-3 py-2 mt-1',
-                                        errors.temp ? 'border-red-500 border-2' : 'border-gray-300',
-                                    ]"
-                                />
-                                <label class="items-center gap-1">
-                                    <input
-                                        data-testid="celsius"
-                                        name="temp"
-                                        type="radio"
-                                        value="C"
-                                        v-model="tempUnit"
-                                    />
-                                    <span>°C</span>
-                                </label>
-                                <label data-testid="fahrenheit" class="items-center gap-1">
-                                    <input name="temp" type="radio" value="F" v-model="tempUnit" />
-                                    <span>°F</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Time waited -->
-                <div class="flex items-center gap-2">
-                    <div class="flex flex-col">
-                        <label class="block text-sm font-medium text-gray-700">Time waited</label>
-                    </div>
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-2">
-                            <input
-                                data-testid="time-waited-mins"
-                                id="time-waited_min"
-                                @input="handleInput"
-                                @keypress="handleKeyPress"
-                                @paste="handlePaste"
-                                v-model="time.mins"
-                                min="0"
-                                max="59"
-                                placeholder="00"
-                                type="number"
-                                ref="minsRef"
-                                :class="[
-                                    'w-16 rounded px-2 py-1 bg-white',
-                                    errors.mins ? 'border-red-500 border-2' : 'border-gray-300',
-                                ]"
-                            />
-                            <label for="time-waited_min">Min</label>
-                        </div>
-                    </div>
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-2">
-                            <input
-                                data-testid="time-waited-sec"
-                                id="time-waited_sec"
-                                @input="handleInput"
-                                @keypress="handleKeyPress"
-                                @paste="handlePaste"
-                                v-model="time.sec"
-                                min="0"
-                                max="59"
-                                placeholder="00"
-                                type="number"
-                                ref="secRef"
-                                :class="[
-                                    'w-16 rounded px-2 py-1 bg-white',
-                                    errors.sec ? 'border-red-500 border-2' : 'border-gray-300',
-                                ]"
-                            />
-                            <label for="time-waited_sec">Sec</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                v-model="data.temperature"
+                :sensor-options="sensorOptions"
+                ref="TemperatureMetric"
+            />
         </div>
 
         <div
-            class="/* mobile: pinned row */ flex gap-2 bg-white p-4 shadow fixed bottom-0 left-0 w-full /* md+ : revert to static, original margins & width */ md:relative md:bottom-auto md:left-auto md:w-auto md:bg-transparent md:p-0 md:shadow-none md:mb-6 md:max-w-screen-md md:mx-auto md:mt-6"
+            class="/* mobile: pinned row */ z-10 flex gap-2 bg-default p-4 shadow fixed bottom-0 left-0 w-full /* md+ : revert to static, original margins & width */ md:relative md:bottom-auto md:left-auto md:w-auto md:bg-transparent md:p-0 md:shadow-none md:mb-6 md:max-w-screen-md md:mx-auto md:mt-6"
         >
-            <button
-                type="button"
-                class="flex-1 bg-white border border-primary text-primary px-4 py-2 rounded hover:bg-primary-light hover:cursor-pointer"
+            <UButton
+                class="flex-1 border bg-default text-md border-primary justify-center text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer"
                 @click="clear"
-            >
-                Clear
-            </button>
-            <button
-                :disabled="!validated"
+                label="Clear"
+            />
+            <UButton
                 type="submit"
-                @click="postDataCheck"
-                style="background-color: #00a6d6"
-                :class="[
-                    'flex-1 px-4 py-2 rounded text-white',
-                    !validated ? 'bg-gray-400 opacity-50 hover:cursor-not-allowed' : 'bg-main hover:cursor-pointer',
-                ]"
-            >
-                Submit
-            </button>
+                @click="submitData"
+                class="flex-1 px-4 py-2 rounded text-inverted justify-center text-md bg-primary hover:cursor-pointer"
+                label="Submit"
+            />
 
             <!-- Modal markup unchanged -->
             <Modal :visible="showModal" @close="showModal = false">
                 <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
                 <p>{{ modalMessage }}</p>
                 <div class="flex items-center mt-4 gap-2">
-                    <button
+                    <UButton
                         @click="showModal = false"
-                        class="flex-1 bg-white text-black border border-primary text-primary px-4 py-2 rounded hover:cursor-pointer"
-                    >
-                        Cancel
-                    </button>
-                    <button
+                        class="flex-1 justify-center bg-default border border-primary text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer"
+                        label="Cancel"
+                    />
+                    <UButton
                         @click="postData"
-                        class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
-                    >
-                        Submit
-                    </button>
+                        class="flex-1 justify-center bg-primary text-inverted px-4 py-2 rounded mr-2 hover:cursor-pointer"
+                        label="Submit"
+                    />
                 </div>
             </Modal>
         </div>
-    </div>
+    </SideBar>
 </template>

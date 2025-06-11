@@ -161,7 +161,7 @@ export function getLocateControl(location: Ref<L.LatLng>, opts?: L.ControlOption
          */
         _createContainer: function (): HTMLElement {
             const container = L.DomUtil.create("div");
-            container.className = "leaflet-bar leaflet-control leaflet-control-load";
+            container.className = "leaflet-bar leaflet-control leaflet-control-locate";
             container.title = "Get current location";
             return container;
         },
