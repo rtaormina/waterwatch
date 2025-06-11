@@ -1,9 +1,9 @@
-"""Specify the URL patterns for the Anylisis (aggregated) views."""
+"""Specify the URL patterns for the Analysis (aggregated) views."""
 
 from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    path("", views.analysed_measurements_view, name="analysed_measurements_view"),
+    path("", views.analyzed_measurements_view, name="analyzed_measurements_view"),
 ]

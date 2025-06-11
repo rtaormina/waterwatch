@@ -34,15 +34,15 @@ def export_all_view(request):
     JsonResponse
         JSON response containing all measurements serialized with the MeasurementSerializer.
     """
-    boundry_geometry = request.GET.get("boundry_geometry")
+    boundary_geometry = request.GET.get("boundary_geometry")
     query = Measurement.objects.select_related(*[model.__name__.lower() for model in METRIC_MODELS])
-    if boundry_geometry:
+    if boundary_geometry:
         try:
-            polygon = GEOSGeometry(boundry_geometry)
+            polygon = GEOSGeometry(boundary_geometry)
             query = query.filter(location__within=polygon)
         except GEOSException:
-            logger.exception("Invalid boundry_geometry format: %s")
-            return JsonResponse({"error": "Invalid boundry_geometry format"}, status=400)
+            logger.exception("Invalid boundary_geometry format: %s")
+            return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
     else:
         query = query.all()
 

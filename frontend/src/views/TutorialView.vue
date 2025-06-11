@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="w-full flex flex-col md:flex-row items-start mb-4 px-4 md:px-8">
+        <div class="w-full flex flex-col-reverse md:flex-row items-start mb-4 px-4 md:px-8 tutorial">
             <!-- <div class="w-full md:w-auto text-center"> -->
             <div class="flex-grow md:w-auto min-w-0 w-full max-w-full">
                 <!-- How to Take Temperature Measurement -->
@@ -10,22 +10,203 @@
                         <TextSection :title="t('measurement.introduction.title')">
                             <p>{{ t("measurement.introduction.text") }}</p>
                         </TextSection>
-                        <TextSectionSplit>
-                            <template #left>
-                                <USkeleton class="w-full aspect-video"></USkeleton>
-                            </template>
-                            <template #right>
-                                <TextSubSection :title="t('measurement.step1.title')">
-                                    <p>{{ t("measurement.step1.text") }}</p>
-                                </TextSubSection>
-                                <TextSubSection :title="t('measurement.step2.title')">
-                                    <p>{{ t("measurement.step2.text") }}</p>
-                                </TextSubSection>
-                                <TextSubSection :title="t('measurement.step2.title')">
-                                    <p>{{ t("measurement.step2.text") }}</p>
-                                </TextSubSection>
-                            </template>
-                        </TextSectionSplit>
+
+                        <TextSection :title="t('measurement.step1.title')">
+                            <div class="w-full max-w-full min-w-0">
+                                <TextTabs
+                                    :items="takeMeasurementTabs"
+                                    v-model="measurement"
+                                    class="w-full text-left min-w-0 overflow-y-hidden"
+                                >
+                                    <template #separate>
+                                        <TextSectionFlex>
+                                            <template #left>
+                                                <figure class="w-full max-w-sm mx-auto">
+                                                    <img
+                                                        src="@/assets/images/separate-tap.png"
+                                                        alt="Sink with separate taps"
+                                                        class="w-full h-auto rounded shadow"
+                                                    />
+                                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                                        {{ t("measurement.step1.taps.separate.caption") }}
+                                                    </figcaption>
+                                                </figure>
+                                            </template>
+                                            <template #right>
+                                                <TextSubSection>
+                                                    <div
+                                                        v-html="takeSeparate"
+                                                        class="whitespace-pre-line break-words overflow-x-scroll"
+                                                    />
+                                                </TextSubSection>
+                                            </template>
+                                        </TextSectionFlex>
+                                    </template>
+                                    <template #faucet1>
+                                        <TextSectionFlex>
+                                            <template #left>
+                                                <figure class="w-full max-w-sm mx-auto">
+                                                    <img
+                                                        src="@/assets/images/faucet1-tap.png"
+                                                        alt="Sink with a faucet with separate cold/hot valves"
+                                                        class="w-full h-auto rounded shadow"
+                                                    />
+                                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                                        {{ t("measurement.step1.taps.faucet1.caption") }}
+                                                    </figcaption>
+                                                </figure>
+                                            </template>
+                                            <template #right>
+                                                <TextSubSection>
+                                                    <div
+                                                        v-html="takeFaucet1"
+                                                        class="whitespace-pre-line break-words overflow-x-scroll"
+                                                    />
+                                                </TextSubSection>
+                                            </template>
+                                        </TextSectionFlex>
+                                    </template>
+                                    <template #faucet2>
+                                        <TextSectionFlex>
+                                            <template #left>
+                                                <figure class="w-full max-w-sm mx-auto">
+                                                    <img
+                                                        src="@/assets/images/faucet2-tap.png"
+                                                        alt="Sink with faucet with single handle"
+                                                        class="w-full h-auto rounded shadow"
+                                                    />
+                                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                                        {{ t("measurement.step1.taps.faucet2.caption") }}
+                                                    </figcaption>
+                                                </figure>
+                                            </template>
+                                            <template #right>
+                                                <TextSubSection>
+                                                    <div
+                                                        v-html="takeFaucet2"
+                                                        class="whitespace-pre-line break-words overflow-x-scroll"
+                                                    />
+                                                </TextSubSection>
+                                            </template>
+                                        </TextSectionFlex>
+                                    </template>
+                                    <template #thermostatic>
+                                        <TextSectionFlex>
+                                            <template #left>
+                                                <figure class="w-full max-w-sm mx-auto">
+                                                    <img
+                                                        src="@/assets/images/thermostatic-tap.png"
+                                                        alt="Sink with thermostatic faucet"
+                                                        class="w-full h-auto rounded shadow"
+                                                    />
+                                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                                        {{ t("measurement.step1.taps.thermostatic.caption") }}
+                                                    </figcaption>
+                                                </figure>
+                                            </template>
+                                            <template #right>
+                                                <TextSubSection>
+                                                    <div
+                                                        v-html="takeThermostatic"
+                                                        class="whitespace-pre-line break-words overflow-x-scroll"
+                                                    />
+                                                </TextSubSection>
+                                            </template>
+                                        </TextSectionFlex>
+                                    </template>
+                                </TextTabs>
+                            </div>
+                        </TextSection>
+                        <TextSection>
+                            <TextSubSection :title="t('measurement.step2.title')">
+                                <p>{{ t("measurement.step2.text") }}</p>
+                            </TextSubSection>
+                        </TextSection>
+                        <TextSection :title="t('measurement.step3.title')">
+                            <p>{{ t("measurement.step3.text") }}</p>
+                            <div class="w-full max-w-full min-w-0">
+                                <TextTabs
+                                    :items="thermometerTabs"
+                                    v-model="thermometer"
+                                    class="w-full text-left min-w-0 overflow-y-hidden"
+                                >
+                                    <template #room>
+                                        <TextSectionFlex>
+                                            <template #left>
+                                                <figure class="w-full max-w-sm mx-auto">
+                                                    <img
+                                                        src="@/assets/images/room-thermometer.png"
+                                                        alt="Room thermometer"
+                                                        class="w-full h-auto rounded shadow"
+                                                    />
+                                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                                        {{ t("measurement.step3.tabs.room.caption") }}
+                                                    </figcaption>
+                                                </figure>
+                                            </template>
+                                            <template #right>
+                                                <TextSubSection>
+                                                    <div
+                                                        v-html="roomThermometer"
+                                                        class="whitespace-pre-line break-words overflow-x-scroll"
+                                                    />
+                                                </TextSubSection>
+                                            </template>
+                                        </TextSectionFlex>
+                                    </template>
+
+                                    <template #infrared>
+                                        <TextSectionFlex>
+                                            <template #left>
+                                                <figure class="w-full max-w-sm mx-auto">
+                                                    <img
+                                                        src="@/assets/images/infrared-thermometer.png"
+                                                        alt="Infrared thermometer"
+                                                        class="w-full h-auto rounded shadow"
+                                                    />
+                                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                                        {{ t("measurement.step3.tabs.infrared.caption") }}
+                                                    </figcaption>
+                                                </figure>
+                                            </template>
+                                            <template #right>
+                                                <TextSubSection>
+                                                    <div
+                                                        v-html="infraredThermometer"
+                                                        class="whitespace-pre-line break-words overflow-x-scroll"
+                                                    />
+                                                </TextSubSection>
+                                            </template>
+                                        </TextSectionFlex>
+                                    </template>
+                                    <template #fever>
+                                        <TextSectionFlex>
+                                            <template #left>
+                                                <figure class="w-full max-w-sm mx-auto">
+                                                    <img
+                                                        src="@/assets/images/fever-thermometer.png"
+                                                        alt="Fever thermometer"
+                                                        class="w-full h-auto rounded shadow"
+                                                    />
+                                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                                        {{ t("measurement.step3.tabs.fever.caption") }}
+                                                    </figcaption>
+                                                </figure>
+                                            </template>
+                                            <template #right>
+                                                <TextSubSection>
+                                                    <div
+                                                        v-html="feverThermometer"
+                                                        class="whitespace-pre-line break-words overflow-x-scroll"
+                                                    />
+                                                </TextSubSection>
+                                            </template>
+                                        </TextSectionFlex>
+                                    </template>
+                                </TextTabs>
+                            </div>
+                        </TextSection>
+
                         <TextSection :title="t('measurement.conclusion.title')">
                             <TextSubSection :title="t('measurement.conclusion.title')">
                                 <p>{{ t("measurement.conclusion.text") }}</p>
@@ -46,7 +227,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/add-measurement-tutorial.png"
+                                        src="@/assets/images/add-measurement-tutorial.png"
                                         alt="Add measurement button"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -65,7 +246,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/add-measurement-page.png"
+                                        src="@/assets/images/add-measurement-page.png"
                                         alt="Add measurement page"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -84,7 +265,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/data-analysis.png"
+                                        src="@/assets/images/data-analysis.png"
                                         alt="Data analysis button"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -103,8 +284,8 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/graph-legend.png"
-                                        alt="Graph legendn"
+                                        src="@/assets/images/graph-legend.png"
+                                        alt="Graph legend"
                                         class="w-full h-auto rounded shadow"
                                     />
                                     <figcaption class="mt-2 text-sm text-center text-gray-500">
@@ -132,7 +313,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/download-export.png"
+                                        src="@/assets/images/download-export.png"
                                         alt="Download Button"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -151,7 +332,7 @@
                             <template #left>
                                 <figure class="w-full max-w-sm mx-auto">
                                     <img
-                                        src="@/assets/filters.png"
+                                        src="@/assets/images/filters.png"
                                         alt="Download Filter Screen"
                                         class="w-full h-auto rounded shadow"
                                     />
@@ -215,7 +396,7 @@
                             <div class="w-full max-w-full min-w-0">
                                 <TextTabs
                                     :items="addMeasurementAPITabs"
-                                    v-model="api"
+                                    v-model="apiMeasurement"
                                     class="w-full text-left min-w-0 overflow-y-hidden"
                                 >
                                     <template #requestAdd>
@@ -326,26 +507,82 @@ const exportMeasurementCSV = computed(() => md.render(t("api.export.csv.text")))
 const exportMeasurementDefault = computed(() => md.render(t("api.export.default.text")));
 const exportMeasurementErr = computed(() => md.render(t("api.export.error.text")));
 
+const takeSeparate = computed(() => md.render(t("measurement.step1.taps.separate.text")));
+const takeFaucet1 = computed(() => md.render(t("measurement.step1.taps.faucet1.text")));
+const takeFaucet2 = computed(() => md.render(t("measurement.step1.taps.faucet2.text")));
+const takeThermostatic = computed(() => md.render(t("measurement.step1.taps.thermostatic.text")));
+
+const roomThermometer = computed(() => md.render(t("measurement.step3.tabs.room.text")));
+const infraredThermometer = computed(() => md.render(t("measurement.step3.tabs.infrared.text")));
+const feverThermometer = computed(() => md.render(t("measurement.step3.tabs.fever.text")));
+
 const page = ref<string>("Measurements");
-const api = ref<string>("request");
-const apiExport = ref<string>("request");
+const measurement = ref<string>("separate");
+const thermometer = ref<string>("room");
+const apiMeasurement = ref<string>("requestAdd");
+const apiExport = ref<string>("requestExport");
 
 const tutorials = computed(() => [
     {
         label: t("labels.measurement"),
         slot: "Measurements",
+        value: "Measurements",
     },
     {
         label: t("labels.website"),
         slot: "Website",
+        value: "Website",
     },
     {
         label: t("labels.app"),
         slot: "MobileApp",
+        value: "MobileApp",
     },
     {
         label: t("labels.api"),
         slot: "API",
+        value: "API",
+    },
+]);
+
+const takeMeasurementTabs = computed(() => [
+    {
+        label: t("measurement.step1.taps.separate.title"),
+        slot: "separate",
+        value: "separate",
+    },
+    {
+        label: t("measurement.step1.taps.faucet1.title"),
+        slot: "faucet1",
+        value: "faucet1",
+    },
+    {
+        label: t("measurement.step1.taps.faucet2.title"),
+        slot: "faucet2",
+        value: "faucet2",
+    },
+    {
+        label: t("measurement.step1.taps.thermostatic.title"),
+        slot: "thermostatic",
+        value: "thermostatic",
+    },
+]);
+
+const thermometerTabs = computed(() => [
+    {
+        label: t("measurement.step3.tabs.room.title"),
+        slot: "room",
+        value: "room",
+    },
+    {
+        label: t("measurement.step3.tabs.infrared.title"),
+        slot: "infrared",
+        value: "infrared",
+    },
+    {
+        label: t("measurement.step3.tabs.fever.title"),
+        slot: "fever",
+        value: "fever",
     },
 ]);
 
@@ -353,18 +590,22 @@ const addMeasurementAPITabs = computed(() => [
     {
         label: t("api.add.request.title"),
         slot: "requestAdd",
+        value: "requestAdd",
     },
     {
         label: t("api.add.example.title"),
         slot: "exampleAdd",
+        value: "exampleAdd",
     },
     {
         label: t("api.add.success.title"),
         slot: "successAdd",
+        value: "successAdd",
     },
     {
         label: t("api.add.error.title"),
         slot: "errorAdd",
+        value: "errorAdd",
     },
 ]);
 
@@ -372,22 +613,27 @@ const exportMeasurementAPITabs = computed(() => [
     {
         label: t("api.export.request.title"),
         slot: "requestExport",
+        value: "requestExport",
     },
     {
         label: t("api.export.geojson.title"),
         slot: "geojsonExport",
+        value: "geojsonExport",
     },
     {
         label: t("api.export.csv.title"),
         slot: "csvExport",
+        value: "csvExport",
     },
     {
         label: t("api.export.default.title"),
         slot: "defaultExport",
+        value: "defaultExport",
     },
     {
         label: t("api.export.error.title"),
         slot: "errorExport",
+        value: "errorExport",
     },
 ]);
 </script>

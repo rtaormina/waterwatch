@@ -1,6 +1,6 @@
 import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import SearchResults from "../../../../src/components/SearchResultsComponent.vue";
+import SearchResults from "../../../../src/components/Export/SearchResultsComponent.vue";
 import { nextTick } from "vue";
 import { afterEach } from "vitest";
 
