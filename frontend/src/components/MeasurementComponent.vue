@@ -34,6 +34,10 @@ const defaultData: MeasurementData = {
         },
     },
     selectedMetrics: ["temperature"],
+    time: {
+        localDate: undefined,
+        localTime: undefined,
+    },
 };
 
 const data = ref<MeasurementData>(defaultData);
@@ -175,6 +179,8 @@ defineExpose({
                 :sensor-options="sensorOptions"
                 ref="TemperatureMetric"
             />
+
+            <TimeInput v-model="data.time" />
         </div>
 
         <div

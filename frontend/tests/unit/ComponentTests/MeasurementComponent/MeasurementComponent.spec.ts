@@ -183,6 +183,10 @@ describe("MeasurementComponent.vue clear/post", () => {
                 },
             },
             selectedMetrics: ["temperature"],
+            time: {
+                localDate: undefined,
+                localTime: undefined,
+            }
         };
         wrapper.vm.defaultData = initialData;
         wrapper.vm.clear();
