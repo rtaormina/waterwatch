@@ -22,7 +22,9 @@ Once the html has been built, open the file `/docs/_build/html/index.html` to vi
 
 ## Installation
 
-In order to properly install the applicaction first download the country dataset from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql). Move the sql file into the assets folder of the project.
+> **Important**
+> -------------
+> In order to properly install the application first download the country dataset from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql). Move the sql file into the assets folder of the project.
 
 ### Development
 
