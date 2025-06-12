@@ -34,7 +34,11 @@
                 v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
                 class="analytics-panel left-0 top-19 md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
             >
-                <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
+                <MeasurementComponent
+                    v-if="addMeasurement"
+                    @close="handleCloseAll"
+                    @submitMeasurement="refresh = !refresh"
+                />
                 <DataAnalyticsComponent
                     v-if="viewAnalytics"
                     :location="hexLocation"
@@ -202,6 +206,7 @@ const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
 const range = ref<number[]>([0]);
 const month = ref<string>("0");
+const refresh = ref(false);
 
 /**
  * Handle open and close of map menu
@@ -480,6 +485,7 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
+    refresh.value = !refresh.value; // Trigger re-fetching when refresh changes
     const res = await fetch(`/api/measurements/aggregated?month=${range.value}`);
 
     if (!res.ok) throw new Error(`Status: ${res.status}`);

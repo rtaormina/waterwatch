@@ -60,6 +60,7 @@ function submitData() {
 
 const emit = defineEmits<{
     (e: "close"): void;
+    (e: "submitMeasurement"): void;
 }>();
 
 const showModal = ref(false);
@@ -84,6 +85,7 @@ const postData = () => {
             if (res.status === 201) {
                 router.push({ name: "Map" });
                 showModal.value = false;
+                emit("submitMeasurement");
                 clear();
             } else {
                 console.error("error with adding measurement");
