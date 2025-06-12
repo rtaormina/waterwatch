@@ -118,7 +118,7 @@ defineExpose({
                 data-testid="download-icon"
                 @click="emit('download')"
                 :disabled="!canDownload || !searched || props.filtersOutOfSync"
-                class="flex items-center justify-center md:min-h-0 md:min-w-0 w-25 h-25 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200 disabled:cursor-not-allowed disabled:text-gray-400 enabled:cursor-pointer enabled:text-gray-800 enabled:hover:text-gray-600"
+                class="flex items-center justify-center md:min-h-0 md:min-w-0 w-25 h-25 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200 disabled:cursor-not-allowed disabled:text-dimmed enabled:cursor-pointer enabled:text-muted enabled:hover:text-main"
             >
                 <ArrowDownTrayIcon class="w-full h-full" />
             </button>
@@ -127,7 +127,7 @@ defineExpose({
                 <select
                     data-testid="format"
                     v-model="modelFormat"
-                    class="flex-1 border rounded bg-white px-3 py-2"
+                    class="flex-1 border rounded bg-default px-3 py-2 cursor-pointer"
                     :disabled="!canDownload"
                 >
                     <option value="csv">CSV</option>
@@ -139,11 +139,11 @@ defineExpose({
             <button
                 @click="emit('download')"
                 :disabled="!canDownload || !searched || props.filtersOutOfSync"
-                class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
+                class="w-11/12 md:w-9/12 py-3 text-default rounded-2xl font-semibold text-lg"
                 :class="
                     canDownload && searched && !props.filtersOutOfSync
-                        ? 'bg-main cursor-pointer hover:bg-[#0098c4]'
-                        : 'bg-gray-300 cursor-not-allowed'
+                        ? 'bg-main cursor-pointer hover:bg-[#007ea4]'
+                        : 'bg-accented cursor-not-allowed'
                 "
             >
                 Download
@@ -153,7 +153,7 @@ defineExpose({
                 <div class="flex items-center mt-4 gap-2">
                     <button
                         @click="emit('close-modal')"
-                        class="flex-1 bg-main text-white mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
+                        class="flex-1 bg-main text-default mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
                     >
                         Okay
                     </button>
