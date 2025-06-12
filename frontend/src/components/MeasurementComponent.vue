@@ -13,7 +13,6 @@ import {
     waterSourceOptions,
 } from "../composables/MeasurementCollectionLogic.ts";
 import * as L from "leaflet";
-import { templateRef } from "@vueuse/core";
 
 const cookies = new Cookies();
 const router = useRouter();
@@ -42,8 +41,11 @@ const defaultData: MeasurementData = {
 
 const data = ref<MeasurementData>(defaultData);
 
-const TemperatureMetricComponent = templateRef("TemperatureMetric");
-const MeasurementBlock = useTemplateRef("MeasurementBlock");
+interface VerifiableComponent {
+    verify: () => boolean;
+}
+const TemperatureMetricComponent = useTemplateRef<VerifiableComponent>("TemperatureMetric");
+const MeasurementBlock = useTemplateRef<VerifiableComponent>("MeasurementBlock");
 
 /**
  * Clears the form from all values.
