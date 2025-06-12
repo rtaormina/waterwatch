@@ -61,6 +61,7 @@ services:
       - ./production.nginx:/etc/nginx/nginx.conf
       - /etc/letsencrypt/:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
+      - ../assets/countries.sql:/usr/share/nginx/html/countries.sql:ro
       - gunicorn_socket:/run
       - static_files:/backend_app/static
       - media_files:/backend_app/media

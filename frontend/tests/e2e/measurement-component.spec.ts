@@ -8,7 +8,7 @@ test.describe("Temperature Tests", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto(url + "measurements", { waitUntil: "domcontentloaded" });
         const checkboxes = page.getByTestId("metric-checkbox");
-        tempBox = checkboxes.filter({ hasText: "Temperature" });
+        tempBox = checkboxes.getByLabel("Temperature");
         await tempBox.check();
     });
 

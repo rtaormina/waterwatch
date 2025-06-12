@@ -88,10 +88,12 @@
         },
         "map": {
             "title": "Navigating the Map",
-            "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. To see data analysis, click the graph icon in the bottom left.",
-            "text2": "\n\nTo see the map legend, click the button in the top right. ",
+            "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. All map operations can be found in by pressing the three dots on the top right of the map. There are 4 different map operations. From left to right: view global analysis, map settings, select multiple hexagons, and compare hexagons. In global analysis you will find a chart displaying all measurements on the map. In map settings you can toggle between coloring the map based on temperature or number of measurements. You can also select what time range you would like the map to display. Select multiple hexagons allows you to select a group of hexagons and view analysis for those specific hexagons. Comparing hexagons allows you to select two groups of hexagons and shows the distribution of both groups to allow easy comparison.",            "text2": "\n\nTo see the map legend, click the button in the top right. ",
             "caption1": "Data Analysis Button",
-            "caption2": "Map Legend"
+            "caption2": "Map Menu Button",
+            "caption3": "Map Settings and Legend Button",
+            "caption4": "Select Hexagons Button",
+            "caption5": "Compare Hexagons Button"
         },
         "export": {
             "title": "Exporting Data",

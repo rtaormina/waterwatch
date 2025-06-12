@@ -27,6 +27,7 @@ FROM nginx AS PRODUCTION
 
 WORKDIR /app
 
+COPY assets/countries.sql /usr/share/nginx/html/countries.sql
 COPY --from=BUILD-FRONTEND /app/dist /usr/share/nginx/html/
 COPY --from=BUILD-DOCS /app/build_docs/html /usr/share/nginx/html/docs
 
