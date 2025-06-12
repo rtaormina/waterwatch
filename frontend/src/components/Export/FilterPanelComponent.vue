@@ -17,7 +17,7 @@ const emit = defineEmits(["search"]);
 const selectedContinents = ref<string[]>([]);
 const selectedCountries = ref<string[]>([]);
 const selectedWaterSources = ref<string[]>([]);
-const temperatureEnabled = ref(false);
+const temperatureEnabled = ref(true);
 const temperature = reactive<TemperatureFilter>({
     from: "",
     to: "",
@@ -233,7 +233,7 @@ function reset() {
     selectedContinents.value = [];
     selectedCountries.value = [];
     selectedWaterSources.value = [];
-    temperatureEnabled.value = false;
+    temperatureEnabled.value = true;
     temperature.from = "";
     temperature.to = "";
     temperature.unit = "C";
