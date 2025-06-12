@@ -1,7 +1,7 @@
 <template>
     <div class="legend-popup">
-        <h4 v-if="colorByTemp" class="text-lg font-bold mb-2">Average Temperature</h4>
-        <h4 v-if="!colorByTemp" class="text-lg font-bold mb-2">Number of Measurements</h4>
+        <h4 v-if="legendStore.colorByTemp" class="text-lg font-bold mb-2">Average Temperature</h4>
+        <h4 v-if="!legendStore.colorByTemp" class="text-lg font-bold mb-2">Number of Measurements</h4>
 
         <!-- Gradient bar -->
         <div class="relative w-full h-3 rounded overflow-hidden">
@@ -18,31 +18,36 @@
                 <span class="w-px h-2 bg-gray-700"></span>
                 <span class="w-px h-2 bg-gray-700"></span>
                 <span class="w-px h-2 bg-gray-700"></span>
+                <span class="w-px h-2 bg-gray-700"></span>
             </div>
         </div>
 
         <!-- Labels under ticks -->
         <div class="mt-1 mb-2 flex justify-between text-sm text-gray-700">
             <span>
-                <span v-if="colorByTemp">&leq;</span>
-                {{ props.scale[0] }}
-                <span v-if="colorByTemp">°C</span>
+                <span v-if="legendStore.colorByTemp">&leq;</span>
+                {{ legendStore.scale[0] }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
             <span>
-                {{ props.scale[0] + step }}
-                <span v-if="colorByTemp">°C</span>
+                {{ legendStore.scale[0] + step }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
             <span>
-                {{ props.scale[0] + step * 2 }}
-                <span v-if="colorByTemp">°C</span>
+                {{ legendStore.scale[0] + step * 2 }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
             <span>
-                {{ props.scale[0] + step * 3 }}
-                <span v-if="colorByTemp">°C</span>
+                {{ legendStore.scale[0] + step * 3 }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
             <span>
-                &geq;{{ props.scale[1] }}
-                <span v-if="colorByTemp">°C</span>
+                {{ legendStore.scale[0] + step * 4 }}
+                <span v-if="legendStore.colorByTemp">°C</span>
+            </span>
+            <span>
+                &geq;{{ legendStore.scale[1] }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
         </div>
 
@@ -69,7 +74,7 @@
         <div class="flex gap-2 w-full">
             <button
                 @click="toTempMode"
-                :class="{ 'bg-main text-white': colorByTemp }"
+                :class="{ 'bg-main text-white': legendStore.colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
             >
                 Temperature
@@ -77,7 +82,7 @@
             <button
                 data-testid="count"
                 @click="toCountMode"
-                :class="{ 'bg-main text-white': !colorByTemp }"
+                :class="{ 'bg-main text-white': !legendStore.colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
             >
                 Count
@@ -127,10 +132,15 @@
 <script setup lang="ts">
 import { InformationCircleIcon } from "@heroicons/vue/24/outline";
 import { computed, ref } from "vue";
+import { useLegendStore } from "../stores/LegendStore";
+
+const legendStore = useLegendStore();
+const props = defineProps<{
+    colors: string[];
+}>();
 
 const emit = defineEmits<{
-    (e: "update", value: number[]): void;
-    (e: "switch"): void;
+    (e: "update", value: string | string[]): void;
 }>();
 
 const isMulti = computed(() => internalValue.value !== "Past 30 Days");
@@ -222,29 +232,24 @@ const items = ref([
     "December",
 ]);
 
-const props = defineProps<{
-    colors: string[];
-    scale: [number, number];
-    colorByTemp: boolean;
-}>();
-
 /**
  * Switch to count mode.
  */
 function toCountMode() {
-    if (!props.colorByTemp) return;
-    emit("switch");
+    if (!legendStore.colorByTemp) return;
+    legendStore.colorByTemp = false;
 }
 
 /**
  * Switch to temperature mode.
  */
 function toTempMode() {
-    if (props.colorByTemp) return;
-    emit("switch");
+    if (legendStore.colorByTemp) return;
+    legendStore.colorByTemp = true;
+    legendStore.scale = [0, 40];
 }
 
-const step = computed(() => (props.scale[1] - props.scale[0]) / 4);
+const step = computed(() => (legendStore.scale[1] - legendStore.scale[0]) / 5);
 </script>
 
 <style scoped>
