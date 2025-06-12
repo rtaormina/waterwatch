@@ -1,38 +1,144 @@
 import { mount, VueWrapper } from "@vue/test-utils";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import Legend from "../../../../src/components/Legend.vue";
 
+import { shallowMount } from "@vue/test-utils";
 
-describe('Legend.vue', () => {
-  const colors = ['#0000ff', '#ff0000']
-  const scale: [number, number] = [10, 50]
+type UpdateEvent = string | string[];
 
-  it('renders gradient style correctly', () => {
+describe("Legend.vue filtering tests", () => {
+    let wrapper: VueWrapper<any>;
+    let select: VueWrapper<any>;
+
+    const factory = () => {
+        wrapper = shallowMount(Legend, {
+            props: {
+                colors: ["#111", "#eee"],
+                scale: [0, 40] as [number, number],
+                colorByTemp: true,
+            },
+            global: {
+                stubs: { USelect: true },
+            },
+        });
+        select = wrapper.findComponent({ name: "USelect" });
+    };
+
+    it("defaults to single-select mode (Past 30 Days)", () => {
+        factory();
+        expect(wrapper.vm.internalValue).toBe("Past 30 Days");
+    });
+
+    it("when you pick a single month, emits that string and turns on multi", async () => {
+        factory();
+        await select.vm.$emit("update:model-value", "April");
+
+        expect(wrapper.vm.internalValue).toEqual(["April"]);
+        const ev = wrapper.emitted<UpdateEvent[]>("update")!;
+        expect(ev[0][0]).toEqual([4]);
+    });
+
+    it("when you pick multiple months, emits array of those months", async () => {
+        factory();
+        await select.vm.$emit("update:model-value", ["March", "May"]);
+        expect(wrapper.vm.internalValue).toEqual(["March", "May"]);
+        const ev = wrapper.emitted<UpdateEvent[]>("update")!;
+        expect(ev[0]).toEqual([[3,5]]);
+        await select.vm.$emit("update:model-value", "Past 30 Days");
+        expect(wrapper.vm.internalValue).toEqual(["Past 30 Days"]);
+    });
+
+    it('defaults to past 30 days when selected', async () => {
+        factory();
+        await select.vm.$emit("update:model-value", ["Past 30 Days", "June"]);
+        expect(wrapper.vm.internalValue).toEqual(["June"]);
+        const ev = wrapper.emitted<UpdateEvent[]>("update")!;
+        expect(ev[0]).toEqual([[6]]);
+    });
+
+    it('goes back to single-select if you explicitly pick "Past 30 Days"', async () => {
+        factory();
+        await select.vm.$emit("update:model-value", "Past 30 Days");
+        await select.vm.$emit("update:model-value", "February");
+        expect(wrapper.vm.internalValue).toEqual(["February"]);
+        const ev = wrapper.emitted<UpdateEvent[]>("update")!;
+        expect(ev[1]).toEqual([[2]]);
+    });
+
+    it('displays time info when selected', async () => {
+      factory();
+      const info = wrapper.find('[data-testid="info-button"]')
+      await info.trigger("click");
+      expect(wrapper.vm.showInfoTextTime).toBe(true)
+    });
+
+    it('displays coloring info when selected', async () => {
+      factory();
+      const info = wrapper.find('[data-testid="info-button-hex"]')
+      await info.trigger("click");
+      const text = wrapper.find('[data-testid="info-text-hex"]')
+      expect(wrapper.vm.showInfoTextColoring).toBe(true)
+    });
+});
+
+describe("Legend.vue gradient tests", () => {
+    const colors = ["#0000ff", "#ff0000"];
+    const scale: [number, number] = [10, 50];
+    const colorByTemp = true;
+
+    it("renders gradient style correctly", () => {
+        const wrapper = mount(Legend, {
+            props: { colors, scale, colorByTemp },
+        });
+
+        const gradientDiv = wrapper.find(".relative > div");
+        const style = (gradientDiv.element as HTMLDivElement).style.background;
+        expect(style).toContain(`linear-gradient(to right, ${colors[0]}, ${colors[1]})`);
+    });
+
+    it('computes step and renders five labels', () => {
     const wrapper = mount(Legend, {
-      props: { colors, scale }
+      props: { colors, scale, colorByTemp }
     })
 
-    const gradientDiv = wrapper.find('.relative > div')
-    const style = (gradientDiv.element as HTMLDivElement).style.background
-    expect(style).toContain(`linear-gradient(to right, ${colors[0]}, ${colors[1]})`)
-  })
-
-  it('computes step and renders five labels', () => {
-    const wrapper = mount(Legend, {
-      props: { colors, scale }
-    })
-
-    const expected = [10, 20, 30, 40, 50].map(n => `${n}°C`)
+    // Order is messed up because how the wrapper returns the spans from the DOM
+    const expected = [`10`, `≤`, `°C`, `20`, `°C`, `30`, `°C`, `40`, `°C`, `≥50`, `°C`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
-    expect(labelSpans).toHaveLength(5)
+    expect(labelSpans).toHaveLength(11) // 5 labels: 1 with 3, 4 with 2 labels
     labelSpans.forEach((span, i) => {
       expect(span.text()).toContain(expected[i])
     })
   })
 
   it('has the correct root class', () => {
-    const wrapper = mount(Legend, { props: { colors, scale } })
+    const wrapper = mount(Legend, { props: { colors, scale, colorByTemp } })
     expect(wrapper.classes()).toContain('legend-popup')
   })
-})
+
+  it('updates scale when button is clicked', async () => {
+    const wrapper = mount(Legend, {
+      props: { colors, scale: scale, colorByTemp: true }
+    });
+
+    wrapper.vm.$.emit = (event: string) => {
+      if (event === "switch") {
+        wrapper.setProps({ scale: scale, colorByTemp: false });
+      }
+    };
+
+    await wrapper.find('[data-testid="count"]').trigger("click");
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.props("scale")).toEqual(scale);
+
+    const expected = [`10`, `20`, `30`, `40`, `≥50`]
+
+    const labelSpans = wrapper.findAll('.mt-1 span')
+    console.log(labelSpans)
+    expect(labelSpans).toHaveLength(5)
+    labelSpans.forEach((span, i) => {
+      expect(span.text()).toContain(expected[i])
+    })
+  });
+});

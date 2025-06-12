@@ -9,19 +9,19 @@
 defineOptions({ name: "DataDownloadView" });
 import { ref, watch } from "vue";
 import { computed } from "vue";
-import SearchBar from "../components/SearchBarComponent.vue";
-import FilterPanel from "../components/FilterPanelComponent.vue";
-import SearchResults from "../components/SearchResultsComponent.vue";
-import { useSearch } from "../composables/useSearch";
-import { useExportData } from "../composables/useExportData";
-import { type Preset } from "@/composables/usePresets";
+import SearchBar from "../components/Export/SearchBarComponent.vue";
+import FilterPanel from "../components/Export/FilterPanelComponent.vue";
+import SearchResults from "../components/Export/SearchResultsComponent.vue";
+import { useSearch } from "../composables/Export/useSearch";
+import { useExportData } from "../composables/Export/useExportData";
+import { type Preset } from "../composables/Export/usePresets";
 
 const query = ref("");
 // Reference to the FilterPanel component
 const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 
 // Store last search parameters to detect changes in filters
-const lastSearchParams = ref<import("@/composables/useSearch").MeasurementSearchParams | null>(null);
+const lastSearchParams = ref<import("@/composables/Export/useSearch").MeasurementSearchParams | null>(null);
 
 // Flag to indicate if filters are out of sync with the last search
 const filtersOutOfSync = ref(false);
@@ -123,12 +123,12 @@ watch(
 
 <template>
     <div
-        class="h-auto bg-white w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow md:overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10"
+        class="h-auto bg-white w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10 outer-container"
     >
         <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
 
         <div class="flex flex-col md:flex-row md:space-x-8 flex-grow min-h-0 pb-[14px]">
-            <div class="w-full md:w-7/12 flex flex-col min-h-0">
+            <div class="w-full md:w-7/12 flex flex-col min-h-0 landscape-component component1">
                 <div class="mb-4 shrink-0">
                     <SearchBar
                         v-model:query="query"
@@ -137,12 +137,12 @@ watch(
                         :search-disabled="presetSearchDisabled"
                     />
                 </div>
-                <div class="flex-grow bg-light min-h-0 mb-[14px]">
+                <div class="h-auto bg-light mb-[14px] overflow-visible landscape-component">
                     <FilterPanel ref="filterPanelRef" @search="onSearch" />
                 </div>
             </div>
 
-            <div class="w-full md:w-5/12 flex flex-col min-h-0">
+            <div class="w-full md:w-5/12 flex flex-col h-auto overflow-visible landscape-component component2">
                 <SearchResults
                     :results="results"
                     :searched="hasSearched"
@@ -157,3 +157,26 @@ watch(
         </div>
     </div>
 </template>
+
+<style>
+@media (max-height: 500px) {
+    .outer-container {
+        padding-inline: 2vw !important;
+    }
+
+    .landscape-component {
+        padding: 0.5rem !important;
+        overflow-y: visible !important;
+        height: auto !important;
+    }
+    .component1 {
+        width: 65% !important;
+        max-width: 65% !important;
+    }
+
+    .component2 {
+        width: 35% !important;
+        max-width: 35% !important;
+    }
+}
+</style>

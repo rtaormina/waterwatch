@@ -29,10 +29,8 @@ DATABASE=$(docker ps --format "{{.Names}}" | grep postgres)
 
 # Import data
 echo "Importing data..."
-docker cp ../countries_1.sql $DATABASE:/countries_1.sql
-docker cp ../countries_2.sql $DATABASE:/countries_2.sql
-docker exec "$DATABASE" psql -U admin -d pg4django -f countries_1.sql
-docker exec "$DATABASE" psql -U admin -d pg4django -f countries_2.sql
+docker cp ../assets/countries.sql $DATABASE:/countries.sql
+docker exec "$DATABASE" psql -U admin -d pg4django -f countries.sql
 
 # Run migrations
 echo "Running migrations..."

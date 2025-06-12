@@ -2,11 +2,12 @@
 
 import json
 import logging
-from datetime import time
+from datetime import time, timedelta
 
 from django.contrib.gis.geos import GEOSException, GEOSGeometry
 from django.db.models import Avg, Count, Q
 from django.http import JsonResponse
+from django.utils import timezone
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework.decorators import api_view
@@ -34,17 +35,32 @@ def export_all_view(request):
     JsonResponse
         JSON response containing all measurements serialized with the MeasurementSerializer.
     """
-    boundry_geometry = request.GET.get("boundry_geometry")
+    boundary_geometry = request.GET.get("boundary_geometry")
     query = Measurement.objects.select_related(*[model.__name__.lower() for model in METRIC_MODELS])
-    if boundry_geometry:
+    if boundary_geometry:
         try:
-            polygon = GEOSGeometry(boundry_geometry)
+            polygon = GEOSGeometry(boundary_geometry)
             query = query.filter(location__within=polygon)
         except GEOSException:
-            logger.exception("Invalid boundry_geometry format: %s")
-            return JsonResponse({"error": "Invalid boundry_geometry format"}, status=400)
+            logger.exception("Invalid boundary_geometry format: %s")
+            return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
     else:
         query = query.all()
+
+    if month_param := request.GET.get("month"):
+        parts = [p.strip() for p in month_param.split(",") if p.strip()]
+        if parts == ["0"]:
+            cutoff = timezone.now().date() - timedelta(days=30)
+            query = query.filter(local_date__gte=cutoff)
+        else:
+            try:
+                months = [int(p) for p in parts]
+            except ValueError:
+                return JsonResponse({"error": "Invalid month parameter; must be 0 or comma-separated 1-12"}, status=400)
+            months = [m for m in months if 1 <= m <= 12]
+            if not months:
+                return JsonResponse({"error": "No valid month numbers provided; must be 0 or 1-12"}, status=400)
+            query = query.filter(local_date__month__in=months)
 
     # If there are other metrics you want to add, you can include it to data
     data = [m.temperature.value for m in query if m.temperature is not None]

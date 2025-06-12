@@ -1,7 +1,7 @@
-import { drawHistogram } from '../../../src/composables/DataVisualizationLogic';
+import { drawHistogramWithKDE } from '../../../src/composables/Analysis/DataVisualizationLogic';
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 
-describe('drawHistogram', () => {
+describe('drawHistogramWithKDE', () => {
     let container: HTMLDivElement;
 
     /**
@@ -23,7 +23,7 @@ describe('drawHistogram', () => {
 
     it('renders a histogram and KDE line - multiple measurements', () => {
         const data = [1, 2, 2, 3, 3, 3, 4, 5];
-        drawHistogram(container, data);
+        drawHistogramWithKDE(container, data, "steelblue", "orange");
 
         const svg = container.querySelector('svg');
         expect(svg).not.toBeNull();
@@ -37,7 +37,7 @@ describe('drawHistogram', () => {
 
     it('renders a histogram and KDE line - single measurement', () => {
         const data = [1];
-        drawHistogram(container, data);
+        drawHistogramWithKDE(container, data, "steelblue", "orange");
 
         const svg = container.querySelector('svg');
         expect(svg).not.toBeNull();

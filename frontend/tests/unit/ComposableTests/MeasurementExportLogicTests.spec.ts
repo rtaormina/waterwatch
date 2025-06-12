@@ -23,9 +23,9 @@ global.fetch = vi.fn() as unknown as typeof fetch;
 
 import * as fileSaver from "file-saver";
 import axios from "axios"; // This will be the mocked version
-import { useExportData } from "../../../src/composables/useExportData.ts";
-import { useFilters } from "../../../src/composables/useFilters.ts";
-import { useSearch, MeasurementSearchParams, state } from "../../../src/composables/useSearch.ts";
+import { useExportData } from "../../../src/composables/Export/useExportData.ts";
+import { useFilters } from "../../../src/composables/Export/useFilters.ts";
+import { useSearch, MeasurementSearchParams, state } from "../../../src/composables/Export/useSearch.ts";
 
 /**
  * Mock response class to simulate fetch responses

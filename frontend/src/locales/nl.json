@@ -12,13 +12,56 @@
         },
         "step1": {
             "title": "",
-            "text": ""
+            "text": "",
+            "taps": {
+                "separate": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "faucet1": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "faucet2": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "thermostatic":{
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                }
+            }
         },
         "step2": {
             "title": "",
             "text": ""
         },
         "step3": {
+            "title": "",
+            "text": "",
+            "tabs": {
+                "room": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                },
+                "infrared": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+               },
+               "fever": {
+                    "title": "",
+                    "text": "",
+                    "caption": ""
+                }
+            }
+        },
+        "step4": {
             "title": "",
             "text": ""
         },
@@ -48,7 +91,10 @@
             "text1": "In deze instructie wordt uitgelegd hoe je de kaart van WATERWATCH kan gebruiken.\n\nGa naar de pagina met de kaart door 'Map' te selecteren in de navigatie balk. Het is mogelijk om in en uit te zoomen door op de + en - knoppen links boven te klikken. Om meer informatie over een hexagon te krijgen kan je erop klikken. Voor meer gedetaileerde data analyse, klik op het grafiek icon links onder in de pagina.",
             "text2": "\n\nVoor een legenda van kaart klik op de knop linksboven.",
             "caption1": "Data Analyse knop",
-            "caption2": "Kaart Legenda"
+            "caption2": "",
+            "caption3": "",
+            "caption4": "",
+            "caption5": ""
         },
         "export": {
             "title": "Exporteren van Data",

@@ -7,8 +7,8 @@ stages:
   - build_images
   - linting
   - testing
-  - deploy
-#  - e2e_tests
+# - deploy
+# - e2e_tests
 
 # Build Docker Image for Backend
 build_backend_image:
@@ -145,22 +145,23 @@ frontend_unit_tests:
 #     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "dev" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
 #       when: on_success
 
-deploy_production:
-  stage: deploy
-  before_script:
-    - "command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )"
-    - eval $(ssh-agent -s)
-    - chmod 400 "$SSH_PRIVATE_KEY"
-    - ssh-add "$SSH_PRIVATE_KEY"
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan waterwatch.tudelft.nl >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-  script:
-    - ssh gitlab_deployment@waterwatch.tudelft.nl "git pull && ./production/deploy.sh"
-  rules:
-    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
-      when: on_success
-  environment:
-    name: production
-    url: https://waterwatch.tudelft.nl
+# deploy_production:
+#   stage: deploy
+#   image: ubuntu:latest
+#   before_script:
+#     - "command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )"
+#     - eval $(ssh-agent -s)
+#     - chmod 400 "$SSH_PRIVATE_KEY"
+#     - ssh-add "$SSH_PRIVATE_KEY"
+#     - mkdir -p ~/.ssh
+#     - chmod 700 ~/.ssh
+#     - cp "$SSH_KNOWN_HOSTS" ~/.ssh/known_hosts
+#     - chmod 644 ~/.ssh/known_hosts
+#   script:
+#     - ssh gitlab_deployment@waterwatch.tudelft.nl "cd WATERWATCH && git pull && ./production/deploy.sh"
+#   rules:
+#     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+#       when: on_success
+#   environment:
+#     name: production
+#     url: https://waterwatch.tudelft.nl

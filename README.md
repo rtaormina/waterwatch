@@ -22,6 +22,10 @@ Once the html has been built, open the file `/docs/_build/html/index.html` to vi
 
 ## Installation
 
+> **Important**
+> -------------
+> In order to properly install the application first download the country dataset from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql). Move the sql file into the assets folder of the project.
+
 ### Development
 
 Requirements before install:
@@ -144,6 +148,7 @@ docker exec backend python manage.py test
     dos2unix test-reset-db.sh
     ./test-reset-db.sh
     ```
+> For more troubleshooting steps visit [Troubleshooting](https://waterwatch.tudelft.nl/docs/troubleshooting.html)
 
 ## Contributing
 To avoid having to run individual installation commands, run:
@@ -183,6 +188,8 @@ pre-commit install
 ```
 This makes sure that the pre-commit hooks will be run before commiting.
 
+> For more information visit our [Contribution Guide](https://waterwatch.tudelft.nl/docs/contribution_guide.html).
+
 
 ## License
 [MIT](./LICENSE)
@@ -206,10 +213,3 @@ This makes sure that the pre-commit hooks will be run before commiting.
 
 
 > Additional thanks to everyone who helped in any way, shape, or form.
-
-generate type doc
-- npm install --save-dev typedoc
-- npm install typedoc-plugin-markdown --save-dev
-- npx typedoc --plugin typedoc-plugin-markdown --out docs/ts
-- npx vue-docgen frontend/src/components docs/vue-components
-- npx vue-docgen frontend/src/views docs/vue-views

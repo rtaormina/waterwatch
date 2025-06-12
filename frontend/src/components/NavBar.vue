@@ -13,7 +13,7 @@ const showOverlay = ref(false);
  * Check if the user is on a mobile device
  */
 const checkMobile = () => {
-    isMobile.value = window.innerWidth < 768;
+    isMobile.value = window.innerWidth < 1024;
 };
 
 /**
@@ -42,9 +42,9 @@ onUnmounted(() => {
 });
 
 const items = ref([
-    { label: "Preferences", icon: "i-lucide-settings", to: "/preferences" },
-    { label: "See History", icon: "i-lucide-history", to: "/history" },
-    { type: "separator" },
+    // { label: "Preferences", icon: "i-lucide-settings", to: "/preferences" },
+    // { label: "See History", icon: "i-lucide-history", to: "/history" },
+    // { type: "separator" },
     {
         label: "Log Out",
         icon: "i-lucide-log-out",
@@ -85,7 +85,7 @@ defineExpose({
         leave-from-class="translate-x-0"
         leave-to-class="translate-x-full"
     >
-        <div v-if="showOverlay" class="fixed inset-0 bg-[#00A6D6] z-50">
+        <div v-if="showOverlay" class="fixed inset-0 bg-[#00A6D6] z-50 overlay">
             <div class="flex">
                 <div class="text-4xl text-white font-custom mt-6 ml-6">WATERWATCH</div>
             </div>
@@ -96,10 +96,10 @@ defineExpose({
 
                     <div class="flex flex-row justify-center space-y-6">
                         <!-- white bar -->
-                        <div class="bg-white w-1.5 h-75 ml-auto mx-4"></div>
+                        <div class="bg-white w-1.5 h-75 ml-auto mx-4 bar"></div>
 
                         <!-- Menu items -->
-                        <div class="flex flex-col justify-right space-y-6 text-4xl">
+                        <div class="flex flex-col justify-right space-y-6 text-4xl menu-items">
                             <div v-for="item in navItems" :key="item.name">
                                 <router-link
                                     :to="item.to"
@@ -234,3 +234,16 @@ defineExpose({
         </div>
     </div>
 </template>
+
+<style>
+@media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
+    .menu-items {
+        font-size: 1.7rem !important;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.25rem;
+    }
+    .bar {
+        height: auto !important;
+    }
+}
+</style>

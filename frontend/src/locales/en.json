@@ -7,20 +7,63 @@
     },
     "measurement": {
         "introduction": {
-            "title": "",
-            "text": ""
+            "title": "How to a Take Water Temperature Measurement",
+            "text": "Welcome to the tutorial page for taking a water measurement! In this tutorial you will learn how to take a water temperature measurement that can be recorded on the WATERWATCH website or app. This tutorial is intended for citizen scientists and researchers alike. To complete the tutorial you will need a normal or infrared thermometer."
         },
         "step1": {
-            "title": "",
-            "text": ""
+            "title": "Step 1",
+            "text": "Open the kitchen tap.",
+            "taps": {
+                "separate": {
+                    "title": "Separate Hot/Cold Tap",
+                    "text": "Open the cold water tap.",
+                    "caption": "Example of a sink with separate hot and cold taps."
+                },
+                "faucet1": {
+                    "title": "Dual Handle Faucet",
+                    "text": "Open only the cold water tap.",
+                    "caption": "Example of a sink with a faucet with separate cold and hot water valve."
+                },
+                "faucet2": {
+                    "title": "Single Handle Faucet",
+                    "text": "Open the tap with as far as possible to the cold water side to ensure only cold water is being drawn.",
+                    "caption": "Example of a sink with a faucet with a single handle to regulate mixture of cold and hot water."
+                },
+                "thermostatic": {
+                    "title": "Thermostatic Faucet",
+                    "text": "Set the thermostat to as cold as possible, then open the tap.",
+                    "caption": "Example of a sink with a thermostatic faucet."
+                }
+            }
         },
         "step2": {
-            "title": "",
-            "text": ""
+            "title": "Step 2",
+            "text": "Let the water run for one minute. You may want to let the water run into a bucket to avoid wasting any water."
         },
         "step3": {
-            "title": "",
-            "text": ""
+            "title": "Step 3",
+            "text": "Measure the temperature of the water.",
+            "tabs": {
+                "room": {
+                    "title": "Room Thermometer",
+                    "text": "If you are using a thermometer that measures room temperature, place the sensor (bulb at the bottom) into the water stream. Wait at least 20 seconds and read the temperature. Accuracy is +/-0.5C°.",
+                    "caption": "Example of a room thermometer"
+                },
+                "infrared": {
+                    "title": "Infrared Thermometer",
+                    "text": "Point the beam at the water stream. The water stream needs to be sufficiently wide (open the tap fully) for accurate measurements. Wait for a stable reading and read the temperature. Accuracy is +/-0.1°C.",
+                    "caption": "Example of an infrared thermometer"
+                },
+                "fever": {
+                    "title": "Fever Thermometer",
+                    "text": "This type of thermometer will not read temperatures that are too low and is unsuitable for measuring water temperatures for WATERWATCH. It can't be used.",
+                    "caption": "Example of a fever thermometer"
+                }
+            }
+        },
+        "step4": {
+            "title": "Step 4",
+            "text": "Enter the reading on WATERWATCH!"
         },
         "conclusion": {
             "title": "",
@@ -45,10 +88,12 @@
         },
         "map": {
             "title": "Navigating the Map",
-            "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. To see data analysis, click the graph icon in the bottom left.",
-            "text2": "\n\nTo see the map legend, click the button in the top right. ",
+            "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. All map operations can be found in by pressing the three dots on the top right of the map. There are 4 different map operations. From left to right: view global analysis, map settings, select multiple hexagons, and compare hexagons. In global analysis you will find a chart displaying all measurements on the map. In map settings you can toggle between coloring the map based on temperature or number of measurements. You can also select what time range you would like the map to display. Select multiple hexagons allows you to select a group of hexagons and view analysis for those specific hexagons. Comparing hexagons allows you to select two groups of hexagons and shows the distribution of both groups to allow easy comparison.",            "text2": "\n\nTo see the map legend, click the button in the top right. ",
             "caption1": "Data Analysis Button",
-            "caption2": "Map Legend"
+            "caption2": "Map Menu Button",
+            "caption3": "Map Settings and Legend Button",
+            "caption4": "Select Hexagons Button",
+            "caption5": "Compare Hexagons Button"
         },
         "export": {
             "title": "Exporting Data",
@@ -66,8 +111,8 @@
     },
     "app": {
         "introduction": {
-            "title": "",
-            "text": ""
+            "title": "How to Use the WATERWATCH Mobile App",
+            "text": "Welcome to the tutorial page for using the WATERWATCH mobile app! The WATERWATCH app was created for researchers and citizen scientists to report water quality measurements and gather data offline. In this tutorial you will learn how to download the app and add your first measurement. This guide is designed for first-time users and experienced researchers looking to get the most out of the WATERWATCH app."
         },
         "step1": {
             "title": "",
