@@ -1,6 +1,8 @@
 import { mount, VueWrapper } from "@vue/test-utils";
-import { describe, it, expect } from "vitest";
+import { vi, describe, it, expect, beforeEach } from "vitest";
 import Legend from "../../../../src/components/Legend.vue";
+import { setActivePinia, createPinia } from "pinia";
+import { useLegendStore } from "../../../../src/stores/LegendStore";
 
 import { shallowMount } from "@vue/test-utils";
 
@@ -10,12 +12,21 @@ describe("Legend.vue filtering tests", () => {
     let wrapper: VueWrapper<any>;
     let select: VueWrapper<any>;
 
+    beforeEach(() => {
+      setActivePinia(createPinia());
+      vi.clearAllMocks();
+      vi.mock("../../../src/stores/LegendStore", () => ({
+          useLegendStore: () => ({
+              scale: [10, 50],
+              colorByTemp: true,
+          }),
+      }));
+    });
+
     const factory = () => {
         wrapper = shallowMount(Legend, {
             props: {
                 colors: ["#111", "#eee"],
-                scale: [0, 40] as [number, number],
-                colorByTemp: true,
             },
             global: {
                 stubs: { USelect: true },
@@ -83,12 +94,16 @@ describe("Legend.vue filtering tests", () => {
 
 describe("Legend.vue gradient tests", () => {
     const colors = ["#0000ff", "#ff0000"];
-    const scale: [number, number] = [10, 50];
-    const colorByTemp = true;
+    let legendStore;
+
+    beforeEach(() => {
+      setActivePinia(createPinia());
+      legendStore = useLegendStore();
+    });
 
     it("renders gradient style correctly", () => {
         const wrapper = mount(Legend, {
-            props: { colors, scale, colorByTemp },
+            props: { colors },
         });
 
         const gradientDiv = wrapper.find(".relative > div");
@@ -98,45 +113,41 @@ describe("Legend.vue gradient tests", () => {
 
     it('computes step and renders five labels', () => {
     const wrapper = mount(Legend, {
-      props: { colors, scale, colorByTemp }
+      props: { colors }
     })
 
     // Order is messed up because how the wrapper returns the spans from the DOM
-    const expected = [`10`, `≤`, `°C`, `20`, `°C`, `30`, `°C`, `40`, `°C`, `≥50`, `°C`]
+    const expected = [`0`, `≤`, `°C`, `8`, `°C`, `16`, `°C`, `24`, `°C`, `32`, `°C`, `≥40`, `°C`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
-    expect(labelSpans).toHaveLength(11) // 5 labels: 1 with 3, 4 with 2 labels
+    expect(labelSpans).toHaveLength(13) // 5 labels: 1 with 3, 4 with 2 labels
     labelSpans.forEach((span, i) => {
       expect(span.text()).toContain(expected[i])
     })
   })
 
   it('has the correct root class', () => {
-    const wrapper = mount(Legend, { props: { colors, scale, colorByTemp } })
+    const wrapper = mount(Legend, { props: { colors } })
     expect(wrapper.classes()).toContain('legend-popup')
   })
 
   it('updates scale when button is clicked', async () => {
     const wrapper = mount(Legend, {
-      props: { colors, scale: scale, colorByTemp: true }
+      props: { colors }
     });
 
-    wrapper.vm.$.emit = (event: string) => {
-      if (event === "switch") {
-        wrapper.setProps({ scale: scale, colorByTemp: false });
-      }
-    };
+    // Simulate changing the mode in the legendStore
+    legendStore.colorByTemp = false;
 
     await wrapper.find('[data-testid="count"]').trigger("click");
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.props("scale")).toEqual(scale);
+    expect(legendStore.scale).toEqual([0, 40]);
 
-    const expected = [`10`, `20`, `30`, `40`, `≥50`]
+    const expected = [`0`, `8`, `16`, `24`, `32`, `≥40`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
-    console.log(labelSpans)
-    expect(labelSpans).toHaveLength(5)
+    expect(labelSpans).toHaveLength(6)
     labelSpans.forEach((span, i) => {
       expect(span.text()).toContain(expected[i])
     })
