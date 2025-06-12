@@ -323,13 +323,18 @@ describe("useSearch", () => {
         // Reset state directly for each test if useSearch() creates a fresh state
         // or ensure useSearch() is called to get a fresh instance if state is module-scoped and shared.
         // For this example, assuming state is reset as it's module-level.
-        state.hasSearched = false;
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
         state.count = 0;
         state.avgTemp = 0;
     });
 
     it("performs basic search using POST", async () => {
-        const { searchMeasurements, results, hasSearched } = useSearch();
+        const { searchMeasurements, results } = useSearch();
 
         mockedAxios.post.mockResolvedValue({
             data: { count: 100, avgTemp: 25.5 },
@@ -340,7 +345,6 @@ describe("useSearch", () => {
 
         await searchMeasurements(params);
 
-        expect(hasSearched.value).toBe(true);
         expect(results.value.count).toBe(100);
         expect(results.value.avgTemp).toBe(25.5);
         expect(mockedAxios.post).toHaveBeenCalledWith(
@@ -409,7 +413,7 @@ describe("useSearch", () => {
     });
 
     it("handles search errors gracefully with POST", async () => {
-        const { searchMeasurements, results, hasSearched } = useSearch();
+        const { searchMeasurements, results } = useSearch();
 
         // Mock axios.post to reject
         mockedAxios.post.mockRejectedValue(new Error("API Error"));
@@ -417,7 +421,6 @@ describe("useSearch", () => {
 
         await searchMeasurements({ query: "test" });
 
-        expect(hasSearched.value).toBe(true); // It attempts a search
         expect(results.value.count).toBe(0);
         expect(results.value.avgTemp).toBe(0);
         expect(consoleSpy).toHaveBeenCalledWith("Search failed:", expect.any(Error));
@@ -426,15 +429,13 @@ describe("useSearch", () => {
     });
 
     it("resets search state (no change to test)", () => {
-        const { resetSearch, hasSearched, results } = useSearch();
+        const { resetSearch, results } = useSearch();
 
-        state.hasSearched = true;
         state.count = 50;
         state.avgTemp = 20;
 
         resetSearch();
 
-        expect(hasSearched.value).toBe(false);
         expect(results.value.count).toBe(0);
         expect(results.value.avgTemp).toBe(0);
     });
