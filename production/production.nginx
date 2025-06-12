@@ -14,7 +14,7 @@ http {
   access_log /var/log/nginx/access.log main;
   sendfile on;
 
-  ssl_session_cache   shared:SSL:10m;
+  ssl_session_cache shared:SSL:10m;
   ssl_session_timeout 10m;
 
   keepalive_timeout 65;
@@ -65,6 +65,11 @@ http {
     # Path to the root of your static files
     root /usr/share/nginx/html/;
 
+
+    location /countries.sql {
+      # Serve the countries.sql file directly
+      alias /usr/share/nginx/html/countries.sql;
+    }
 
     location /favicon.ico {
       alias /usr/share/nginx/html/favicon.svg;
