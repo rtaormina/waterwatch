@@ -12,7 +12,6 @@ const priorDot = ref(false);
 const handleTempPress = (event: KeyboardEvent) => {
     const key = event.key;
     const target = event.target as HTMLInputElement;
-    console.log("Key pressed: " + key);
 
     if (key === "Backspace" || key === "Delete") {
         // handle backspace and delete
