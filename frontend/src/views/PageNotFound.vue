@@ -1,0 +1,37 @@
+<template>
+    <div class="max-w-2xl h-full flex flex-col justify-center mx-auto">
+        <div class="text-center">
+            <h1 class="text-9xl font-bold text-highlight mb-4">404</h1>
+            <p class="text-2xl text-muted mb-6">Page Not Found</p>
+            <p class="text-dimmed mb-8">Oops it seems this part of WATERWATCH is yet to be discovered</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <UButton
+                @click="
+                    () => {
+                        router.back();
+                    }
+                "
+                size="xl"
+                icon="i-heroicons-arrow-left-20-solid"
+                class="border bg-default text-md border-primary justify-center text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer"
+                label="Go Back"
+            />
+            <RouterLink to="/">
+                <UButton
+                    size="xl"
+                    icon="i-heroicons-map-pin-20-solid"
+                    class="px-4 py-2 rounded text-inverted justify-center text-md bg-primary hover:cursor-pointer"
+                    label="Return to Homepage"
+                />
+            </RouterLink>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+</script>
