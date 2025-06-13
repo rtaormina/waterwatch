@@ -2,31 +2,12 @@ import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 const fakeFetch = vi.fn();
 vi.stubGlobal("fetch", fakeFetch);
-vi.mock("@vuepic/vue-datepicker", () => ({
-    default: {
-        name: "VueDatePicker",
-        template: '<input data-testid="vue-datepicker" />',
-        props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
-        emits: ["update:modelValue"],
-    },
-}));
-vi.mock("./Measurement/MeasurementBlock.vue", () => ({
-    default: {
-        name: "MeasurementBlock",
-        template: `
-            <div>
-                <slot></slot>
-            </div>
-        `,
-    },
-}));
-vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+
 import MeasurementComponent from "../../../../src/components/MeasurementComponent.vue";
 import { ref } from "vue";
 import { DateTime } from "luxon";
 import * as L from "leaflet";
 import VueDatePicker from "@vuepic/vue-datepicker";
-
 
 const pushMock = vi.fn();
 vi.mock("vue-router", () => ({
@@ -51,6 +32,26 @@ describe("postData", () => {
     let wrapper;
 
     beforeEach(() => {
+        vi.mock("@vuepic/vue-datepicker", () => ({
+            default: {
+                name: "VueDatePicker",
+                template: '<input data-testid="vue-datepicker" />',
+                props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+                emits: ["update:modelValue"],
+            },
+        }));
+        vi.mock("./Measurement/MeasurementBlock.vue", () => ({
+            default: {
+                name: "MeasurementBlock",
+                template: `
+            <div>
+                <slot></slot>
+            </div>
+        `,
+            },
+        }));
+        vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+
         wrapper = mount(MeasurementComponent, {
             global: {
                 stubs: {
