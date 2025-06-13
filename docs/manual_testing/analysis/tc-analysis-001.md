@@ -10,49 +10,50 @@ Hexagon Selection and Viewing Analysis
 `stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-06-13`
 
 ## Summary
-*Short summary of what the test case consists of*
+Select hexagons and view the analysis
 
 ## Preconditions
-*State or setup required before test execution*
+n/a
 
 ## Test Steps
-*List of sequential steps to execute the test*
+1. Open the map view and menu and click 'select hexagons' button
+2. Select a single hexagon and click select to view analysis
+3. Deselect the hexagon
+4. Select multiple consecutive hexagons and click select to view analysis
+5. Deselect the hexagons
+6. Select disconnected hexagons and click select to view analysis
+7. Click cancel to get back to normal map view
 
 ## Test Data
-*Enter data used for testing*
+n/a
 
 ## Expected Result
-*What should happen if the test passes*
+Selected hexagons should be highlighted when clicked the first time and then the highlight should be removed. The data in the selected hexagons should be displayed in the analysis graphs.
 
 ## Actual Result
-*To be filled during test execution*
+As expected
 
 ## Status
-- Pass
-- Fail
+Pass
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+n/a
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |    Firefox    |
+| OS           |   Windows    |
+| Device       |    Laptop       |
+| Environment  |    Production       |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#130
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes

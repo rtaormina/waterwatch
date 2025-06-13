@@ -10,49 +10,50 @@ Viewing Global Analysis
 `stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-06-13`
 
 ## Summary
-*Short summary of what the test case consists of*
+View the global analysis for the past 30 days, Febraury, and all time.
 
 ## Preconditions
-*State or setup required before test execution*
+n/a
 
 ## Test Steps
-*List of sequential steps to execute the test*
+1. Select the global analysis button in the map view for past 30 days (should be active by default)
+2. Confirm that all relevant measurements are represented in the analysis
+3. Select February and view global analysis
+4. Confirm that all relevant measurements are represented in the analysis
+5. Select all months and view global analysis
+6. Confirm that all relevant measurements are represented in the analysis
 
 ## Test Data
-*Enter data used for testing*
+n/a
 
 ## Expected Result
-*What should happen if the test passes*
+All measurements visualized and collected in the time frames should be represented in the global analysis when selected.
 
 ## Actual Result
-*To be filled during test execution*
+There is an issue with displaying the data for analysis. Some data is missing or not included in the final graph for some reason.
 
 ## Status
-- Pass
 - Fail
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+- Medium: feature is still usable and some data is displayed but there is data missing which is misleading.
+
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |  Firefox      |
+| OS           |  Windows     |
+| Device       |  Laptop         |
+| Environment  |  Production         |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#46
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes
