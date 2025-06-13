@@ -28,7 +28,7 @@ Severity of the bug should be recorded and is defined as follows:
 
 ### Related Requirement / User Story
 
-In this section provide the related epic, issue, or requireement that the bug relates to.
+In this section provide the related epic, issue, or requirement that the bug relates to.
 
 ## Manual Test Records
 ```{eval-rst}
