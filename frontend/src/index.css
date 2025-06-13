@@ -9,22 +9,43 @@
     --ui-info: var(--ui-color-info-500);
     --ui-warning: var(--ui-color-warning-500);
     --ui-error: var(--ui-color-error-500);
-    --breakpoint-md: 64rem; /* 1024px */
 }
 
-/* .dark {
-  --ui-primary: #0C2340;
-  --ui-secondary: #D7E9F4;
-  --ui-success: var(--ui-color-success-400);
-  --ui-info: var(--ui-color-info-400);
-  --ui-warning: var(--ui-color-warning-400);
-  --ui-error: var(--ui-color-error-400);
-} */
+.dark {
+    --ui-primary: #00a6d6;
+    --ui-secondary: #5c5c5c;
+    --ui-success: var(--ui-color-success-500);
+    --ui-info: var(--ui-color-info-500);
+    --ui-warning: var(--ui-color-warning-500);
+    --ui-error: var(--ui-color-error-500);
+}
+
+.dark {
+    .leaflet-layer,
+    .leaflet-control-zoom-in,
+    .leaflet-control-zoom-out,
+    .leaflet-control-locate {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+    }
+}
+
+@layer base {
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"] {
+        -webkit-appearance: none;
+        -moz-appearance: textfield !important;
+        appearance: textfield !important;
+        margin: 0;
+    }
+}
 
 @theme {
+    --breakpoint-xs: 26rem;
+    --breakpoint-md: 64rem; /* 1024px */
+
     --color-main: #00a6d6;
     --color-light: #d7e9f4;
-    --breakpoint-md: 64rem; /* 1024px */
 }
 
 @font-face {

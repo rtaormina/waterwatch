@@ -32,3 +32,5 @@ venv/
 
 # Database files #
 test_initial_state.dump
+
+assets/countries.sql
