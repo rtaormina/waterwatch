@@ -3,10 +3,10 @@
         <div class="text-center">
             <h1 class="text-9xl font-bold text-highlight mb-4">404</h1>
             <p class="text-2xl text-muted mb-6">Page Not Found</p>
-            <p class="text-dimmed mb-8">Oops it seems this part of WATERWATCH is yet to be discovered</p>
+            <p class="text-dimmed mb-8">Oops! It seems this part of WATERWATCH is yet to be discovered.</p>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <div class="flex flex-col sm:flex-row mx-4 gap-4 justify-center">
             <UButton
                 @click="
                     () => {
@@ -23,9 +23,9 @@
                 <UButton
                     size="xl"
                     icon="i-heroicons-map-pin-20-solid"
-                    class="px-4 py-2 rounded text-inverted justify-center text-md bg-primary hover:cursor-pointer"
                     label="Return to Homepage"
                     data-testid="go-home-button"
+                    class="w-full px-4 py-2 rounded text-inverted justify-center text-md bg-primary hover:cursor-pointer"
                 />
             </RouterLink>
         </div>
