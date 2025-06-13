@@ -10,11 +10,23 @@ vi.mock("@vuepic/vue-datepicker", () => ({
         emits: ["update:modelValue"],
     },
 }));
+vi.mock("./Measurement/MeasurementBlock.vue", () => ({
+    default: {
+        name: "MeasurementBlock",
+        template: `
+            <div>
+                <slot></slot>
+            </div>
+        `,
+    },
+}));
 vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
 import MeasurementComponent from "../../../../src/components/MeasurementComponent.vue";
 import { ref } from "vue";
 import { DateTime } from "luxon";
 import * as L from "leaflet";
+import VueDatePicker from "@vuepic/vue-datepicker";
+
 
 const pushMock = vi.fn();
 vi.mock("vue-router", () => ({

@@ -108,7 +108,18 @@ vi.mock("@vuepic/vue-datepicker", () => ({
 vi.mock("@asymmetrik/leaflet-d3", () => {
   return { default: {} };
 });
+vi.mock("./Measurement/MeasurementBlock.vue", () => ({
+    default: {
+        name: "MeasurementBlock",
+        template: `
+            <div>
+                <slot></slot>
+            </div>
+        `,
+    },
+}));
 import MapView from "../../../src/views/MapView.vue";
+import VueDatePicker from "@vuepic/vue-datepicker";
 
 
 describe("MapView first-time modal appears", () => {
