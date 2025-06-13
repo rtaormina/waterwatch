@@ -160,26 +160,3 @@ watch(
         </div>
     </div>
 </template>
-
-<style>
-@media (max-height: 500px) {
-    .outer-container {
-        padding-inline: 2vw !important;
-    }
-
-    .landscape-component {
-        padding: 0.5rem !important;
-        overflow-y: visible !important;
-        height: auto !important;
-    }
-    .component1 {
-        width: 65% !important;
-        max-width: 65% !important;
-    }
-
-    .component2 {
-        width: 35% !important;
-        max-width: 35% !important;
-    }
-}
-</style>

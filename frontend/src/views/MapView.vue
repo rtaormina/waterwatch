@@ -138,7 +138,7 @@
 </template>
 
 <style>
-@media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
+@media (max-width: 768px) and (orientation: landscape) {
     .analytics-panel {
         width: 100% !important;
     }
