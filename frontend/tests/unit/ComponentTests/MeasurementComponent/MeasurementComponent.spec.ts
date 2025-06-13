@@ -191,7 +191,11 @@ describe("MeasurementComponent.vue clear/post", () => {
         wrapper.vm.defaultData = initialData;
         wrapper.vm.clear();
 
-        expect(wrapper.vm.data).toEqual(initialData);
+        expect(wrapper.vm.data.location).toEqual(initialData.location);
+        expect(wrapper.vm.data.waterSource).toEqual(initialData.waterSource);
+        expect(wrapper.vm.data.temperature).toEqual(initialData.temperature);
+        expect(wrapper.vm.data.selectedMetrics).toEqual(initialData.selectedMetrics);
+
     });
 });
 

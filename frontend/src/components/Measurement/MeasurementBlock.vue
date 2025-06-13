@@ -1,5 +1,17 @@
 <template>
     <Block title="Measurement">
+        <UFormField hint="Optional" label="Date and Time" class="mb-4">
+            <VueDatePicker
+                data-testid="date-time-picker"
+                v-model="dateTime"
+                :enable-time-picker="true"
+                time-picker-inline
+                :max-date="maxDate"
+                placeholder="Select date and time"
+                :dark="isDark"
+            />
+        </UFormField>
+        <UFormField label="Location" />
         <div class="w-full h-48 mb-4">
             <LocationFallback v-model:location="location" />
         </div>
@@ -27,11 +39,45 @@
 import { ref, watch } from "vue";
 import * as L from "leaflet";
 import type { WaterSource, WaterSourceOptions } from "@/composables/MeasurementCollectionLogic";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+import type { Time } from "@/composables/MeasurementCollectionLogic";
+import { useDark } from "@vueuse/core";
 
+const dateTime = ref<Date>(new Date());
+const maxDate = ref(new Date());
+
+const isDark = useDark();
+
+watch(
+    dateTime,
+    (dt) => {
+        if (!dt) return;
+
+        const iso = dt.toISOString();
+        const newDate = iso.slice(0, 10);
+        const newTime = iso.slice(11, 19);
+
+        timeModel.value = {
+            localDate: newDate,
+            localTime: newTime,
+        };
+    },
+    { immediate: false },
+);
 const location = defineModel<L.LatLng>("location", {
     required: true,
 });
 const waterSource = defineModel<WaterSource>("waterSource");
+const timeModel = defineModel<Time>("time", {
+    required: true,
+});
+
+const iso = new Date().toISOString();
+timeModel.value = {
+    localDate: iso.slice(0, 10),
+    localTime: iso.slice(11, 19),
+};
 
 defineProps<{ waterSourceOptions: WaterSourceOptions }>();
 const error = ref<string | false>(false);

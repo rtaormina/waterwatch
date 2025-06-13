@@ -159,6 +159,7 @@ defineExpose({
             <MeasurementBasisBlock
                 v-model:location="data.location"
                 v-model:water-source="data.waterSource"
+                v-model:time="data.time"
                 :water-source-options="waterSourceOptions"
                 ref="MeasurementBlock"
             ></MeasurementBasisBlock>
@@ -181,8 +182,6 @@ defineExpose({
                 :sensor-options="sensorOptions"
                 ref="TemperatureMetric"
             />
-
-            <TimeInput v-model="data.time" />
         </div>
 
         <div
