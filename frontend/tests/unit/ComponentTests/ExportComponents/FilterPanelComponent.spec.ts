@@ -566,7 +566,7 @@ describe("FilterPanelComponent - Preset Application", () => {
 
             // These should remain at their reset values
             expect(wrapper.vm.selectedWaterSources).toEqual([]);
-            expect(wrapper.vm.temperatureEnabled).toBe(false);
+            expect(wrapper.vm.temperatureEnabled).toBe(true);
         });
 
         it("handles filters with missing temperature data", () => {
@@ -581,7 +581,7 @@ describe("FilterPanelComponent - Preset Application", () => {
             expect(mockUseSearch.resetSearch).toHaveBeenCalled();
 
             expect(wrapper.vm.selectedWaterSources).toEqual(["Ocean"]);
-            expect(wrapper.vm.temperatureEnabled).toBe(false);
+            expect(wrapper.vm.temperatureEnabled).toBe(true);
         });
 
         it("handles filters with missing date range", () => {
@@ -879,7 +879,7 @@ describe("FilterPanelComponent - Preset Application", () => {
             expect(wrapper.vm.selectedContinents).toEqual([]);
             expect(wrapper.vm.selectedCountries).toEqual([]);
             expect(wrapper.vm.selectedWaterSources).toEqual([]);
-            expect(wrapper.vm.temperatureEnabled).toBe(false);
+            expect(wrapper.vm.temperatureEnabled).toBe(true);
             expect(wrapper.vm.dateRange.from).toBe("");
             expect(wrapper.vm.dateRange.to).toBe("");
             expect(wrapper.vm.times).toEqual([]);
@@ -891,7 +891,7 @@ function assertResetHappened(wrapper: VueWrapper<any>) {
     expect(wrapper.vm.selectedContinents).toEqual([]);
     expect(wrapper.vm.selectedCountries).toEqual([]);
     expect(wrapper.vm.selectedWaterSources).toEqual([]);
-    expect(wrapper.vm.temperatureEnabled).toBe(false);
+    expect(wrapper.vm.temperatureEnabled).toBe(true);
     expect(wrapper.vm.temperature.from).toBe("");
     expect(wrapper.vm.temperature.to).toBe("");
     expect(wrapper.vm.temperature.unit).toBe("C");

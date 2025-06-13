@@ -15,7 +15,7 @@ onMounted(async () => {
             <NavBar />
 
             <!-- this is your only scrollable area -->
-            <div class="flex-1 overflow-auto min-h-0">
+            <div class="relative flex-1 overflow-auto min-h-0">
                 <RouterView />
             </div>
         </div>
