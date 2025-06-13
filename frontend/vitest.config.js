@@ -14,5 +14,8 @@ export default defineConfig({
         deps: {
             inline: ["@vuepic/vue-datepicker"],
         },
+        transformMode: {
+            web: [/.[jt]sx?$/, /.vue$/], 
+        },
     },
 });
