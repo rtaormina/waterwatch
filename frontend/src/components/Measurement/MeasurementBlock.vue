@@ -39,8 +39,8 @@
 import { ref, watch } from "vue";
 import * as L from "leaflet";
 import type { WaterSource, WaterSourceOptions } from "@/composables/MeasurementCollectionLogic";
-import VueDatePicker from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
+import VueDatePicker from "../../../node_modules/@vuepic/vue-datepicker";
+import "../../../node_modules/@vuepic/vue-datepicker/dist/main.css";
 import type { Time } from "@/composables/MeasurementCollectionLogic";
 import { useDark } from "@vueuse/core";
 
