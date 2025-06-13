@@ -16,7 +16,7 @@ When recording the test case ID, the following modules are recognized:
    - This module refers to testing related to collecting measurement data.
 - `<Map>`
    - This module refers to testing related to the map visualizations on the website homepage.
-- `<Data-Analysis>`
+- `<Analysis>`
    - This module refers to testing related to data analysis presented on the homepage when interacting with the map.
 
 ### Severity
