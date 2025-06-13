@@ -6,6 +6,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{ title: string; optional?: boolean }>();
-const { title, optional = false } = props;
+defineProps<{
+    title: string;
+}>();
 </script>
