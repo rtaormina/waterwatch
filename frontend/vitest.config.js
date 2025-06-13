@@ -11,5 +11,8 @@ export default defineConfig({
             provider: "v8",
             reporter: ["text", "json", "cobertura"],
         },
+        deps: {
+            inline: ["@vuepic/vue-datepicker"],
+        },
     },
 });
