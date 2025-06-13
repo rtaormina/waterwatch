@@ -23,10 +23,8 @@ docker compose -f docker-compose.test.yaml down -v
 docker compose -f docker-compose.test.yaml up --build -d
 
 # Import data to test database
-docker cp assets/countries_1.sql postgres:/countries_1.sql
-docker cp assets/countries_2.sql postgres:/countries_2.sql
-docker compose -f docker-compose.test.yaml exec postgres psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -f countries_1.sql
-docker compose -f docker-compose.test.yaml exec postgres psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -f countries_2.sql
+docker cp assets/countries.sql postgres:/countries.sql
+docker compose -f docker-compose.test.yaml exec postgres psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -f countries.sql
 
 # Run migrations on test backend
 docker compose -f docker-compose.test.yaml exec backend python manage.py makemigrations
