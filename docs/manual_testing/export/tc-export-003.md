@@ -10,7 +10,7 @@ Export with Presets
 `stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-06-13`
 
 ## Summary
 *Short summary of what the test case consists of*
@@ -49,10 +49,8 @@ Export with Presets
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#127 #132
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes

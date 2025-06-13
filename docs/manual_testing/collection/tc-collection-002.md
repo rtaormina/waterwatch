@@ -10,49 +10,58 @@ Add Measurement with Specific Date and Time
 `stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-06-13`
 
 ## Summary
-*Short summary of what the test case consists of*
+Test the user flow where a user is entering a measurement that they took in the past. Ensure that this measurement is immediately visible on the map and persists correctly.
 
 ## Preconditions
-*State or setup required before test execution*
+n/a
 
 ## Test Steps
-*List of sequential steps to execute the test*
+1. Click + button to add measurement
+2. Fill in temperature data
+3. Press clear
+4. Fill in temperature data again
+5. Press submit
+6. Press confirm
+7. Select 'December' from the legend dropdown and confirm that the measurement is visible on the hex map.
 
 ## Test Data
-*Enter data used for testing*
+Measurement data:
+Location: TU Delft library (manually selected)
+Water Source: well
+Metric type: temperature
+Sensor Type: analog thermometer
+Temperature value: 30
+Time waited: 1 min 15 sec
+Date and Time: December 5, 2024 at 13:15
 
 ## Expected Result
-*What should happen if the test passes*
+When toggling to December the measurement should appear on the hex map. It should not appear initially as the default value for the time range is Past 30 Days.
 
 ## Actual Result
-*To be filled during test execution*
+As expected.
 
 ## Status
 - Pass
-- Fail
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+n/a
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |  Firefox      |
+| OS           |   Windows    |
+| Device       |   Laptop        |
+| Environment  |    Production       |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#1
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes
+- The scroll bar from the measurement component still appears with the popup to confirm user submission, ideally it would not be visible as this can be confusing. It does not break anything it is just visual.
