@@ -12,6 +12,22 @@ vi.mock("vue-router", () => ({
     useRouter: () => ({ push: pushMock }),
 }));
 
+vi.mock("@vuepic/vue-datepicker", () => ({
+    default: {
+        name: "VueDatePicker",
+        template: '<input data-testid="vue-datepicker" />',
+        props: [
+            'modelValue', 
+            'enableTimePicker', 
+            'timePickerInline', 
+            'maxDate', 
+            'placeholder', 
+            'dark'
+        ],
+        emits: ['update:modelValue']
+    }
+}));
+vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
 vi.mock("universal-cookie", () => {
     return {
         default: class {

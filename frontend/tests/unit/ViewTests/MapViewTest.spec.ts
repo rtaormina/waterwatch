@@ -82,7 +82,29 @@ vi.mock("../../../src/components/Modal.vue", () => ({
     </div>
   `,
 }));
-
+vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+vi.mock("@vuepic/vue-datepicker", () => ({
+    default: {
+        name: "VueDatePicker",
+        template: `
+            <input 
+                data-testid="vue-datepicker"
+                :value="modelValue" 
+                @input="$emit('update:modelValue', $event.target.value)"
+                :placeholder="placeholder"
+            />
+        `,
+        props: [
+            'modelValue', 
+            'enableTimePicker', 
+            'timePickerInline', 
+            'maxDate', 
+            'placeholder', 
+            'dark'
+        ],
+        emits: ['update:modelValue']
+    }
+}));
 vi.mock("@asymmetrik/leaflet-d3", () => {
   return { default: {} };
 });
