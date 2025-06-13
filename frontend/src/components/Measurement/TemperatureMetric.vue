@@ -1,34 +1,62 @@
 <script setup lang="ts">
 import type { SensorOptions, Temperature } from "@/composables/MeasurementCollectionLogic";
 import { ref, watch } from "vue";
+const priorDot = ref(false);
 
 /**
  * Handles key presses for the temperature input field.
  *
  * @param {KeyboardEvent} event - The keypress event.
+ * @return {void}
  */
 const handleTempPress = (event: KeyboardEvent) => {
     const key = event.key;
     const target = event.target as HTMLInputElement;
 
-    if ((!/^\d$/.test(key) && key !== ".") || key === "-") {
-        event.preventDefault();
+    if (key === "Backspace" || key === "Delete") {
+        // handle backspace and delete
+        priorDot.value = false;
         return;
-    }
-    if (key === "." && target.value.includes(".")) {
-        event.preventDefault();
+    } else if (/^\d$/.test(key)) {
+        // check if the key is a digit (0-9)
+        priorDot.value = false;
+        return;
+    } else if (key === ".") {
+        // handle decimal points (consecutive and non consecutive)
+        if (target.value.includes(".") || priorDot.value) {
+            event.preventDefault();
+            return;
+        }
+
+        priorDot.value = true;
         return;
     }
 
-    let raw = target.value.replace(/[^0-9]/g, "");
+    // Block any other input
+    event.preventDefault();
+};
 
-    const current = raw === "" ? 0 : parseInt(raw, 10);
-    const attempted = current * 10 + Number(key);
-    if (attempted < 0 || attempted > 212) {
-        event.preventDefault();
-        return;
+/**
+ * Handles input changes for the temperature input field, specifically with regard to leading/trailing zeros.
+ *
+ * @param {Event} event - The input event.
+ * @return {void}
+ */
+const handleInput = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    let value = target.value;
+    if (value.length > 1 && value[0] === "0" && value[1] !== ".") {
+        value = value.replace(/^0+/, "");
+        if (value === "" || value === ".") {
+            value = "0" + value;
+        }
     }
-    return attempted;
+
+    if (target.value !== value) {
+        const cursorPos = target.selectionStart;
+        target.value = value;
+        target.setSelectionRange(cursorPos, cursorPos);
+    }
 };
 
 const modelValue = defineModel<Temperature>({
@@ -163,9 +191,9 @@ defineExpose({
                     data-testid="temp-val"
                     id="temp-val"
                     v-model="modelValue.value"
-                    type="number"
-                    min="0"
-                    @keypress="handleTempPress"
+                    type="text"
+                    @keydown="handleTempPress"
+                    @input="handleInput"
                     ref="tempRef"
                     placeholder="e.g. 24.3"
                     class="min-w-16 max-w-20"
