@@ -1,6 +1,6 @@
 <template>
+    <TimeInput v-model="timeModel"></TimeInput>
     <Block title="Measurement">
-        <TimeInput v-model="timeModel"></TimeInput>
         <UFormField label="Location" />
         <div class="w-full h-48 mb-4">
             <LocationFallback v-model:location="location" />
@@ -29,7 +29,6 @@
 import { ref, watch } from "vue";
 import * as L from "leaflet";
 import type { WaterSource, WaterSourceOptions } from "@/composables/MeasurementCollectionLogic";
-import TimeInput from "./TimeInput.vue"
 import type { Time } from "@/composables/MeasurementCollectionLogic";
 
 const location = defineModel<L.LatLng>("location", {

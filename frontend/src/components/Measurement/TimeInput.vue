@@ -23,7 +23,7 @@ watch(
 );
 </script>
 <template>
-    <UFormField hint="Optional" label="Date and Time" class="mb-4">
+    <Block title="Date and Time" class="m-0 p-0">
         <VueDatePicker
             data-testid="date-time-picker"
             v-model="dateTime"
@@ -33,5 +33,5 @@ watch(
             placeholder="Select date and time"
             :dark="isDark"
         />
-    </UFormField>
+    </Block>
 </template>
