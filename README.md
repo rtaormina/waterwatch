@@ -46,7 +46,7 @@ Researcher
     -username: researcher
     -password: researcher
 
-Create and active the python virtual environment with the following commands:
+Create and activate the python virtual environment with the following commands:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate

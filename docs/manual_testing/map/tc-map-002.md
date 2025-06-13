@@ -10,49 +10,47 @@ Select single hexagon to view data
 `stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-06-13`
 
 ## Summary
-*Short summary of what the test case consists of*
+Select a hexagon to see the basic data overview and click see details to open analytics.
 
 ## Preconditions
-*State or setup required before test execution*
+n/a
 
 ## Test Steps
-*List of sequential steps to execute the test*
+1. Open map page
+2. Select a hexagon, test the different ways of closing the popup. Select the hexagon again.
+3. Confirm that the measurements existing in the database in the past 30 days are represented in the overview of the hexagon data
+4. Click see details and confirm that analytics bar opens.
 
 ## Test Data
-*Enter data used for testing*
+n/a
 
 ## Expected Result
-*What should happen if the test passes*
+The correct details should be shown on the selected hexagon and the hexagon should be highlighted. When show details is clicked the popup closes, and when clicking away or on the x the popup also closes. When zooming in and out the popup should close. When show details is clicked the analytics should be opened.
 
 ## Actual Result
-*To be filled during test execution*
+As expected
 
 ## Status
 - Pass
-- Fail
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+n/a
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |  Firefox      |
+| OS           |   Windows    |
+| Device       |   Laptop        |
+| Environment  |   Production        |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#103
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes
