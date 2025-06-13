@@ -28,6 +28,14 @@ class Campaign(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
 
+    class Meta:
+        indexes = [
+            geomodels.Index(fields=["region"]),
+            models.Index(fields=["start_time"]),
+            models.Index(fields=["end_time"]),
+            models.Index(fields=["start_time", "end_time"]),
+        ]
+
     def __str__(self):
         return f"Campaign: {self.name} ({self.format_time()})"
 

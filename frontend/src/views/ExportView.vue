@@ -21,7 +21,7 @@ const query = ref("");
 const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 
 // Store last search parameters to detect changes in filters
-const lastSearchParams = ref<import("@/composables/Export/useSearch").MeasurementSearchParams | null>(null);
+const lastSearchParams = ref<import("../composables/Export/useSearch").MeasurementSearchParams | null>(null);
 
 // Flag to indicate if filters are out of sync with the last search
 const filtersOutOfSync = ref(false);
@@ -35,7 +35,7 @@ const temperatureUnit = computed(() => {
 });
 
 // Use measurements composable
-const { results, hasSearched, searchMeasurements } = useSearch();
+const { results, isLoading, hasSearched, searchMeasurements } = useSearch();
 
 // Use export data composable
 const { exportData } = useExportData();
@@ -52,7 +52,7 @@ async function onSearch(): Promise<void> {
 
     // Get current filters from FilterPanel
     const searchParams = filterPanelRef.value.getSearchParams(query.value);
-    lastSearchParams.value = searchParams;
+    lastSearchParams.value = JSON.parse(JSON.stringify(searchParams));
 
     // Perform search
     await searchMeasurements(searchParams);
@@ -108,6 +108,8 @@ watch(
         if (hasSearched.value) {
             // Only act if a search has already been performed
             if (currentParams && lastSearchParams.value) {
+                console.log("Current Params:", currentParams);
+                console.log("Last Search Params:", lastSearchParams.value);
                 if (JSON.stringify(currentParams) !== JSON.stringify(lastSearchParams.value)) {
                     filtersOutOfSync.value = true;
                 }
@@ -145,6 +147,7 @@ watch(
             <div class="w-full md:w-5/12 flex flex-col h-auto overflow-visible landscape-component component2">
                 <SearchResults
                     :results="results"
+                    :is-loading="isLoading"
                     :searched="hasSearched"
                     v-model:format="format"
                     @download="onDownload"

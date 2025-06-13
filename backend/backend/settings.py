@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "measurements",
     "measurement_collection",
     "measurement_analysis",
-    "measurement_export",
+    "measurement_export.apps.MeasurementExportConfig",
     "campaigns",
     "api",
     "rest_framework",

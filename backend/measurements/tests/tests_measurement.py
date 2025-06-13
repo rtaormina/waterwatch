@@ -34,8 +34,8 @@ class MeasurementTest(TestCase):
             water_source="tap",
         )
 
-    def test_measurement_persistance(self):
-        """Test persistance of measurement."""
+    def test_measurement_persistence(self):
+        """Test persistence of measurement."""
         retrieved_meas1 = Measurement.objects.get(id=self.measurement1.id)
 
         assert retrieved_meas1.location == self.measurement1.location
@@ -49,7 +49,7 @@ class MeasurementTest(TestCase):
         assert retrieved_meas2.water_source == self.measurement2.water_source
 
     def test_measurement_timezone(self):
-        """Test timezone data persistance."""
+        """Test timezone data persistence."""
         self.timezone1.save()
         retrieved_meas1 = Measurement.objects.get(id=self.timezone1.id)
 
