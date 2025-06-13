@@ -2,16 +2,6 @@ import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 const fakeFetch = vi.fn();
 vi.stubGlobal("fetch", fakeFetch);
-import MeasurementComponent from "../../../../src/components/MeasurementComponent.vue";
-import { ref } from "vue";
-import { DateTime } from "luxon";
-import * as L from "leaflet";
-
-const pushMock = vi.fn();
-vi.mock("vue-router", () => ({
-    useRouter: () => ({ push: pushMock }),
-}));
-
 vi.mock("@vuepic/vue-datepicker", () => ({
     default: {
         name: "VueDatePicker",
@@ -28,6 +18,17 @@ vi.mock("@vuepic/vue-datepicker", () => ({
     }
 }));
 vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+import MeasurementComponent from "../../../../src/components/MeasurementComponent.vue";
+import { ref } from "vue";
+import { DateTime } from "luxon";
+import * as L from "leaflet";
+
+const pushMock = vi.fn();
+vi.mock("vue-router", () => ({
+    useRouter: () => ({ push: pushMock }),
+}));
+
+
 vi.mock("universal-cookie", () => {
     return {
         default: class {
