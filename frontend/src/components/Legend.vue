@@ -184,14 +184,12 @@ function onChange(val: string | string[]) {
         (Array.isArray(val) && (val.length === 0 || val[val.length - 1] === "Past 30 Days"))
     ) {
         internalValue.value = ["Past 30 Days"];
-        console.log("0");
         emit("update", [0]);
         return;
     }
 
     if (typeof val === "string") {
         internalValue.value = [val];
-        console.log(monthMap.get(val));
         emit("update", [monthMap.get(val) ?? 0]);
         return;
     }
