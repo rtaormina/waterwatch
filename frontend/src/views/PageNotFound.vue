@@ -17,6 +17,7 @@
                 icon="i-heroicons-arrow-left-20-solid"
                 class="border bg-default text-md border-primary justify-center text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer"
                 label="Go Back"
+                data-testid="go-back-button"
             />
             <RouterLink to="/">
                 <UButton
@@ -24,6 +25,7 @@
                     icon="i-heroicons-map-pin-20-solid"
                     class="px-4 py-2 rounded text-inverted justify-center text-md bg-primary hover:cursor-pointer"
                     label="Return to Homepage"
+                    data-testid="go-home-button"
                 />
             </RouterLink>
         </div>
