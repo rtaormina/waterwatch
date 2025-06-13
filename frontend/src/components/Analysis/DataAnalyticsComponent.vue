@@ -23,10 +23,9 @@ const graph = ref<HTMLElement | null>(null);
 async function getGraphData(location?: string, month?: string): Promise<number[]> {
     try {
         const response = location
-            ? await fetch(`/api/measurements/?boundary_geometry=${location}&month=${month}`)
-            : await fetch(`/api/measurements/?month=${month}`);
+            ? await fetch(`/api/measurements/temperatures/?boundary_geometry=${location}&month=${month}`)
+            : await fetch(`/api/measurements/temperatures/?month=${month}`);
         const data = await response.json();
-        console.log("Fetched values:", data);
 
         return data.map(Number);
     } catch (error) {

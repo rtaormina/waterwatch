@@ -94,7 +94,7 @@ docker exec backend python manage.py test
 ```
 
 #### Performance tests
-To run tests, while to project is running in a Docker container, run:
+To run tests, while to project is running in a Docker container, run the following command in the backend folder:
 
 ```bash
 locust --host http://localhost --class-picker

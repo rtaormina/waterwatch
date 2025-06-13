@@ -6,7 +6,7 @@ Locust should automatically install with the dev requirements. In case it is not
 ```python -m pip install locust```
 
 ## Creating and Conducting Tests
-To run tests, while the project is running in a Docker container, run:
+To run tests, while to project is running in a Docker container, run the following command in the backend folder:
 
 ```locust --host http://localhost --class-picker```
 

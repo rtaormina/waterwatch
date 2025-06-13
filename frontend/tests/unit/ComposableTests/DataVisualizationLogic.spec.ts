@@ -113,7 +113,7 @@ describe("getGraphData", () => {
         });
 
         const data = await getGraphData("MULTIPOLYGON((...))");
-        expect(global.fetch).toHaveBeenCalledWith(`/api/measurements/?boundary_geometry=MULTIPOLYGON((...))`);
+        expect(global.fetch).toHaveBeenCalledWith(`/api/measurements/temperatures/?boundary_geometry=MULTIPOLYGON((...))`);
         // Since JSON returned ["1","2","3"], getGraphData maps each to Number
         expect(data).toEqual([1, 2, 3]);
     });

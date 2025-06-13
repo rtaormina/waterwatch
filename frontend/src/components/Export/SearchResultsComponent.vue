@@ -22,6 +22,7 @@ const emit = defineEmits<{
 interface Props {
     results: { count: number; avgTemp: number };
     searched: boolean;
+    isLoading: boolean;
     showModal: boolean;
     filtersOutOfSync: boolean;
     temperatureUnit: "C" | "F";
@@ -32,6 +33,9 @@ const props = defineProps<Props>();
 // Computed properties for average temperature conversion and format handling
 const avgTempConverted = computed(() => {
     const c = props.results.avgTemp || 0;
+    if (props.results.count === 0) {
+        return 0;
+    }
     return props.temperatureUnit === "F" ? (c * 9) / 5 + 32 : c;
 });
 
@@ -103,14 +107,28 @@ defineExpose({
             <h3 class="font-bold text-lg mb-4 hidden md:block">Search Results</h3>
             <h4 class="font-semibold text-lg hidden md:block">Summary</h4>
             <div class="mt-2 space-y-1">
-                <div v-if="searched" class="flex justify-between">
-                    <span>Number of Results:</span>
-                    <span data-testid="num-results">{{ props.results.count }}</span>
+                <!-- Show loading state -->
+                <div v-if="isLoading" class="flex justify-center items-center py-4">
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 bg-main rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-main rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-2 h-2 bg-main rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
+                    <span class="ml-3 text-gray-600">Searching...</span>
                 </div>
-                <div v-if="searched" class="hidden md:flex md:justify-between">
-                    <span>Average Temperature:</span>
-                    <span data-testid="avg-temp">{{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}</span>
-                </div>
+                <!-- Show results only when search is complete and not loading -->
+                <template v-else-if="searched">
+                    <div class="flex justify-between">
+                        <span>Number of Results:</span>
+                        <span data-testid="num-results">{{ props.results.count }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Average Temperature:</span>
+                        <span data-testid="avg-temp">
+                            {{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}
+                        </span>
+                    </div>
+                </template>
             </div>
         </div>
         <div class="flex-grow result-component"></div>
@@ -118,7 +136,7 @@ defineExpose({
             <button
                 data-testid="download-icon"
                 @click="emit('download')"
-                :disabled="!canDownload || !searched || props.filtersOutOfSync"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
                 class="flex items-center justify-center md:min-h-0 md:min-w-0 w-25 h-25 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200 disabled:cursor-not-allowed disabled:text-gray-400 enabled:cursor-pointer enabled:text-gray-800 enabled:hover:text-gray-600"
             >
                 <ArrowDownTrayIcon class="w-full h-full" />
@@ -151,10 +169,10 @@ defineExpose({
             </button>
             <button
                 @click="emit('download')"
-                :disabled="!canDownload || !searched || props.filtersOutOfSync"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
                 class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
                 :class="
-                    canDownload && searched && !props.filtersOutOfSync
+                    canDownload && searched && !props.filtersOutOfSync && !props.isLoading
                         ? 'bg-main cursor-pointer hover:bg-[#0098c4]'
                         : 'bg-gray-300 cursor-not-allowed'
                 "

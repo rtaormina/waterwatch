@@ -27,7 +27,7 @@ const queryRef = ref("");
 const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 
 // Store last search parameters to detect changes in filters
-const lastSearchParams = ref<import("@/composables/Export/useSearch").MeasurementSearchParams | null>(null);
+const lastSearchParams = ref<import("../composables/Export/useSearch").MeasurementSearchParams | null>(null);
 
 // Flag to indicate if filters are out of sync with the last search
 const filtersOutOfSync = ref(false);
@@ -48,7 +48,7 @@ const temperatureUnit = computed(() => {
 });
 
 // Use measurements composable
-const { results, searchMeasurements } = useSearch();
+const { results, isLoading, searchMeasurements } = useSearch();
 
 // Use export data composable
 const { exportData } = useExportData();
@@ -65,7 +65,7 @@ async function onSearch(): Promise<void> {
 
     // Get current filters from FilterPanel
     const searchParams = filterPanelRef.value.getSearchParams(queryRef.value);
-    lastSearchParams.value = searchParams;
+    lastSearchParams.value = JSON.parse(JSON.stringify(searchParams));
 
     // Transforming the filters to the right format and saving them
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -134,6 +134,8 @@ watch(
         if (exportStore.hasSearched) {
             // Only act if a search has already been performed
             if (currentParams && lastSearchParams.value) {
+                console.log("Current Params:", currentParams);
+                console.log("Last Search Params:", lastSearchParams.value);
                 if (JSON.stringify(currentParams) !== JSON.stringify(lastSearchParams.value)) {
                     filtersOutOfSync.value = true;
                 }
@@ -172,6 +174,7 @@ watch(
                 <SearchResults
                     :results="results"
                     :searched="exportStore.hasSearched"
+                    :is-loading="isLoading"
                     v-model:format="format"
                     @download="onDownload"
                     :show-modal="showModal"

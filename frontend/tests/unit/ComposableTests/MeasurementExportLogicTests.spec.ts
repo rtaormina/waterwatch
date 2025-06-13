@@ -25,7 +25,7 @@ import * as fileSaver from "file-saver";
 import axios from "axios"; // This will be the mocked version
 import { useExportData } from "../../../src/composables/Export/useExportData.ts";
 import { useFilters } from "../../../src/composables/Export/useFilters.ts";
-import { useSearch, MeasurementSearchParams, state } from "../../../src/composables/Export/useSearch.ts";
+import { useSearch, MeasurementSearchParams } from "../../../src/composables/Export/useSearch.ts";
 
 /**
  * Mock response class to simulate fetch responses
@@ -320,21 +320,21 @@ describe("useSearch", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        // Reset state directly for each test if useSearch() creates a fresh state
-        // or ensure useSearch() is called to get a fresh instance if state is module-scoped and shared.
-        // For this example, assuming state is reset as it's module-level.
         vi.mock("../../../src/stores/ExportStore", () => ({
             useExportStore: () => ({
                 filters: {},
                 hasSearched: false,
             }),
         }));
-        state.count = 0;
-        state.avgTemp = 0;
+
+        // Since state is shared at module level, we need to reset it manually
+        // Get a useSearch instance and reset the shared state
+        const { resetSearch } = useSearch();
+        resetSearch();
     });
 
     it("performs basic search using POST", async () => {
-        const { searchMeasurements, results } = useSearch();
+        const { searchMeasurements, isLoading, results } = useSearch();
 
         mockedAxios.post.mockResolvedValue({
             data: { count: 100, avgTemp: 25.5 },
@@ -343,8 +343,18 @@ describe("useSearch", () => {
         const params: MeasurementSearchParams = { query: "test search" };
         const expectedFlatParams = { query: "test search" }; // From flattenSearchParams
 
-        await searchMeasurements(params);
+        // Check initial loading state
+        expect(isLoading.value).toBe(false);
 
+        const searchPromise = searchMeasurements(params);
+
+        // Check loading state is true during search
+        expect(isLoading.value).toBe(true);
+
+        await searchPromise;
+
+        // Check final state after search completes
+        expect(isLoading.value).toBe(false);
         expect(results.value.count).toBe(100);
         expect(results.value.avgTemp).toBe(25.5);
         expect(mockedAxios.post).toHaveBeenCalledWith(
@@ -360,21 +370,27 @@ describe("useSearch", () => {
         );
     });
 
-    it("flattens search parameters correctly (no change to test itself)", () => {
-        const { flattenSearchParams } = useSearch(); // Function under test
+    it("rounds average temperature to one decimal place", async () => {
+        const { searchMeasurements, results } = useSearch();
+
+        mockedAxios.post.mockResolvedValue({
+            data: { count: 50, avgTemp: 23.456789 },
+        });
+
+        await searchMeasurements({ query: "test" });
+
+        expect(results.value.avgTemp).toBe(23.5); // Should be rounded to 1 decimal place
+    });
+
+    it("flattens search parameters correctly", () => {
+        const { flattenSearchParams } = useSearch();
 
         const params: MeasurementSearchParams = {
             query: "test",
             location: { continents: ["Asia", "Europe"], countries: ["Japan", "Germany"] },
             measurements: {
-                // Assuming 'ph' is a metric for 'measurements_included'
-                // The original test had 'waterSources' and 'temperature' in measurements_included
-                // which might be incorrect based on the logic for includedMetrics
-                // Let's adjust based on common interpretation of 'filter != null'
                 waterSources: ["Network", "Well"],
                 temperature: { from: "15", to: "35", unit: "C" },
-                // Add another metric to test measurements_included properly
-                // e.g. if your MeasurementFilter can have other keys like `ph: SomeFilterObject`
             },
             dateRange: { from: "2023-01-01", to: "2023-12-31" },
             times: [
@@ -385,15 +401,8 @@ describe("useSearch", () => {
 
         const flattened = flattenSearchParams(params);
 
-        // Re-evaluate measurements_included based on the `flattenSearchParams` logic:
-        // `Object.entries(params.measurements).filter(([, filter]) => filter != null).map(([metric]) => metric)`
-        // This will include 'waterSources' and 'temperature' if they are not null.
-        // If 'measurements_included' should only be specific measurement types (e.g., pH, conductivity)
-        // and not structural filters like waterSources/temperature, the flattenSearchParams logic needs adjustment.
-        // Assuming the current flattenSearchParams logic is intended:
-        const expectedMetricsIncluded = [];
-        if (params.measurements?.waterSources) expectedMetricsIncluded.push("waterSources");
-        if (params.measurements?.temperature) expectedMetricsIncluded.push("temperature");
+        // measurements_included will include keys from measurements object where value is not null
+        const expectedMetricsIncluded = ["waterSources", "temperature"];
 
         expect(flattened).toEqual({
             query: "test",
@@ -412,15 +421,25 @@ describe("useSearch", () => {
         });
     });
 
-    it("handles search errors gracefully with POST", async () => {
-        const { searchMeasurements, results } = useSearch();
+    it("handles search errors gracefully", async () => {
+        const { searchMeasurements, results, isLoading } = useSearch();
 
         // Mock axios.post to reject
         mockedAxios.post.mockRejectedValue(new Error("API Error"));
         const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-        await searchMeasurements({ query: "test" });
+        // Check initial state
+        expect(isLoading.value).toBe(false);
 
+        const searchPromise = searchMeasurements({ query: "test" });
+
+        // Check loading state during search
+        expect(isLoading.value).toBe(true);
+
+        await searchPromise;
+
+        // Check final state after error
+        expect(isLoading.value).toBe(false);
         expect(results.value.count).toBe(0);
         expect(results.value.avgTemp).toBe(0);
         expect(consoleSpy).toHaveBeenCalledWith("Search failed:", expect.any(Error));
@@ -428,19 +447,29 @@ describe("useSearch", () => {
         consoleSpy.mockRestore();
     });
 
-    it("resets search state (no change to test)", () => {
-        const { resetSearch, results } = useSearch();
+    it("resets search state", async () => {
+        const { resetSearch, isLoading, results, searchMeasurements } = useSearch();
 
-        state.count = 50;
-        state.avgTemp = 20;
+        // Perform a search to set some state
+        mockedAxios.post.mockResolvedValue({
+            data: { count: 50, avgTemp: 20 },
+        });
 
+        await searchMeasurements({ query: "test" });
+
+        // Verify state is set after search
+        expect(results.value.count).toBe(50);
+        expect(results.value.avgTemp).toBe(20);
+
+        // Reset and verify all values are cleared
         resetSearch();
 
+        expect(isLoading.value).toBe(false);
         expect(results.value.count).toBe(0);
         expect(results.value.avgTemp).toBe(0);
     });
 
-    it("flattens parameters with null temperature (no change to test itself)", () => {
+    it("flattens parameters with null temperature", () => {
         const { flattenSearchParams } = useSearch();
         const params: MeasurementSearchParams = {
             measurements: {
@@ -456,6 +485,154 @@ describe("useSearch", () => {
         expect(flattened["measurements[temperature][from]"]).toBeUndefined();
         expect(flattened["measurements[temperature][to]"]).toBeUndefined();
         expect(flattened["measurements[waterSources]"]).toEqual(["Network"]);
+    });
+
+    it("manages loading state correctly during concurrent searches", async () => {
+        const { searchMeasurements, isLoading } = useSearch();
+
+        let resolveFirst: (value: any) => void;
+        let resolveSecond: (value: any) => void;
+
+        const firstPromise = new Promise((resolve) => {
+            resolveFirst = resolve;
+        });
+        const secondPromise = new Promise((resolve) => {
+            resolveSecond = resolve;
+        });
+
+        mockedAxios.post.mockReturnValueOnce(firstPromise).mockReturnValueOnce(secondPromise);
+
+        // Start first search
+        const search1 = searchMeasurements({ query: "first" });
+        expect(isLoading.value).toBe(true);
+
+        // Start second search while first is still pending
+        const search2 = searchMeasurements({ query: "second" });
+        expect(isLoading.value).toBe(true);
+
+        // Resolve first search
+        resolveFirst!({ data: { count: 10, avgTemp: 20 } });
+        await search1;
+
+        // Should still be loading because second search is pending
+        expect(isLoading.value).toBe(true);
+
+        // Resolve second search
+        resolveSecond!({ data: { count: 20, avgTemp: 25 } });
+        await search2;
+
+        // Now should be done loading
+        expect(isLoading.value).toBe(false);
+    });
+
+    it("handles concurrent search errors correctly", async () => {
+        const { searchMeasurements, hasSearched, isLoading, results } = useSearch();
+
+        let resolveFirst: (value: any) => void;
+        let rejectSecond: (error: any) => void;
+
+        const firstPromise = new Promise((resolve) => {
+            resolveFirst = resolve;
+        });
+        const secondPromise = new Promise((_, reject) => {
+            rejectSecond = reject;
+        });
+
+        mockedAxios.post.mockReturnValueOnce(firstPromise).mockReturnValueOnce(secondPromise);
+
+        const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+        // Start both searches
+        const search1 = searchMeasurements({ query: "first" });
+        const search2 = searchMeasurements({ query: "second" });
+
+        expect(isLoading.value).toBe(true);
+
+        // First search succeeds
+        resolveFirst!({ data: { count: 10, avgTemp: 20 } });
+        await search1;
+
+        // Still loading because second search is pending
+        expect(isLoading.value).toBe(true);
+        expect(hasSearched.value).toBe(true);
+        expect(results.value.count).toBe(10);
+
+        // Second search fails
+        rejectSecond!(new Error("API Error"));
+        await search2.catch(() => {}); // Catch the error to prevent unhandled rejection
+
+        // No longer loading, hasSearched remains true from first successful search
+        expect(isLoading.value).toBe(false);
+        expect(hasSearched.value).toBe(true); // Still true from first successful search
+        expect(results.value.count).toBe(0); // Reset to 0 due to error in second search
+        expect(results.value.avgTemp).toBe(0);
+
+        consoleSpy.mockRestore();
+    });
+
+    it("resets search state even with active searches", async () => {
+        const { searchMeasurements, resetSearch, hasSearched, isLoading } = useSearch();
+
+        let resolveSearch: (value: any) => void;
+        const searchPromise = new Promise((resolve) => {
+            resolveSearch = resolve;
+        });
+
+        mockedAxios.post.mockReturnValue(searchPromise);
+
+        // Start a search
+        const searchCall = searchMeasurements({ query: "test" });
+        expect(isLoading.value).toBe(true);
+
+        // Reset while search is active
+        resetSearch();
+
+        // Reset should clear state but activeSearchCount remains (since search is still active)
+        expect(hasSearched.value).toBe(false);
+        expect(isLoading.value).toBe(false); // This resets activeSearchCount to 0
+
+        // Complete the search
+        resolveSearch!({ data: { count: 10, avgTemp: 20 } });
+        await searchCall;
+
+        // After search completes, activeSearchCount decrements but since it was reset to 0,
+        // it goes to max(0, 0-1) = 0, so loading stays false
+        // But the search results should still be updated
+        expect(hasSearched.value).toBe(true);
+        expect(isLoading.value).toBe(false);
+    });
+
+    it("shares state between multiple useSearch instances", async () => {
+        const search1 = useSearch();
+        const search2 = useSearch();
+
+        mockedAxios.post.mockResolvedValue({
+            data: { count: 100, avgTemp: 25.5 },
+        });
+
+        // Initial state should be the same for both instances
+        expect(search1.hasSearched.value).toBe(false);
+        expect(search2.hasSearched.value).toBe(false);
+        expect(search1.results.value.count).toBe(0);
+        expect(search2.results.value.count).toBe(0);
+
+        // Search with first instance
+        await search1.searchMeasurements({ query: "test" });
+
+        // Both instances should reflect the same state changes
+        expect(search1.hasSearched.value).toBe(true);
+        expect(search2.hasSearched.value).toBe(true);
+        expect(search1.results.value.count).toBe(100);
+        expect(search2.results.value.count).toBe(100);
+
+        // Reset with second instance
+        search2.resetSearch();
+
+        // Both instances should reflect the reset
+        expect(search1.hasSearched.value).toBe(false);
+        expect(search2.hasSearched.value).toBe(false);
+        expect(search1.results.value.count).toBe(0);
+        expect(search2.results.value.count).toBe(0);
     });
 });
 
