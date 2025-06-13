@@ -126,6 +126,11 @@ describe("MapView first-time modal appears", () => {
           MeasurementComponent: true,
           DataAnalyticsComponent: true,
           Legend: true,
+          VueDatePicker: {
+                    template: '<input data-testid="vue-datepicker" />',
+                    props: ['modelValue', 'enableTimePicker', 'timePickerInline', 'maxDate', 'placeholder', 'dark'],
+                    emits: ['update:modelValue']
+                }
         },
       },
     });

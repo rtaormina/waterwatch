@@ -6,16 +6,9 @@ vi.mock("@vuepic/vue-datepicker", () => ({
     default: {
         name: "VueDatePicker",
         template: '<input data-testid="vue-datepicker" />',
-        props: [
-            'modelValue', 
-            'enableTimePicker', 
-            'timePickerInline', 
-            'maxDate', 
-            'placeholder', 
-            'dark'
-        ],
-        emits: ['update:modelValue']
-    }
+        props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+        emits: ["update:modelValue"],
+    },
 }));
 vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
 import MeasurementComponent from "../../../../src/components/MeasurementComponent.vue";
@@ -27,7 +20,6 @@ const pushMock = vi.fn();
 vi.mock("vue-router", () => ({
     useRouter: () => ({ push: pushMock }),
 }));
-
 
 vi.mock("universal-cookie", () => {
     return {
@@ -52,6 +44,11 @@ describe("postData", () => {
                 stubs: {
                     LocationFallback: {
                         template: '<div data-testid="stub-map"></div>',
+                    },
+                    VueDatePicker: {
+                        template: '<input data-testid="vue-datepicker" />',
+                        props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+                        emits: ["update:modelValue"],
                     },
                 },
             },
@@ -203,7 +200,7 @@ describe("MeasurementComponent.vue clear/post", () => {
             time: {
                 localDate: undefined,
                 localTime: undefined,
-            }
+            },
         };
         wrapper.vm.defaultData = initialData;
         wrapper.vm.clear();
@@ -212,7 +209,6 @@ describe("MeasurementComponent.vue clear/post", () => {
         expect(wrapper.vm.data.waterSource).toEqual(initialData.waterSource);
         expect(wrapper.vm.data.temperature).toEqual(initialData.temperature);
         expect(wrapper.vm.data.selectedMetrics).toEqual(initialData.selectedMetrics);
-
     });
 });
 
