@@ -358,7 +358,7 @@ test.describe("Filter Panel Tests", () => {
         await expect(searchButton).toBeEnabled();
     });
 
-    test("should reset all filters", async ({ page }) => {
+    test("should reset all filters and results", async ({ page }) => {
         const continentDropdown = page.locator(".multiselect-custom-wrapper").first();
         await continentDropdown.click();
 
@@ -1335,8 +1335,8 @@ test.describe("Full User Flow Tests", () => {
             (m) =>
                 m.local_date === "2024-01-01" &&
                 m.local_time === "09:00:00" &&
-                m.location.latitude === 52.08 &&
-                m.location.longitude === 4.32 &&
+                m.latitude === 52.08 &&
+                m.longitude === 4.32 &&
                 m.flag === false &&
                 m.water_source === "well" &&
                 m.country === "Netherlands" &&
@@ -1348,7 +1348,7 @@ test.describe("Full User Flow Tests", () => {
                         metric.metric_type === "temperature" &&
                         metric.sensor === "analog thermometer" &&
                         Math.abs(metric.value - 20.0) < 0.001 &&
-                        metric.time_waited === 3,
+                        metric.time_waited === "0:00:03"
                 ),
         );
         expect(found).toBe(true);

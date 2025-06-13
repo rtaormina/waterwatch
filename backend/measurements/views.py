@@ -1,10 +1,16 @@
 """Create views associated with measurements."""
 
 import logging
+from datetime import timedelta
 
-from django.http import HttpResponseNotAllowed
+from django.contrib.gis.geos import GEOSException, GEOSGeometry
+from django.http import HttpResponseNotAllowed, JsonResponse
+from django.utils import timezone
 from measurement_collection.views import add_measurement_view
 from measurement_export.views import export_all_view, search_measurements_view
+
+from .metrics import METRIC_MODELS
+from .models import Measurement
 
 logger = logging.getLogger("WATERWATCH")
 
@@ -51,3 +57,50 @@ def measurement_search(request):
     if request.method == "POST":
         return search_measurements_view(request)
     return HttpResponseNotAllowed(["POST"])
+
+
+def temperature_view(request):
+    """
+    Handle GET requests to retrieve temperature measurements, optionally filtered by a boundary geometry.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The HTTP request object, optionally containing 'boundary_geometry' as a GET parameter.
+
+    Returns
+    -------
+    JsonResponse
+        A JSON response containing a list of temperature values, or an error if the boundary geometry is invalid.
+    """
+    boundary_geometry = request.GET.get("boundary_geometry")
+    query = Measurement.objects.select_related(*[model.__name__.lower() for model in METRIC_MODELS])
+    if boundary_geometry:
+        try:
+            polygon = GEOSGeometry(boundary_geometry)
+            query = query.filter(location__within=polygon)
+        except (GEOSException, ValueError):
+            logger.exception("Invalid boundary_geometry format: %s")
+            return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
+    else:
+        query = query.all()
+
+    if month_param := request.GET.get("month"):
+        parts = [p.strip() for p in month_param.split(",") if p.strip()]
+        if parts == ["0"]:
+            cutoff = timezone.now().date() - timedelta(days=30)
+            query = query.filter(local_date__gte=cutoff)
+        else:
+            try:
+                months = [int(p) for p in parts]
+            except ValueError:
+                return JsonResponse({"error": "Invalid month parameter; must be 0 or comma-separated 1-12"}, status=400)
+            months = [m for m in months if 1 <= m <= 12]
+            if not months:
+                return JsonResponse({"error": "No valid month numbers provided; must be 0 or 1-12"}, status=400)
+            query = query.filter(local_date__month__in=months)
+
+    # If there are other metrics you want to add, you can include it to data
+    data = [m.temperature.value for m in query if hasattr(m, "temperature") and m.temperature is not None]
+
+    return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})

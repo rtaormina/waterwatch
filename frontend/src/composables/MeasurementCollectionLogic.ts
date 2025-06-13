@@ -83,7 +83,6 @@ export function validateTempRange(val: string, tempUnit: string) {
         }
     } else if (tempUnit === "F") {
         if (Number(val) < 32 || Number(val) > 212) {
-            console.log(val);
             return false;
         }
     }

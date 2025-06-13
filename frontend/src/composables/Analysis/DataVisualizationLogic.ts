@@ -69,7 +69,7 @@ export function createSVGContainer(
 export async function getGraphData(wkt: string): Promise<number[]> {
     if (!wkt) return [];
     try {
-        const response = await fetch(`/api/measurements/?boundary_geometry=${encodeURIComponent(wkt)}`);
+        const response = await fetch(`/api/measurements/temperatures/?boundary_geometry=${encodeURIComponent(wkt)}`);
         const data = await response.json();
         // Convert each returned value to a Number
         return data.map(Number);
