@@ -6,10 +6,10 @@
 Normal application load
 
 ## Tested By
-``
+`Nico Hammer`
 
 ## Test Date
-`2025-06-04`
+`2025-06-15`
 
 ## Summary
 Test that the application works under normal user loads.
@@ -39,24 +39,14 @@ Options used:
 - `/`
 
 ## Expected Result
-The application can function with a small failure rate under normal workloads
+The application can function with a small failure rate under normal workloads.
 
 ## Actual Result
-
+The application can function with a small failure rate under normal workloads.
 
 ## Status
 - Pass
-- Fail
-
-## Severity (if failed)
-- High
-- Moderate
-- Low
-
-## Description of failure
-
 
 ## Attachments
-
-
-## Additional Notes
+![Full API Load Test Graphs](attachments/pt-multiple-001-1.png)
+![Full API Failure](attachments/pt-multiple-001-2.png)
