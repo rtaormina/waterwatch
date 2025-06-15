@@ -46,6 +46,12 @@ Researcher
     -username: researcher
     -password: researcher
 
+Create and activate the python virtual environment with the following commands:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
 ### Production
 Requirements before install:
 - docker
@@ -64,14 +70,16 @@ After installation the project will run at [localhost](http://127.0.0.1/).
 
 
 There are two standard users after executing the script.
-Admin
-    -username: admin
-    -password: admin
-Researcher
-    -username: researcher
-    -password: researcher
 
-> Important in order to protect user accounts in the production environment make sure to change these passwords immediatly after running the script.
+Admin
+- username: admin
+- password: admin
+
+Researcher
+- username: researcher
+- password: researcher
+
+> Important in order to protect user accounts in the production environment make sure to change these passwords immediately after running the script.
 
 ## Running Tests
 
@@ -195,7 +203,7 @@ After pre-commit is installed, to create the commit hook:
 ```bash
 pre-commit install
 ```
-This makes sure that the pre-commit hooks will be run before commiting.
+This makes sure that the pre-commit hooks will be run before committing.
 
 > For more information visit our [Contribution Guide](https://waterwatch.tudelft.nl/docs/contribution_guide.html).
 
