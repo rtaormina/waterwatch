@@ -157,12 +157,12 @@ defineExpose({
             </div>
             <button
                 @click="emit('show-on-map')"
-                :disabled="!canDownload || !searched || props.filtersOutOfSync"
-                class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg mb-3"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
+                class="w-11/12 md:w-9/12 py-3 text-default rounded-2xl font-semibold text-lg mb-2"
                 :class="
-                    canDownload && searched && !props.filtersOutOfSync
-                        ? 'bg-main cursor-pointer hover:bg-[#0098c4]'
-                        : 'bg-gray-300 cursor-not-allowed'
+                    canDownload && searched && !props.filtersOutOfSync && !props.isLoading
+                        ? 'bg-main cursor-pointer hover:bg-[#007ea4]'
+                        : 'bg-accented cursor-not-allowed'
                 "
             >
                 See Results on Map
