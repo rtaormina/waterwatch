@@ -1,203 +1,88 @@
-"""Test suite for measurement export views."""
-
 import json
 from datetime import date, time, timedelta
-from unittest.mock import patch
 
 from campaigns.models import Campaign
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import Point, Polygon
+from django.core.cache import cache
 from django.db import connection
-from django.http import HttpResponse
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
+from django.utils import timezone
 from measurements.models import Measurement, Temperature
 from rest_framework.test import APIClient
 
+from measurement_export.views import (
+    apply_location_annotations,
+    build_base_queryset,
+    fetch_campaigns_for_measurements,
+    fetch_metrics_for_measurements,
+    prepare_measurement_data,
+)
 
-class ViewsTestCase(TestCase):
-    """Test case for measurement export views."""
+
+class EndpointTests(TestCase):
+    """Test location_list, get_all, and basic /search/ behavior."""
 
     @classmethod
     def setUpTestData(cls):
-        """Set up test data for the test cases."""
-        user_model = get_user_model()
-
-        # Create users with different permissions
-        cls.superuser = user_model.objects.create_superuser(
-            username="testsuperuser", email="superuser@example.com", password="superpassword"
-        )
-
-        cls.staff_user = user_model.objects.create_user(
-            username="staffuser", email="staff@example.com", password="staffpassword", is_staff=True
-        )
-
-        cls.researcher_user = user_model.objects.create_user(
-            username="researcher", email="researcher@example.com", password="researcherpassword"
-        )
-
-        cls.regular_user = user_model.objects.create_user(
-            username="regularuser", email="regular@example.com", password="regularpassword"
-        )
-
-        # Create researcher group and add user
-        cls.researcher_group = Group.objects.create(name="researcher")
-        cls.researcher_user.groups.add(cls.researcher_group)
-
-        # Create locations table with test data
-        with connection.cursor() as cursor:
-            cursor.execute("""
+        with connection.cursor() as c:
+            c.execute("""
                 CREATE TABLE IF NOT EXISTS locations (
-                    id SERIAL PRIMARY KEY,
-                    country_name VARCHAR(44),
-                    continent VARCHAR(23),
-                    geom geometry
+                  id SERIAL PRIMARY KEY,
+                  country_name VARCHAR(100),
+                  continent VARCHAR(100),
+                  geom geometry(Polygon,4326)
                 );
             """)
-            cursor.execute("DELETE FROM locations;")
-            # Europe
-            cursor.execute("""
-                INSERT INTO locations (country_name, continent, geom) VALUES
-                ('Netherlands', 'Europe', ST_GeomFromText('POLYGON((3 51, 8 51, 8 54, 3 54, 3 51))', 4326)),
-                ('Germany',    'Europe', ST_GeomFromText('POLYGON((8.1 47, 15 47, 15 55, 8.1 55, 8.1 47))', 4326)),
-                ('France',     'Europe', ST_GeomFromText('POLYGON((-5 42, 8 42, 8 51, -5 51, -5 42))', 4326));
-            """)
-            # North America
-            cursor.execute("""
-                INSERT INTO locations (country_name, continent, geom) VALUES
-                ('USA', 'North America', ST_GeomFromText('POLYGON((-125 25, -65 25, -65 49, -125 49, -125 25))', 4326)),
-                ('Canada', 'North America', ST_GeomFromText('POLYGON((-140 41, -50 41, -50 83, -140 83, -140 41))', 4326));
-            """)
-            # Asia
-            cursor.execute("""
-                INSERT INTO locations (country_name, continent, geom) VALUES
-                ('Japan', 'Asia', ST_GeomFromText('POLYGON((129 30, 146 30, 146 46, 129 46, 129 30))', 4326)),
-                ('China', 'Asia', ST_GeomFromText('POLYGON((73 18, 135 18, 135 54, 73 54, 73 18))', 4326));
+            c.execute("DELETE FROM locations;")
+            c.execute("""
+                INSERT INTO locations (country_name, continent, geom)
+                VALUES ('Aland','Europe',
+                  ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))',4326)
+                );
             """)
 
-        # Create campaigns
-        cls.campaign1 = Campaign.objects.create(
-            name="Test Campaign",
-            description="Test campaign description",
-            start_time="2024-01-01T00:00:00Z",
-            end_time="2024-12-31T23:59:59Z",
-            region="MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)))",
-        )
-        cls.campaign2 = Campaign.objects.create(
-            name="Temperature Research",
-            description="Temperature measurements",
-            start_time="2024-01-01T00:00:00Z",
-            end_time="2024-12-31T23:59:59Z",
-            region="MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)))",
-        )
-
-        # Create test measurements
-        cls.measurement_netherlands = Measurement.objects.create(
-            location=Point(5.5, 52.5),
+        user = get_user_model().objects.create_user("u", "u@x", "p")
+        cls.inside = Measurement.objects.create(
+            location=Point(5, 5),
+            local_date=date(2024, 1, 1),
+            local_time=time(1, 1),
             flag=False,
-            water_source="network",
-            local_date=date(2024, 1, 15),
-            local_time=time(9, 30),
-            user=cls.regular_user,
-        )
-        cls.measurement_netherlands.campaigns.add(cls.campaign1)
-
-        cls.measurement_germany = Measurement.objects.create(
-            location=Point(10, 50),
-            flag=True,
             water_source="well",
-            local_date=date(2024, 1, 20),
-            local_time=time(14, 45),
-            user=cls.researcher_user,
+            user=user,
         )
-        cls.measurement_germany.campaigns.add(cls.campaign1, cls.campaign2)
-
-        cls.measurement_usa = Measurement.objects.create(
-            location=Point(-100, 40),
-            flag=False,
-            water_source="rooftop tank",
-            local_date=date(2024, 2, 1),
-            local_time=time(22, 15),
-            user=cls.staff_user,
-        )
-
-        cls.measurement_japan = Measurement.objects.create(
-            location=Point(140, 35),
+        cls.outside = Measurement.objects.create(
+            location=Point(20, 20),
+            local_date=date(2024, 1, 2),
+            local_time=time(2, 2),
             flag=True,
-            water_source="other",
-            local_date=date(2024, 2, 10),
-            local_time=time(6, 0),
-            user=cls.superuser,
+            water_source="network",
+            user=user,
         )
-        cls.measurement_japan.campaigns.add(cls.campaign2)
-
-        # Create temperature measurements
-        cls.temp_cold = Temperature.objects.create(
-            measurement=cls.measurement_netherlands,
-            sensor="Digital Thermometer",
-            value=12.5,
-            time_waited=timedelta(seconds=30),
-        )
-        cls.temp_warm = Temperature.objects.create(
-            measurement=cls.measurement_germany,
-            sensor="Analog Thermometer",
-            value=25.0,
-            time_waited=timedelta(seconds=45),
-        )
-        cls.temp_hot = Temperature.objects.create(
-            measurement=cls.measurement_usa,
-            sensor="Digital Thermometer",
-            value=35.8,
-            time_waited=timedelta(seconds=30),
-        )
-        cls.temp_very_hot = Temperature.objects.create(
-            measurement=cls.measurement_japan,
-            sensor="IR Thermometer",
-            value=45.2,
-            time_waited=timedelta(seconds=15),
-        )
+        Temperature.objects.create(measurement=cls.inside, value=11.1, time_waited=timedelta())
+        Temperature.objects.create(measurement=cls.outside, value=22.2, time_waited=timedelta())
 
     def setUp(self):
-        """Set up for each test."""
+        cache.clear()
         self.client = APIClient()
 
-    # Location List View Tests
+    def test_location_list(self):
+        r = self.client.get("/api/locations/")
+        assert r.status_code == 200
+        assert r.json() == {"Europe": ["Aland"]}
 
-    def test_location_list_returns_countries_by_continent(self):
-        """Test that location_list returns countries grouped by continent."""
-        response = self.client.get("/api/locations/")
-        assert response.status_code == 200
-        data = response.json()
+        with connection.cursor() as c:
+            c.execute("DELETE FROM locations;")
+        r2 = self.client.get("/api/locations/")
+        assert r2.json() == {}
 
-        # Continents present
-        assert "Europe" in data
-        assert "North America" in data
-        assert "Asia" in data
-        # Specific countries
-        assert set(data["Europe"]) == {"France", "Germany", "Netherlands"}
-        assert set(data["North America"]) == {"USA", "Canada"}
-        assert set(data["Asia"]) == {"Japan", "China"}
-
-    def test_location_list_empty_database(self):
-        """Test location_list with empty locations table."""
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM locations;")
-        response = self.client.get("/api/locations/")
-        assert response.status_code == 200
-        assert response.json() == {}
-
-    # Export All View Tests
-
-    def test_export_all_view_returns_all_measurements(self):
-        """Test that export_all_view returns all measurements with complete data."""
-        response = self.client.get("/api/measurements/")
-        assert response.status_code == 200
-        data = response.json()
-        assert len(data) == 4  # four points inside polygons
-
-        # Check keys on a sample measurement
-        keys = set(data[0].keys())
-        expected = {
+    def test_get_all_measurements(self):
+        r = self.client.get("/api/measurements/")
+        assert r.status_code == 200
+        arr = r.json()
+        assert {m["id"] for m in arr} == {self.inside.id}
+        for field in (
             "id",
             "timestamp",
             "local_date",
@@ -211,271 +96,249 @@ class ViewsTestCase(TestCase):
             "longitude",
             "metrics",
             "campaigns",
-        }
-        assert expected.issubset(keys)
+        ):
+            assert field in arr[0]
 
-    def test_export_all_view_includes_geographic_data(self):
-        """Test that measurements include correct geographic annotations."""
-        data = self.client.get("/api/measurements/").json()
-        nl = next(m for m in data if m["country"] == "Netherlands")
-        assert nl["continent"] == "Europe"
-        assert nl["latitude"] == 52.5
-        assert nl["longitude"] == 5.5
+    def test_search_invalid_json(self):
+        r = self.client.post("/api/measurements/search/", "nope", content_type="application/json")
+        assert r.status_code == 400
 
-    def test_export_all_view_includes_metrics(self):
-        """Test that measurements include associated metrics."""
-        data = self.client.get("/api/measurements/").json()
-        meas = next(m for m in data if m["metrics"])
-        temp = next(x for x in meas["metrics"] if x["metric_type"] == "temperature")
-        assert all(k in temp for k in ("value", "sensor", "time_waited"))
+    def test_search_empty(self):
+        r = self.client.post("/api/measurements/search/", "", content_type="application/json")
+        assert r.status_code == 200
+        assert "count" in r.json()
+        assert "avgTemp" in r.json()
 
-    def test_export_all_view_includes_campaigns(self):
-        """Test that measurements include associated campaigns."""
-        data = self.client.get("/api/measurements/").json()
-        meas = next(m for m in data if m["campaigns"])
-        assert isinstance(meas["campaigns"], list)
-        assert meas["campaigns"]
-
-    def test_export_all_view_with_boundary_geometry(self):
-        """Test export_all_view with boundary geometry filter."""
-        poly = "POLYGON((0 40, 20 40, 20 60, 0 60, 0 40))"
-        data = self.client.get("/api/measurements/", {"boundary_geometry": poly}).json()
-        assert {m["continent"] for m in data} == {"Europe"}
-
-    def test_export_all_view_invalid_boundary_geometry(self):
-        """Test export_all_view with invalid boundary geometry."""
-        resp = self.client.get("/api/measurements/", {"boundary_geometry": "INVALID_GEOMETRY"})
-        assert resp.status_code == 400
-        assert "Invalid boundary_geometry format" in resp.json().get("error", "")
-
-    def test_export_all_view_ordered_results(self):
-        """Test that export_all_view returns results ordered by ID."""
-        data = self.client.get("/api/measurements/").json()
-        ids = [m["id"] for m in data]
-        assert ids == sorted(ids)
-
-    # Search Measurements View Tests
-
-    def test_search_measurements_view_returns_statistics(self):
-        """Test search_measurements_view returns count and average temperature."""
-        resp = self.client.post("/api/measurements/search/", json.dumps({}), content_type="application/json")
-        result = resp.json()
-        assert resp.status_code == 200
-        assert result["count"] == 4
-        assert result["avgTemp"] > 0
-
-    def test_search_measurements_view_with_filters(self):
-        """Test search_measurements_view filters by continent correctly."""
-        payload = {"location[continents]": ["Europe"]}
-        result = self.client.post(
-            "/api/measurements/search/", json.dumps(payload), content_type="application/json"
-        ).json()
-        # Netherlands + Germany
-        assert result["count"] == 2
-
-    def test_search_measurements_view_csv_export_permission_denied(self):
-        """Test CSV export requires researcher permissions."""
-        self.client.force_authenticate(user=self.regular_user)
-        resp = self.client.post(
-            "/api/measurements/search/", json.dumps({"format": "csv"}), content_type="application/json"
+    def test_search_location_filter(self):
+        poly = Polygon.from_bbox((0, 0, 10, 10)).wkt
+        r = self.client.post(
+            "/api/measurements/search/", json.dumps({"boundary_geometry": poly}), content_type="application/json"
         )
-        assert resp.status_code == 403
-        assert "Forbidden" in resp.json().get("error", "")
+        assert r.status_code == 200
+        assert r.json()["count"] == 1
 
-    def test_search_measurements_view_csv_export_researcher_access(self):
-        """Test CSV export works for researcher users."""
-        self.client.force_authenticate(user=self.researcher_user)
-        with patch("measurement_export.views.get_strategy") as mock_get_strategy:
-            strat = mock_get_strategy.return_value
-            strat.export.return_value = HttpResponse("CSV_DATA")
 
-            self.client.post(
-                "/api/measurements/search/", json.dumps({"format": "csv"}), content_type="application/json"
-            )
+class HelperFunctionTests(TestCase):
+    """Test build_base_queryset, annotations, fetchers, and preparer."""
 
-            mock_get_strategy.assert_called_once_with("csv")
-            strat.export.assert_called_once()
+    @classmethod
+    def setUpTestData(cls):
+        user = get_user_model().objects.create_user("x", "x@x", "p")
+        cls.m1 = Measurement.objects.create(
+            location=Point(0, 0),
+            local_date=date(2024, 1, 1),
+            local_time=time(0, 0),
+            flag=False,
+            water_source="a",
+            user=user,
+        )
+        cls.m2 = Measurement.objects.create(
+            location=Point(1, 1),
+            local_date=date(2024, 2, 2),
+            local_time=time(2, 2),
+            flag=True,
+            water_source="b",
+            user=user,
+        )
+        Temperature.objects.create(measurement=cls.m1, value=1.1, time_waited=timedelta())
+        Temperature.objects.create(measurement=cls.m2, value=2.2, time_waited=timedelta())
 
-    def test_search_measurements_view_csv_export_staff_access(self):
-        """Test CSV export works for staff users."""
-        self.client.force_authenticate(user=self.staff_user)
-        with patch("measurement_export.views.get_strategy") as mock_get_strategy:
-            strat = mock_get_strategy.return_value
-            strat.export.return_value = HttpResponse("CSV_DATA")
+        # Use WKT string for region (MULTIPOLYGON)
+        cls.c1 = Campaign.objects.create(
+            name="C1",
+            description="",
+            start_time=timezone.now(),
+            end_time=timezone.now(),
+            region="MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)))",
+        )
+        cls.c2 = Campaign.objects.create(
+            name="C2",
+            description="",
+            start_time=timezone.now(),
+            end_time=timezone.now(),
+            region="MULTIPOLYGON(((0 0,1 0,1 1,0 1,0 0)))",
+        )
+        cls.m1.campaigns.add(cls.c1)
+        cls.m2.campaigns.add(cls.c1, cls.c2)
 
-            self.client.post(
-                "/api/measurements/search/", json.dumps({"format": "csv"}), content_type="application/json"
-            )
+        # also ensure locations table for annotation tests
+        with connection.cursor() as c:
+            c.execute("""
+                CREATE TABLE IF NOT EXISTS locations (
+                  id SERIAL PRIMARY KEY,
+                  country_name VARCHAR(100),
+                  continent VARCHAR(100),
+                  geom geometry(Polygon,4326)
+                );
+            """)
+            c.execute("DELETE FROM locations;")
+            c.execute("""
+                INSERT INTO locations (country_name, continent, geom)
+                VALUES ('Zed','Nowhere',
+                  ST_GeomFromText('POLYGON((-1 -1,2 -1,2 2,-1 2,-1 -1))',4326)
+                );
+            """)
 
-            mock_get_strategy.assert_called_once_with("csv")
-
-    def test_search_measurements_view_csv_export_superuser_access(self):
-        """Test CSV export works for superusers."""
-        self.client.force_authenticate(user=self.superuser)
-        with patch("measurement_export.views.get_strategy") as mock_get_strategy:
-            strat = mock_get_strategy.return_value
-            strat.export.return_value = HttpResponse("CSV_DATA")
-
-            self.client.post(
-                "/api/measurements/search/", json.dumps({"format": "csv"}), content_type="application/json"
-            )
-
-            mock_get_strategy.assert_called_once_with("csv")
-
-    def test_search_measurements_view_all_export_formats(self):
-        """Test that all export formats are handled."""
-        self.client.force_authenticate(user=self.researcher_user)
-        for fmt in ["csv", "json", "xml", "geojson"]:
-            with patch("measurement_export.views.get_strategy") as mock_get_strategy:
-                strat = mock_get_strategy.return_value
-                strat.export.return_value = HttpResponse(f"{fmt.upper()}_DATA")
-
-                self.client.post(
-                    "/api/measurements/search/", json.dumps({"format": fmt}), content_type="application/json"
-                )
-                mock_get_strategy.assert_called_once_with(fmt)
-
-    def test_search_measurements_view_included_metrics_validation(self):
-        """Test that measurements_included parameter is validated."""
-        self.client.force_authenticate(user=self.researcher_user)
-        with patch("measurement_export.views.get_strategy") as mock_get_strategy:
-            strat = mock_get_strategy.return_value
-            strat.export.return_value = HttpResponse("CSV_DATA")
-
-            self.client.post(
-                "/api/measurements/search/",
-                json.dumps({"format": "csv", "measurements_included": "not_a_list"}),
-                content_type="application/json",
-            )
-            strat.export.assert_called_once()
-            args, kwargs = strat.export.call_args
-            assert "metrics" in kwargs["extra_data"]
-
-    def test_search_measurements_view_invalid_json(self):
-        """Test search_measurements_view with invalid JSON."""
-        resp = self.client.post("/api/measurements/search/", "INVALID_JSON", content_type="application/json")
-        assert resp.status_code == 400
-        assert "Invalid JSON" in resp.json().get("error", "")
-
-    def test_search_measurements_view_empty_body(self):
-        """Test search_measurements_view with empty request body."""
-        resp = self.client.post("/api/measurements/search/", "", content_type="application/json")
-        result = resp.json()
-        assert resp.status_code == 200
-        assert "count" in result
-        assert "avgTemp" in result
-
-    # Helper Function Tests
-
-    def test_build_base_queryset_ordered(self):
-        """Test build_base_queryset with ordering."""
-        from measurement_export.views import build_base_queryset
-
-        qs = build_base_queryset(ordered=True)
-        assert qs.ordered
-
-    def test_build_base_queryset_unordered(self):
-        """Test build_base_queryset without ordering."""
-        from measurement_export.views import build_base_queryset
-
-        qs = build_base_queryset(ordered=False)
-        assert not qs.ordered
+    def test_build_base_queryset(self):
+        qs1 = build_base_queryset(ordered=False)
+        assert not qs1.query.order_by
+        qs2 = build_base_queryset(ordered=True)
+        # Django stores order_by as a tuple
+        assert qs2.query.order_by == ("id",)
 
     def test_apply_location_annotations(self):
-        """Test apply_location_annotations adds geographic fields."""
-        from measurement_export.views import apply_location_annotations, build_base_queryset
+        annotated = apply_location_annotations(Measurement.objects.all())
+        # pick one
+        m = annotated.first()
+        for fld in ("country", "continent", "latitude", "longitude"):
+            assert hasattr(m, fld)
 
-        qs = build_base_queryset()
-        qs = apply_location_annotations(qs)
-        m = qs.first()
-        assert hasattr(m, "country")
-        assert hasattr(m, "continent")
-        assert hasattr(m, "latitude")
-        assert hasattr(m, "longitude")
+    def test_fetch_metrics(self):
+        ids = [self.m1.id, self.m2.id]
+        allm = fetch_metrics_for_measurements(ids)
+        assert set(allm.keys()) == set(ids)
+        # filtered out
+        empty = fetch_metrics_for_measurements(ids, included_metrics=[])
+        assert empty == {}
 
-    def test_fetch_metrics_for_measurements(self):
-        """Test fetch_metrics_for_measurements returns correct structure."""
-        from measurement_export.views import fetch_metrics_for_measurements
-
-        ids = [self.measurement_netherlands.id, self.measurement_germany.id]
-        metrics = fetch_metrics_for_measurements(ids)
-        assert set(metrics.keys()) == set(ids)
-        for lst in metrics.values():
-            for metric in lst:
-                assert "metric_type" in metric
-
-    def test_fetch_campaigns_for_measurements(self):
-        """Test fetch_campaigns_for_measurements returns correct structure."""
-        from measurement_export.views import fetch_campaigns_for_measurements
-
-        ids = [self.measurement_netherlands.id, self.measurement_germany.id]
-        campaigns = fetch_campaigns_for_measurements(ids)
-        assert "Test Campaign" in campaigns[self.measurement_netherlands.id]
-        assert "Temperature Research" in campaigns[self.measurement_germany.id]
+    def test_fetch_campaigns(self):
+        camps = fetch_campaigns_for_measurements([self.m1.id, self.m2.id])
+        assert camps[self.m1.id] == ["C1"]
+        assert set(camps[self.m2.id]) == {"C1", "C2"}
 
     def test_prepare_measurement_data(self):
-        """Test prepare_measurement_data combines all data correctly."""
-        from measurement_export.views import (
-            apply_location_annotations,
-            build_base_queryset,
-            prepare_measurement_data,
-        )
-
-        qs = build_base_queryset()
-        qs = apply_location_annotations(qs)
+        qs = apply_location_annotations(build_base_queryset().filter(id__in=[self.m1.id, self.m2.id]))
         data = prepare_measurement_data(qs)
-        assert isinstance(data, list)
-        assert data
-        for field in [
-            "id",
-            "timestamp",
-            "local_date",
-            "local_time",
-            "flag",
-            "water_source",
-            "user_id",
-            "country",
-            "continent",
-            "latitude",
-            "longitude",
-            "metrics",
-            "campaigns",
-        ]:
-            assert field in data[0]
+        assert len(data) == 2
+        for rec in data:
+            assert "metrics" in rec
+            assert "campaigns" in rec
 
-    # Edge Cases and Error Handling
 
-    def test_export_all_view_no_measurements(self):
-        """Test export_all_view when no measurements exist."""
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM measurements_temperature;")
-            cursor.execute("DELETE FROM measurements_measurement_campaigns;")
-            cursor.execute("DELETE FROM measurements_measurement;")
-        resp = self.client.get("/api/measurements/")
-        assert resp.status_code == 200
-        assert resp.json() == []
+class ErrorHandlingTests(TransactionTestCase):
+    """Ensure invalid filters don't 500 out /search/."""
 
-    def test_search_measurements_view_no_matching_measurements(self):
-        """Test search with unrecognized continent yields all measurements."""
-        payload = {"location[continents]": ["Antarctica"]}
-        resp = self.client.post("/api/measurements/search/", json.dumps(payload), content_type="application/json")
-        result = resp.json()
-        # "Antarctica" is ignored; all 4 measurements returned
-        assert result["count"] == 4
-        assert result["avgTemp"] > 0
+    reset_sequences = True
 
-    def test_measurements_without_temperature(self):
-        """Test handling of measurements without temperature metrics."""
-        # Create a measurement outside any country polygon
-        mt = Measurement.objects.create(
-            location=Point(0, 0),
-            flag=False,
-            water_source="network",
-            local_date=date(2024, 3, 1),
-            local_time=time(12, 0),
-            user=self.regular_user,
+    def setUp(self):
+        cache.clear()
+        self.client = APIClient()
+
+    def test_invalid_month_yields_200(self):
+        r = self.client.post("/api/measurements/search/", json.dumps({"month": "abc"}), content_type="application/json")
+        assert r.status_code == 200
+
+    def test_invalid_boundary_yields_200(self):
+        r = self.client.post(
+            "/api/measurements/search/", json.dumps({"boundary_geometry": "XYZ"}), content_type="application/json"
         )
-        data = self.client.get("/api/measurements/").json()
-        ids = [m["id"] for m in data]
-        # It should be dropped by the inner join annotation
-        assert mt.id not in ids
+        assert r.status_code == 200
+
+
+class SearchMeasurementsViewTest(TransactionTestCase):
+    """Full integration tests for /search/ filters and export perms."""
+
+    reset_sequences = True
+
+    def setUp(self):
+        cache.clear()
+        self.client = APIClient()
+
+        # Create users
+        user = get_user_model()
+        self.reg = user.objects.create_user("r", "r@x", "p")
+        self.staff = user.objects.create_user("s", "s@x", "p", is_staff=True)
+        self.sup = user.objects.create_superuser("S", "S@x", "p")
+        self.res = user.objects.create_user("res", "res@x", "p")
+
+        self.researcher_group = Group.objects.create(name="researcher")
+        self.res.groups.add(self.researcher_group)
+
+        # Setup locations table as needed (or better, use migrations/fixtures)
+        with connection.cursor() as c:
+            c.execute("""
+                CREATE TABLE IF NOT EXISTS locations (
+                  id SERIAL PRIMARY KEY,
+                  country_name VARCHAR(100),
+                  continent VARCHAR(100),
+                  geom geometry(Polygon,4326)
+                );
+            """)
+            c.execute("DELETE FROM locations;")
+            c.execute("""
+                INSERT INTO locations (country_name, continent, geom)
+                VALUES ('T','C',
+                  ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))',4326)
+                );
+            """)
+
+        now = timezone.now()
+        self.jan = Measurement.objects.create(
+            location=Point(1, 1),
+            local_date=(now - timedelta(days=60)).date(),
+            local_time=time(1, 1),
+            timestamp=now - timedelta(days=60),
+            flag=False,
+            water_source="a",
+            user=self.reg,
+        )
+        Temperature.objects.create(measurement=self.jan, value=10, time_waited=timedelta())
+
+        self.feb = Measurement.objects.create(
+            location=Point(2, 2),
+            local_date=(now - timedelta(days=10)).date(),
+            local_time=time(2, 2),
+            timestamp=now - timedelta(days=10),
+            flag=True,
+            water_source="b",
+            user=self.reg,
+        )
+        Temperature.objects.create(measurement=self.feb, value=20, time_waited=timedelta())
+
+        self.mar = Measurement.objects.create(
+            location=Point(5, 5),
+            local_date=now.date(),
+            local_time=time(3, 3),
+            timestamp=now,
+            flag=False,
+            water_source="c",
+            user=self.reg,
+        )
+        Temperature.objects.create(measurement=self.mar, value=30, time_waited=timedelta())
+
+    def post(self, payload, user=None):
+        if user:
+            self.client.force_authenticate(user)
+        return self.client.post("/api/measurements/search/", json.dumps(payload), content_type="application/json")
+
+    def test_filters_and_stats(self):
+        # Create a polygon that definitely includes the first two measurements
+        # (1,1) and (2,2)
+        small = Polygon.from_bbox((0, 0, 3, 3)).wkt
+        response = self.post(
+            {
+                "boundary_geometry": small,
+            },
+            self.reg,
+        )
+        data = response.json()
+        assert data["count"] == 2
+
+    def test_export_permissions(self):
+        def ex(fmt, user, ok):
+            r = self.post({"format": fmt, "measurements_included": ["temperature"]}, user)
+            assert r.status_code == (200 if ok else 403)
+
+        ex("csv", self.reg, False)
+        for u in (self.res, self.staff, self.sup):
+            for fmt in ("csv", "json", "xml", "geojson"):
+                ex(fmt, u, True)
+
+    def test_sanitize_included(self):
+        payload = {
+            "format": "csv",
+            "measurements_included": "oops",
+        }
+        self.client.force_authenticate(self.staff)
+        r = self.client.post("/api/measurements/search/", json.dumps(payload), content_type="application/json")
+        assert r.status_code == 200

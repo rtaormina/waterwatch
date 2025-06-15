@@ -24,7 +24,7 @@ MODELS_TO_INVALIDATE_DEFAULT_CACHE.extend(METRIC_MODELS)
 MODELS_TO_INVALIDATE_LOCATION_CACHE = [Location]
 
 
-def clear_default_cache(sender, **_kwargs):
+def clear_default_cache(sender, **_kwargs):  # noqa: ARG001
     """Signal handler to clear the default cache.
 
     This function is connected to the post_save and post_delete signals of specified models.
@@ -36,11 +36,10 @@ def clear_default_cache(sender, **_kwargs):
     **_kwargs : dict
         Additional keyword arguments provided by the signal.
     """
-    logger.info("Default cache invalidated due to a change in the %s model.", sender.__name__)
     cache.clear()
 
 
-def clear_location_cache_signal(sender, **_kwargs):
+def clear_location_cache_signal(sender, **_kwargs):  # noqa: ARG001
     """Signal handler to clear the location cache.
 
     This function is connected to the post_save and post_delete signals of Location model.
@@ -52,8 +51,6 @@ def clear_location_cache_signal(sender, **_kwargs):
     **_kwargs : dict
         Additional keyword arguments provided by the signal.
     """
-    logger.info("Location cache invalidated due to a change in the %s model.", sender.__name__)
-
     # Import here to avoid circular imports
     from .utils import clear_location_cache
 
