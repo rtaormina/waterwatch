@@ -305,6 +305,75 @@ onMounted(() => {
         },
     );
 
+    // Watch for changes in month selection to clear selections if selected hexagon data has changed
+    watch(
+        () => props.data,
+        (newData, oldData) => {
+            if (!oldData || oldData.length === 0) return;
+
+            /**
+             * Get a unique hash for the data within a hexagon.
+             *
+             * @param data - The data points to consider.
+             * @param hexCenter - The center coordinates of the hexagon.
+             * @param radius - The radius of the hexagon.
+             */
+            const getHexDataHash = (data: DataPoint[], hexCenter: { x: number; y: number }, radius: number) => {
+                // Find all data points that would be aggregated into this hex
+                const hexPoints = data.filter((point) => {
+                    const dx = point.point.lng - hexCenter.x;
+                    const dy = point.point.lat - hexCenter.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    return distance <= radius * 1.5; // Use 1.5x radius as buffer for hex boundaries
+                });
+
+                if (hexPoints.length === 0) return null;
+
+                // Create a hash of the relevant data
+                const avgTemp = hexPoints.reduce((sum, p) => sum + p.temperature, 0) / hexPoints.length;
+                const totalCount = hexPoints.reduce((sum, p) => sum + p.count, 0);
+
+                return `${hexPoints.length}-${avgTemp.toFixed(2)}-${totalCount}`;
+            };
+
+            // Get current hex radius
+            const radius = hexbinLayer.radius();
+
+            // Check if any selected hexagons have changed
+            let hasChanges = false;
+            const selectedArrays = props.compareMode ? [selectedPhase1.value, selectedPhase2.value] : [selected.value];
+
+            for (const selectedArray of selectedArrays) {
+                for (const selection of selectedArray) {
+                    // Calculate hex center from corners
+                    const centerLat = selection.corners.reduce((sum, c) => sum + c.lat, 0) / selection.corners.length;
+                    const centerLng = selection.corners.reduce((sum, c) => sum + c.lng, 0) / selection.corners.length;
+
+                    const hexCenter = { x: centerLng, y: centerLat };
+
+                    const oldHash = getHexDataHash(oldData, hexCenter, radius);
+                    const newHash = getHexDataHash(newData, hexCenter, radius);
+
+                    if (oldHash !== newHash) {
+                        hasChanges = true;
+                        break;
+                    }
+                }
+                if (hasChanges) break;
+            }
+
+            if (hasChanges) {
+                map.closePopup();
+                if (!props.compareMode) {
+                    clearSelection();
+                } else if (props.compareMode && (props.activePhase === 1 || props.activePhase === 2)) {
+                    clearSelection();
+                    emit("hex-group-select", { wkt: "", phase: props.activePhase, cornersList: [] });
+                }
+            }
+        },
+    );
+
     /**
      * Converts an array of WKT polygons to a single MultiPolygon WKT string.
      *
