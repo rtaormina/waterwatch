@@ -197,6 +197,7 @@ defineExpose({
                     ref="tempRef"
                     placeholder="e.g. 24.3"
                     class="min-w-16 max-w-20"
+                    aria-label="Temperature value input"
                 />
 
                 <URadioGroup
