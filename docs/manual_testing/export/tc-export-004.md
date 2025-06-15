@@ -4,35 +4,46 @@
 `TC-EXPORT-004`
 
 ## Title
-Export with Filters and View in Map
+Export with Presets (In production)
 
 ## Tested By
-`stella`
+`tester`
 
 ## Test Date
 `YYYY-MM-DD`
 
 ## Summary
-*Short summary of what the test case consists of*
+Apply a preset when exporting and only get the filtered data included in the preset.
 
 ## Preconditions
-*State or setup required before test execution*
+- At least 2 measurements in Europe, one between 0-50 C and one 50-100 C and at least one measurement not in Europe (other details are not important)
+- One preset detailed in test data.
 
 ## Test Steps
-*List of sequential steps to execute the test*
+1. Open export page
+2. Select 'Europe Warm' from preset list
+3. Select search
+4. Verify results of search
+5. Export as CSV
 
 ## Test Data
-*Enter data used for testing*
+Preset (any omitted fields can be left blank when preset is created):
+Name: Europe Warm
+Description: This is a test preset
+Created by: admin
+Public
+Continents: Europe
+Enable temperature filtering
+Temperature range: 50-100C
 
 ## Expected Result
-*What should happen if the test passes*
+The preset should appear visibly applied once selected in the preset dropdown. Only the measurements in europe with temperature in the 50-100 range should be in the downloaded CSV.
 
 ## Actual Result
 *To be filled during test execution*
 
 ## Status
 - Pass
-- Fail
 
 ## Severity (if failed)
 - High
@@ -45,14 +56,12 @@ Export with Filters and View in Map
 | Browser      |        |
 | OS           |       |
 | Device       |           |
-| Environment  |           |
+| Environment  |   Production        |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#127 #132
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes

@@ -20,9 +20,9 @@ n/a
 ## Test Steps
 1. Open to the admin login and enter the username admin and password admin
 2. Select the preset section and select add preset.
-3. Enter the test data for the preset
-4. Select save
-5. Navigate to the export page and select the dropdown to confirm the preset exists. Select the preset and confirm it is correct.
+3. Enter the test data for the preset and save
+4. Navigate to export page and select dropdown to confirm preset is not yet public. Edit preset to make it public in the admin console.
+5. Navigate back to the export page and select the dropdown to confirm the preset exists. Select the preset and confirm it is correct.
 6. Navigate to admin console
 7. Select the preset that was just added and edit with the edited test data
 8. Navigate to the export page and select the dropdown to confirm the preset exists. Select the preset and confirm it is correct.
@@ -33,10 +33,19 @@ n/a
 ## Test Data
 Initial Preset:
 Name: Test Preset
+Description: This is a test preset
+Created by: admin
+Private (then switched to public in step 4)
+Continents: Europe
+Water source: all
 
 
 Edited Preset (only changed fields included):
 Name: Test Preset 2.0
+Created by: researcher
+Continents: North America, Asia
+Temp range: 50-99
+Water source: Network, well
 
 ## Expected Result
 Admin console:
@@ -50,13 +59,25 @@ Export page:
 - Once deleted, the export page should not display the preset
 
 ## Actual Result
+Production:
 Not possible to add preset in production (500 server error). There is also no CSS for the admin console so it is not readable or very usable in current state. 
 
+Development:
+You can open the add preset page on the admin console but countries do not show up as options until you select save and left an option blank. This prevents the preset from being saved and prompts you to fill in the missing field, at which point countries from any already selected continents show up. The other preset functionality is working.
+
 ## Status
+Production:
+- Fail
+
+Development:
 - Fail
 
 ## Severity (if failed)
+Production:
 - High
+
+Development:
+- Medium
 
 ## Environment
 | Detail       | Value            |
@@ -64,7 +85,7 @@ Not possible to add preset in production (500 server error). There is also no CS
 | Browser      |  Firefox      |
 | OS           |   Windows    |
 | Device       |   Laptop        |
-| Environment  |   Production        |
+| Environment  |   Production / Development       |
 
 
 ## Related Requirement / User Story
