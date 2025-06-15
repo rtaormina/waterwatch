@@ -8,17 +8,15 @@
 
         <div class="flex flex-col sm:flex-row mx-4 gap-4 justify-center">
             <UButton
-                @click="
-                    () => {
-                        router.back();
-                    }
-                "
+                v-if="has_history"
+                @click="goBack"
                 size="xl"
                 icon="i-heroicons-arrow-left-20-solid"
                 class="border bg-default text-md border-primary justify-center text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer"
                 label="Go Back"
                 data-testid="go-back-button"
             />
+            {{ has_history }}
             <RouterLink to="/">
                 <UButton
                     size="xl"
@@ -33,7 +31,20 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+
+/**
+ * Navigates back in the browser history, if this fail it redirects to the homepage after halve a second.
+ */
+function goBack() {
+    router.back();
+    setTimeout(() => {
+        router.push({ path: "/" });
+    }, 500);
+}
+
+const has_history = computed(() => window.history.length);
 </script>
