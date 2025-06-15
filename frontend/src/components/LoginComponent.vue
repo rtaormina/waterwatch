@@ -68,11 +68,13 @@ defineExpose({
                         Log In
                     </button>
 
-                    <!-- add back for when we have accounts -->
-                    <!-- <p class="text-center text-sm text-gray-600 underline">
-                        Don’t have an account?
-                        <a href="#" class="font-semibold text-black hover:underline">Sign up.</a>
-                    </p> -->
+                    <!-- Turn into email link once email address exists -->
+                    <p class="text-center text-sm text-gray-600">
+                        Don’t have an account? Send an email to
+                        <b>waterwatch@tudelft.nl</b>
+                        to register!
+                        <!-- <a href="#" class="font-semibold text-black hover:underline">waterwatch@tudelft.nl</a> -->
+                    </p>
                 </form>
             </div>
         </div>
