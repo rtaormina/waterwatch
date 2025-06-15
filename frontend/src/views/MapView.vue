@@ -17,6 +17,8 @@
             </p>
             <div class="flex items-center mt-4 gap-2">
                 <button
+                    type="button"
+                    aria-label="open map menu"
                     data-testid="view-button"
                     @click="firstTime = false"
                     class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
@@ -132,9 +134,11 @@
                             viewAnalytics = false;
                             showLegend = false;
                         "
+                        type="button"
+                        aria-label="add measurement"
                         v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                     >
-                        <PlusCircleIcon class="w-10 h-10" />
+                        <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
                     </button>
                 </UTooltip>
             </div>

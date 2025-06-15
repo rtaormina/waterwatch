@@ -1,10 +1,12 @@
+# Manual Test Records
+
 ```{eval-rst}
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   template.md
-   tc-admin-001.md
-   tc-collection-001.md
-   tc-export-001.md
-   tc-export-002.md
+   admin/index.md
+   analysis/index.md
+   collection/index.md
+   export/index.md
+   map/index.md
 ```
