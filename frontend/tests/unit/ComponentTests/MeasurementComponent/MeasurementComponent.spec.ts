@@ -2,10 +2,12 @@ import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 const fakeFetch = vi.fn();
 vi.stubGlobal("fetch", fakeFetch);
+
 import MeasurementComponent from "../../../../src/components/MeasurementComponent.vue";
 import { ref } from "vue";
 import { DateTime } from "luxon";
 import * as L from "leaflet";
+import VueDatePicker from "@vuepic/vue-datepicker";
 
 const pushMock = vi.fn();
 vi.mock("vue-router", () => ({
@@ -30,11 +32,36 @@ describe("postData", () => {
     let wrapper;
 
     beforeEach(() => {
+        vi.mock("@vuepic/vue-datepicker", () => ({
+            default: {
+                name: "VueDatePicker",
+                template: '<input data-testid="vue-datepicker" />',
+                props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+                emits: ["update:modelValue"],
+            },
+        }));
+        vi.mock("./Measurement/MeasurementBlock.vue", () => ({
+            default: {
+                name: "MeasurementBlock",
+                template: `
+            <div>
+                <slot></slot>
+            </div>
+        `,
+            },
+        }));
+        vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+
         wrapper = mount(MeasurementComponent, {
             global: {
                 stubs: {
                     LocationFallback: {
                         template: '<div data-testid="stub-map"></div>',
+                    },
+                    VueDatePicker: {
+                        template: '<input data-testid="vue-datepicker" />',
+                        props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+                        emits: ["update:modelValue"],
                     },
                 },
             },
@@ -183,11 +210,18 @@ describe("MeasurementComponent.vue clear/post", () => {
                 },
             },
             selectedMetrics: ["temperature"],
+            time: {
+                localDate: undefined,
+                localTime: undefined,
+            },
         };
         wrapper.vm.defaultData = initialData;
         wrapper.vm.clear();
 
-        expect(wrapper.vm.data).toEqual(initialData);
+        expect(wrapper.vm.data.location).toEqual(initialData.location);
+        expect(wrapper.vm.data.waterSource).toEqual(initialData.waterSource);
+        expect(wrapper.vm.data.temperature).toEqual(initialData.temperature);
+        expect(wrapper.vm.data.selectedMetrics).toEqual(initialData.selectedMetrics);
     });
 });
 

@@ -17,6 +17,10 @@ export type Temperature = {
     value?: number;
     unit: TemperatureUnit;
 };
+export type Time = {
+    localDate?: string;
+    localTime?: string;
+};
 
 /**
  * Converts a temperature value to Celsius, rounding to one decimal place.
@@ -62,6 +66,7 @@ export type MeasurementData = {
     waterSource?: WaterSource;
     temperature: Temperature;
     selectedMetrics: Metric[];
+    time: Time;
 };
 
 /**
@@ -179,9 +184,21 @@ export function createPayload(data: MaybeRefOrGetter<MeasurementData>, selectedM
         : undefined;
     const longitudeRounded = Number(measurementData.location.lng.toFixed(3));
     const latitudeRounded = Number(measurementData.location.lat.toFixed(3));
-    const localISO = DateTime.local().toISO();
-    const local_date = localISO ? localISO.split("T")[0] : undefined;
-    const local_time = localISO ? localISO.split("T")[1].split(".")[0] : undefined;
+    let local_date: string;
+    let local_time: string;
+    if (
+        measurementData.time &&
+        measurementData.time.localDate != undefined &&
+        measurementData.time.localTime != undefined
+    ) {
+        local_date = measurementData.time.localDate;
+        local_time = measurementData.time.localTime;
+    } else {
+        const localISO = DateTime.local().toISO();
+        local_date = localISO ? localISO.split("T")[0] : DateTime.local().toFormat("yyyy-MM-dd");
+        local_time = localISO ? localISO.split("T")[1].split(".")[0] : DateTime.local().toFormat("HH:mm:ss");
+    }
+
     return {
         timestamp: DateTime.utc().toISO(),
         local_date: local_date,

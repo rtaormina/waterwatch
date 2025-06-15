@@ -9,6 +9,8 @@ import "leaflet/dist/leaflet.css";
 import App from "@/App.vue";
 import router from "@/router";
 import ui from "@nuxt/ui/vue-plugin";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 // mount the app
-createApp(App).use(ui).use(router).use(i18n).mount("#app");
+createApp(App).use(ui).use(router).use(i18n).component("VueDatePicker", VueDatePicker).mount("#app");
