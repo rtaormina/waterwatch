@@ -1,5 +1,8 @@
 // DataVisualizationLogic.ts
 import * as d3 from "d3";
+import Cookies from "universal-cookie";
+
+const cookies = new Cookies();
 
 /**
  * Creates an Epanechnikov kernel function with a specified bandwidth.
@@ -77,6 +80,38 @@ export async function getGraphData(wkt: string): Promise<number[]> {
         console.error("Error fetching data for WKT:", err);
         return [];
     }
+}
+
+/**
+ * Fetches numeric values for the given location and returns them.
+ *
+ * @param {string} location The location for the measurements.
+ * @returns the numeric values for the temperatures
+ */
+export async function getGraphDataExportMapView(
+    exportFilters: object,
+    hexagon: string,
+    legendMonth: string,
+): Promise<number[]> {
+    const bodyData = {
+        ...exportFilters,
+        "boundary-geometry": hexagon,
+        month: legendMonth,
+        format: "analysis-format",
+    };
+
+    const res = await fetch("/api/measurements/search/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": cookies.get("csrftoken"),
+            "Content-Type": "application/json", // Set Content-Type for JSON payload
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(bodyData), // Send data as a JSON string in the body
+    });
+
+    if (!res.ok) throw new Error(`Status: ${res.status}`);
+    return await res.json();
 }
 
 /**

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { drawHistogramWithKDE } from "../../composables/Analysis/DataVisualizationLogic";
+import { drawHistogramWithKDE, getGraphDataExportMapView } from "../../composables/Analysis/DataVisualizationLogic";
 import { onMounted, ref, watch } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
@@ -9,6 +9,13 @@ const props = defineProps({
     },
     month: {
         type: String,
+    },
+    fromExport: {
+        type: Boolean,
+        default: false,
+    },
+    exportFilters: {
+        type: Object,
     },
 });
 
@@ -20,11 +27,11 @@ const graph = ref<HTMLElement | null>(null);
  * @param {string} location The location for the measurements.
  * @returns the numeric values for the temperatures
  */
-async function getGraphData(location?: string, month?: string): Promise<number[]> {
+async function getGraphData(): Promise<number[]> {
     try {
-        const response = location
-            ? await fetch(`/api/measurements/temperatures/?boundary_geometry=${location}&month=${month}`)
-            : await fetch(`/api/measurements/temperatures/?month=${month}`);
+        const response = props.location
+            ? await fetch(`/api/measurements/temperatures/?boundary_geometry=${props.location}&month=${props.month}`)
+            : await fetch(`/api/measurements/temperatures/?month=${props.month}`);
         const data = await response.json();
 
         return data.map(Number);
@@ -39,7 +46,11 @@ async function getGraphData(location?: string, month?: string): Promise<number[]
  */
 async function render() {
     if (!graph.value) return;
-    const values = await getGraphData(props.location, props.month);
+    const values =
+        props.fromExport && props.location && props.month && props.exportFilters
+            ? await getGraphDataExportMapView(props.exportFilters, props.location, props.month)
+            : await getGraphData();
+
     drawHistogramWithKDE(graph.value, values, "steelblue", "orange", {
         barOpacity: 0.5,
     });
