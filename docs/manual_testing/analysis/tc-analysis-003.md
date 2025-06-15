@@ -13,7 +13,7 @@ Viewing Global Analysis
 `2025-06-13`
 
 ## Summary
-View the global analysis for the past 30 days, Febraury, and all time.
+View the global analysis for the past 30 days, February, and all time.
 
 ## Preconditions
 n/a
