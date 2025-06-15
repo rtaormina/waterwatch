@@ -41,4 +41,7 @@ docker exec "$BACKEND" python manage.py migrate
 echo "Creating superuser and groups..."
 docker exec "$BACKEND" python manage.py groups
 
+# Initialize location geometries
+docker exec "$BACKEND" python manage.py initialize_location_cache
+
 echo "Setup complete. The application is now running and ready for use."

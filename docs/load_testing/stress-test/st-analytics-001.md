@@ -6,17 +6,17 @@
 Test retrieving aggregate data
 
 ## Tested By
-``
+`Nico Hammer`
 
 ## Test Date
-`2025-06-04`
+`2025-06-15`
 
 ## Summary
 Test that it is still possible to retrieve aggregate data if the workload is elevated in the application.
 
 Options used:
-- Max Users: 100
-- Ramp up: 10/sec
+- Max Users: 300
+- Ramp up: 15/sec
 
 ## Involved test classes
 - `DataAnalysisUser`
@@ -28,21 +28,11 @@ Options used:
 The application can serve the requests with minimal failure rate.
 
 ## Actual Result
-
+The application can serve the requests with minimal failure rate.
 
 ## Status
 - Pass
-- Fail
-
-## Severity (if failed)
-- High
-- Moderate
-- Low
-
-## Description of failure
 
 
 ## Attachments
-
-
-## Additional Notes
+![Analysis API Load Test Graphs](attachments/pt-export-002-1.png)
