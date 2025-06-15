@@ -58,4 +58,4 @@ Researcher
 - username: researcher
 - password: researcher
 
-> Important in order to protect user accounts in the production environment make sure to change these passwords immediately after running the script.
+**In order to protect user accounts in the production environment make sure to change these passwords immediately after running the script.**

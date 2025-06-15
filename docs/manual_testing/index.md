@@ -1,4 +1,4 @@
-## Manual Test Records
+# Manual Test Records
 
 ```{eval-rst}
 .. toctree::
