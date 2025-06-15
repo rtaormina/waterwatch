@@ -6,7 +6,13 @@
                 class="analytics-panel left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
-                <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleCloseAll" />
+                <DataAnalyticsComponent
+                    v-if="viewAnalytics"
+                    :location="hexLocation"
+                    :month="month"
+                    :fromExport="true"
+                    @close="handleCloseAll"
+                />
 
                 <DataAnalyticsCompare
                     v-if="showCompareAnalytics"
