@@ -29,10 +29,12 @@ const graph = ref<HTMLElement | null>(null);
  */
 async function render() {
     if (!graph.value) return;
-    const values =
-        props.fromExport && props.location && props.month && props.exportFilters
-            ? await getGraphDataExportMapView(props.exportFilters, props.location, props.month)
-            : await getGraphData();
+
+    console.log("Rendering histogram with props:", props.fromExport);
+
+    const values = props.fromExport
+        ? await getGraphDataExportMapView(props.exportFilters ?? {}, props.location ?? "", props.month ?? "")
+        : await getGraphData();
 
     drawHistogramWithKDE(graph.value, values, "steelblue", "orange", {
         barOpacity: 0.5,

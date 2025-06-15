@@ -116,7 +116,7 @@ export async function getGraphDataExportMapView(
 ): Promise<number[]> {
     const bodyData = {
         ...exportFilters,
-        "boundary-geometry": hexagon,
+        boundary_geometry: hexagon,
         month: legendMonth,
         format: "analysis-format",
     };
