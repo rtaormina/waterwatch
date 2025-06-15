@@ -311,50 +311,65 @@ onMounted(() => {
         (newData, oldData) => {
             if (!oldData || oldData.length === 0) return;
 
-            /**
-             * Get a unique hash for the data within a hexagon.
-             *
-             * @param data - The data points to consider.
-             * @param hexCenter - The center coordinates of the hexagon.
-             * @param radius - The radius of the hexagon.
-             */
-            const getHexDataHash = (data: DataPoint[], hexCenter: { x: number; y: number }, radius: number) => {
-                // Find all data points that would be aggregated into this hex
-                const hexPoints = data.filter((point) => {
-                    const dx = point.point.lng - hexCenter.x;
-                    const dy = point.point.lat - hexCenter.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    return distance <= radius * 1.5; // Use 1.5x radius as buffer for hex boundaries
-                });
-
-                if (hexPoints.length === 0) return null;
-
-                // Create a hash of the relevant data
-                const avgTemp = hexPoints.reduce((sum, p) => sum + p.temperature, 0) / hexPoints.length;
-                const totalCount = hexPoints.reduce((sum, p) => sum + p.count, 0);
-
-                return `${hexPoints.length}-${avgTemp.toFixed(2)}-${totalCount}`;
-            };
-
-            // Get current hex radius
-            const radius = hexbinLayer.radius();
-
             // Check if any selected hexagons have changed
             let hasChanges = false;
             const selectedArrays = props.compareMode ? [selectedPhase1.value, selectedPhase2.value] : [selected.value];
 
             for (const selectedArray of selectedArrays) {
                 for (const selection of selectedArray) {
-                    // Calculate hex center from corners
-                    const centerLat = selection.corners.reduce((sum, c) => sum + c.lat, 0) / selection.corners.length;
-                    const centerLng = selection.corners.reduce((sum, c) => sum + c.lng, 0) / selection.corners.length;
+                    /**
+                     * Get the actual hexbin data points that fall within this selection's WKT polygon.
+                     *
+                     * @param data - The array of data points to filter.
+                     * @param corners - The corners of the polygon to check against.
+                     * @returns An array of data points that fall within the polygon.
+                     */
+                    const getPointsInPolygon = (data: DataPoint[], corners: L.LatLng[]) => {
+                        return data.filter((point) => {
+                            // Simple point-in-polygon check using ray casting
+                            const lat = point.point.lat;
+                            const lng = point.point.lng;
 
-                    const hexCenter = { x: centerLng, y: centerLat };
+                            let inside = false;
+                            for (let i = 0, j = corners.length - 1; i < corners.length; j = i++) {
+                                const xi = corners[i].lng,
+                                    yi = corners[i].lat;
+                                const xj = corners[j].lng,
+                                    yj = corners[j].lat;
 
-                    const oldHash = getHexDataHash(oldData, hexCenter, radius);
-                    const newHash = getHexDataHash(newData, hexCenter, radius);
+                                if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+                                    inside = !inside;
+                                }
+                            }
+                            return inside;
+                        });
+                    };
 
-                    if (oldHash !== newHash) {
+                    const oldPoints = getPointsInPolygon(oldData, selection.corners);
+                    const newPoints = getPointsInPolygon(newData, selection.corners);
+
+                    /**
+                     * Creates a signature string for a set of data points.
+                     *
+                     * @param points - The array of data points to create a signature for.
+                     * @returns A signature string representing the data points.
+                     */
+                    const createSignature = (points: DataPoint[]) => {
+                        if (points.length === 0) return "empty";
+
+                        const avgTemp = points.reduce((sum, p) => sum + p.temperature, 0) / points.length;
+                        const totalCount = points.reduce((sum, p) => sum + p.count, 0);
+                        const sortedTemps = points
+                            .map((p) => p.temperature)
+                            .sort()
+                            .join(",");
+
+                        return `${points.length}-${avgTemp.toFixed(2)}-${totalCount}-${sortedTemps}`;
+                    };
+
+                    const oldSignature = createSignature(oldPoints);
+                    const newSignature = createSignature(newPoints);
+                    if (oldSignature !== newSignature) {
                         hasChanges = true;
                         break;
                     }
