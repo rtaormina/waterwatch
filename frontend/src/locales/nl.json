@@ -15,7 +15,7 @@
             "text": "Open de kraan.",
             "taps": {
                 "separate": {
-                    "title": "vershillende koud/warme kranen",
+                    "title": "Lose koud en warme kraan",
                     "text": "Open de koude kraan.",
                     "caption": "voorbeeld van verschillende koude en warme kranen."
                 },
