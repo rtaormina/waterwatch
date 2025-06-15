@@ -15,7 +15,6 @@
                 label="Go Back"
                 data-testid="go-back-button"
             />
-            {{ has_history }}
             <RouterLink to="/">
                 <UButton
                     size="xl"
