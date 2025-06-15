@@ -334,7 +334,7 @@ def search_measurements_view(request):
     # Check if this is a data export request
     fmt = str(request_data.get("format", "")).lower()
 
-    if fmt == "map-format":
+    if fmt in ("map-format", "analysis-format"):
         strategy = get_strategy(fmt)
         return strategy.export(qs)
 

@@ -1,6 +1,6 @@
 """Factories for exporting measurement data in different formats."""
 
-from .strategies import CsvExport, GeoJsonExport, JsonExport, MapFormatExport, XmlExport
+from .strategies import AnalysisFormatExport, CsvExport, GeoJsonExport, JsonExport, MapFormatExport, XmlExport
 
 STRATEGIES = {
     "csv": CsvExport(),
@@ -8,6 +8,7 @@ STRATEGIES = {
     "xml": XmlExport(),
     "geojson": GeoJsonExport(),
     "map-format": MapFormatExport(),
+    "analysis-format": AnalysisFormatExport(),
 }
 
 

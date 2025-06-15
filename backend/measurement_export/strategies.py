@@ -472,3 +472,39 @@ class MapFormatExport(ExportStrategy):
         return JsonResponse(
             {"measurements": serialized_data, "count": len(serialized_data), "status": "success"}, safe=True
         )
+
+
+class AnalysisFormatExport(ExportStrategy):
+    """Export measurements in a format that the Analysis can read.
+
+    This class implements the `export` method to handle export of measurement data,
+    so that it can be visualized on the Hex-Map.
+
+    Parameters
+    ----------
+    ExportStrategy : Abstract Base Class
+        Inherits from the abstract base class `ExportStrategy`.
+
+    Methods
+    -------
+    export(data)
+        Given serialized data, return an HttpResponse with MapFormat content.
+    """
+
+    def export(self, data):
+        """Export the given data to MapFormat.
+
+        Parameters
+        ----------
+        data : list
+            List of serialized measurement data to be exported.
+
+        Returns
+        -------
+        HttpResponse
+            HTTP response containing the exported data in MapFormat.
+        """
+        data = [float(m.temperature.value) for m in data if hasattr(m, "temperature") and m.temperature is not None]
+
+        # Return as JSON response
+        return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
