@@ -3,13 +3,17 @@
 import hashlib
 import json
 import logging
+import os
 
 from campaigns.models import Campaign
-from django.contrib.gis.geos import GEOSException, GEOSGeometry
+from django.contrib.gis.geos.error import GEOSException
 from django.core.cache import cache
 from django.db.models import Avg, Count
 from django.db.models.expressions import RawSQL
 from django.http import HttpResponse, JsonResponse
+from django.utils import timezone
+from dotenv import load_dotenv
+from measurement_analysis.views import apply_boundary_filter, apply_month_filter, parse_month_parameter
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework.decorators import api_view
@@ -26,6 +30,9 @@ from .utils import (
     initialize_location_geometries,
     optimize_location_filtering,
 )
+
+load_dotenv()
+cache_timeout = int(os.getenv("DJANGO_CACHE_TIMEOUT", 300))  # Default to 5 minutes
 
 logger = logging.getLogger("WATERWATCH")
 
@@ -284,45 +291,6 @@ def prepare_measurement_data(queryset, included_metrics=None):
     return data
 
 
-@api_view(["GET"])
-def export_all_view(request):
-    """Export all measurements with related metrics, campaigns, and user info.
-
-    Supports optional boundary_geometry filter to limit results to a geographic area.
-
-    Parameters
-    ----------
-    request : HttpRequest
-        The HTTP request object, which may contain a "boundary_geometry" parameter.
-
-    Returns
-    -------
-    JsonResponse
-        JSON response containing measurements with related metrics and campaigns.
-        If "boundary_geometry" is provided, it filters measurements within that geometry.
-        If the geometry is invalid, it returns a 400 error with an appropriate message.
-    """
-    # Start with our base queryset
-    qs = build_base_queryset(ordered=True)
-
-    # Apply geographic filter if provided
-    boundary_geometry = request.GET.get("boundary_geometry")
-    if boundary_geometry:
-        try:
-            polygon = GEOSGeometry(boundary_geometry)
-            qs = qs.filter(location__within=polygon)
-        except (GEOSException, ValueError):
-            logger.exception("Invalid boundary_geometry format: %s", boundary_geometry)
-            return JsonResponse({"error": "Invalid boundary_geometry format"}, status=400)
-
-    # Add geographic annotations and prepare complete data
-    qs = apply_location_annotations(qs)
-    data = prepare_measurement_data(qs)
-
-    return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
-
-
-@api_view(["POST"])
 def search_measurements_view(request):
     """Get measurements based on filters.
 
@@ -342,11 +310,7 @@ def search_measurements_view(request):
         Otherwise: returns JSON with count and average temperature statistics
     """
     # Parse request data
-    try:
-        request_data = json.loads(request.body or "{}")
-    except json.JSONDecodeError:
-        logger.exception("Invalid JSON")
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    request_data = request.data
 
     # 1) Build per-filter ID sets
     per_filter_sets = _build_cache_key(request_data)
@@ -362,7 +326,7 @@ def search_measurements_view(request):
             final_ids = set.intersection(*per_filter_sets)
         else:
             final_ids = set(Measurement.objects.values_list("id", flat=True))
-        cache.set(combo_key, list(final_ids), 60)
+        cache.set(combo_key, list(final_ids), cache_timeout)
 
     # 4) build the final queryset
     qs = build_base_queryset().filter(id__in=final_ids)
@@ -430,12 +394,12 @@ def search_measurements_view(request):
     )
 
 
-def _get_or_build_id_list(cache_key, timeout, compute_qs):
+def _get_or_build_id_list(cache_key, compute_qs):
     """Return a list of IDs from cache if present, otherwise cache and return qs."""
     ids = cache.get(cache_key)
     if ids is None:
         ids = list(compute_qs().values_list("id", flat=True))
-        cache.set(cache_key, ids, timeout)
+        cache.set(cache_key, ids, cache_timeout)
     return set(ids)
 
 
@@ -445,11 +409,67 @@ def _build_cache_key(data):
     Returns a list of Python sets to intersect.
     """
     sets = []
+    # Pre-filtering
+    sets += _build_boundary_geometry_set(data)
+    sets += _build_month_set(data)
+    # Export filters
     sets += _build_water_sources_set(data)
     sets += _build_temperature_set(data)
     sets += _build_date_range_set(data)
     sets += _build_time_slots_set(data)
     sets += _build_location_set(data)
+    return sets
+
+
+def _build_boundary_geometry_set(data):
+    """Build ID set for boundary geometry filtering, handling invalid data."""
+    sets = []
+    boundary_geometry = data.get("boundary_geometry")
+    if boundary_geometry:
+        boundary_hash = hashlib.md5(str(boundary_geometry).encode()).hexdigest()[:16]
+        key = f"ids:boundary:{boundary_hash}"
+
+        def qs_boundary():
+            qs = Measurement.objects.all()
+            return apply_boundary_filter(qs, boundary_geometry)
+
+        try:
+            sets.append(_get_or_build_id_list(key, qs_boundary))
+        except (GEOSException, ValueError, TypeError) as e:
+            logger.warning(
+                "Skipping invalid boundary geometry filter. Input: %s. Error: %s",
+                boundary_geometry,
+                e,
+                exc_info=True,
+            )
+    return sets
+
+
+def _build_month_set(data):
+    """Build ID set for month filtering."""
+    sets = []
+    month_param = data.get("month")
+    if month_param is not None:  # Could be 0 for last 30 days
+        try:
+            months = parse_month_parameter(month_param)
+            if months:
+                # Create cache key from months
+                months_str = ",".join(map(str, sorted(months)))
+                if 0 in months:
+                    # For last 30 days, include current date in cache key
+                    current_date = timezone.now().date().isoformat()
+                    key = f"ids:month:last30days:{current_date}"
+                else:
+                    key = f"ids:month:{months_str}"
+
+                def qs_month():
+                    qs = Measurement.objects.all()
+                    return apply_month_filter(qs, months)
+
+                sets.append(_get_or_build_id_list(key, qs_month))
+        except ValueError:
+            # Invalid month parameter, skip this filter
+            pass
     return sets
 
 
@@ -463,7 +483,7 @@ def _build_water_sources_set(data):
             qs = Measurement.objects.all()
             return filter_by_water_sources(qs, data)
 
-        sets.append(_get_or_build_id_list(key, 60, qs_water))
+        sets.append(_get_or_build_id_list(key, qs_water))
     return sets
 
 
@@ -476,7 +496,7 @@ def _build_temperature_set(data):
             qs = Measurement.objects.all()
             return filter_measurement_by_temperature(qs, data)
 
-        sets.append(_get_or_build_id_list(key, 60, qs_temp))
+        sets.append(_get_or_build_id_list(key, qs_temp))
     return sets
 
 
@@ -489,7 +509,7 @@ def _build_date_range_set(data):
             qs = Measurement.objects.all()
             return filter_by_date_range(qs, data)
 
-        sets.append(_get_or_build_id_list(key, 60, qs_date))
+        sets.append(_get_or_build_id_list(key, qs_date))
     return sets
 
 
@@ -503,7 +523,7 @@ def _build_time_slots_set(data):
             qs = Measurement.objects.all()
             return filter_by_time_slots(qs, data)
 
-        sets.append(_get_or_build_id_list(key, 60, qs_times))
+        sets.append(_get_or_build_id_list(key, qs_times))
     return sets
 
 
@@ -523,5 +543,5 @@ def _build_location_set(data):
             inc_q = _build_inclusion_query(strategy)
             return qs.filter(inc_q) if inc_q else qs
 
-        sets.append(_get_or_build_id_list(key, 60, qs_loc))
+        sets.append(_get_or_build_id_list(key, qs_loc))
     return sets

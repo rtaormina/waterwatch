@@ -1,14 +1,12 @@
 """Create views associated with measurement collection."""
 
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
 
 from .serializers import MeasurementSerializer
 
 # Create your views here.
 
 
-@api_view(["POST"])
 def add_measurement_view(request):
     """View to handle incoming measurement data.
 

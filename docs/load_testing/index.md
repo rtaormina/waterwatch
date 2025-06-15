@@ -1,11 +1,8 @@
 ```{eval-rst}
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   template.md
-   pt-export-001.md
-   pt-export-002.md
-   pt-multiple-001.md
-   st-analytics-001.md
-   st-login-001.md
+   load-test/index.md
+   performance-test/index.md
+   stress-test/index.md
 ```

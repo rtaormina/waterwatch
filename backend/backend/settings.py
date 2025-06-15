@@ -99,6 +99,14 @@ DATABASES = {
         "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="mypassword"),
         "HOST": os.getenv("POSTGRES_HOST", default="localhost"),
         "PORT": os.getenv("POSTGRES_PORT", default="5432"),
+        "OPTIONS": {
+            "pool": {
+                "min_size": int(os.getenv("DJANGO_POOL_MIN_SIZE", "5")),
+                "max_size": int(os.getenv("DJANGO_POOL_MAX_SIZE", "20")),
+                "timeout": int(os.getenv("DJANGO_POOL_TIMEOUT", "60")),
+            },
+            "connect_timeout": int(os.getenv("DJANGO_CONNECT_TIMEOUT", "30")),
+        },
     }
 }
 
@@ -129,10 +137,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "/static/"
-STATIC_ROOT = Path(BASE_DIR) / "static"
-MEDIA_URL = "/media/"
-MEDIA_ROOT = Path(BASE_DIR) / "media"
+STATIC_URL = "/static/api/"
+STATIC_ROOT = Path(BASE_DIR) / "static" / "api"
+MEDIA_URL = "/media/api/"
+MEDIA_ROOT = Path(BASE_DIR) / "media" / "api"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -190,6 +198,23 @@ LOGGING = {
             else ["console"],
             "level": "DEBUG",
             "propagate": True,
+        },
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    },
+    "location_cache": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
 }

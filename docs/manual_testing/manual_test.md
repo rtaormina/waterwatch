@@ -1,8 +1,7 @@
 # Manual Testing
-To ensure software quality and website usability, WATERWATCH conducts manual tests. These tests follow a [template](manual_testing/template.md) that must be filled out.
+To ensure software quality and website usability, WATERWATCH conducts manual tests. These tests follow a [template](./template.md) that must be filled out.
 
-
-## Filling out the Testing Template
+## Filling out the [Testing Template](./template.md)
 
 ### Test Case ID
 When recording the test case ID, the following modules are recognized:
@@ -16,7 +15,7 @@ When recording the test case ID, the following modules are recognized:
    - This module refers to testing related to collecting measurement data.
 - `<Map>`
    - This module refers to testing related to the map visualizations on the website homepage.
-- `<Data-Analysis>`
+- `<Analysis>`
    - This module refers to testing related to data analysis presented on the homepage when interacting with the map.
 
 ### Severity
@@ -28,12 +27,19 @@ Severity of the bug should be recorded and is defined as follows:
 
 ### Related Requirement / User Story
 
-In this section provide the related epic, issue, or requireement that the bug relates to.
+In this section provide the related epic, issue, or requirement that the bug relates to.
 
-## Manual Test Records
+## Manual Test Template
 ```{eval-rst}
 .. toctree::
    :maxdepth: 1
+
+   template.md
+```
+## Manual Test Records
+```{eval-rst}
+.. toctree::
+   :maxdepth: 3
 
    index.md
 ```

@@ -17,6 +17,13 @@ class LocationField(serializers.Field):
         """Convert a GEOS Point object to a dictionary with latitude and longitude."""
         if value is None:
             return None
+
+        if isinstance(value, dict):
+            return {
+                "latitude": value.get("latitude"),
+                "longitude": value.get("longitude"),
+            }
+
         # value is a Point object
         return {
             "latitude": value.y,

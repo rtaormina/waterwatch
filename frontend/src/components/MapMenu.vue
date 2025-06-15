@@ -5,6 +5,7 @@
                 data-testid="open-button"
                 @click="toggleMenu"
                 class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                aria-label="toggle map menu"
             >
                 <transition
                     mode="out-in"
@@ -28,6 +29,7 @@
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('toggle-legend')"
                     style="--delay: 0.1s"
+                    aria-label="open map settings"
                 >
                     <AdjustmentsVerticalIcon class="w-10 h-10" />
                 </button>
@@ -39,6 +41,7 @@
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('show-global')"
                     style="--delay: 0.2s"
+                    aria-label="global analytics"
                 >
                     <ChartBarIcon class="w-10 h-10" />
                 </button>
@@ -53,6 +56,7 @@
                     ]"
                     @click="$emit('enter-select')"
                     style="--delay: 0.3s"
+                    aria-label="select multiple hexagons"
                 >
                     <SquaresPlusIcon class="w-10 h-10" />
                 </button>
@@ -64,6 +68,7 @@
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('enter-compare')"
                     style="--delay: 0.4s"
+                    aria-label="compare hexagon groups"
                 >
                     <ScaleIcon class="w-10 h-10" />
                 </button>

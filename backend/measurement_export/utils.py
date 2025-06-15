@@ -2,14 +2,18 @@
 
 import json
 import logging
+import os
 import pickle
 from datetime import datetime, time
 
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Point
-from django.core.cache import cache
+from django.core.cache import caches
 from django.db.models import Q
+from dotenv import load_dotenv
 
 from .models import Location
+
+load_dotenv()
 
 logger = logging.getLogger("WATERWATCH")
 
@@ -19,27 +23,36 @@ _MAPPING: dict[str, set] = {}
 
 _initialized = False
 
+timeout_value = os.getenv("DJANGO_LOCATION_CACHE_TIMEOUT", "None")
+location_cache_timeout = None if timeout_value == "None" else int(timeout_value)
+
 
 def initialize_location_geometries():
     """Initialize the location geometries from the database and cache them.
 
     This function loads the geometries of continents and countries from the Location model,
-    and caches them for efficient access.
+    and caches them in the location_cache for efficient access.
     """
     global _CONTINENT_GEOMS, _COUNTRY_GEOMS, _MAPPING, _initialized
     if _initialized:
         return
 
-    data = cache.get_or_set(
-        "location_geoms",
-        default=lambda: pickle.dumps(_build_geoms()),
-        timeout=None,
-    )
-    _CONTINENT_GEOMS, _COUNTRY_GEOMS, _MAPPING = pickle.loads(data)
+    # Use the location_cache instead of default cache
+    location_cache = caches["location_cache"]
+
+    cached_data = location_cache.get("location_geoms")
+    if cached_data is None:
+        # Build geometries and cache them
+        geom_data = _build_geoms()
+        cached_data = pickle.dumps(geom_data)
+        location_cache.set("location_geoms", cached_data, location_cache_timeout)
+
+    _CONTINENT_GEOMS, _COUNTRY_GEOMS, _MAPPING = pickle.loads(cached_data)
     _initialized = True
 
 
 def _build_geoms():
+    """Build geometry data from the Location model."""
     continent_geoms: dict[str, MultiPolygon] = {}
     country_geoms: dict[str, MultiPolygon] = {}
     mapping: dict[str, set] = {}
@@ -61,6 +74,18 @@ def _build_geoms():
         mapping.setdefault(continent, set()).add(country)
 
     return (continent_geoms, country_geoms, mapping)
+
+
+def clear_location_cache():
+    """Clear the location cache and reset initialization flag.
+
+    This function clears the cached geometries and resets the initialization flag,
+    allowing the geometries to be reloaded from the database on the next request.
+    """
+    global _initialized
+    location_cache = caches["location_cache"]
+    location_cache.clear()
+    _initialized = False
 
 
 def lookup_location(lat: float, lon: float) -> dict:

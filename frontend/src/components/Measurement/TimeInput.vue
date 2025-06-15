@@ -32,6 +32,7 @@ watch(
             :max-date="maxDate"
             placeholder="Select date and time"
             :dark="isDark"
+            aria-label="Date picker for measurement time"
         />
     </Block>
 </template>
