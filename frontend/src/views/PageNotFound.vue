@@ -8,7 +8,6 @@
 
         <div class="flex flex-col sm:flex-row mx-4 gap-4 justify-center">
             <UButton
-                v-if="has_history"
                 @click="goBack"
                 size="xl"
                 icon="i-heroicons-arrow-left-20-solid"
@@ -31,7 +30,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -45,6 +43,4 @@ function goBack() {
         router.push({ path: "/" });
     }, 500);
 }
-
-const has_history = computed(() => window.history.length);
 </script>
