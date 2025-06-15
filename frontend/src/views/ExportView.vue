@@ -125,7 +125,7 @@ watch(
 
 <template>
     <div
-        class="h-auto bg-white w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10 outer-container"
+        class="h-auto bg-default w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10 outer-container"
     >
         <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
 
@@ -139,7 +139,7 @@ watch(
                         :search-disabled="presetSearchDisabled"
                     />
                 </div>
-                <div class="h-auto bg-light mb-[14px] overflow-visible landscape-component">
+                <div class="h-auto mb-[14px] overflow-auto landscape-component">
                     <FilterPanel ref="filterPanelRef" @search="onSearch" />
                 </div>
             </div>
@@ -160,26 +160,3 @@ watch(
         </div>
     </div>
 </template>
-
-<style>
-@media (max-height: 500px) {
-    .outer-container {
-        padding-inline: 2vw !important;
-    }
-
-    .landscape-component {
-        padding: 0.5rem !important;
-        overflow-y: visible !important;
-        height: auto !important;
-    }
-    .component1 {
-        width: 65% !important;
-        max-width: 65% !important;
-    }
-
-    .component2 {
-        width: 35% !important;
-        max-width: 35% !important;
-    }
-}
-</style>
