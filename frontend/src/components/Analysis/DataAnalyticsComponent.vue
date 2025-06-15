@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { drawHistogramWithKDE } from "../../composables/Analysis/DataVisualizationLogic";
+import { drawHistogramWithKDE, getGraphData } from "../../composables/Analysis/DataVisualizationLogic";
 import { onMounted, ref, watch } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 
@@ -13,27 +13,6 @@ const props = defineProps({
 });
 
 const graph = ref<HTMLElement | null>(null);
-
-/**
- * Fetches numeric values for the given location and returns them.
- *
- * @param {string} location The location for the measurements.
- * @returns the numeric values for the temperatures
- */
-async function getGraphData(location?: string, month?: string): Promise<number[]> {
-    try {
-        const response = location
-            ? await fetch(`/api/measurements/temperatures/?boundary_geometry=${location}&month=${month}`)
-            : await fetch(`/api/measurements/temperatures/?month=${month}`);
-        const data = await response.json();
-
-        return data.map(Number);
-    } catch (error) {
-        console.error("Error fetching hexbin data:", error);
-        return [];
-    }
-}
-
 /**
  * Renders the histogram using the provided data.
  */
