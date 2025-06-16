@@ -31,7 +31,6 @@ source .venv/bin/activate
 ```
 
 ## Production
-
 Requirements before install:
 - docker
 

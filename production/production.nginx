@@ -71,16 +71,12 @@ http {
       alias /usr/share/nginx/html/countries.sql;
     }
 
-    location /favicon.ico {
-      alias /usr/share/nginx/html/favicon.svg;
-
-      # Set proper MIME type for SVG
-      add_header Content-Type image/svg+xml;
-
-      # Optimize caching
-      expires max;
-      add_header Cache-Control "public, no-transform";
+    location = /favicon.ico {
+      rewrite ^(.*) /favicon.svg;
+      log_not_found off;
+      access_log off;
     }
+
     location ~^(/admin/?|/api/) {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
@@ -89,11 +85,11 @@ http {
       proxy_redirect off;
       proxy_pass http://app_server;
     }
-    location ~^/static/api {
+    location ~^/static/api/ {
       root /backend_app/;
       try_files $uri $uri/ =404;
     }
-    location ~^/media/api {
+    location ~^/media/api/ {
       root /backend_app/;
       try_files $uri $uri/ =404;
     }

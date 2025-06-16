@@ -1,14 +1,15 @@
+[**frontend**](../README.md)
+
+***
+
+[frontend](../README.md) / LocationFallback
+
 # LocationFallback
 
 ## Functions
-```{eval-rst}
-.. toctree::
-   :maxdepth: 1
 
-   functions/createMap.md
-   functions/createMarker.md
-   functions/createOSMLayer.md
-   functions/getLocateControl.md
-   functions/intializeMap.md
-```
-
+- [createMap](functions/createMap.md)
+- [createMarker](functions/createMarker.md)
+- [createOSMLayer](functions/createOSMLayer.md)
+- [getLocateControl](functions/getLocateControl.md)
+- [initializeMap](functions/initializeMap.md)

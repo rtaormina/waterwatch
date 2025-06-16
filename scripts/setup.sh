@@ -19,8 +19,10 @@ then
     docker compose exec backend python manage.py migrate
 
     # Create superuser and groups
-
     docker compose exec backend python manage.py groups
+
+    # Initialize location geometries
+    docker compose exec backend python manage.py initialize_location_cache
 
 else
     echo "Volume already exists, skipping data import."

@@ -52,6 +52,7 @@
                     v-if="showCompareAnalytics"
                     :group1WKT="group1WKT"
                     :group2WKT="group2WKT"
+                    :month="month"
                     @close="handleCloseAll"
                 />
             </div>
@@ -155,6 +156,8 @@
 
 <script setup lang="ts">
 /**
+ * MapView
+ *
  * Displays the campaign banner, measurement input form, and a hex map of sample data.
  * Provides a button to add new measurements when not in adding mode.
  */
@@ -172,6 +175,10 @@ import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vu
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
 import MapMenu from "../components/MapMenu.vue";
+import axios from "axios";
+import Cookies from "universal-cookie";
+
+const cookies = new Cookies();
 
 const open = ref(false);
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
@@ -488,10 +495,15 @@ type MeasurementResponseDataPoint = {
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     refresh.value = !refresh.value; // Trigger re-fetching when refresh changes
-    const res = await fetch(`/api/measurements/aggregated?month=${range.value}`);
+    const res = await axios.post("/api/measurements/aggregated/", range.value ? { month: range.value } : {}, {
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": cookies.get("csrftoken"),
+        },
+    });
 
-    if (!res.ok) throw new Error(`Status: ${res.status}`);
-    const data = await res.json();
+    if (res.status !== 200) throw new Error(`Status: ${res.status}`);
+    const data = res.data;
 
     return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),

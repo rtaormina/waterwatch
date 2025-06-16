@@ -1,3 +1,9 @@
+[**frontend**](../../README.md)
+
+***
+
+[frontend](../../README.md) / [useSession](../README.md) / useSession
+
 # Function: useSession()
 
 > **useSession**(): `object`
