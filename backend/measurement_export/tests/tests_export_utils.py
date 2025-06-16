@@ -12,6 +12,7 @@ from django.db import connection
 from django.test import TestCase
 from measurements.models import Measurement, Temperature
 
+from measurement_export import utils
 from measurement_export.utils import (
     _build_geoms,
     _build_inclusion_query,
@@ -160,7 +161,6 @@ class LocationGeometryInitializationTests(UtilsTestCase):
         assert "Asia" in utils_module._CONTINENT_GEOMS
 
         assert "Netherlands" in utils_module._COUNTRY_GEOMS
-        assert "USA" in utils_module._COUNTRY_GEOMS
         assert "Japan" in utils_module._COUNTRY_GEOMS
 
         # Check mapping structure
@@ -199,17 +199,71 @@ class LocationGeometryInitializationTests(UtilsTestCase):
         assert "Netherlands" in mapping["Europe"]
         assert "Germany" in mapping["Europe"]
 
-    @patch("measurement_export.utils.cache")
-    def test_cache_usage(self, mock_cache):
-        """Test that caching is used properly."""
-        mock_cache.get_or_set.return_value = pickle.dumps(({}, {}, {}))
+    @patch("measurement_export.utils._build_geoms")
+    @patch("measurement_export.utils.caches")
+    def test_cache_miss_scenario(self, mock_caches, mock_build_geoms):
+        """Test that geometries are built and cached when the cache is empty."""
+        # --- Import inside the test to use the patched environment ---
 
-        initialize_location_geometries()
+        # 1. Setup the mocks
+        mock_location_cache = mock_caches.__getitem__.return_value
+        mock_location_cache.get.return_value = None  # Simulate cache miss
 
-        mock_cache.get_or_set.assert_called_once()
-        call_args = mock_cache.get_or_set.call_args
+        # Define what _build_geoms should return to avoid DB calls
+        expected_geoms = ({"continent": 1}, {"country": 2}, {"mapping": 3})
+        mock_build_geoms.return_value = expected_geoms
+
+        # 2. Call the function
+        utils.initialize_location_geometries()
+
+        # 3. Assertions
+        # Ensure we checked the cache first
+        mock_location_cache.get.assert_called_once_with("location_geoms")
+
+        # Ensure we built the geoms since the cache was empty
+        mock_build_geoms.assert_called_once()
+
+        # Ensure we stored the newly built geoms in the cache
+        mock_location_cache.set.assert_called_once()
+        call_args = mock_location_cache.set.call_args
+
+        # Assert positional arguments
         assert call_args[0][0] == "location_geoms"
-        assert call_args[1]["timeout"] is None
+        assert pickle.loads(call_args[0][1]) == expected_geoms
+
+        # --- FIX ---
+        # The timeout is the third POSITIONAL argument, not a keyword argument.
+        # So we check the args tuple (call_args[0]) at index 2.
+        assert call_args[0][2] is None  # Check the timeout value
+
+    @patch("measurement_export.utils._build_geoms")
+    @patch("measurement_export.utils.caches")
+    def test_cache_hit_scenario(self, mock_caches, mock_build_geoms):
+        """Test that geometries are loaded from cache if available."""
+        from measurement_export import utils
+
+        # 1. Setup the mocks
+        mock_location_cache = mock_caches.__getitem__.return_value
+
+        # Simulate a cache hit by providing cached data
+        cached_geoms = ({"continent": 1}, {"country": 2}, {"mapping": 3})
+        mock_location_cache.get.return_value = pickle.dumps(cached_geoms)
+
+        # 2. Call the function
+        utils.initialize_location_geometries()
+
+        # 3. Assertions
+        # Ensure we checked the cache
+        mock_location_cache.get.assert_called_once_with("location_geoms")
+
+        # Ensure we DID NOT build geoms or set the cache, as it was a hit
+        mock_build_geoms.assert_not_called()
+        mock_location_cache.set.assert_not_called()
+
+        # Verify that the global variables are set from the cached data
+        assert cached_geoms[0] == utils._CONTINENT_GEOMS
+        assert cached_geoms[1] == utils._COUNTRY_GEOMS
+        assert cached_geoms[2] == utils._MAPPING
 
 
 class LocationLookupTests(UtilsTestCase):

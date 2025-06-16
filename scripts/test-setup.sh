@@ -33,6 +33,9 @@ docker compose -f docker-compose.test.yaml exec backend python manage.py migrate
 # Create superuser and groups for test
 docker compose -f docker-compose.test.yaml exec backend python manage.py groups
 
+# Initialize location geometries
+docker compose -f docker-compose.test.yaml exec backend python manage.py initialize_location_cache
+
 # Create test database dump
 docker compose -f docker-compose.test.yaml exec -T postgres \
   pg_dump \
