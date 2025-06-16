@@ -10,10 +10,10 @@ Welcome to the documentation page for WATERWATCH, an open-science open-source we
 ## Getting Started
 
 New to WATERWATCH? Check out the following links:
-- [Installation Guide](installation.md)
-- [Troubleshooting Common Issues](troubleshooting.md)
-- [Contribution Guide](contribution_guide.md)
-- [API Specification](api_specs.md)
+- [Installation Guide](development/installation.md)
+- [Troubleshooting Common Issues](development/troubleshooting.md)
+- [Contribution Guide](development/contribution_guide.md)
+- [API Specification](api_specs/api_specs.md)
 
 ```{eval-rst}
 .. toctree::
@@ -35,4 +35,4 @@ New to WATERWATCH? Check out the following links:
 
 ## Contributing / Reporting Issues
 
-WATERWATCH welcomes feedback and contributions! Feel free to [open an issue](https://gitlab.ewi.tudelft.nl/groups/cse2000-software-project/2024-2025/cluster-e/06c/-/issues) to report a bug or suggest a feature, check out our [contribution guide](contribution_guide.md) for more details on helping develop WATERWATCH further.
+WATERWATCH welcomes feedback and contributions! Feel free to [open an issue](https://gitlab.ewi.tudelft.nl/groups/cse2000-software-project/2024-2025/cluster-e/06c/-/issues) to report a bug or suggest a feature, check out our [contribution guide](development/contribution_guide.md) for more details on helping develop WATERWATCH further.

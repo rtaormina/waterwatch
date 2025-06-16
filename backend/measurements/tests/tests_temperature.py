@@ -40,7 +40,7 @@ class TemperatureTest(TestCase):
             time_waited=timedelta(seconds=1),
         )
 
-    def test_temperature_persistance_correct_values(self):
+    def test_temperature_persistence_correct_values(self):
         """Tests that the temperature instance is saved correctly."""
         retrieved_temp1 = Temperature.objects.get(id=self.temperature1.id)
 

@@ -236,7 +236,7 @@ defineExpose({
 </template>
 
 <style>
-@media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
+@media (max-width: 768px) and (orientation: landscape) {
     .menu-items {
         font-size: 1.7rem !important;
         margin-bottom: 0.5rem !important;

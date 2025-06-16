@@ -46,7 +46,7 @@
             "tabs": {
                 "room": {
                     "title": "Room Thermometer",
-                    "text": "If you are using a thermometer that measures room temperature, place the sensor (bulb at the bottom) into the water stream. Wait at least 20 seconds and read the temperature. Accuracy is +/-0.5C°.",
+                    "text": "If you are using a thermometer that measures room temperature, place the sensor (bulb at the bottom) into the water stream. Wait at least 20 seconds and read the temperature. Accuracy is +/-0.5°C.",
                     "caption": "Example of a room thermometer"
                 },
                 "infrared": {
@@ -63,7 +63,7 @@
         },
         "step4": {
             "title": "Step 4",
-            "text": "Enter the reading on WATERWATCH!"
+            "text": "Enter the reading on WATERWATCH! See the instructions on how to use the WATERWATCH website or app for more information on how to enter your measurement."
         },
         "conclusion": {
             "title": "",
@@ -88,7 +88,8 @@
         },
         "map": {
             "title": "Navigating the Map",
-            "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. All map operations can be found in by pressing the three dots on the top right of the map. There are 4 different map operations. From left to right: view global analysis, map settings, select multiple hexagons, and compare hexagons. In global analysis you will find a chart displaying all measurements on the map. In map settings you can toggle between coloring the map based on temperature or number of measurements. You can also select what time range you would like the map to display. Select multiple hexagons allows you to select a group of hexagons and view analysis for those specific hexagons. Comparing hexagons allows you to select two groups of hexagons and shows the distribution of both groups to allow easy comparison.",            "text2": "\n\nTo see the map legend, click the button in the top right. ",
+            "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. All map operations can be found in by pressing the three dots on the top right of the map. There are 4 different map operations. From left to right: view global analysis, map settings, select multiple hexagons, and compare hexagons. In global analysis you will find a chart displaying all measurements on the map. In map settings you can toggle between coloring the map based on temperature or number of measurements. You can also select what time range you would like the map to display. Select multiple hexagons allows you to select a group of hexagons and view analysis for those specific hexagons. Comparing hexagons allows you to select two groups of hexagons and shows the distribution of both groups to allow easy comparison.",
+            "text2": "\n\nTo see the map legend, click the button in the top right. ",
             "caption1": "Data Analysis Button",
             "caption2": "Map Menu Button",
             "caption3": "Map Settings and Legend Button",

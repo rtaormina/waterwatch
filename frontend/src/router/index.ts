@@ -6,9 +6,7 @@ const routes = [
     {
         path: "/login",
         name: "Login",
-        /**
-         *
-         */
+        /** */
         component: () => import("@/components/LoginComponent.vue"),
         meta: {
             requiresAuth: false,
@@ -17,9 +15,7 @@ const routes = [
     {
         path: "/",
         name: "Map",
-        /**
-         *
-         */
+        /** */
         component: () => import("@/views/MapView.vue"),
         meta: {
             requiresAuth: false,
@@ -28,9 +24,7 @@ const routes = [
     {
         path: "/measurements",
         name: "Measurement",
-        /**
-         *
-         */
+        /** */
         component: () => import("@/components/MeasurementComponent.vue"),
         meta: {
             requiresAuth: false,
@@ -39,9 +33,7 @@ const routes = [
     {
         path: "/export",
         name: "Export",
-        /**
-         *
-         */
+        /** */
         component: () => import("@/views/ExportView.vue"),
         meta: {
             requiresAuth: false,
@@ -50,9 +42,7 @@ const routes = [
     {
         path: "/tutorial",
         name: "Tutorial",
-        /**
-         *
-         */
+        /** */
         component: () => import("@/views/TutorialView.vue"),
         meta: {
             requiresAuth: false,
@@ -61,9 +51,7 @@ const routes = [
     {
         path: "/about",
         name: "About",
-        /**
-         *
-         */
+        /** */
         component: () => import("@/views/AboutView.vue"),
         meta: {
             requiresAuth: false,
@@ -72,13 +60,16 @@ const routes = [
     {
         path: "/contact",
         name: "Contact",
-        /**
-         *
-         */
+        /** */
         component: () => import("@/views/ContactView.vue"),
         meta: {
             requiresAuth: false,
         },
+    },
+    {
+        path: "/:pathMatch(.*)*",
+        /** */
+        component: () => import("@/views/PageNotFound.vue"),
     },
 ];
 

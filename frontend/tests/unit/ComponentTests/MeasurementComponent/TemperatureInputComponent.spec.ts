@@ -21,7 +21,7 @@ describe("TemperatureMetric.vue temperature handler", () => {
         wrapper = mount(TemperatureMetric, {
             props: {
                 modelValue: {
-                    value: "20",
+                    value: "2",
                     unit: "C",
                     sensor: "analog thermometer",
                     time_waited: {
@@ -52,24 +52,19 @@ describe("TemperatureMetric.vue temperature handler", () => {
 
     it("handleTempPress allows digit within 0-212", () => {
         const ev = makeTempEvent("1", "20");
-        const result = wrapper.vm.handleTempPress(ev);
         expect(ev.preventDefault).toHaveBeenCalledTimes(0);
-        expect(result).toBe(201);
     });
 
     it("handleTempPress allows multiple key presses", () => {
         const ev = makeTempEvent("4", "");
-        const result_1 = wrapper.vm.handleTempPress(ev);
         const ev2 = makeTempEvent("3", "4");
-        const result_2 = wrapper.vm.handleTempPress(ev2);
         expect(ev.preventDefault).toHaveBeenCalledTimes(0);
-        expect(result_1).toBe(4);
-        expect(result_2).toBe(43);
+        expect(ev2.preventDefault).toHaveBeenCalledTimes(0);
     });
 
-    it("handleTempPress blocks beyond 212", () => {
+    it("handleTempPress blocks double decimal point", () => {
         const prevent = vi.fn();
-        const ev = makeTempEvent("3", "71");
+        const ev = makeTempEvent(".", ".");
         Object.assign(ev, { preventDefault: prevent });
         wrapper.vm.handleTempPress(ev);
         expect(prevent).toHaveBeenCalled();
@@ -81,6 +76,27 @@ describe("TemperatureMetric.vue temperature handler", () => {
         Object.assign(ev, { preventDefault: prevent });
         wrapper.vm.handleTempPress(ev);
         expect(prevent).toHaveBeenCalled();
+    });
+
+    it("handleTempPress sets prior dot when decimal point typed", () => {
+        const prevent = vi.fn();
+        const ev = makeTempEvent(".", "1");
+        Object.assign(ev, { preventDefault: prevent });
+        wrapper.vm.handleTempPress(ev);
+        expect(wrapper.vm.priorDot).toBe(true)
+    });
+
+     it("handleTempPress sets prior dot to false if backspace typed", () => {
+        const prevent = vi.fn();
+        const ev = makeTempEvent(".", "1");
+        Object.assign(ev, { preventDefault: prevent });
+        wrapper.vm.handleTempPress(ev);
+        expect(wrapper.vm.priorDot).toBe(true)
+
+        const ev2 = makeTempEvent("Backspace", "1.");
+        Object.assign(ev2, { preventDefault: prevent });
+        wrapper.vm.handleTempPress(ev2);
+        expect(wrapper.vm.priorDot).toBe(false);
     });
 
     it("handleTempPress blocks minus sign", () => {

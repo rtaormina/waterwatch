@@ -52,6 +52,7 @@
                 data-testid="info-button-hex"
                 @click="toggleInfoTextColoring"
                 class="cursor-pointer hover:text-blue-600 transition-colors"
+                aria-label="map coloring information"
             >
                 <InformationCircleIcon class="w-5 h-5" />
             </button>
@@ -71,6 +72,7 @@
                 @click="toTempMode"
                 :class="{ 'bg-main text-white': colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
+                aria-label="toggle hexagon coloring by temperature"
             >
                 Temperature
             </button>
@@ -79,6 +81,7 @@
                 @click="toCountMode"
                 :class="{ 'bg-main text-white': !colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
+                aria-label="toggle hexagon coloring by measurement count"
             >
                 Count
             </button>
@@ -91,6 +94,7 @@
                 data-testid="info-button"
                 @click="toggleInfoTextTimeRange"
                 class="cursor-pointer hover:text-blue-600 transition-colors"
+                aria-label="show time range information"
             >
                 <InformationCircleIcon class="w-5 h-5" />
             </button>
@@ -105,7 +109,7 @@
             <p>
                 Time range corresponds to which measurements are displayed on the map. Selecting a month means that all
                 measurements taken in that month of any year will be displayed. To view all data ever collected, select
-                every month.
+                every month. For advanced time filtering, go to the data page.
             </p>
         </div>
 
@@ -184,14 +188,12 @@ function onChange(val: string | string[]) {
         (Array.isArray(val) && (val.length === 0 || val[val.length - 1] === "Past 30 Days"))
     ) {
         internalValue.value = ["Past 30 Days"];
-        console.log("0");
         emit("update", [0]);
         return;
     }
 
     if (typeof val === "string") {
         internalValue.value = [val];
-        console.log(monthMap.get(val));
         emit("update", [monthMap.get(val) ?? 0]);
         return;
     }

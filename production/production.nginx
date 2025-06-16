@@ -89,11 +89,11 @@ http {
       proxy_redirect off;
       proxy_pass http://app_server;
     }
-    location ~^/static/(admin/|rest_framework/|gis/) {
+    location ~^/static/api {
       root /backend_app/;
       try_files $uri $uri/ =404;
     }
-    location ~^/media/(admin/|rest_framework/|gis/) {
+    location ~^/media/api {
       root /backend_app/;
       try_files $uri $uri/ =404;
     }
@@ -109,8 +109,10 @@ http {
       tcp_nopush on;
       tcp_nodelay on;
 
-      try_files $uri $uri/ /index.html;
+      try_files $uri $uri/ =404;
     }
+
+    error_page 404 /index.html;
 
 
     error_page 500 502 503 504 /50x.html;
