@@ -89,11 +89,11 @@ http {
       proxy_redirect off;
       proxy_pass http://app_server;
     }
-    location ~^/static/api {
+    location ~^/static/api/ {
       root /backend_app/;
       try_files $uri $uri/ =404;
     }
-    location ~^/media/api {
+    location ~^/media/api/ {
       root /backend_app/;
       try_files $uri $uri/ =404;
     }
