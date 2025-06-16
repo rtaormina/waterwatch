@@ -113,7 +113,7 @@ defineExpose({
                         <div class="w-2 h-2 bg-main rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
                         <div class="w-2 h-2 bg-main rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
                     </div>
-                    <span class="ml-3 text-gray-600">Searching...</span>
+                    <span class="ml-3 text-toned">Searching...</span>
                 </div>
                 <!-- Show results only when search is complete and not loading -->
                 <template v-else-if="searched">
@@ -169,12 +169,12 @@ defineExpose({
             <Modal data-testid="export-failed-modal" :visible="props.showModal" @close="emit('close-modal')">
                 <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
                 <div class="flex items-center mt-4 gap-2">
-                    <button
+                    <UButton
                         @click="emit('close-modal')"
-                        class="flex-1 bg-main text-default mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
+                        class="flex-1 bg-main text-default mr-2 px-4 py-2 rounded hover:cursor-pointer justify-center"
                     >
                         Okay
-                    </button>
+                    </UButton>
                 </div>
             </Modal>
         </div>

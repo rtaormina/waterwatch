@@ -16,20 +16,20 @@
                 .
             </p>
             <div class="flex items-center mt-4 gap-2">
-                <button
+                <UButton
                     type="button"
                     aria-label="open map menu"
                     data-testid="view-button"
                     @click="firstTime = false"
-                    class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+                    class="flex-1 bg-main text-default justify-center text-xl px-4 py-2 rounded mr-2 hover:cursor-pointer"
                 >
                     View Map
-                </button>
+                </UButton>
             </div>
         </Modal>
     </div>
     <div class="w-full h-full flex flex-col p-0 m-0">
-        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
+        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-default" />
 
         <div class="w-full h-full flex flex-row">
             <div
@@ -127,7 +127,7 @@
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
                 <UTooltip :delay-duration="0" text="Add a Measurement">
                     <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                        class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
                         @click="
                             addMeasurement = true;
                             viewAnalytics = false;

@@ -70,7 +70,7 @@
         <div class="flex gap-2 w-full">
             <button
                 @click="toTempMode"
-                :class="{ 'bg-main text-white': colorByTemp }"
+                :class="{ 'bg-main text-inverted': colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
                 aria-label="toggle hexagon coloring by temperature"
             >
@@ -79,7 +79,7 @@
             <button
                 data-testid="count"
                 @click="toCountMode"
-                :class="{ 'bg-main text-white': !colorByTemp }"
+                :class="{ 'bg-main text-inverted': !colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
                 aria-label="toggle hexagon coloring by measurement count"
             >

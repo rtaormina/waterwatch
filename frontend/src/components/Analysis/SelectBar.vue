@@ -1,6 +1,6 @@
 <template>
     <UCard
-        class="override-card absolute z-9 bg-white/70 backdrop-blur-sm shadow-lg rounded-md p-0 md:top-4 md:bottom-auto md:w-[36rem] md:max-w-[36rem] md:block bottom-8 w-100 max-w-100"
+        class="override-card absolute z-9 bg-default/70 backdrop-blur-sm shadow-lg rounded-md p-0 md:top-4 md:bottom-auto md:w-[36rem] md:max-w-[36rem] md:block bottom-8 w-100 max-w-100"
         style="left: 50%; transform: translateX(-50%)"
     >
         <div class="flex items-center justify-between gap-3">
@@ -13,7 +13,7 @@
                 </UButton>
             </div>
             <div class="flex-1 flex justify-center items-center">
-                <span class="font-semibold text-gray-800 md:text-lg text-sm whitespace-nowrap">Select Hexagons</span>
+                <span class="font-semibold text-toned md:text-lg text-sm whitespace-nowrap">Select Hexagons</span>
             </div>
             <div class="flex-1">
                 <UButton

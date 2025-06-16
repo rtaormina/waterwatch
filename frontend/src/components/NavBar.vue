@@ -194,13 +194,13 @@ defineExpose({
                             }"
                         >
                             <user-icon
-                                class="w-7 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
+                                class="w-7 h-10 text-inverted cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
                             />
                         </UDropdownMenu>
                     </div>
                     <div v-else>
                         <user-icon
-                            class="w-7 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
+                            class="w-7 h-10 text-inverted cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
                             @click="login()"
                         />
                     </div>
@@ -211,8 +211,8 @@ defineExpose({
 
     <!-- main navbar mobile -->
     <div v-else class="relative z-60">
-        <div class="font-custom bg-[#00A6D6] text-white p-2 w-full flex justify-between">
-            <router-link to="/" @click="closeOverlay()" class="text-4xl text-white font-custom mt-3 mb-2 ml-3">
+        <div class="font-custom bg-main text-inverted p-2 w-full flex justify-between">
+            <router-link to="/" @click="closeOverlay()" class="text-4xl text-inverted font-custom mt-3 mb-2 ml-3">
                 WATERWATCH
             </router-link>
             <div class="mt-2 mr-4">
@@ -226,8 +226,8 @@ defineExpose({
                         leave-from-class="opacity-100 rotate-0"
                         leave-to-class="opacity-0 rotate-90"
                     >
-                        <Bars3Icon v-if="!showOverlay" key="bars" class="w-12 h-12 text-white cursor-pointer" />
-                        <XMarkIcon v-else key="close" class="w-12 h-12 text-white cursor-pointer" />
+                        <Bars3Icon v-if="!showOverlay" key="bars" class="w-12 h-12 text-inverted cursor-pointer" />
+                        <XMarkIcon v-else key="close" class="w-12 h-12 text-inverted cursor-pointer" />
                     </transition>
                 </button>
             </div>
