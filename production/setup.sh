@@ -23,7 +23,7 @@ docker stack deploy -c docker-compose.prod.stack.yaml production --prune --detac
 echo "Waiting for deployment to complete..."
 sleep 2  # Wait for services to start
 
-# Apply database migrations
+# Get the names of the backend and database containers
 BACKEND=$(docker ps --format "{{.Names}}" | grep django_backend_app)
 DATABASE=$(docker ps --format "{{.Names}}" | grep postgres)
 
