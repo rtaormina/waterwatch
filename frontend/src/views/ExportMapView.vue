@@ -433,6 +433,7 @@ type MeasurementResponseDataPoint = {
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     const bodyData = {
         ...exportStore.filters,
+        month: month.value,
         format: "map-format", // Add format to the body
     };
 
