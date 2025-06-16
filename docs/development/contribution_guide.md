@@ -12,7 +12,10 @@ This section contains resources on how to report a bug for WATERWATCH.
 
 Bugs are tracked as [issues](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2024-2025/cluster-e/06c/06c/-/issues) on the WATERWATCH gitlab. Reporting bugs is done by creating an issue and filling in the [bug report template](). When reporting bugs, try to include as many relevant details as possible to help the community and maintainers understand, reproduce, and fix the behaviors observed.
 
+```{eval-rst}
+.. tip::
 Before you submit the report, be sure to check out our [troubleshooting steps](troubleshooting.md) to see if the problem is something you can already fix yourself.
+```
 
 ## Suggesting Improvements
 WATERWATCH welcomes suggestions from the community! This section contains information on how to suggest potential improvements to the website.
