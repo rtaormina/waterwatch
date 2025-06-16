@@ -305,6 +305,90 @@ onMounted(() => {
         },
     );
 
+    // Watch for changes in month selection to clear selections if selected hexagon data has changed
+    watch(
+        () => props.data,
+        (newData, oldData) => {
+            if (!oldData || oldData.length === 0) return;
+
+            // Check if any selected hexagons have changed
+            let hasChanges = false;
+            const selectedArrays = props.compareMode ? [selectedPhase1.value, selectedPhase2.value] : [selected.value];
+
+            for (const selectedArray of selectedArrays) {
+                for (const selection of selectedArray) {
+                    /**
+                     * Get the actual hexbin data points that fall within this selection's WKT polygon.
+                     *
+                     * @param data - The array of data points to filter.
+                     * @param corners - The corners of the polygon to check against.
+                     * @returns An array of data points that fall within the polygon.
+                     */
+                    const getPointsInPolygon = (data: DataPoint[], corners: L.LatLng[]) => {
+                        return data.filter((point) => {
+                            // Simple point-in-polygon check using ray casting
+                            const lat = point.point.lat;
+                            const lng = point.point.lng;
+
+                            let inside = false;
+                            for (let i = 0, j = corners.length - 1; i < corners.length; j = i++) {
+                                const xi = corners[i].lng,
+                                    yi = corners[i].lat;
+                                const xj = corners[j].lng,
+                                    yj = corners[j].lat;
+
+                                if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+                                    inside = !inside;
+                                }
+                            }
+                            return inside;
+                        });
+                    };
+
+                    const oldPoints = getPointsInPolygon(oldData, selection.corners);
+                    const newPoints = getPointsInPolygon(newData, selection.corners);
+
+                    /**
+                     * Creates a signature string for a set of data points.
+                     *
+                     * @param points - The array of data points to create a signature for.
+                     * @returns A signature string representing the data points.
+                     */
+                    const createSignature = (points: DataPoint[]) => {
+                        if (points.length === 0) return "empty";
+
+                        const avgTemp = points.reduce((sum, p) => sum + p.temperature, 0) / points.length;
+                        const totalCount = points.reduce((sum, p) => sum + p.count, 0);
+                        const sortedTemps = points
+                            .map((p) => p.temperature)
+                            .sort()
+                            .join(",");
+
+                        return `${points.length}-${avgTemp.toFixed(2)}-${totalCount}-${sortedTemps}`;
+                    };
+
+                    const oldSignature = createSignature(oldPoints);
+                    const newSignature = createSignature(newPoints);
+                    if (oldSignature !== newSignature) {
+                        hasChanges = true;
+                        break;
+                    }
+                }
+                if (hasChanges) break;
+            }
+
+            if (hasChanges) {
+                map.closePopup();
+                if (!props.compareMode) {
+                    clearSelection();
+                } else if (props.compareMode && (props.activePhase === 1 || props.activePhase === 2)) {
+                    clearSelection();
+                    emit("hex-group-select", { wkt: "", phase: props.activePhase, cornersList: [] });
+                }
+            }
+        },
+    );
+
     /**
      * Converts an array of WKT polygons to a single MultiPolygon WKT string.
      *
