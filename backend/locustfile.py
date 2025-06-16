@@ -1,6 +1,7 @@
 """Load testing script for the website using Locust."""
 # ruff: noqa: UP017
 
+import json
 import random
 from datetime import datetime, timezone
 
@@ -228,7 +229,11 @@ class DataAnalysisUser(HttpUser):
         self : HttpUser
             The HTTP user instance
         """
-        self.client.get("/api/measurements/aggregated/")
+        self.client.post(
+            "/api/measurements/aggregated/",
+            json.dumps({}),
+            headers={"Content-Type": "application/json", "X-CSRFToken": self.client.cookies.get("csrftoken")},
+        )
 
 
 class CampaignsGetter(HttpUser):

@@ -35,6 +35,7 @@ describe("DataAnalyticsCompare good weather tests", () => {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
+                month: "0",
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -58,16 +59,14 @@ describe("DataAnalyticsCompare good weather tests", () => {
     });
 
     it("has overlaid section open by default", () => {
-        const overlaidContent = wrapper.find('[data-testid="overlaid-content"]');
-        // Check if the overlaid section is visible (not hidden by v-if)
         expect(wrapper.vm.isOpen("overlaid")).toBe(true);
     });
 
     it("calls getGraphData for both groups on mount", async () => {
         await nextTick();
 
-        expect(getGraphData).toHaveBeenCalledWith("group1-wkt");
-        expect(getGraphData).toHaveBeenCalledWith("group2-wkt");
+        expect(getGraphData).toHaveBeenCalledWith("group1-wkt", "0");
+        expect(getGraphData).toHaveBeenCalledWith("group2-wkt", "0");
         expect(getGraphData).toHaveBeenCalledTimes(2);
     });
 
@@ -161,8 +160,8 @@ describe("DataAnalyticsCompare good weather tests", () => {
         // Wait for the watch effect and setTimeout
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        expect(getGraphData).toHaveBeenCalledWith("new-group1-wkt");
-        expect(getGraphData).toHaveBeenCalledWith("new-group2-wkt");
+        expect(getGraphData).toHaveBeenCalledWith("new-group1-wkt", "0");
+        expect(getGraphData).toHaveBeenCalledWith("new-group2-wkt", "0");
     });
 
     it("emits close when the close button is clicked", async () => {
@@ -223,6 +222,7 @@ describe("DataAnalyticsCompare bad weather tests", () => {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
+                month: "0",
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -250,6 +250,7 @@ describe("DataAnalyticsCompare bad weather tests", () => {
             props: {
                 group1WKT: "",
                 group2WKT: "",
+                month: "0",
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -259,7 +260,7 @@ describe("DataAnalyticsCompare bad weather tests", () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
 
         // getGraphData should return empty arrays for empty WKT
-        expect(getGraphData).toHaveBeenCalledWith("");
+        expect(getGraphData).toHaveBeenCalledWith("", "0");
     });
 
     it("handles partial failures when one group fails", async () => {
@@ -276,6 +277,7 @@ describe("DataAnalyticsCompare bad weather tests", () => {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
+                month: "0",
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -317,6 +319,7 @@ describe("DataAnalyticsCompare edge cases", () => {
             props: {
                 group1WKT: "single-value-wkt",
                 group2WKT: "single-value-wkt",
+                month: "0",
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -337,6 +340,7 @@ describe("DataAnalyticsCompare edge cases", () => {
             props: {
                 group1WKT: "large-dataset-wkt",
                 group2WKT: "large-dataset-wkt",
+                month: "0",
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -357,21 +361,22 @@ describe("DataAnalyticsCompare edge cases", () => {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
+                month: "0",
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
 
         // Rapidly change props multiple times
-        await wrapper.setProps({ group1WKT: "new1", group2WKT: "new2" });
-        await wrapper.setProps({ group1WKT: "newer1", group2WKT: "newer2" });
-        await wrapper.setProps({ group1WKT: "newest1", group2WKT: "newest2" });
+        await wrapper.setProps({ group1WKT: "new1", group2WKT: "new2", month: "0" });
+        await wrapper.setProps({ group1WKT: "newer1", group2WKT: "newer2", month: "0" });
+        await wrapper.setProps({ group1WKT: "newest1", group2WKT: "newest2", month: "0" });
 
         await nextTick();
         // Wait for all setTimeout calls to complete
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         // Should have been called with the final prop values
-        expect(getGraphData).toHaveBeenCalledWith("newest1");
-        expect(getGraphData).toHaveBeenCalledWith("newest2");
+        expect(getGraphData).toHaveBeenCalledWith("newest1", "0");
+        expect(getGraphData).toHaveBeenCalledWith("newest2", "0");
     });
 });
