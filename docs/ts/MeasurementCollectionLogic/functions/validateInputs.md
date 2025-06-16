@@ -1,14 +1,8 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / validateInputs
-
 # Function: validateInputs()
 
 > **validateInputs**(`longitude`, `latitude`, `waterSource`, `sensor`, `tempVal`, `selectedMetrics`, `errors`, `time`, `tempUnit`): `boolean`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:58
+Defined in: src/composables/MeasurementCollectionLogic.ts:126
 
 Validates the input values required for a measurement collection operation.
 

@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [LoginLogic](../README.md) / useLogin
-
 # Function: useLogin()
 
 > **useLogin**(): `object`
