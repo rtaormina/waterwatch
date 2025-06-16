@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Export/usePresets](../README.md) / Preset
-
 # Interface: Preset
 
 Defined in: src/composables/Export/usePresets.ts:3

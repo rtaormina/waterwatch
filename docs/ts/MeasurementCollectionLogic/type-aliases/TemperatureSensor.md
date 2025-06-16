@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / TemperatureSensor
-
 # Type Alias: TemperatureSensor
 
 > **TemperatureSensor** = `"analog thermomether"` \| `"digital thermomether"` \| `"infrared thermomether"` \| `"other"`

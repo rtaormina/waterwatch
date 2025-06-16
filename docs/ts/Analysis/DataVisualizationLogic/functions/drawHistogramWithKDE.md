@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Analysis/DataVisualizationLogic](../README.md) / drawHistogramWithKDE
-
 # Function: drawHistogramWithKDE()
 
 > **drawHistogramWithKDE**(`el`, `data`, `barColor`, `lineColor`, `options?`): `void`

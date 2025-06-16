@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Export/useSearch](../README.md) / useSearch
-
 # Function: useSearch()
 
 > **useSearch**(): `object`

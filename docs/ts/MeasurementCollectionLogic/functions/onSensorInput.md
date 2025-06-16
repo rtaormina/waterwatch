@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / onSensorInput
-
 # Function: onSensorInput()
 
 > **onSensorInput**(`sensor`, `errors`): `void`

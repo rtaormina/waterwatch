@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Export/usePresets](../README.md) / Filters
-
 # Interface: Filters
 
 Defined in: src/composables/Export/usePresets.ts:14

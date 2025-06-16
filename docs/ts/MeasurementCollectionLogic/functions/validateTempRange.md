@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / validateTempRange
-
 # Function: validateTempRange()
 
 > **validateTempRange**(`val`, `tempUnit`): `boolean`

@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Export/usePresets](../README.md) / usePresets
-
 # Function: usePresets()
 
 > **usePresets**(): `object`

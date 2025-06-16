@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [LocationFallback](../README.md) / createMarker
-
 # Function: createMarker()
 
 > **createMarker**(`location`): `Marker`

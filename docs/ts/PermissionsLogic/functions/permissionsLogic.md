@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [PermissionsLogic](../README.md) / permissionsLogic
-
 # Function: permissionsLogic()
 
 > **permissionsLogic**(): `object`

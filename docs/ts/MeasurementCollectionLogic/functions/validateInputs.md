@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / validateInputs
-
 # Function: validateInputs()
 
 > **validateInputs**(`longitude`, `latitude`, `waterSource`, `sensor`, `tempVal`, `selectedMetrics`, `errors`, `time`, `tempUnit`): `boolean`

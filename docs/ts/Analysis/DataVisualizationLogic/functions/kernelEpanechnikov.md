@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Analysis/DataVisualizationLogic](../README.md) / kernelEpanechnikov
-
 # Function: kernelEpanechnikov()
 
 > **kernelEpanechnikov**(`bandwidth`): (`v`) => `number`

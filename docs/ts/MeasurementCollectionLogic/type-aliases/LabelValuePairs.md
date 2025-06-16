@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / LabelValuePairs
-
 # Type Alias: LabelValuePairs\<ValueType\>
 
 > **LabelValuePairs**\<`ValueType`\> = `object`

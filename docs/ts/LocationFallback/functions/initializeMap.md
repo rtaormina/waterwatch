@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [LocationFallback](../README.md) / initializeMap
-
 # Function: initializeMap()
 
 > **initializeMap**(`mapElement`, `location`): `Map`

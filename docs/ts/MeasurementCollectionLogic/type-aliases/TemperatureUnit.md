@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / TemperatureUnit
-
 # Type Alias: TemperatureUnit
 
 > **TemperatureUnit** = `"C"` \| `"F"`

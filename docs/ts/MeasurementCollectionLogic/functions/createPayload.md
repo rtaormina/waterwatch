@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / createPayload
-
 # Function: createPayload()
 
 > **createPayload**(`data`, `selectedMetrics`): `object`
