@@ -1,8 +1,14 @@
+[**frontend**](../../README.md)
+
+***
+
+[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / onSensorInput
+
 # Function: onSensorInput()
 
 > **onSensorInput**(`sensor`, `errors`): `void`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:98
+Defined in: src/composables/MeasurementCollectionLogic.ts:30
 
 Validates if the input in the sensor field is not empty.
 

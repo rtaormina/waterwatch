@@ -1,3 +1,9 @@
+[**frontend**](../../README.md)
+
+***
+
+[frontend](../../README.md) / [CampaignLogic](../README.md) / updateCountdown
+
 # Function: updateCountdown()
 
 > **updateCountdown**(`endTime`): `object`

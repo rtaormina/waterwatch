@@ -1,8 +1,14 @@
+[**frontend**](../../README.md)
+
+***
+
+[frontend](../../README.md) / [LocationFallback](../README.md) / createMap
+
 # Function: createMap()
 
 > **createMap**(`element`, `location`): `Map`
 
-Defined in: src/composables/LocationFallback.ts:59
+Defined in: src/composables/LocationFallback.ts:49
 
 Creates a Leaflet map instance centered at the given location.
 
