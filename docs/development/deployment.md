@@ -1,8 +1,8 @@
 # Deployment to Production
 
-> Currently a production build exists already and is available at [https://waterwatch.tudelft.nl](https://waterwatch.tudelft.nl).
+> Currently a production build exists already and is avialable at [https://waterwatch.tudelft.nl](https://waterwatch.tudelft.nl).
 
-This section will go over the steps and details needed to deploy to a production environment.
+This section will go over the steps and details needed to deploy to a production environment. Going over seting up a new server and updating the currently deployed version.
 
 ```{contents} Table of Contents
 :depth: 3
@@ -74,7 +74,7 @@ docker stack deploy -c docker-compose.prod.stack.yaml production --prune --detac
 WATERWATCH needs a countries.sql to be aware of the continent and country borders. The countries.sql file can be downloaded from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql) and then needs to be stored in the root assets folder.
 ```
 
-After the services are running, the database needs to load in the countries.sql file. The following commands copy the sql file to the container and then load in the database, this needs to be done only once as this data will persists in the volume.
+After the services are running the need to be setup. First the database needs to load in the countries.sql file in order to allow for countries to be working. The following commands copy the sql file to the container and then load in the database, this needs to be done only once as this data will persists in the volume.
 
 ```bash
 docker cp ../assets/countries.sql $DATABASE:/countries.sql
