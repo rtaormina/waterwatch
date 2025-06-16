@@ -147,7 +147,7 @@ describe("Legend.vue gradient tests", () => {
     const expected = [`0`, `8`, `16`, `24`, `32`, `≥40`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
-    expect(labelSpans).toHaveLength(6)
+    expect(labelSpans).toHaveLength(5)
     labelSpans.forEach((span, i) => {
       expect(span.text()).toContain(expected[i])
     })

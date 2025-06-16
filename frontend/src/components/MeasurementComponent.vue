@@ -33,6 +33,10 @@ const defaultData: MeasurementData = {
         },
     },
     selectedMetrics: ["temperature"],
+    time: {
+        localDate: undefined,
+        localTime: undefined,
+    },
 };
 
 const data = ref<MeasurementData>(defaultData);
@@ -62,6 +66,7 @@ function submitData() {
 
 const emit = defineEmits<{
     (e: "close"): void;
+    (e: "submitMeasurement"): void;
 }>();
 
 const showModal = ref(false);
@@ -86,6 +91,7 @@ const postData = () => {
             if (res.status === 201) {
                 router.push({ name: "Map" });
                 showModal.value = false;
+                emit("submitMeasurement");
                 clear();
             } else {
                 console.error("error with adding measurement");
@@ -153,6 +159,7 @@ defineExpose({
             <MeasurementBasisBlock
                 v-model:location="data.location"
                 v-model:water-source="data.waterSource"
+                v-model:time="data.time"
                 :water-source-options="waterSourceOptions"
                 ref="MeasurementBlock"
             ></MeasurementBasisBlock>

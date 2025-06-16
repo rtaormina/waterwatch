@@ -73,52 +73,109 @@ vi.mock("leaflet", async () => {
     };
 });
 vi.mock("../../../src/components/Modal.vue", () => ({
-  name: "Modal",
-  props: ["visible"],
-  template: `
+    name: "Modal",
+    props: ["visible"],
+    template: `
     <div v-if="visible" class="modal" role="dialog">
       <slot></slot>
       <button class="modal-close-btn" @click="$emit('close')">Close</button>
     </div>
   `,
 }));
-
+vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+vi.mock("@vuepic/vue-datepicker", () => ({
+    default: {
+        name: "VueDatePicker",
+        template: `
+            <input
+                data-testid="vue-datepicker"
+                :value="modelValue"
+                @input="$emit('update:modelValue', $event.target.value)"
+                :placeholder="placeholder"
+            />
+        `,
+        props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+        emits: ["update:modelValue"],
+    },
+}));
 vi.mock("@asymmetrik/leaflet-d3", () => {
-  return { default: {} };
+    return { default: {} };
 });
-import MapView from "../../../src/views/MapView.vue";
+vi.mock("./Measurement/MeasurementBlock.vue", () => ({
+    default: {
+        name: "MeasurementBlock",
+        template: `
+            <div>
+                <slot></slot>
+            </div>
+        `,
+    },
+}));
 
+setActivePinia(createPinia());
+
+import MapView from "../../../src/views/MapView.vue";
+import { setActivePinia, createPinia } from "pinia";
 
 describe("MapView first-time modal appears", () => {
-  beforeEach(() => {
-    localStorage.clear();
-    vi.clearAllMocks();
-  });
-
-  it("shows modal on first mount, hides on close, and sets localStorage", async () => {
-    const wrapper = mount(MapView, {
-      global: {
-        stubs: {
-          CampaignBannerComponent: true,
-          HexMap: true,
-          MeasurementComponent: true,
-          DataAnalyticsComponent: true,
-          Legend: true,
-        },
-      },
+    beforeEach(() => {
+        localStorage.clear();
+        vi.clearAllMocks();
+        vi.mock("@vuepic/vue-datepicker", () => ({
+            default: {
+                name: "VueDatePicker",
+                template: '<input data-testid="vue-datepicker" />',
+                props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+                emits: ["update:modelValue"],
+            },
+        }));
+        vi.mock("./Measurement/MeasurementBlock.vue", () => ({
+            default: {
+                name: "MeasurementBlock",
+                template: `
+            <div>
+                <slot></slot>
+            </div>
+        `,
+            },
+        }));
+        vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
     });
 
-    expect(localStorage.getItem("mapViewVisited")).toBe("true");
+    it("shows modal on first mount, hides on close, and sets localStorage", async () => {
+        const wrapper = mount(MapView, {
+            global: {
+                stubs: {
+                    CampaignBannerComponent: true,
+                    HexMap: true,
+                    MeasurementComponent: true,
+                    DataAnalyticsComponent: true,
+                    Legend: true,
+                    VueDatePicker: {
+                        template: '<input data-testid="vue-datepicker" />',
+                        props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+                        emits: ["update:modelValue"],
+                    },
+                },
+            },
+        });
 
-    await wrapper.vm.$nextTick();
-    expect(wrapper.find('[data-testid="modal"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="modal"]').isVisible()).toBe(true);
+        expect(localStorage.getItem("mapViewVisited")).toBe("true");
 
-    expect(wrapper.find('[data-testid="view-button"]').exists()).toBe(true);
-    await wrapper.find('[data-testid="view-button"]').trigger("click");
-    await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('[data-testid="modal"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="modal"]').isVisible()).toBe(true);
 
-    expect(localStorage.getItem("mapViewVisited")).toBe("true");
-  });
+        expect(wrapper.find('[data-testid="view-button"]').exists()).toBe(true);
+        await wrapper.find('[data-testid="view-button"]').trigger("click");
+        await wrapper.vm.$nextTick();
 
+        expect(localStorage.getItem("mapViewVisited")).toBe("true");
+    });
 });

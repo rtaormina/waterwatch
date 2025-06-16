@@ -1,19 +1,24 @@
 <template>
     <div class="w-full h-full flex flex-col p-0 m-0">
-        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
-
         <div class="w-full h-full flex flex-row">
             <div
                 v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
                 class="analytics-panel left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
             >
                 <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
-                <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleCloseAll" />
+                <DataAnalyticsComponent
+                    v-if="viewAnalytics"
+                    :location="hexLocation"
+                    :month="month"
+                    :fromExport="true"
+                    @close="handleCloseAll"
+                />
 
                 <DataAnalyticsCompare
                     v-if="showCompareAnalytics"
                     :group1WKT="group1WKT"
                     :group2WKT="group2WKT"
+                    :month="month"
                     @close="handleCloseAll"
                 />
             </div>
@@ -45,12 +50,14 @@
                     :selectMult="selectMult && !compareMode"
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
+                    :colorByTemp="colorByTemp"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
                     @hex-group-select="handleGroupSelect"
                     @open-details="handleOpenAnalysis"
                 />
+
                 <div
                     class="absolute top-4 right-4 flex align-center z-20 justify-center gap-4"
                     v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
@@ -84,12 +91,15 @@
                 </div>
 
                 <Legend
-                    v-if="showLegend"
-                    class="absolute z-40 mt-1"
+                    v-show="showLegend"
+                    class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
                     :scale="scale"
+                    :colorByTemp="colorByTemp"
                     @close="handleCloseAll"
+                    @switch="handleSwitch"
+                    @update="updateMapFilters"
                 />
             </div>
         </div>
@@ -114,7 +124,6 @@ defineOptions({ name: "DashboardView" });
 import HexMap from "../components/HexMap.vue";
 import { ref, computed, nextTick } from "vue";
 import MeasurementComponent from "../components/MeasurementComponent.vue";
-import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
@@ -124,7 +133,6 @@ import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vu
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
 import { useRouter } from "vue-router";
-import { useSearch } from "../composables/Export/useSearch";
 import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
 
@@ -138,7 +146,7 @@ const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
 const selectMult = ref(false);
-const campaigns = ref([]);
+const colorByTemp = ref(true);
 const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
 
@@ -158,19 +166,42 @@ const count = ref(0);
 const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
+const range = ref<number[]>([0]);
+const month = ref<string>("0");
 
 // color, styling, and scale values for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);
 const scale = ref<[number, number]>([10, 40]);
 const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
 
-const flattenSearchParams = useSearch().flattenSearchParams;
-
 /**
  * Returns to the export view, resetting all states and closing any open components.
  */
 function returnToExport() {
     router.push({ name: "Export", query: { fromMap: "1" } });
+}
+
+/**
+ * Handles the switch between temperature and count color modes in the legend.
+ */
+function handleSwitch() {
+    colorByTemp.value = !colorByTemp.value;
+    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
+}
+
+/**
+ * Handles filtering observations by time
+ *
+ * @param timeRange the time range of measurements to include in the hexmap
+ * @returns {void}
+ */
+function updateMapFilters(timeRange: number[]) {
+    range.value = timeRange;
+    month.value = "";
+    for (let i = 0; i < range.value.length; i++) {
+        month.value += `${range.value[i]},`;
+    }
+    month.value = month.value.substring(0, month.value.length - 1);
 }
 
 /**
@@ -400,9 +431,9 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
-    const flatFilters = exportStore.filters ? flattenSearchParams(exportStore.filters) : {};
     const bodyData = {
-        ...flatFilters,
+        ...exportStore.filters,
+        month: month.value,
         format: "map-format", // Add format to the body
     };
 

@@ -68,63 +68,15 @@ defineExpose({
                         Log In
                     </button>
 
-                    <!-- add back for when we have accounts -->
-                    <!-- <p class="text-center text-sm text-gray-600 underline">
-                        Don’t have an account?
-                        <a href="#" class="font-semibold text-black hover:underline">Sign up.</a>
-                    </p> -->
+                    <!-- Turn into email link once email address exists -->
+                    <p class="text-center text-sm text-gray-600">
+                        Don’t have an account? Send an email to
+                        <b>waterwatch@tudelft.nl</b>
+                        to register!
+                        <!-- <a href="#" class="font-semibold text-black hover:underline">waterwatch@tudelft.nl</a> -->
+                    </p>
                 </form>
             </div>
         </div>
     </div>
 </template>
-
-<style scoped>
-@media (max-height: 500px) {
-    .input-container {
-        padding: 0;
-    }
-    .login-container {
-        padding-top: 0;
-        padding-bottom: 0;
-        margin-bottom: 0;
-    }
-
-    .login-container .text-4xl {
-        font-size: 1.5rem;
-        line-height: 2rem;
-        margin-bottom: 1rem;
-    }
-
-    .login-container label.block.text-lg {
-        font-size: 1rem;
-        line-height: 1.5rem;
-    }
-
-    .login-container form.space-y-5 {
-        gap: 0.25rem;
-    }
-
-    .login-container input {
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
-        font-size: 0.875rem;
-    }
-
-    .login-container a.text-sm {
-        font-size: 0.75rem;
-    }
-
-    .login-container button {
-        padding-top: 0.25rem;
-        padding-bottom: 0.25rem;
-        font-size: 0.875rem;
-    }
-
-    .login-container p.text-center.text-sm {
-        font-size: 0.75rem;
-    }
-}
-</style>

@@ -17,6 +17,8 @@
             </p>
             <div class="flex items-center mt-4 gap-2">
                 <button
+                    type="button"
+                    aria-label="open map menu"
                     data-testid="view-button"
                     @click="firstTime = false"
                     class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
@@ -34,7 +36,11 @@
                 v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
                 class="analytics-panel left-0 top-19 md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
             >
-                <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
+                <MeasurementComponent
+                    v-if="addMeasurement"
+                    @close="handleCloseAll"
+                    @submitMeasurement="refresh = !refresh"
+                />
                 <DataAnalyticsComponent
                     v-if="viewAnalytics"
                     :location="hexLocation"
@@ -46,6 +52,7 @@
                     v-if="showCompareAnalytics"
                     :group1WKT="group1WKT"
                     :group2WKT="group2WKT"
+                    :month="month"
                     @close="handleCloseAll"
                 />
             </div>
@@ -122,9 +129,11 @@
                             viewAnalytics = false;
                             showLegend = false;
                         "
+                        type="button"
+                        aria-label="add measurement"
                         v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                     >
-                        <PlusCircleIcon class="w-10 h-10" />
+                        <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
                     </button>
                 </UTooltip>
             </div>
@@ -133,7 +142,7 @@
 </template>
 
 <style>
-@media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
+@media (max-width: 768px) and (orientation: landscape) {
     .analytics-panel {
         width: 100% !important;
     }
@@ -161,6 +170,10 @@ import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vu
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
 import MapMenu from "../components/MapMenu.vue";
+import axios from "axios";
+import Cookies from "universal-cookie";
+
+const cookies = new Cookies();
 
 const open = ref(false);
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
@@ -196,6 +209,7 @@ const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
 const range = ref<number[]>([0]);
 const month = ref<string>("0");
+const refresh = ref(false);
 
 /**
  * Handle open and close of map menu
@@ -466,10 +480,16 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
-    const res = await fetch(`/api/measurements/aggregated?month=${range.value}`);
+    refresh.value = !refresh.value; // Trigger re-fetching when refresh changes
+    const res = await axios.post("/api/measurements/aggregated/", range.value ? { month: range.value } : {}, {
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": cookies.get("csrftoken"),
+        },
+    });
 
-    if (!res.ok) throw new Error(`Status: ${res.status}`);
-    const data = await res.json();
+    if (res.status !== 200) throw new Error(`Status: ${res.status}`);
+    const data = res.data;
 
     return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),

@@ -96,6 +96,7 @@ defineExpose({
             :ui="{
                 trailing: 'pointer-events-none',
             }"
+            aria-label="Time waited in minutes"
         >
             <template #trailing><span class="mr-2">min</span></template>
         </UInput>
@@ -115,6 +116,7 @@ defineExpose({
             :ui="{
                 trailing: 'pointer-events-none',
             }"
+            aria-label="Time waited in seconds"
         >
             <template #trailing><span class="mr-2">sec</span></template>
         </UInput>

@@ -2,14 +2,16 @@
 
 import csv
 import json
+import logging
 import xml.etree.ElementTree as ET
 from abc import ABC, abstractmethod
 from xml.dom import minidom
-from xml.etree.ElementTree import Element, SubElement
 
 from django.db.models import Avg, Count, Max, Min
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from measurement_analysis.serializers import MeasurementAggregatedSerializer
+
+logger = logging.getLogger("WATERWATCH")
 
 
 class ExportStrategy(ABC):
@@ -26,217 +28,403 @@ class ExportStrategy(ABC):
     Methods
     -------
     export(data)
-        Given serialized data, return an HttpResponse.
+        Given serialized data, return an HttpResponse or StreamingHttpResponse for the data iterable.
     """
 
     @abstractmethod
-    def export(self, data):
-        """Given serialized data, return an HttpResponse.
+    def export(self, data, extra_data=None):
+        """
+        Return an HttpResponse or StreamingHttpResponse for the given data iterable.
 
         Parameters
         ----------
-        data : list
-            List of serialized measurement data to be exported.
-
-        Returns
-        -------
-        HttpResponse
-            HTTP response containing the exported data in the specified format.
+        data : QuerySet or iterable
+            The main data to be exported.
+        extra_data : dict, optional
+            A dictionary containing supplementary data. For measurements, this is
+            expected to hold a 'metrics' key with a dictionary mapping
+            measurement IDs to their list of metrics.
         """
+
+    def _invert_flag(self, item):
+        """Invert the boolean flag attribute if it exists.
+
+        Parameters
+        ----------
+        item : dict
+            The data item that may contain a 'flag' attribute.
+        """
+        if "flag" in item and isinstance(item["flag"], bool):
+            item["flag"] = not item["flag"]
 
 
 class CsvExport(ExportStrategy):
-    """Export measurements in CSV format.
+    """Exports measurement data in CSV format, supporting both streaming and non-streaming responses.
 
-    This class implements the `export` method to handle CSV export of measurement data.
+    This class defines the interface for exporting measurements in CSV format.
 
     Parameters
     ----------
-    ExportStrategy : Abstract Base Class
-        Inherits from the abstract base class `ExportStrategy`.
+    ExportStrategy : ABC
+        Abstract base class for defining abstract methods and properties.
 
     Methods
     -------
-    export(data)
-        Given serialized data, return an HttpResponse with CSV content.
+    export(data, extra_data=None)
+        Given serialized data, return an HttpResponse or StreamingHttpResponse for the data iterable.
+        If `data` is a QuerySet, it will be streamed; otherwise, it will be built as a full CSV.
     """
 
-    def export(self, data):
-        """Export the given data to CSV format.
+    def export(self, data, extra_data=None):
+        """Export the given data as a CSV file.
 
         Parameters
         ----------
-        data : list
-            List of serialized measurement data to be exported.
+        data : QuerySet or iterable
+            The main data to be exported.
+        extra_data : dict, optional
+            A dictionary containing supplementary data such as 'metrics' and 'campaigns'.
 
         Returns
         -------
-        HttpResponse
-            HTTP response containing the exported data in CSV format.
+        HttpResponse or StreamingHttpResponse
+            The response containing the exported CSV data.
         """
+        if hasattr(data, "iterator") and callable(data.iterator):
+            return self._stream_csv(data, extra_data)
+        return self._build_csv(list(data), extra_data)
+
+    def _get_metrics_for_row(self, row_id, metrics_dict):
+        if metrics_dict:
+            return metrics_dict.get(row_id, [])
+        return []
+
+    def _get_campaigns_for_row(self, row_id, campaigns_dict):
+        if campaigns_dict:
+            return campaigns_dict.get(row_id, [])
+        return []
+
+    def _build_csv(self, rows, extra_data=None):
         resp = HttpResponse(content_type="text/csv")
         resp["Content-Disposition"] = 'attachment; filename="measurements.csv"'
         writer = csv.writer(resp)
-        if data:
-            headers = list(data[0].keys())
-            writer.writerow(headers)
-            for item in data:
-                item["metrics"] = json.dumps(item["metrics"])
-                item["location"] = json.dumps(item["location"])
-                writer.writerow(item.values())
+        if not rows:
+            return resp
+
+        metrics_dict = (extra_data or {}).get("metrics", {})
+        campaigns_dict = (extra_data or {}).get("campaigns", {})
+
+        # Add metrics to each row before writing
+        for row in rows:
+            # Invert flag attribute
+            self._invert_flag(row)
+            row["metrics"] = self._get_metrics_for_row(row.get("id"), metrics_dict)
+            row["campaigns"] = self._get_campaigns_for_row(row.get("id"), campaigns_dict)
+
+        # Write header and rows
+        writer.writerow(rows[0].keys())
+        for row in rows:
+            writer.writerow([json.dumps(v, default=str) if isinstance(v, dict | list) else v for v in row.values()])
         return resp
+
+    def _stream_csv(self, qs, extra_data=None):
+        metrics_dict = (extra_data or {}).get("metrics", {})
+        campaigns_dict = (extra_data or {}).get("campaigns", {})
+
+        class Echo:
+            def write(self, v):
+                return v
+
+        pseudo = Echo()
+        writer = csv.writer(pseudo)
+
+        def rowgen():
+            first = True
+            # Use a larger chunk_size as the query is now much simpler
+            for row in qs.iterator(chunk_size=500):
+                # Invert flag attribute
+                self._invert_flag(row)
+                # Add metrics to the row dictionary
+                row["metrics"] = self._get_metrics_for_row(row.get("id"), metrics_dict)
+                row["campaigns"] = self._get_campaigns_for_row(row.get("id"), campaigns_dict)
+
+                if first:
+                    yield writer.writerow(row.keys())
+                    first = False
+
+                yield writer.writerow(
+                    [json.dumps(v, default=str) if isinstance(v, dict | list) else v for v in row.values()]
+                )
+
+        return StreamingHttpResponse(rowgen(), content_type="text/csv")
 
 
 class JsonExport(ExportStrategy):
-    """Export measurements in JSON format.
+    """Exports measurement data in JSON format, supporting both streaming and non-streaming responses.
 
-    This class implements the `export` method to handle JSON export of measurement data.
+    This class defines the interface for exporting measurements in JSON format.
 
     Parameters
     ----------
-    ExportStrategy : Abstract Base Class
-        Inherits from the abstract base class `ExportStrategy`.
+    ExportStrategy : ABC
+        Abstract base class for defining abstract methods and properties.
 
     Methods
     -------
-    export(data)
-        Given serialized data, return an HttpResponse with JSON content.
+    export(data, extra_data=None)
+        Given serialized data, return an HttpResponse or StreamingHttpResponse for the data iterable.
+        If `data` is a QuerySet, it will be streamed; otherwise, it will be built as a full JSON response.
     """
 
-    def export(self, data):
-        """Export the given data to JSON format.
+    def export(self, data, extra_data=None):
+        """Export the given data as a JSON file.
 
         Parameters
         ----------
-        data : list
-            List of serialized measurement data to be exported.
+        data : QuerySet or iterable
+            The main data to be exported.
+        extra_data : dict, optional
+            A dictionary containing supplementary data such as 'metrics' and 'campaigns'.
 
         Returns
         -------
-        HttpResponse
-            HTTP response containing the exported data in JSON format.
+        HttpResponse or StreamingHttpResponse
+            The response containing the exported JSON data.
         """
-        return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})
+        if hasattr(data, "iterator") and callable(data.iterator):
+            return self._stream_json(data, extra_data)
+
+        # Non-streaming fallback
+        metrics_dict = (extra_data or {}).get("metrics", {})
+        campaigns_dict = (extra_data or {}).get("campaigns", {})
+        full_data = list(data)
+        for obj in full_data:
+            # Invert flag attribute
+            self._invert_flag(obj)
+            obj["metrics"] = metrics_dict.get(obj.get("id"), [])
+            obj["campaigns"] = campaigns_dict.get(obj.get("id"), [])
+        return JsonResponse(full_data, safe=False, json_dumps_params={"indent": 2})
+
+    def _stream_json(self, qs, extra_data=None):
+        metrics_dict = (extra_data or {}).get("metrics", {})
+        campaigns_dict = (extra_data or {}).get("campaigns", {})
+
+        def gen():
+            yield "[\n"
+            first = True
+            for obj in qs.iterator(chunk_size=500):
+                if not first:
+                    yield ",\n"
+
+                # Invert flag attribute
+                self._invert_flag(obj)
+                # Add metrics to the object before serializing
+                obj["metrics"] = metrics_dict.get(obj.get("id"), [])
+                obj["campaigns"] = campaigns_dict.get(obj.get("id"), [])
+
+                yield json.dumps(obj, indent=2, default=str)
+                first = False
+            yield "\n]\n"
+
+        return StreamingHttpResponse(gen(), content_type="application/json")
 
 
 class GeoJsonExport(ExportStrategy):
-    """Export measurements in GeoJSON format.
+    """Exports measurement data in GeoJSON format, supporting both streaming and non-streaming responses.
 
-    This class implements the `export` method to handle GeoJSON export of measurement data.
+    This class defines the interface for exporting measurements in GeoJSON format.
 
     Parameters
     ----------
-    ExportStrategy : Abstract Base Class
-        Inherits from the abstract base class `ExportStrategy`.
+    ExportStrategy : ABC
+        Abstract base class for defining abstract methods and properties.
 
     Methods
     -------
-    export(data)
-        Given serialized data, return an HttpResponse with GeoJSON content.
+    export(data, extra_data=None)
+        Given serialized data, return an HttpResponse or StreamingHttpResponse for the data iterable.
+        If `data` is a QuerySet, it will be streamed; otherwise, it will be built as a full GeoJSON response.
     """
 
-    def export(self, data):
-        """Export the given data to GeoJSON format.
+    def export(self, data, extra_data=None):
+        """Export the given data as a GeoJSON file.
 
         Parameters
         ----------
-        data : list
-            List of serialized measurement data to be exported.
+        data : QuerySet or iterable
+            The main data to be exported.
+        extra_data : dict, optional
+            A dictionary containing supplementary data such as 'metrics' and 'campaigns'.
 
         Returns
         -------
-        HttpResponse
-            HTTP response containing the exported data in GeoJSON format.
+        HttpResponse or StreamingHttpResponse
+            The response containing the exported GeoJSON data.
         """
+        if hasattr(data, "iterator") and callable(data.iterator):
+            return self._stream_geojson(data, extra_data)
+
+        metrics_dict = (extra_data or {}).get("metrics", {})
+        campaigns_dict = (extra_data or {}).get("campaigns", {})
         features = []
         for item in data:
-            features.append(
-                {
-                    "type": "Feature",
-                    "properties": {k: v for k, v in item.items() if k != "location"},
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            item["location"]["longitude"],
-                            item["location"]["latitude"],
-                        ],
-                    },
-                }
-            )
-        geojson = {"type": "FeatureCollection", "features": features}
-        resp = HttpResponse(json.dumps(geojson, indent=2), content_type="application/geo+json")
+            # Invert flag attribute
+            self._invert_flag(item)
+            item["metrics"] = metrics_dict.get(item.get("id"), [])
+            item["campaigns"] = campaigns_dict.get(item.get("id"), [])
+            features.append(self._feature(item))
+
+        geojson = {"type": "FeatureCollection", "features": [f for f in features if f]}
+        resp = HttpResponse(json.dumps(geojson, indent=2, default=str), content_type="application/geo+json")
+        resp["Content-Disposition"] = 'attachment; filename="measurements.geojson"'
+        return resp
+
+    def _feature(self, item):
+        longitude = item.get("longitude")
+        latitude = item.get("latitude")
+
+        if longitude is None or latitude is None:
+            return None
+
+        return {
+            "type": "Feature",
+            "properties": {k: v for k, v in item.items() if k not in ("latitude", "longitude")},
+            "geometry": {
+                "type": "Point",
+                "coordinates": [float(longitude), float(latitude)],
+            },
+        }
+
+    def _stream_geojson(self, qs, extra_data=None):
+        metrics_dict = (extra_data or {}).get("metrics", {})
+        campaigns_dict = (extra_data or {}).get("campaigns", {})
+
+        def gen():
+            yield '{"type":"FeatureCollection","features":[\n'
+            first = True
+            for item in qs.iterator(chunk_size=500):
+                # Invert flag attribute
+                self._invert_flag(item)
+                # Add metrics before creating the feature
+                item["metrics"] = metrics_dict.get(item.get("id"), [])
+                item["campaigns"] = campaigns_dict.get(item.get("id"), [])
+
+                feature = self._feature(item)
+                if feature is None:
+                    continue
+
+                if not first:
+                    yield ",\n"
+
+                yield json.dumps(feature, indent=2, default=str)
+                first = False
+            yield "\n]}\n"
+
+        resp = StreamingHttpResponse(gen(), content_type="application/geo+json")
         resp["Content-Disposition"] = 'attachment; filename="measurements.geojson"'
         return resp
 
 
 class XmlExport(ExportStrategy):
-    """Export measurements in XML format.
+    """Exports measurement data in XML format, supporting both streaming and non-streaming responses.
 
-    This class implements the `export` method to handle XML export of measurement data.
+    This class defines the interface for exporting measurements in XML format.
 
     Parameters
     ----------
-    ExportStrategy : Abstract Base Class
-        Inherits from the abstract base class `ExportStrategy`.
+    ExportStrategy : ABC
+        Abstract base class for defining abstract methods and properties.
 
     Methods
     -------
-    export(data)
-        Given serialized data, return an HttpResponse with XML content.
+    export(data, extra_data=None)
+        Given serialized data, return an HttpResponse or StreamingHttpResponse for the data iterable.
+        If `data` is a QuerySet, it will be streamed; otherwise, it will be built as a full XML response.
     """
 
-    def export(self, data):
-        """Export the given data to XML format.
+    def export(self, data, extra_data=None):
+        """Export the given data as an XML file.
 
-        Parameters
-        ----------
-        data : list
-            List of serialized measurement data to be exported.
-
-        Returns
-        -------
-        HttpResponse
-            HTTP response containing the exported data in XML format.
+        Always builds the full XML tree to avoid streaming complexities.
         """
-        root = Element("measurements")
-        for item in data:
-            m = SubElement(root, "measurement")
-            for k, v in item.items():
-                if k == "location":
-                    loc = SubElement(m, "location")
-                    SubElement(loc, "latitude").text = str(v["latitude"])
-                    SubElement(loc, "longitude").text = str(v["longitude"])
-                elif k == "metrics":
-                    mets = SubElement(m, "metrics")
-                    for met in v:
-                        me = SubElement(mets, "metric")
-                        for mk, mv in met.items():
-                            SubElement(me, mk).text = str(mv)
-                else:
-                    SubElement(m, k).text = "" if v is None else str(v)
+        # Determine rows from either a QuerySet-like object or iterable
+        if hasattr(data, "iterator") and callable(data.iterator):
+            # Consume the iterator to build full list
+            rows = list(data.iterator(chunk_size=500))
+        else:
+            # Fallback for any iterable like list
+            rows = list(data)
+
+        return self._build_xml(rows, extra_data)
+
+    def _build_xml(self, rows, extra_data=None):
+        metrics_dict = (extra_data or {}).get("metrics", {})
+        campaigns_dict = (extra_data or {}).get("campaigns", {})
+
+        root = ET.Element("measurements")
+        for item in rows:
+            # Invert flag attribute
+            self._invert_flag(item)
+            # inject metrics & campaigns lists
+            item_id = item.get("id")
+            item["metrics"] = metrics_dict.get(item_id, [])
+            item["campaigns"] = campaigns_dict.get(item_id, [])
+
+            meas_elem = ET.SubElement(root, "measurement")
+            self._append_measurement(meas_elem, item)
+
         xml_bytes = prettify_xml(root)
         resp = HttpResponse(xml_bytes, content_type="application/xml")
         resp["Content-Disposition"] = 'attachment; filename="measurements.xml"'
         return resp
 
+    def _append_measurement(self, parent, item):
+        # 1) Metrics block
+        if item.get("metrics"):
+            mets = ET.SubElement(parent, "metrics")
+            for met in item["metrics"]:
+                me = ET.SubElement(mets, "metric")
+                for mk, mv in met.items():
+                    ET.SubElement(me, mk).text = "" if mv is None else str(mv)
+
+        # 2) Campaigns block
+        if item.get("campaigns"):
+            camps = ET.SubElement(parent, "campaigns")
+            for camp_name in item["campaigns"]:
+                ce = ET.SubElement(camps, "campaign")
+                ce.text = str(camp_name)
+
+        # 3) Other simple fields (except geom coords handled below)
+        for k, v in item.items():
+            if k in ("metrics", "campaigns", "latitude", "longitude"):
+                continue
+            elem = ET.SubElement(parent, k)
+            elem.text = "" if v is None else str(v)
+
+        # 4) Always append latitude & longitude last (if present)
+        if "latitude" in item:
+            ET.SubElement(parent, "latitude").text = str(item["latitude"])
+        if "longitude" in item:
+            ET.SubElement(parent, "longitude").text = str(item["longitude"])
+
 
 def prettify_xml(element: ET.Element) -> bytes:
-    """Return a pretty-printed XML byte string for the given Element.
+    """Prettify an XML ElementTree element.
 
-    Uses minidom to indent the XML.
+    This function converts an XML ElementTree element to a pretty-printed XML string.
 
-    Parameters
+    Parameters.
     ----------
     element : ET.Element
-        The XML element to be pretty-printed.
+        The XML ElementTree element to be prettified.
 
     Returns
     -------
     bytes
-        Pretty-printed XML as a byte string.
+        A pretty-printed XML string in bytes format.
     """
-    rough_string = ET.tostring(element, "utf-8")
-    reparsed = minidom.parseString(rough_string)
+    rough = ET.tostring(element, "utf-8")
+    reparsed = minidom.parseString(rough)
     return reparsed.toprettyxml(indent="  ", encoding="utf-8")
 
 
@@ -284,3 +472,39 @@ class MapFormatExport(ExportStrategy):
         return JsonResponse(
             {"measurements": serialized_data, "count": len(serialized_data), "status": "success"}, safe=True
         )
+
+
+class AnalysisFormatExport(ExportStrategy):
+    """Export measurements in a format that the Analysis can read.
+
+    This class implements the `export` method to handle export of measurement data,
+    so that it can be visualized on the Hex-Map.
+
+    Parameters
+    ----------
+    ExportStrategy : Abstract Base Class
+        Inherits from the abstract base class `ExportStrategy`.
+
+    Methods
+    -------
+    export(data)
+        Given serialized data, return an HttpResponse with MapFormat content.
+    """
+
+    def export(self, data):
+        """Export the given data to MapFormat.
+
+        Parameters
+        ----------
+        data : list
+            List of serialized measurement data to be exported.
+
+        Returns
+        -------
+        HttpResponse
+            HTTP response containing the exported data in MapFormat.
+        """
+        data = [float(m.temperature.value) for m in data if hasattr(m, "temperature") and m.temperature is not None]
+
+        # Return as JSON response
+        return JsonResponse(data, safe=False, json_dumps_params={"indent": 2})

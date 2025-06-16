@@ -13,8 +13,9 @@ export interface MeasurementSearchParams {
     times?: TimeSlot[];
 }
 
-// Define the structure of the search results
-export const state = reactive({
+const state = reactive({
+    activeSearchCount: 0,
+    isLoading: false,
     count: 0,
     avgTemp: 0,
 });
@@ -23,10 +24,13 @@ const exportStore = useExportStore();
 
 /**
  * Composable for searching measurements with various filters.
+
  * This composable provides methods to search for measurements based on
  * user-defined filters, and returns the results including count and average temperature.
  *
  * @returns {Object} An object containing:
+ * - `hasSearched`: A computed property indicating if a search has been performed.
+ * - `isLoading`: A computed property indicating if a search is currently in progress.
  * - `results`: A computed property containing the search results (count and average temperature).
  * - `searchMeasurements`: A method to perform the search with given parameters.
  * - `resetSearch`: A method to reset the search state.
@@ -43,6 +47,8 @@ export function useSearch() {
      */
     async function searchMeasurements(params: MeasurementSearchParams): Promise<void> {
         exportStore.hasSearched = true;
+        state.activeSearchCount++;
+        state.isLoading = state.activeSearchCount > 0;
         const flatParams = flattenSearchParams(params);
 
         try {
@@ -54,13 +60,17 @@ export function useSearch() {
             });
 
             // Update results
-            state.count = response.data.count || 0;
-            const raw = response.data.avgTemp ?? 0;
+            state.count = response.data.count;
+            const raw = response.data.avgTemp;
             state.avgTemp = Math.round(raw * 10) / 10;
+            state.hasSearched = true;
         } catch (err) {
             console.error("Search failed:", err);
             state.count = 0;
             state.avgTemp = 0;
+        } finally {
+            state.activeSearchCount = Math.max(0, state.activeSearchCount - 1);
+            state.isLoading = state.activeSearchCount > 0;
         }
     }
 
@@ -80,6 +90,8 @@ export function useSearch() {
      */
     function resetSearch(): void {
         exportStore.hasSearched = false;
+        state.activeSearchCount = 0;
+        state.isLoading = false;
         state.count = 0;
         state.avgTemp = 0;
     }
@@ -141,6 +153,9 @@ export function useSearch() {
     }
 
     return {
+        // Expose primitive state value directly
+        isLoading: computed(() => state.isLoading),
+
         // Expose results as a computed property
         results,
 

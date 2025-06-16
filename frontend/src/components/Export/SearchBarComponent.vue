@@ -179,7 +179,7 @@ defineExpose({
         <div
             v-if="showDropdown"
             data-testid="preset-dropdown"
-            class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-md shadow-lg z-50 max-h-[50vh] overflow-y-scroll mt-1"
+            class="absolute top-full left-0 right-0 bg-default border border-gray-200 rounded-b-md shadow-lg z-50 max-h-[50vh] overflow-y-scroll mt-1"
         >
             <div v-if="loading" class="px-4 py-3 text-gray-500 text-sm flex items-center gap-2">
                 <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin" />
@@ -197,7 +197,7 @@ defineExpose({
                 <div
                     v-for="preset in filteredPresets"
                     :key="preset.id"
-                    class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
+                    class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-muted transition-colors"
                     @click="applyPreset(preset)"
                     data-testid="preset-item"
                 >

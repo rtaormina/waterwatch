@@ -27,7 +27,7 @@ const queryRef = ref("");
 const filterPanelRef = ref<InstanceType<typeof FilterPanel> | null>(null);
 
 // Store last search parameters to detect changes in filters
-const lastSearchParams = ref<import("@/composables/Export/useSearch").MeasurementSearchParams | null>(null);
+const lastSearchParams = ref<import("../composables/Export/useSearch").MeasurementSearchParams | null>(null);
 
 // Flag to indicate if filters are out of sync with the last search
 const filtersOutOfSync = ref(false);
@@ -48,7 +48,7 @@ const temperatureUnit = computed(() => {
 });
 
 // Use measurements composable
-const { results, searchMeasurements } = useSearch();
+const { results, isLoading, searchMeasurements, flattenSearchParams } = useSearch();
 
 // Use export data composable
 const { exportData } = useExportData();
@@ -65,13 +65,13 @@ async function onSearch(): Promise<void> {
 
     // Get current filters from FilterPanel
     const searchParams = filterPanelRef.value.getSearchParams(queryRef.value);
-    lastSearchParams.value = searchParams;
+    lastSearchParams.value = JSON.parse(JSON.stringify(searchParams));
 
     // Transforming the filters to the right format and saving them
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { query, ...filtersWithoutQuery } = searchParams;
     const cleanedFilters = Object.fromEntries(Object.entries(filtersWithoutQuery).filter(([, v]) => v !== undefined));
-    exportStore.filters = cleanedFilters;
+    exportStore.filters = flattenSearchParams(cleanedFilters);
 
     // Perform search
     await searchMeasurements(searchParams);
@@ -134,6 +134,8 @@ watch(
         if (exportStore.hasSearched) {
             // Only act if a search has already been performed
             if (currentParams && lastSearchParams.value) {
+                console.log("Current Params:", currentParams);
+                console.log("Last Search Params:", lastSearchParams.value);
                 if (JSON.stringify(currentParams) !== JSON.stringify(lastSearchParams.value)) {
                     filtersOutOfSync.value = true;
                 }
@@ -149,7 +151,7 @@ watch(
 
 <template>
     <div
-        class="h-auto bg-white w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10 outer-container"
+        class="h-auto bg-default w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10 outer-container"
     >
         <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
 
@@ -163,7 +165,7 @@ watch(
                         :search-disabled="presetSearchDisabled"
                     />
                 </div>
-                <div class="h-auto bg-light mb-[14px] overflow-visible landscape-component">
+                <div class="h-auto mb-[14px] overflow-auto landscape-component">
                     <FilterPanel ref="filterPanelRef" @search="onSearch" />
                 </div>
             </div>
@@ -172,6 +174,7 @@ watch(
                 <SearchResults
                     :results="results"
                     :searched="exportStore.hasSearched"
+                    :is-loading="isLoading"
                     v-model:format="format"
                     @download="onDownload"
                     :show-modal="showModal"
@@ -184,26 +187,3 @@ watch(
         </div>
     </div>
 </template>
-
-<style>
-@media (max-height: 500px) {
-    .outer-container {
-        padding-inline: 2vw !important;
-    }
-
-    .landscape-component {
-        padding: 0.5rem !important;
-        overflow-y: visible !important;
-        height: auto !important;
-    }
-    .component1 {
-        width: 65% !important;
-        max-width: 65% !important;
-    }
-
-    .component2 {
-        width: 35% !important;
-        max-width: 35% !important;
-    }
-}
-</style>
