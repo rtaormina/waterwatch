@@ -8,7 +8,7 @@
 
 > **createMap**(`element`, `location`): `Map`
 
-Defined in: src/composables/LocationFallback.ts:49
+Defined in: src/composables/LocationFallback.ts:59
 
 Creates a Leaflet map instance centered at the given location.
 

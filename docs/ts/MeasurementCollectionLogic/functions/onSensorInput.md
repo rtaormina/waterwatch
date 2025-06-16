@@ -8,7 +8,7 @@
 
 > **onSensorInput**(`sensor`, `errors`): `void`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:30
+Defined in: src/composables/MeasurementCollectionLogic.ts:98
 
 Validates if the input in the sensor field is not empty.
 
