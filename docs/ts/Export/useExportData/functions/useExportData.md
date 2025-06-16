@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Export/useExportData](../README.md) / useExportData
-
 # Function: useExportData()
 
 > **useExportData**(): `object`

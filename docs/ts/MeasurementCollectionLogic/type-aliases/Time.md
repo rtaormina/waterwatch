@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / Time
-
 # Type Alias: Time
 
 > **Time** = `object`

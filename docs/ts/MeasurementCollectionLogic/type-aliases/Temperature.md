@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / Temperature
-
 # Type Alias: Temperature
 
 > **Temperature** = `object`

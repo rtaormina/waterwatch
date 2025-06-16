@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / getTemperatureInCelsius
-
 # Function: getTemperatureInCelsius()
 
 > **getTemperatureInCelsius**(`temperature`): `undefined` \| `number`

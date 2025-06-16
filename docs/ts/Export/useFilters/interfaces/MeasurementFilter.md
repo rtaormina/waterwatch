@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Export/useFilters](../README.md) / MeasurementFilter
-
 # Interface: MeasurementFilter
 
 Defined in: src/composables/Export/useFilters.ts:12

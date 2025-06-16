@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / MetricOptions
-
 # Type Alias: MetricOptions
 
 > **MetricOptions** = [`LabelValuePairs`](LabelValuePairs.md)\<[`Metric`](Metric.md)\>[]

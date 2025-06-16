@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [LocationFallback](../README.md) / createOSMLayer
-
 # Function: createOSMLayer()
 
 > **createOSMLayer**(`options?`): `TileLayer`

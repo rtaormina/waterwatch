@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [LocationFallback](../README.md) / getLocateControl
-
 # Function: getLocateControl()
 
 > **getLocateControl**(`location`, `opts?`): `LocateControl`

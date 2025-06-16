@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Analysis/DataVisualizationLogic](../README.md) / getGraphData
-
 # Function: getGraphData()
 
 > **getGraphData**(`wkt`): `Promise`\<`number`[]\>

@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / sensorOptions
-
 # Variable: sensorOptions
 
 > `const` **sensorOptions**: [`SensorOptions`](../type-aliases/SensorOptions.md)

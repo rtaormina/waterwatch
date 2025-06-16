@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Export/useSearch](../README.md) / MeasurementSearchParams
-
 # Interface: MeasurementSearchParams
 
 Defined in: src/composables/Export/useSearch.ts:7

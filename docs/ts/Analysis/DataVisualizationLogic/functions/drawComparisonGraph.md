@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Analysis/DataVisualizationLogic](../README.md) / drawComparisonGraph
-
 # Function: drawComparisonGraph()
 
 > **drawComparisonGraph**(`el`, `vals1`, `vals2`, `options?`): `void`

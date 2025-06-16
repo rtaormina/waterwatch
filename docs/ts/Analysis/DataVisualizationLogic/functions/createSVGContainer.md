@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Analysis/DataVisualizationLogic](../README.md) / createSVGContainer
-
 # Function: createSVGContainer()
 
 > **createSVGContainer**(`el`, `width`, `height`, `margin`): `Selection`\<`SVGGElement`, `unknown`, `null`, `undefined`\>

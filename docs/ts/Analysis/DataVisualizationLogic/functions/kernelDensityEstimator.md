@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Analysis/DataVisualizationLogic](../README.md) / kernelDensityEstimator
-
 # Function: kernelDensityEstimator()
 
 > **kernelDensityEstimator**(`kernel`, `X`): (`V`) => \[`number`, `number`\][]

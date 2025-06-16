@@ -1,9 +1,3 @@
-[**frontend**](../../../README.md)
-
-***
-
-[frontend](../../../README.md) / [Export/useFilters](../README.md) / useFilters
-
 # Function: useFilters()
 
 > **useFilters**(`selectedContinents`, `selectedCountries`, `selectedWaterSources`, `temperatureEnabled`, `temperature`, `dateRange`, `times`): `object`
