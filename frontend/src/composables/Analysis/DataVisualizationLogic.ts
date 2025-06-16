@@ -110,9 +110,9 @@ export async function getGraphData(location?: string, month?: string): Promise<n
  * @returns the numeric values for the temperatures
  */
 export async function getGraphDataExportMapView(
-    exportFilters: object,
-    hexagon: string,
-    legendMonth: string,
+    exportFilters?: object,
+    hexagon?: string,
+    legendMonth?: string,
 ): Promise<number[]> {
     const bodyData = {
         ...exportFilters,

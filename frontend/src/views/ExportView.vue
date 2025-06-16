@@ -48,7 +48,7 @@ const temperatureUnit = computed(() => {
 });
 
 // Use measurements composable
-const { results, isLoading, searchMeasurements } = useSearch();
+const { results, isLoading, searchMeasurements, flattenSearchParams } = useSearch();
 
 // Use export data composable
 const { exportData } = useExportData();
@@ -71,7 +71,7 @@ async function onSearch(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { query, ...filtersWithoutQuery } = searchParams;
     const cleanedFilters = Object.fromEntries(Object.entries(filtersWithoutQuery).filter(([, v]) => v !== undefined));
-    exportStore.filters = cleanedFilters;
+    exportStore.filters = flattenSearchParams(cleanedFilters);
 
     // Perform search
     await searchMeasurements(searchParams);

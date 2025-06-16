@@ -18,6 +18,7 @@
                     v-if="showCompareAnalytics"
                     :group1WKT="group1WKT"
                     :group2WKT="group2WKT"
+                    :month="month"
                     @close="handleCloseAll"
                 />
             </div>
@@ -132,7 +133,6 @@ import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vu
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
 import { useRouter } from "vue-router";
-import { useSearch } from "../composables/Export/useSearch";
 import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
 
@@ -173,8 +173,6 @@ const month = ref<string>("0");
 const colors = ref(["#3183D4", "#E0563A"]);
 const scale = ref<[number, number]>([10, 40]);
 const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
-
-const flattenSearchParams = useSearch().flattenSearchParams;
 
 /**
  * Returns to the export view, resetting all states and closing any open components.
@@ -433,9 +431,8 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
-    const flatFilters = exportStore.filters ? flattenSearchParams(exportStore.filters) : {};
     const bodyData = {
-        ...flatFilters,
+        ...exportStore.filters,
         format: "map-format", // Add format to the body
     };
 
