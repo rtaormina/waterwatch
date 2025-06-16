@@ -6,7 +6,7 @@ import {
 } from "../../composables/Analysis/DataVisualizationLogic";
 import { onMounted, ref, watch } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
-import { useExportStore } from "@/stores/ExportStore";
+import { useExportStore } from "../../stores/ExportStore";
 
 const exportStore = useExportStore();
 

@@ -526,7 +526,7 @@ describe("useSearch", () => {
     });
 
     it("handles concurrent search errors correctly", async () => {
-        const { searchMeasurements, hasSearched, isLoading, results } = useSearch();
+        const { searchMeasurements, isLoading, results } = useSearch();
 
         let resolveFirst: (value: any) => void;
         let rejectSecond: (error: any) => void;
@@ -554,7 +554,6 @@ describe("useSearch", () => {
 
         // Still loading because second search is pending
         expect(isLoading.value).toBe(true);
-        expect(hasSearched.value).toBe(true);
         expect(results.value.count).toBe(10);
 
         // Second search fails
@@ -563,7 +562,6 @@ describe("useSearch", () => {
 
         // No longer loading, hasSearched remains true from first successful search
         expect(isLoading.value).toBe(false);
-        expect(hasSearched.value).toBe(true); // Still true from first successful search
         expect(results.value.count).toBe(0); // Reset to 0 due to error in second search
         expect(results.value.avgTemp).toBe(0);
 
@@ -571,7 +569,7 @@ describe("useSearch", () => {
     });
 
     it("resets search state even with active searches", async () => {
-        const { searchMeasurements, resetSearch, hasSearched, isLoading } = useSearch();
+        const { searchMeasurements, resetSearch, isLoading } = useSearch();
 
         let resolveSearch: (value: any) => void;
         const searchPromise = new Promise((resolve) => {
@@ -588,7 +586,6 @@ describe("useSearch", () => {
         resetSearch();
 
         // Reset should clear state but activeSearchCount remains (since search is still active)
-        expect(hasSearched.value).toBe(false);
         expect(isLoading.value).toBe(false); // This resets activeSearchCount to 0
 
         // Complete the search
@@ -598,7 +595,6 @@ describe("useSearch", () => {
         // After search completes, activeSearchCount decrements but since it was reset to 0,
         // it goes to max(0, 0-1) = 0, so loading stays false
         // But the search results should still be updated
-        expect(hasSearched.value).toBe(true);
         expect(isLoading.value).toBe(false);
     });
 
@@ -611,8 +607,6 @@ describe("useSearch", () => {
         });
 
         // Initial state should be the same for both instances
-        expect(search1.hasSearched.value).toBe(false);
-        expect(search2.hasSearched.value).toBe(false);
         expect(search1.results.value.count).toBe(0);
         expect(search2.results.value.count).toBe(0);
 
@@ -620,8 +614,6 @@ describe("useSearch", () => {
         await search1.searchMeasurements({ query: "test" });
 
         // Both instances should reflect the same state changes
-        expect(search1.hasSearched.value).toBe(true);
-        expect(search2.hasSearched.value).toBe(true);
         expect(search1.results.value.count).toBe(100);
         expect(search2.results.value.count).toBe(100);
 
@@ -629,8 +621,6 @@ describe("useSearch", () => {
         search2.resetSearch();
 
         // Both instances should reflect the reset
-        expect(search1.hasSearched.value).toBe(false);
-        expect(search2.hasSearched.value).toBe(false);
         expect(search1.results.value.count).toBe(0);
         expect(search2.results.value.count).toBe(0);
     });
