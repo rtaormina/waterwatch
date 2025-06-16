@@ -8,6 +8,8 @@ import * as L from "leaflet";
 import { createApp, onMounted, ref, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
 import HexAnalysis from "./Analysis/HexAnalysis.vue";
+import axios from "axios";
+import Cookies from "universal-cookie";
 
 declare module "leaflet" {
     /*
@@ -116,6 +118,7 @@ const props = defineProps<{
     colorByTemp: boolean;
     compareMode: boolean;
     activePhase: 1 | 2 | null;
+    month: string;
 }>();
 
 // default center if none is passed
@@ -430,9 +433,15 @@ onMounted(() => {
          * @param geometry The GeoJSON polygon geometry.
          * @returns The WKT representation of the polygon.
          */
-        function geoJsonToWktPolygon(geometry: { coordinates: number[][][] }) {
-            const coords = geometry.coordinates[0].map(([lng, lat]) => `${lng} ${lat}`).join(", ");
-            return `POLYGON((${coords}))`;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        function geoJsonToWktPolygon(geometry: { coordinates: any }) {
+            // Make a shallow copy of the ring
+            const ring = geometry.coordinates[0].slice();
+            // Push the first coordinate onto the end to close the ring
+            ring.push(ring[0]);
+            // Build the “x y” strings
+            const coordText = ring.map(([lng, lat]: [number, number]) => `${lng} ${lat}`).join(", ");
+            return `POLYGON((${coordText}))`;
         }
 
         // Convert the corners to a GeoJSON polygon and then to WKT
@@ -491,38 +500,66 @@ onMounted(() => {
         }
         // If we are in selectMult mode, we emit the MultiPolygon WKT
         if (!props.selectMult) {
-            const layerPoint = L.point(d.x, d.y);
-            const latlng = map.layerPointToLatLng(layerPoint);
-            const container = document.createElement("div");
-            const vm = createApp(HexAnalysis, {
-                points: d,
-                /**
-                 * Opens the details popup for the selected hexagon.
-                 *
-                 * @returns {void}
-                 */
-                onOpenDetails: () => {
-                    emit("open-details", wkt);
-                },
-                /**
-                 * Closes the popup when the close button is clicked.
-                 *
-                 * @returns {void}
-                 */
-                onClose: () => {
-                    map.closePopup();
-                },
-            });
-            vm.mount(container);
-            const popup = L.popup({
-                offset: [0, -hexbinLayer.radius()],
-                autoClose: true,
-                closeOnClick: false,
-            })
-                .setLatLng(latlng)
-                .setContent(container)
-                .openOn(map);
-            popup.on("remove", () => vm.unmount());
+            (async () => {
+                // Fetch the hexagon data for the selected hexagon
+                const cookies = new Cookies();
+                const res = await axios.post(
+                    "/api/measurements/aggregated/",
+                    {
+                        boundary_geometry: wkt,
+                        month: props.month,
+                    },
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": cookies.get("csrftoken") || "",
+                        },
+                    },
+                );
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const points = res.data.measurements.map((m: any) => ({
+                    o: {
+                        temperature: m.avg_temperature,
+                        min: m.min_temperature,
+                        max: m.max_temperature,
+                        count: m.count,
+                    },
+                }));
+
+                const layerPoint = L.point(d.x, d.y);
+                const latlng = map.layerPointToLatLng(layerPoint);
+                const container = document.createElement("div");
+                const vm = createApp(HexAnalysis, {
+                    points: points,
+                    /**
+                     * Opens the details popup for the selected hexagon.
+                     *
+                     * @returns {void}
+                     */
+                    onOpenDetails: () => {
+                        emit("open-details", wkt);
+                    },
+                    /**
+                     * Closes the popup when the close button is clicked.
+                     *
+                     * @returns {void}
+                     */
+                    onClose: () => {
+                        map.closePopup();
+                    },
+                });
+                vm.mount(container);
+                const popup = L.popup({
+                    offset: [0, -hexbinLayer.radius()],
+                    autoClose: true,
+                    closeOnClick: false,
+                })
+                    .setLatLng(latlng)
+                    .setContent(container)
+                    .openOn(map);
+                popup.on("remove", () => vm.unmount());
+            })();
         }
         // If we are in selectMult mode, we emit the MultiPolygon WKT, else we emit the single WKT
         if (props.selectMult) {

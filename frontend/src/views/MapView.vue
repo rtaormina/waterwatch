@@ -85,6 +85,7 @@
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
                     :colorByTemp="colorByTemp"
+                    :month="month"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
