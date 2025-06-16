@@ -10,13 +10,13 @@ This section will go over the steps and details needed to deploy to a production
 
 ## Setting Up a Server from Scratch
 
-This section will outline the requirements needed to setup a server to be ready to serve WATERWATCH. If you work on the primary server of WATERWATCH this is already setup and you can continue to the next sections.
+This section will outline the requirements that are needed to setup a server to be ready to serve WATERWATCH. If you work on the primary server of WATERWATCH this is all already setup and you can continue to the next sections.
 
 ### Setting Up Docker
 
-As WATERWATCH runs in docker containers, docker needs to be installed. For more information about this see the [docker installation manual](https://docs.docker.com/engine/install/).
+As WATERWATCH runs in docker containers, docker need to be installed. For more information about this see the [docker installation manual](https://docs.docker.com/engine/install/).
 
-WATERWATCH uses the Docker Swarm engine with docker Stacks in order to allow for easy rollback of deployments, and while currently not yet supported this also allows for potentially zero-downtime deployements in the future. In order to setup the Docker engine to run in Swarm mode execute the following command:
+WATERWATCH uses the Docker Swarm enginge with docker Stacks in order to allow for easy rollback of deployments, and while currently not yet supported this also allows for potentially zero-downtime deployements in the future. In order to setup the Docker engine to run in Swarm mode execute the following command:
 
 ```bash
 docker swarm init
@@ -24,7 +24,7 @@ docker swarm init
 
 #### Setting up the registry
 
-Docker Stack does not allow building images, so the images need to first be built and stored, this is done by utilizing a local registry. In order to spin up a new local registry that is available at port 5000 run:
+Docker Stack does not allow building images, so the images need to first be build and stored, this is done by utilizing a local registry. In order to spin up a new local registry that is available at port 5000 run:
 
 ```bash
 docker service create --name registry --publish published=5000,target=5000 registry:2
@@ -32,23 +32,23 @@ docker service create --name registry --publish published=5000,target=5000 regis
 
 ### Enabling HTTPS
 
-The production deployment reroutes all http request to https for better security. In order to allow users to access the website via https you need to acquire SSL certificates. With WATERWATCH these SSL certificates come from [Let's Encrypt](https://letsencrypt.org) with the help of the [certbot ACME client](https://certbot.eff.org).
+The production deployment reroutes all http request to https for better security. In order to allow users to access the website via htpps you need to aquire SSL certificates. With WATERWATCH these SSL certificates come from [Let's Encrypt](https://letsencrypt.org) with the help of the [certbot ACME client](https://certbot.eff.org).
 
 Then all you need to do is update the servernames in `production/production.nginx` to your domain name.
 
 ```{eval-rst}
 .. note::
-  WATERWATCH expects the SSL certificates to be at `/etc/letsencrypt/` so if they are stored somewhere else either move them or update the `production/production.nginx` settings. Also make sure that the docker container is allowed to read them.
+  WATERWATCH expects the SSL certificates to be at `/etc/letsencrypt/` so if they are stored somewhere either move them or update the `production/production.nginx` settings. ALso make sure that the docker container is allowed to read them.
 ```
 
 ```{eval-rst}
 .. tip::
-  SSL certificates have expiration dates, so in order to make sure that they are never expired setup a cronjob that runs before the expiration data and renews the SSL certificates.
+  SSL certificates have experations dates, so in order to make sure that they are never expired setup a cronjob that runs before the expiration data and renews the SSL certificates.
 ```
 
 ### Cloning the Git Repository
 
-In order to deploy WATERWATCH on a server the full project needs to be present. This can be done by cloning the git repository on to the server. In order to conserve space, this can be a shallow clone of only the commit that you want to deploy.
+In order to deploy WATERWATCH on a server the full project needs to be present this can be done by cloning the git repository on to the server. In order to conserve space this can be a shallow clone of only the commit that you want to deploy.
 
 ## Deploying to the Server
 
@@ -56,10 +56,10 @@ The following steps will asume that there exists a server with all requirements 
 
 ### Setup on First Deployement
 
-With a server setup ready to deploy WATERWATCH, there are a few extra steps that need to be taken when it is the first time that a version of WATERWATCH is deployed.
+With a server setup ready to deploy WATERWATCH there are a few extra steps that need to be taken when it is the first time that a version of waterwatch is deployed.
 For simplicity a script exists at `production/setup.sh` that executes all of the steps below so there is no need to run all the commands manually. The rest of this section will explain what the script does and what steps are taken.
 
-First a basic deployment is made, this builds the images, pushes them to the registry and then uses docker stack to deploy the images to the production stack.
+First a basic deployment is made, this buids the images, pushes the to the registry and then uses docker stack to deploy the images to the production stack.
 
 ```bash
 docker compose -f docker-compose.prod.stack.yaml build
@@ -71,17 +71,17 @@ docker stack deploy -c docker-compose.prod.stack.yaml production --prune --detac
 
 ```{eval-rst}
 .. important::
-WATERWATCH needs a countries.sql to be aware of the continent and country borders. The countries.sql file can be downloaded from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql) and then needs to be stored in the root assets folder.
+WATERWATCH need a countries.sql to be aware of the continents and country borders. The countries.sql file can be downloaded from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql) and then needs to be stored in the root assets folder.
 ```
 
-After the services are running the need to be setup. First the database needs to load in the countries.sql file in order to allow for countries to be working. The following commands copy the sql file to the container and then load in the database, this needs to be done only once as this data will persists in the volume.
+After the services are running the need to be setup. First the database needs to load in the countries.sql file in order to allow for countries to be working. The following commands copy the sql file to the container and then load in the database, this needs to be done once as this data will persits in the volume.
 
 ```bash
 docker cp ../assets/countries.sql $DATABASE:/countries.sql
 docker exec "$DATABASE" psql -U admin -d pg4django -f countries.sql
 ```
 
-Then the database migrations will be made if they were not committed to the codebase already and the database will apply these migrations, creating the tables and indices required.
+Then the database migrations will be made if they were not commited to the codebase allready and the database will apply these migrations, creating the tables and indices required.
 
 ```bash
 docker exec "$BACKEND" python manage.py makemigrations
@@ -111,7 +111,7 @@ A Researcher
 
 ### Updating Deployment to a New Version.
 
-If a new version is ready to be deployed, first this version needs to be present on the server. If the git repository was cloned this can be done by pulling in these new changes. Then running the `production/deploy.sh` script will build new images and update the stack with these new images.
+If a new version is ready to be deployed first this version needs to be present on the server. If the git repository was cloned this can be done by pulling in these new changes. Then running the `production/deploy.sh` script will build new images and update the stack with these new images.
 
 ```bash
 docker compose -f docker-compose.prod.stack.yaml build
@@ -130,7 +130,7 @@ docker exec "$BACKEND" python manage.py migrate
 
 ### Clean up
 
-Every time a new deployement is made some data is stored such as the previous containers or local build cache. This can accumulate overtime to quite a significant amount of data. In order to inspect disk usage or prune unneccesarry data. The following commands can be run.
+Every time a new deployement is made some data is stored such as the previous containers or local build cache. This can add up overtime to accumulate to quite a significant amount of data. In order to inspect disk usage or prune unneccesarry data. The following commands can be run.
 
 ```bash
 docker system df
