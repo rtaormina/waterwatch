@@ -8,7 +8,7 @@
 
 > **validateTempRange**(`val`, `tempUnit`): `boolean`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:10
+Defined in: src/composables/MeasurementCollectionLogic.ts:79
 
 Validates the temperature range based on the selected temperature unit.
 
