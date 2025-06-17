@@ -194,7 +194,7 @@ export function drawHistogramWithKDE(
         .attr("x", -height / 2)
         .attr("y", -margin.left + 15)
         .attr("text-anchor", "middle")
-        .attr("fill", "#333")
+        .attr("fill", "var(--text-color-default)")
         .text("Frequency");
 
     // X‐axis (measurement)
@@ -203,7 +203,7 @@ export function drawHistogramWithKDE(
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 5)
         .attr("text-anchor", "middle")
-        .attr("fill", "#333")
+        .attr("fill", "var(--text-color-default)")
         .text("Measurement Value");
 
     // 12. Add a small legend for "KDE (density)" in the top‐right corner
@@ -222,7 +222,7 @@ export function drawHistogramWithKDE(
         .attr("y", margin.top - 10)
         .attr("alignment-baseline", "middle")
         .attr("text-anchor", "end")
-        .attr("fill", "#333")
+        .attr("fill", "var(--text-color-default)")
         .style("font-size", "12px")
         .text("KDE (density)");
 }
@@ -346,7 +346,7 @@ export function drawComparisonGraph(
         .attr("x", -height / 2)
         .attr("y", -margin.left + 15)
         .attr("text-anchor", "middle")
-        .attr("fill", "#333")
+        .attr("fill", "var(--text-color-default)")
         .text("Frequency");
 
     // 9. Draw X‐axis (measurement)
@@ -355,7 +355,7 @@ export function drawComparisonGraph(
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 5)
         .attr("text-anchor", "middle")
-        .attr("fill", "#333")
+        .attr("fill", "var(--text-color-default)")
         .text("Measurement Value");
 
     // 10. Compute shared bandwidth and KDE curves for both groups
@@ -415,8 +415,8 @@ export function drawComparisonGraph(
         .attr("y", 0)
         .attr("width", legendWidth)
         .attr("height", legendHeight)
-        .attr("fill", "white")
-        .attr("stroke", "#ccc")
+        .attr("fill", "var(--background-color-muted)")
+        .attr("stroke", "var(--text-color-toned)")
         .attr("rx", 4);
 
     // Group 1 legend entry
@@ -428,7 +428,13 @@ export function drawComparisonGraph(
         .attr("y2", 15)
         .attr("stroke", lineColor1)
         .attr("stroke-width", 2);
-    legend.append("text").attr("x", 35).attr("y", 18).attr("fill", "#333").style("font-size", "12px").text("Group 1");
+    legend
+        .append("text")
+        .attr("x", 35)
+        .attr("y", 18)
+        .attr("fill", "var(--text-color-default)")
+        .style("font-size", "12px")
+        .text("Group 1");
 
     // Group 2 legend entry
     legend
@@ -439,5 +445,11 @@ export function drawComparisonGraph(
         .attr("y2", 35)
         .attr("stroke", lineColor2)
         .attr("stroke-width", 2);
-    legend.append("text").attr("x", 35).attr("y", 38).attr("fill", "#333").style("font-size", "12px").text("Group 2");
+    legend
+        .append("text")
+        .attr("x", 35)
+        .attr("y", 38)
+        .attr("fill", "var(--text-color-default)")
+        .style("font-size", "12px")
+        .text("Group 2");
 }

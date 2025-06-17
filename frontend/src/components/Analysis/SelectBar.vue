@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between gap-3">
             <div class="flex-1">
                 <UButton
-                    class="bg-primary font-medium flex justify-center items-center cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 md:px-4 md:py-2 md:w-40 md:text-base px-2 py-1 w-30 text-sm whitespace-nowrap"
+                    class="bg-primary font-medium flex justify-center items-center cursor-pointer disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted md:px-4 md:py-2 md:w-40 md:text-base px-2 py-1 w-30 text-sm whitespace-nowrap"
                     @click="emit('cancel-select')"
                 >
                     Cancel
@@ -17,7 +17,7 @@
             </div>
             <div class="flex-1">
                 <UButton
-                    class="font-medium flex justify-center items-center cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 md:px-4 md:py-2 md:w-40 md:text-base px-2 py-1 w-30 text-sm whitespace-nowrap"
+                    class="font-medium flex justify-center items-center cursor-pointer disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted md:px-4 md:py-2 md:w-40 md:text-base px-2 py-1 w-30 text-sm whitespace-nowrap"
                     :color="rightButtonColor"
                     :disabled="rightButtonDisabled"
                     @click="emit('select')"
