@@ -103,7 +103,7 @@ defineExpose({
                             <div v-for="item in navItems" :key="item.name">
                                 <router-link
                                     :to="item.to"
-                                    class="text-inverted hover:text-toned"
+                                    class="text-inverted hover:text-accented"
                                     @click="closeOverlay()"
                                     active-class="underline"
                                     exact-active-class="underline"
@@ -171,14 +171,14 @@ defineExpose({
     <!-- main navbar desktop -->
     <div v-if="!isMobile" class="relative z-30">
         <div class="font-custom bg-primary text-inverted p-4 w-full text-3xl flex flex-row justify-between">
-            <router-link class="hover:text-highlighted" to="/">
+            <router-link class="hover:text-accented" to="/">
                 <div>WATERWATCH</div>
             </router-link>
             <div class="flex flex-row space-x-6">
                 <div v-for="item in navItems" :key="item.name">
                     <router-link
                         :to="item.to"
-                        class="text-inverted text-2xl hover:text-highlighted"
+                        class="text-inverted text-2xl hover:text-accented"
                         active-class="underline"
                         exact-active-class="underline"
                     >
@@ -212,7 +212,11 @@ defineExpose({
     <!-- main navbar mobile -->
     <div v-else class="relative z-60">
         <div class="font-custom bg-main text-inverted p-2 w-full flex justify-between">
-            <router-link to="/" @click="closeOverlay()" class="text-4xl text-inverted font-custom mt-3 mb-2 ml-3">
+            <router-link
+                to="/"
+                @click="closeOverlay()"
+                class="text-4xl text-inverted hover:text-accented font-custom mt-3 mb-2 ml-3"
+            >
                 WATERWATCH
             </router-link>
             <div class="mt-2 mr-4">

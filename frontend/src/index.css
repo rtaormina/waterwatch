@@ -16,6 +16,7 @@
     --ui-text: var(--ui-color-neutral-700);
     --ui-text-highlighted: var(--ui-color-neutral-900);
     --ui-text-inverted: var(--color-white);
+    --ui-text-accented: var(--ui-color-neutral-300);
 
     --ui-bg: var(--color-white);
     --ui-bg-muted: var(--ui-color-neutral-100);
@@ -44,6 +45,7 @@
     --ui-text: var(--ui-color-neutral-200);
     --ui-text-highlighted: var(--color-white);
     --ui-text-inverted: var(--ui-color-neutral-900);
+    --ui-text-accented: var(--ui-color-neutral-100);
 
     --ui-bg: var(--ui-color-neutral-900);
     --ui-bg-muted: var(--ui-color-neutral-800);
@@ -178,6 +180,7 @@
     --text-color-default: var(--ui-text);
     --text-color-highlighted: var(--ui-text-highlighted);
     --text-color-inverted: var(--ui-text-inverted);
+    --text-color-accented: var(--ui-text-accented);
     --background-color-default: var(--ui-bg);
     --background-color-muted: var(--ui-bg-muted);
     --background-color-elevated: var(--ui-bg-elevated);
