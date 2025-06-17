@@ -65,6 +65,10 @@
         filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
     }
 }
+.leaflet-popup-content-wrapper {
+    background: var(--background-color-default);
+    color: var(--text-color-default);
+}
 
 @layer base {
     input[type="number"]::-webkit-outer-spin-button,
