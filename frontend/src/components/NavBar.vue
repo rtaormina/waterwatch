@@ -87,7 +87,7 @@ defineExpose({
     >
         <div v-if="showOverlay" class="fixed inset-0 bg-[#00A6D6] z-50 overlay">
             <div class="flex">
-                <div class="text-4xl text-white font-custom mt-6 ml-6">WATERWATCH</div>
+                <div translate="no" class="text-4xl text-white font-custom mt-6 ml-6">WATERWATCH</div>
             </div>
             <div class="flex flex-row h-full">
                 <div class="flex flex-col items-center space-y-3 h-full ml-10">
@@ -172,7 +172,7 @@ defineExpose({
     <div v-if="!isMobile" class="relative z-30">
         <div class="font-custom bg-[#00A6D6] text-white p-4 w-full text-3xl flex flex-row justify-between">
             <router-link to="/">
-                <div>WATERWATCH</div>
+                <div translate="no">WATERWATCH</div>
             </router-link>
             <div class="flex flex-row space-x-6">
                 <div v-for="item in navItems" :key="item.name">
@@ -212,7 +212,7 @@ defineExpose({
     <!-- main navbar mobile -->
     <div v-else class="relative z-60">
         <div class="font-custom bg-[#00A6D6] text-white p-2 w-full flex justify-between">
-            <router-link to="/" @click="closeOverlay()" class="text-4xl text-white font-custom mt-3 mb-2 ml-3">
+            <router-link to="/" @click="closeOverlay()" translate="no" class="text-4xl text-white font-custom mt-3 mb-2 ml-3">
                 WATERWATCH
             </router-link>
             <div class="mt-2 mr-4">
