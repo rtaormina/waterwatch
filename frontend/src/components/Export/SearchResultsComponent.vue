@@ -15,6 +15,7 @@ const emit = defineEmits<{
     (e: "update:format", newFormat: typeof props.format): void;
     (e: "download"): void;
     (e: "close-modal"): void;
+    (e: "show-on-map"): void;
 }>();
 
 // Define the props for the component
@@ -155,6 +156,18 @@ defineExpose({
                 </select>
             </div>
             <button
+                @click="emit('show-on-map')"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
+                class="w-11/12 md:w-9/12 py-3 text-default rounded-2xl font-semibold text-lg mb-2"
+                :class="
+                    canDownload && searched && !props.filtersOutOfSync && !props.isLoading
+                        ? 'bg-main cursor-pointer hover:bg-[#007ea4]'
+                        : 'bg-accented cursor-not-allowed'
+                "
+            >
+                See Results on Map
+            </button>
+            <button
                 @click="emit('download')"
                 :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
                 class="w-11/12 md:w-9/12 py-3 text-default rounded-2xl font-semibold text-lg"
@@ -184,7 +197,6 @@ defineExpose({
 @media (max-height: 500px) {
     .result-component {
         padding: 0.5rem !important;
-        overflow-y: visible !important;
         height: auto !important;
     }
 

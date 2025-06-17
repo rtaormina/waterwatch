@@ -5,10 +5,11 @@ djangorestframework-gis==1.1.0
 django-cors-headers==4.7.0
 gdal==3.4.1
 gunicorn==23.0.0
-psycopg==3.2.7
-psycopg-binary==3.2.7
+psycopg[binary,pool]==3.2.7
 ruff==0.11.8
 sqlparse==0.5.3
 typing_extensions==4.13.2
 python-dotenv==1.1.0
 openpyxl==3.1.5
+redis==6.2.0
+django-redis==5.4.0

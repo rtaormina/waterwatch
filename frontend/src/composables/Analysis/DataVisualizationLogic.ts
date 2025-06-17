@@ -1,5 +1,10 @@
 // DataVisualizationLogic.ts
+import axios from "axios";
 import * as d3 from "d3";
+import Cookies from "universal-cookie";
+import { flattenSearchParams, type MeasurementSearchParams } from "../Export/useSearch";
+
+const cookies = new Cookies();
 
 /**
  * Creates an Epanechnikov kernel function with a specified bandwidth.
@@ -61,22 +66,74 @@ export function createSVGContainer(
 }
 
 /**
- * Fetches measurement data (as an array of numbers) from a WKT boundary.
+ * Fetches numeric values for the given location and returns them.
  *
- * @param wkt  A Well‐Known Text string representing the boundary geometry.
- * @returns {Promise<number[]>} A promise that resolves to an array of numeric values.
+ * @param {string} location The location for the measurements.
+ * @param {string} month The month for which to fetch the measurements.
+ * @returns the numeric values for the temperatures
  */
-export async function getGraphData(wkt: string): Promise<number[]> {
-    if (!wkt) return [];
+export async function getGraphData(location?: string, month?: string): Promise<number[]> {
     try {
-        const response = await fetch(`/api/measurements/temperatures/?boundary_geometry=${encodeURIComponent(wkt)}`);
-        const data = await response.json();
-        // Convert each returned value to a Number
+        const response = location
+            ? await axios.post(
+                  `/api/measurements/temperatures/`,
+                  { boundary_geometry: location, month: month },
+                  {
+                      headers: {
+                          "Content-Type": "application/json",
+                          "X-CSRFToken": cookies.get("csrftoken"),
+                      },
+                  },
+              )
+            : await axios.post(
+                  `/api/measurements/temperatures/`,
+                  { month: month },
+                  {
+                      headers: {
+                          "Content-Type": "application/json",
+                          "X-CSRFToken": cookies.get("csrftoken"),
+                      },
+                  },
+              );
+        const data = response.data;
+
         return data.map(Number);
-    } catch (err) {
-        console.error("Error fetching data for WKT:", err);
+    } catch (error) {
+        console.error("Error fetching hexbin data:", error);
         return [];
     }
+}
+
+/**
+ * Fetches numeric values for the given location and returns them.
+ *
+ * @param {string} location The location for the measurements.
+ * @returns the numeric values for the temperatures
+ */
+export async function getGraphDataExportMapView(
+    exportFilters: MeasurementSearchParams,
+    hexagon?: string,
+    legendMonth?: string,
+): Promise<number[]> {
+    const bodyData = {
+        ...flattenSearchParams(exportFilters),
+        boundary_geometry: hexagon,
+        month: legendMonth,
+        format: "analysis-format",
+    };
+
+    const res = await fetch("/api/measurements/search/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": cookies.get("csrftoken"),
+            "Content-Type": "application/json", // Set Content-Type for JSON payload
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(bodyData), // Send data as a JSON string in the body
+    });
+
+    if (!res.ok) throw new Error(`Status: ${res.status}`);
+    return await res.json();
 }
 
 /**

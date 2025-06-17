@@ -25,7 +25,7 @@ import * as fileSaver from "file-saver";
 import axios from "axios"; // This will be the mocked version
 import { useExportData } from "../../../src/composables/Export/useExportData.ts";
 import { useFilters } from "../../../src/composables/Export/useFilters.ts";
-import { useSearch, MeasurementSearchParams } from "../../../src/composables/Export/useSearch.ts";
+import { useSearch, MeasurementSearchParams, flattenSearchParams } from "../../../src/composables/Export/useSearch.ts";
 
 /**
  * Mock response class to simulate fetch responses
@@ -290,8 +290,6 @@ describe("useExportData", () => {
             times: [{ from: "09:00", to: "17:00" }],
         };
 
-        // Need to get flattenSearchParams from useSearch to correctly form expected body
-        const { flattenSearchParams } = useSearch();
         const expectedFlatFilters = flattenSearchParams(filters);
         const expectedBody = JSON.stringify({
             ...expectedFlatFilters,
@@ -320,6 +318,13 @@ describe("useSearch", () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
+
         // Since state is shared at module level, we need to reset it manually
         // Get a useSearch instance and reset the shared state
         const { resetSearch } = useSearch();
@@ -327,7 +332,7 @@ describe("useSearch", () => {
     });
 
     it("performs basic search using POST", async () => {
-        const { searchMeasurements, results, hasSearched, isLoading } = useSearch();
+        const { searchMeasurements, isLoading, results } = useSearch();
 
         mockedAxios.post.mockResolvedValue({
             data: { count: 100, avgTemp: 25.5 },
@@ -338,7 +343,6 @@ describe("useSearch", () => {
 
         // Check initial loading state
         expect(isLoading.value).toBe(false);
-        expect(hasSearched.value).toBe(false);
 
         const searchPromise = searchMeasurements(params);
 
@@ -349,7 +353,6 @@ describe("useSearch", () => {
 
         // Check final state after search completes
         expect(isLoading.value).toBe(false);
-        expect(hasSearched.value).toBe(true);
         expect(results.value.count).toBe(100);
         expect(results.value.avgTemp).toBe(25.5);
         expect(mockedAxios.post).toHaveBeenCalledWith(
@@ -378,8 +381,6 @@ describe("useSearch", () => {
     });
 
     it("flattens search parameters correctly", () => {
-        const { flattenSearchParams } = useSearch();
-
         const params: MeasurementSearchParams = {
             query: "test",
             location: { continents: ["Asia", "Europe"], countries: ["Japan", "Germany"] },
@@ -417,7 +418,7 @@ describe("useSearch", () => {
     });
 
     it("handles search errors gracefully", async () => {
-        const { searchMeasurements, results, hasSearched, isLoading } = useSearch();
+        const { searchMeasurements, results, isLoading } = useSearch();
 
         // Mock axios.post to reject
         mockedAxios.post.mockRejectedValue(new Error("API Error"));
@@ -425,7 +426,6 @@ describe("useSearch", () => {
 
         // Check initial state
         expect(isLoading.value).toBe(false);
-        expect(hasSearched.value).toBe(false);
 
         const searchPromise = searchMeasurements({ query: "test" });
 
@@ -436,7 +436,6 @@ describe("useSearch", () => {
 
         // Check final state after error
         expect(isLoading.value).toBe(false);
-        expect(hasSearched.value).toBe(false); // hasSearched should remain false on error
         expect(results.value.count).toBe(0);
         expect(results.value.avgTemp).toBe(0);
         expect(consoleSpy).toHaveBeenCalledWith("Search failed:", expect.any(Error));
@@ -445,7 +444,7 @@ describe("useSearch", () => {
     });
 
     it("resets search state", async () => {
-        const { resetSearch, hasSearched, isLoading, results, searchMeasurements } = useSearch();
+        const { resetSearch, isLoading, results, searchMeasurements } = useSearch();
 
         // Perform a search to set some state
         mockedAxios.post.mockResolvedValue({
@@ -455,21 +454,18 @@ describe("useSearch", () => {
         await searchMeasurements({ query: "test" });
 
         // Verify state is set after search
-        expect(hasSearched.value).toBe(true);
         expect(results.value.count).toBe(50);
         expect(results.value.avgTemp).toBe(20);
 
         // Reset and verify all values are cleared
         resetSearch();
 
-        expect(hasSearched.value).toBe(false);
         expect(isLoading.value).toBe(false);
         expect(results.value.count).toBe(0);
         expect(results.value.avgTemp).toBe(0);
     });
 
     it("flattens parameters with null temperature", () => {
-        const { flattenSearchParams } = useSearch();
         const params: MeasurementSearchParams = {
             measurements: {
                 waterSources: ["Network"], // waterSources is not null
@@ -525,7 +521,7 @@ describe("useSearch", () => {
     });
 
     it("handles concurrent search errors correctly", async () => {
-        const { searchMeasurements, hasSearched, isLoading, results } = useSearch();
+        const { searchMeasurements, isLoading, results } = useSearch();
 
         let resolveFirst: (value: any) => void;
         let rejectSecond: (error: any) => void;
@@ -553,7 +549,6 @@ describe("useSearch", () => {
 
         // Still loading because second search is pending
         expect(isLoading.value).toBe(true);
-        expect(hasSearched.value).toBe(true);
         expect(results.value.count).toBe(10);
 
         // Second search fails
@@ -562,7 +557,6 @@ describe("useSearch", () => {
 
         // No longer loading, hasSearched remains true from first successful search
         expect(isLoading.value).toBe(false);
-        expect(hasSearched.value).toBe(true); // Still true from first successful search
         expect(results.value.count).toBe(0); // Reset to 0 due to error in second search
         expect(results.value.avgTemp).toBe(0);
 
@@ -570,7 +564,7 @@ describe("useSearch", () => {
     });
 
     it("resets search state even with active searches", async () => {
-        const { searchMeasurements, resetSearch, hasSearched, isLoading } = useSearch();
+        const { searchMeasurements, resetSearch, isLoading } = useSearch();
 
         let resolveSearch: (value: any) => void;
         const searchPromise = new Promise((resolve) => {
@@ -587,7 +581,6 @@ describe("useSearch", () => {
         resetSearch();
 
         // Reset should clear state but activeSearchCount remains (since search is still active)
-        expect(hasSearched.value).toBe(false);
         expect(isLoading.value).toBe(false); // This resets activeSearchCount to 0
 
         // Complete the search
@@ -597,7 +590,6 @@ describe("useSearch", () => {
         // After search completes, activeSearchCount decrements but since it was reset to 0,
         // it goes to max(0, 0-1) = 0, so loading stays false
         // But the search results should still be updated
-        expect(hasSearched.value).toBe(true);
         expect(isLoading.value).toBe(false);
     });
 
@@ -610,8 +602,6 @@ describe("useSearch", () => {
         });
 
         // Initial state should be the same for both instances
-        expect(search1.hasSearched.value).toBe(false);
-        expect(search2.hasSearched.value).toBe(false);
         expect(search1.results.value.count).toBe(0);
         expect(search2.results.value.count).toBe(0);
 
@@ -619,8 +609,6 @@ describe("useSearch", () => {
         await search1.searchMeasurements({ query: "test" });
 
         // Both instances should reflect the same state changes
-        expect(search1.hasSearched.value).toBe(true);
-        expect(search2.hasSearched.value).toBe(true);
         expect(search1.results.value.count).toBe(100);
         expect(search2.results.value.count).toBe(100);
 
@@ -628,8 +616,6 @@ describe("useSearch", () => {
         search2.resetSearch();
 
         // Both instances should reflect the reset
-        expect(search1.hasSearched.value).toBe(false);
-        expect(search2.hasSearched.value).toBe(false);
         expect(search1.results.value.count).toBe(0);
         expect(search2.results.value.count).toBe(0);
     });

@@ -10,6 +10,7 @@ import { XMarkIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/out
 const props = defineProps<{
     group1WKT: string;
     group2WKT: string;
+    month: string;
 }>();
 
 const graph1 = ref<HTMLElement | null>(null);
@@ -65,13 +66,13 @@ async function renderCompare() {
 
     // Catch errors when fetching data
     try {
-        vals1 = await getGraphData(props.group1WKT);
+        vals1 = await getGraphData(props.group1WKT, props.month);
     } catch {
         vals1 = [];
     }
 
     try {
-        vals2 = await getGraphData(props.group2WKT);
+        vals2 = await getGraphData(props.group2WKT, props.month);
     } catch {
         vals2 = [];
     }

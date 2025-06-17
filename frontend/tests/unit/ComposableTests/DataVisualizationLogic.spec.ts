@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Window } from "happy-dom";
+vi.mock("axios");
+import axios from "axios";
+
+const mockedAxios = vi.mocked(axios, true);
 
 import {
     kernelEpanechnikov,
@@ -96,8 +100,7 @@ describe("createSVGContainer", () => {
 
 describe("getGraphData", () => {
     beforeEach(() => {
-        // Reset global.fetch before each test
-        (global.fetch as any) = vi.fn();
+        mockedAxios.post.mockReset();
     });
 
     it("returns empty array if WKT is falsy", async () => {
@@ -106,24 +109,35 @@ describe("getGraphData", () => {
     });
 
     it("fetches data and converts to numbers", async () => {
-        const mockJson = vi.fn().mockResolvedValue(["1", "2", "3"]);
-        (global.fetch as any).mockResolvedValue({
-            ok: true,
-            json: mockJson,
-        });
+        // Arrange
+        mockedAxios.post.mockResolvedValue({ data: ["1", "2", "3"] });
 
+        // Act
         const data = await getGraphData("MULTIPOLYGON((...))");
-        expect(global.fetch).toHaveBeenCalledWith(
-            `/api/measurements/temperatures/?boundary_geometry=MULTIPOLYGON((...))`,
+
+        // Assert
+        expect(mockedAxios.post).toHaveBeenCalledWith(
+            "/api/measurements/temperatures/",
+            { boundary_geometry: "MULTIPOLYGON((...))" },
+            expect.objectContaining({
+                headers: expect.objectContaining({
+                    "Content-Type": "application/json",
+                }),
+            }),
         );
-        // Since JSON returned ["1","2","3"], getGraphData maps each to Number
         expect(data).toEqual([1, 2, 3]);
     });
 
     it("returns empty array on fetch error", async () => {
-        (global.fetch as any).mockRejectedValue(new Error("Network Error"));
+        // Arrange: simulate network/server error
+        mockedAxios.post.mockRejectedValue(new Error("Network Error"));
+
+        // Act
         const data = await getGraphData("POLYGON((...))");
+
+        // Assert
         expect(data).toEqual([]);
+        expect(mockedAxios.post).toHaveBeenCalled();
     });
 });
 

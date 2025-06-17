@@ -29,7 +29,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", default=0)
+DEBUG = os.getenv("DJANGO_DEBUG", default=0) == "True"
 
 # should be a list of host/domain names that this Django site can serve.
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="localhost").split(",")
@@ -99,6 +99,14 @@ DATABASES = {
         "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="mypassword"),
         "HOST": os.getenv("POSTGRES_HOST", default="localhost"),
         "PORT": os.getenv("POSTGRES_PORT", default="5432"),
+        "OPTIONS": {
+            "pool": {
+                "min_size": int(os.getenv("DJANGO_POOL_MIN_SIZE", "5")),
+                "max_size": int(os.getenv("DJANGO_POOL_MAX_SIZE", "20")),
+                "timeout": int(os.getenv("DJANGO_POOL_TIMEOUT", "60")),
+            },
+            "connect_timeout": int(os.getenv("DJANGO_CONNECT_TIMEOUT", "30")),
+        },
     }
 }
 
@@ -190,6 +198,23 @@ LOGGING = {
             else ["console"],
             "level": "DEBUG",
             "propagate": True,
+        },
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    },
+    "location_cache": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
 }
