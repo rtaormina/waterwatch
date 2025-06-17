@@ -537,12 +537,12 @@ onMounted(() => {
                     "/api/measurements/aggregated/",
                     {
                         boundary_geometry: wkt,
-                        month: props.month,
+                        month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
                     },
                     {
                         headers: {
                             "Content-Type": "application/json",
-                            "X-CSRF-Token": cookies.get("csrftoken") || "",
+                            "X-CSRFToken": cookies.get("csrftoken"),
                         },
                     },
                 );
@@ -718,6 +718,5 @@ defineExpose({
     height: 100%;
     width: 100%;
     z-index: 0;
-    background: var(--background-color-default);
 }
 </style>
