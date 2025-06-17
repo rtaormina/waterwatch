@@ -40,6 +40,17 @@ const routes = [
         },
     },
     {
+        path: "/export/map",
+        name: "ExportMap",
+        /**
+         *
+         */
+        component: () => import("@/views/ExportMapView.vue"),
+        meta: {
+            requiresAuth: false,
+        },
+    },
+    {
         path: "/tutorial",
         name: "Tutorial",
         /** */

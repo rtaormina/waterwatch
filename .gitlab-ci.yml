@@ -47,7 +47,7 @@ build_frontend_image:
 
 # Setup for operations on the frontend
 .frontend_setup: &frontend_setup
-  image: $CI_REGISTRY_IMAGE:v0.2-frontend
+  image: $CI_REGISTRY_IMAGE:v1.0-frontend
   before_script:
     - cd frontend
     - ln -s /dependencies/node_modules ./node_modules

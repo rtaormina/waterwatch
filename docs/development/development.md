@@ -774,10 +774,10 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
       measurement.location.latitude,
       measurement.location.longitude
     ),
-    temperature: measurement.avgTemperature,
-    minTemp: measurement.minTemperature,
-    maxTemp: measurement.maxTemperature,
-    newMetric: measurement.avgNewMetric, // Add the new metric here
+    temperature: measurement.avg_temperature,
+    minTemp: measurement.min_temperature,
+    maxTemp: measurement.max_temperature,
+    newMetric: measurement.avg_new_metric, // Add the new metric here
     count: measurement.count,
   }));
 }, [] as MeasurementData[]);
@@ -932,7 +932,6 @@ In `frontend/src/composables/Export/useSearch.ts`, ensure that the new metric is
 
 ```typescript
 const state = reactive({
-    hasSearched: false,
     activeSearchCount: 0,
     isLoading: false,
     count: 0,
@@ -986,7 +985,7 @@ export function useSearch() {
             const rawNewMetric = response.data.avgNewMetric;
             state.avgNewMetric = Math.round(rawNewMetric * 10) / 10;
 
-            state.hasSearched = true;
+            exportStore.hasSearched = true;
         } catch (err) {
             console.error("Search failed:", err);
             state.count = 0;
@@ -1019,7 +1018,7 @@ export function useSearch() {
      * @return {void}
      */
     function resetSearch(): void {
-        state.hasSearched = false;
+        exportStore.hasSearched = true;
         state.activeSearchCount = 0;
         state.isLoading = false;
         state.count = 0;
@@ -1029,68 +1028,81 @@ export function useSearch() {
         state.avgNewMetric = 0;
     }
 
-    /**
-     * Flattens the nested search parameters for use in API requests.
-     * This function converts the structured search parameters into a flat object
-     * suitable for URL query parameters.
-     *
-     * @param params The search parameters to flatten.
-     * @return {Record<string, any>} A flat object containing the search parameters.
-     */
-    function flattenSearchParams(params: MeasurementSearchParams): Record<string, string | string[] | undefined> {
-        const flattened: Record<string, string | string[] | undefined> = {};
+    return {
+        // Expose primitive state value directly
+        isLoading: computed(() => state.isLoading),
 
-        if (params.query) {
-            flattened.query = params.query;
-        }
+        // Expose results as a computed property
+        results,
 
-        if (params.location) {
-            if (params.location.continents?.length) {
-                flattened["location[continents]"] = params.location.continents;
-            }
-            if (params.location.countries?.length) {
-                flattened["location[countries]"] = params.location.countries;
-            }
-        }
+        // Methods
+        searchMeasurements,
+        resetSearch,
+    };
+}
 
-        if (params.measurements) {
-            const includedMetrics = Object.entries(params.measurements)
-                .filter(([, filter]) => filter != null)
-                .map(([metric]) => metric);
+/**
+ * Flattens the nested search parameters for use in API requests.
+ * This function converts the structured search parameters into a flat object
+ * suitable for URL query parameters.
+ *
+ * @param params The search parameters to flatten.
+ * @return {Record<string, any>} A flat object containing the search parameters.
+ */
+export function flattenSearchParams(params: MeasurementSearchParams): Record<string, string | string[] | undefined> {
+    const flattened: Record<string, string | string[] | undefined> = {};
 
-            if (includedMetrics.length) {
-                flattened["measurements_included"] = includedMetrics;
-            }
-        }
-
-        if (params.measurements?.waterSources?.length) {
-            flattened["measurements[waterSources]"] = params.measurements.waterSources;
-        }
-
-        if (params.measurements?.temperature) {
-            const temp = params.measurements.temperature;
-            if (temp.from) flattened["measurements[temperature][from]"] = temp.from;
-            if (temp.to) flattened["measurements[temperature][to]"] = temp.to;
-        }
-
-        // Add the new metric filter
-        if (params.measurements?.newMetric) {
-            const newMetric = params.measurements.newMetric;
-            if (newMetric.from) flattened["measurements[newMetric][from]"] = newMetric.from;
-            if (newMetric.to) flattened["measurements[newMetric][to]"] = newMetric.to;
-        }
-
-        if (params.dateRange) {
-            if (params.dateRange.from) flattened["dateRange[from]"] = params.dateRange.from;
-            if (params.dateRange.to) flattened["dateRange[to]"] = params.dateRange.to;
-        }
-
-        if (params.times?.length) {
-            flattened["times"] = JSON.stringify(params.times);
-        }
-
-        return flattened;
+    if (params.query) {
+        flattened.query = params.query;
     }
+
+    if (params.location) {
+        if (params.location.continents?.length) {
+            flattened["location[continents]"] = params.location.continents;
+        }
+        if (params.location.countries?.length) {
+            flattened["location[countries]"] = params.location.countries;
+        }
+    }
+
+    if (params.measurements) {
+        const includedMetrics = Object.entries(params.measurements)
+            .filter(([, filter]) => filter != null)
+            .map(([metric]) => metric);
+
+        if (includedMetrics.length) {
+            flattened["measurements_included"] = includedMetrics;
+        }
+    }
+
+    if (params.measurements?.waterSources?.length) {
+        flattened["measurements[waterSources]"] = params.measurements.waterSources;
+    }
+
+    if (params.measurements?.temperature) {
+        const temp = params.measurements.temperature;
+        if (temp.from) flattened["measurements[temperature][from]"] = temp.from;
+        if (temp.to) flattened["measurements[temperature][to]"] = temp.to;
+    }
+
+    // Add the new metric filter
+    if (params.measurements?.newMetric) {
+        const newMetric = params.measurements.newMetric;
+        if (newMetric.from) flattened["measurements[newMetric][from]"] = newMetric.from;
+        if (newMetric.to) flattened["measurements[newMetric][to]"] = newMetric.to;
+    }
+
+    if (params.dateRange) {
+        if (params.dateRange.from) flattened["dateRange[from]"] = params.dateRange.from;
+        if (params.dateRange.to) flattened["dateRange[to]"] = params.dateRange.to;
+    }
+
+    if (params.times?.length) {
+        flattened["times"] = JSON.stringify(params.times);
+    }
+
+    return flattened;
+}
 
     // function continues
 ```
@@ -1235,6 +1247,38 @@ const createSignature = (points: DataPoint[]) => {
     2
   )}-${totalCount}-${sortedTemps}-${avgNewMetric.toFixed(2)}`;
 };
+```
+
+Lastly, change the following lines:
+```typescript
+        if (!props.selectMult) {
+            (async () => {
+                // Fetch the hexagon data for the selected hexagon
+                const cookies = new Cookies();
+                const res = await axios.post(
+                    "/api/measurements/aggregated/",
+                    {
+                        boundary_geometry: wkt,
+                        month: props.month,
+                    },
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-Token": cookies.get("csrftoken") || "",
+                        },
+                    },
+                );
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const points = res.data.measurements.map((m: any) => ({
+                    o: {
+                        temperature: m.avg_temperature,
+                        min: m.min_temperature,
+                        max: m.max_temperature,
+                        newMetric: m.new_metric, // Add the new metric here
+                        count: m.count,
+                    },
+                }));
 ```
 
 ##### `frontend/src/components/Analysis/HexAnalysis.vue`

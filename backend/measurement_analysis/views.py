@@ -87,34 +87,33 @@ def parse_month_parameter(month_param):
     return _validate_and_convert_months(parts)
 
 
-def apply_boundary_filter(queryset, boundary_geometry):
+def apply_boundary_filter(queryset, boundary_wkt):
     """
-    Apply boundary geometry filter to queryset.
+    Only return points *strictly inside* the given polygon WKT (in EPSG:4326).
 
     Parameters
     ----------
     queryset : QuerySet
         Django queryset to filter
-    boundary_geometry : str or None
-        GeoJSON geometry string
+    boundary_wkt : str
+        Well-Known Text (WKT) representation of the polygon boundary
 
     Returns
     -------
     QuerySet
-        Filtered queryset
-
-    Raises
-    ------
-    ValueError
-        If boundary_geometry format is invalid
+        Filtered queryset containing only points within the specified boundary
     """
-    if boundary_geometry:
+    if boundary_wkt:
         try:
-            polygon = GEOSGeometry(boundary_geometry)
-            queryset = queryset.filter(location__within=polygon)
-        except (GEOSException, ValueError) as err:
-            logger.exception("Invalid boundary_geometry format: %s", boundary_geometry)
+            # Parse WKT into a 4326 GEOSGeometry; frontend must have closed the ring
+            poly = GEOSGeometry(boundary_wkt, srid=4326)
+        except (ValueError, GEOSException) as err:
+            logger.exception("Invalid boundary_geometry: %s", boundary_wkt)
             raise ValueError("Invalid boundary_geometry format") from err
+
+        # Use `within` to exclude points on or outside the boundary
+        queryset = queryset.filter(location__within=poly)
+
     return queryset
 
 
@@ -254,14 +253,14 @@ def cache_results_by_month(cache_type, results_list, months, boundary_geometry=N
 
 
 # Measurement Analysis specific functions
-def _get_cached_results_for_months(months):
-    """Get cached results for multiple months and identify which are missing."""
-    return get_cached_results_for_months("aggregated_measurements", months)
+def _get_cached_agg_results(months, boundary_geometry=None):
+    """Wrap around the generic cache fetch for aggregated_measurements."""
+    return get_cached_results_for_months("aggregated_measurements", months, boundary_geometry)
 
 
-def _cache_results_by_month(results_list, months):
-    """Cache results grouped by month."""
-    cache_results_by_month("aggregated_measurements", results_list, months)
+def _cache_agg_results(results_list, months, boundary_geometry=None):
+    """Wrap around the generic cache set for aggregated_measurements."""
+    cache_results_by_month("aggregated_measurements", results_list, months, boundary_geometry)
 
 
 def _apply_filters(queryset, month_param):
@@ -312,6 +311,7 @@ def analyzed_measurements_view(request):
         JSON response containing aggregated measurements.
     """
     data = request.data or {}
+    boundary_geometry = data.get("boundary_geometry", None)
     month_param = data.get("month", None)
 
     try:
@@ -320,7 +320,7 @@ def analyzed_measurements_view(request):
 
         # Try to get cached results
         if months:
-            cached_results, missing_months = _get_cached_results_for_months(months)
+            cached_results, missing_months = _get_cached_agg_results(months, boundary_geometry)
 
             # If we have all results cached, return them
             if not missing_months:
@@ -337,6 +337,7 @@ def analyzed_measurements_view(request):
 
         # Build optimized queryset for missing months
         queryset = _build_optimized_queryset()
+        queryset = apply_boundary_filter(queryset, boundary_geometry)
 
         # Apply filters only for missing months
         if months_to_fetch:
@@ -346,7 +347,7 @@ def analyzed_measurements_view(request):
             new_results_list = list(new_results)
 
             # Cache the new results
-            _cache_results_by_month(new_results_list, months_to_fetch)
+            _cache_agg_results(new_results_list, months_to_fetch, boundary_geometry)
 
             # Combine with cached results
             all_results = cached_results + new_results_list

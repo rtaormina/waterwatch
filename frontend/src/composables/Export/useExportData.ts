@@ -1,7 +1,7 @@
 import Cookies from "universal-cookie";
 import { toValue, type MaybeRefOrGetter } from "vue";
 import { saveAs } from "file-saver";
-import { useSearch } from "./useSearch";
+import { flattenSearchParams } from "./useSearch";
 import type { MeasurementSearchParams } from "./useSearch";
 
 /**
@@ -24,7 +24,6 @@ export function useExportData() {
      */
     async function exportData(format: MaybeRefOrGetter, filters?: MeasurementSearchParams): Promise<boolean> {
         // Get flattenSearchParams from useSearch instance
-        const { flattenSearchParams } = useSearch();
         const flatFilters = filters ? flattenSearchParams(filters) : {};
 
         // Prepare the data for the POST request body

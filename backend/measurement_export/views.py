@@ -334,6 +334,15 @@ def search_measurements_view(request):
     # Check if this is a data export request
     fmt = str(request_data.get("format", "")).lower()
 
+    if fmt in ("map-format", "analysis-format"):
+        # Check permissions for data export
+        user = request.user
+        if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
+            return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
+
+        strategy = get_strategy(fmt)
+        return strategy.export(qs)
+
     if fmt in ("csv", "json", "xml", "geojson"):
         # Check permissions for data export
         user = request.user
