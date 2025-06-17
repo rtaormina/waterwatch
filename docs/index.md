@@ -1,8 +1,3 @@
-<!-- .. WATERWATCH documentation master file, created by
-   sphinx-quickstart on Sat May  3 23:22:39 2025.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive. -->
-
 # WATERWATCH Documentation
 
 Welcome to the documentation page for WATERWATCH, an open-science open-source website to track worldwide drinking water temperatures.
@@ -16,8 +11,8 @@ Welcome to the documentation page for WATERWATCH, an open-science open-source we
 
 New to WATERWATCH? Check out the following links:
 - [Installation Guide](development/installation.md)
-- [Troubleshooting Common Issues](development/troubleshooting.md)
 - [Contribution Guide](development/contribution_guide.md)
+- [Troubleshooting Common Issues](development/troubleshooting.md)
 - [API Specification](api_specs/api_specs.md)
 
 ```{eval-rst}
@@ -30,13 +25,13 @@ New to WATERWATCH? Check out the following links:
    api_specs/api_specs
    diagrams/diagrams
    development/installation
-   development/troubleshooting
+   development/development
    development/contribution_guide
+   development/troubleshooting
    development/deployment
    e2e_testing/e2e_test
    manual_testing/manual_test
    load_testing/load_test
-   development/development
 ```
 
 ## Contributing / Reporting Issues
@@ -52,8 +47,8 @@ WATERWATCH welcomes feedback and contributions! Feel free to [open an issue](htt
    :maxdepth: 2
    :caption: Mobile App Documentation:
 
-   mobile_app/development
    mobile_app/installation
+   mobile_app/development
    mobile_app/contribution_guide
 
 ```

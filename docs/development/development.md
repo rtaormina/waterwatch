@@ -3,7 +3,7 @@
 This section outlines the development steps that need to be taken to extend certain WATERWATCH functionalities.
 
 ```{contents} Table of Contents
-:depth: 3
+:depth: 4
 ```
 
 ## Adding Additional Metrics
@@ -14,7 +14,7 @@ This section outlines how an additional metric can be integrated into WATERWATCH
 
 #### Measurements
 
-##### `backend/measurements/models.py`
+##### models.py
 
 Metric models are defined in `backend/measurements/models.py`. To add a metric model to the database, create a class for the metric with the following structure, replacing `Metric` with the name of the metric being added, and adding any additional fields, constraints, indexes, and methods as necessary:
 
@@ -33,7 +33,7 @@ class Metric(models.Model):
 
 Any additional desired fields can be added after the measurement field.
 
-##### `backend/measurements/metrics.py`
+##### metrics.py
 
 In `backend/measurements/metrics.py`, import the model and add the name of the metric to `METRIC_MODELS`:
 
@@ -47,7 +47,7 @@ METRIC_MODELS = [
 ]
 ```
 
-##### `backend/measurements/admin.py`
+##### admin.py
 
 Next, to ensure that the metric is properly registered with the Django admin interface, add the following to `backend/measurements/admin.py`, replacing `Metric` with the name of your metric:
 
@@ -72,7 +72,7 @@ class MetricAdmin(admin.ModelAdmin):
 
 #### Measurement Collection
 
-##### `backend/measurement_collection/serializers.py`
+##### serializers.py
 
 Metrics require a serializer to be properly added and exported.
 In `backend/measurement_collection/serializers.py`, import the new metric and add a serializer for the new metric in the following format, replacing `Metric` and `metric_field_x` with the appropriate metric name and fields defined in the model.
@@ -205,7 +205,7 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
 
 #### Measurement Export
 
-##### `backend/measurement_export/utils.py`
+##### utils.py
 
 To introduce the possibility of filtering by metrics other than temperature, adjust `backend/measurement_export/utils.py` as follows.
 
@@ -272,7 +272,7 @@ def filter_measurement_by_metric(qs, data):
     return qs
 ```
 
-##### `backend/measurement_export/views.py`
+##### views.py
 
 Next, in `backend/measurement_export/views.py`, make the following changes:
 Import `filter_measurement_by_metric` at the top of the file:
@@ -352,7 +352,7 @@ def _build_metric_set(data):
     return sets
 ```
 
-##### `backend/measurement_export/admin.py`
+##### admin.py
 
 To allow for presets to include the new metric filter, e.g., by range, do the following.
 
@@ -592,7 +592,7 @@ fieldsets = [
 ]
 ```
 
-##### `backend/measurement_export/static/measurement_export/js/preset_admin.js`
+##### preset_admin.js
 
 To conclude the metric in the preset export, add the following under the static file `backend/measurement_export/static/measurement_export/js/preset_admin.js`, adjusting the if-statement to check for the metric fields and adding the metric fields to the form:
 
@@ -659,7 +659,7 @@ To conclude the metric in the preset export, add the following under the static 
 
 #### Measurement Analysis
 
-##### `backend/measurement_analysis/serializers.py`
+##### serializers.py
 
 To add more information about new metrics returned from the `/api/measurements/aggregated` endpoint, add the following under the class `MeasurementAggregatedSerializer` in `backend/measurement_analysis/serializers.py`. Replace `metric_info_x` and `{SpecifyField}` with the appropriate metric statistic and field type.
 
@@ -682,7 +682,7 @@ class MeasurementAggregatedSerializer(serializers.Serializer):
     # etc.
 ```
 
-##### `backend/measurement_analysis/views.py`
+##### views.py
 
 Then, add the following under the method `analyzed_measurements_view(request)` in `backend/measurement_analysis/views.py`, replacing `metric_info_x`, `metric__value`, and `{Statistic}` with the appropriate metric statistic and field type:
 
@@ -720,7 +720,7 @@ docker compose exec backend python manage.py migrate
 
 #### Views
 
-##### `frontend/src/views/MapView.vue`
+##### MapView.vue
 
 Change the `MeasurementData` and `MeasurementResponseDataPoint` types in `frontend/src/views/MapView.vue` to include the new metric, replacing `newMetric` with the name of your metric:
 
@@ -785,7 +785,7 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
 
 #### Composables
 
-##### `frontend/src/composables/Export/useFilters.ts`
+##### useFilters.ts
 
 In `frontend/src/composables/Export/useFilters.ts`, add the new metric to the filters, replacing `newMetric` with the name of your metric:
 
@@ -892,7 +892,7 @@ export function useFilters(
 }
 ```
 
-##### `frontend/src/composables/Export/usePresets.ts`
+##### usePresets.ts
 
 In `frontend/src/composables/Export/usePresets.ts`, ensure that the new metric is included in the preset filters, replacing `newMetric` with the name of your metric:
 
@@ -926,7 +926,7 @@ export interface Filters {
 }
 ```
 
-##### `frontend/src/composables/Export/useSearch.ts`
+##### useSearch.ts
 
 In `frontend/src/composables/Export/useSearch.ts`, ensure that the new metric is included in the search results, replacing `newMetric` with the name of your metric:
 
@@ -1107,7 +1107,7 @@ export function flattenSearchParams(params: MeasurementSearchParams): Record<str
     // function continues
 ```
 
-##### `frontend/src/composables/MeasurementCollectionLogic.ts`
+##### MeasurementCollectionLogic.ts
 
 In `frontend/src/composables/MeasurementCollectionLogic.ts`, ensure that the new metric is included in the collection logic, replacing `newMetric` with the name of your metric:
 
@@ -1202,7 +1202,7 @@ export function createPayload(
 
 #### Components
 
-##### `frontend/src/components/HexMap.vue`
+##### HexMap.vue
 
 In `frontend/src/components/HexMap.vue`, change the `DataPoint` type to include the new metric, replacing `newMetric` with the name of your metric:
 
@@ -1281,7 +1281,7 @@ Lastly, change the following lines:
                 }));
 ```
 
-##### `frontend/src/components/Analysis/HexAnalysis.vue`
+##### HexAnalysis.vue
 
 To ensure that the statistics for the new metric are displayed in the map, modify the `HexAnalysis.vue` component to include the new metric in the data processing and rendering logic.
 
@@ -1353,7 +1353,7 @@ const avgNewMetric = computed(() => {
 </script>
 ```
 
-##### `frontend/src/components/Export/SearchResultsComponent.vue`
+##### SearchResultsComponent.vue
 
 In `frontend/src/components/Export/SearchResultsComponent.vue`, ensure that the new metric is included in the search results display, replacing `newMetric` with the name of your metric:
 First, ensure that `Props` interface includes the new metric:
@@ -1396,7 +1396,7 @@ Next, in the template, add the new metric to the displayed results:
 </template>
 ```
 
-##### `frontend/src/components/Export/FilterPanelComponent.vue`
+##### FilterPanelComponent.vue
 
 To filter by the new metric in the export filters, modify the `FilterPanelComponent.vue` to include the new metric filter, replacing `newMetric` with the name of your metric:
 
@@ -1716,7 +1716,7 @@ defineExpose({
 </template>
 ```
 
-##### `frontend/src/components/Measurement/NewMetric.vue`
+##### NewMetric.vue
 
 To add the new metric to the frontend, create a new component in `frontend/src/components/Measurement/`, e.g. `NewMetric.vue`. This component should allow users to input the metric value and any other relevant fields. The component should also handle validation and submission of the metric data.
 
@@ -1848,7 +1848,7 @@ const errors = ref<NewMetricErrors>({
 </template>
 ```
 
-##### `frontend/src/components/MeasurementComponent.vue`
+##### MeasurementComponent.vue
 To integrate the new metric into the measurement component, modify the `MeasurementComponent.vue` to include the new metric input and validation logic.
 
 ```vue
@@ -1918,7 +1918,7 @@ This section outlines how additional water sources can be integrated into WATERW
 
 #### Measurements
 
-##### `backend/measurements/models.py`
+##### models.py
 
 In `backend/measurements/models.py`, add the desired water sources to `water_source_choices` in the `Measurement` model. Replace `water source` with the name of your new water source:
 
@@ -1934,7 +1934,7 @@ water_source_choices = {
 
 #### Measurement Export
 
-##### `backend/measurement_export/admin.py`
+##### admin.py
 
 Add the new water sources to the `__init__` method of `PresetAdminForm` in `backend/measurement_export/admin.py`, replacing `Water Source` with the name of your new water source:
 
@@ -1952,7 +1952,9 @@ self.fields["water_sources"].initial = data.get("measurements", {}).get("waterSo
 
 ### Frontend
 
-#### `frontend/src/composables/MeasurementCollectionLogic.ts`
+#### Composables
+
+##### MeasurementCollectionLogic.ts
 
 Add the new water source to the `WaterSource` type and `waterSourceOptions` LabelValuePair in `frontend/src/composables/MeasurementCollectionLogic.ts`, replacing `Water Source` with the name of your new water source:
 
@@ -1973,7 +1975,7 @@ export const waterSourceOptions: WaterSourceOptions = [
 ];
 ```
 
-#### `frontend/src/composables/Export/useFilters.ts`
+##### useFilters.ts
 
 Add the new water source to the `loadWaterSources()` function in `frontend/src/composables/Export/useFilters.ts`, replacing `Water Source` with the name of your new water source:
 
