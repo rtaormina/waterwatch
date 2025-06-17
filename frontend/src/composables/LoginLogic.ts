@@ -10,7 +10,6 @@ export const loggedIn = ref(false);
 export function useLogin() {
     const router = useRouter();
     const cookies = new Cookies();
-    const toast = useToast();
 
     const formData = reactive({
         username: "",
@@ -28,13 +27,6 @@ export function useLogin() {
     const showErrorMessage = (message: string) => {
         errorMessage.value = message;
         showError.value = true;
-        toast.add({
-            title: "Login Error",
-            description: message,
-            icon: "heroicons:exclamation-circle",
-            color: "error",
-            duration: 2500,
-        });
     };
 
     /**
@@ -103,6 +95,7 @@ export function useLogin() {
      * Function to handle a user trying to log in
      */
     const handleSubmit = async () => {
+        showError.value = false;
         try {
             const response = await fetch("api/login/", {
                 method: "POST",
