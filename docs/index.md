@@ -7,6 +7,11 @@
 
 Welcome to the documentation page for WATERWATCH, an open-science open-source website to track worldwide drinking water temperatures.
 
+```{eval-rst}
+.. tip::
+  This documentation pertains to the website version of WATERWATCH. If you are interested in the documentation for the mobile app version of WATERWATCH, see :ref:`Mobile App Documentation <mobile-app-section>`.
+```
+
 ## Getting Started
 
 New to WATERWATCH? Check out the following links:
@@ -18,7 +23,7 @@ New to WATERWATCH? Check out the following links:
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Website Documentation:
 
    reference/index
    development/frontend_docs
@@ -37,3 +42,18 @@ New to WATERWATCH? Check out the following links:
 ## Contributing / Reporting Issues
 
 WATERWATCH welcomes feedback and contributions! Feel free to [open an issue](https://gitlab.ewi.tudelft.nl/groups/cse2000-software-project/2024-2025/cluster-e/06c/-/issues) to report a bug or suggest a feature, check out our [contribution guide](development/contribution_guide.md) for more details on helping develop WATERWATCH further.
+
+
+```{eval-rst}
+.. _mobile-app-section:
+```
+```{eval-rst}
+.. toctree::
+   :maxdepth: 2
+   :caption: Mobile App Documentation:
+
+   mobile_app/development
+   mobile_app/installation
+   mobile_app/testing
+
+```
