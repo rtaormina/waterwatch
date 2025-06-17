@@ -185,7 +185,7 @@ defineExpose({
                 <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin" />
                 Loading presets...
             </div>
-            <div v-else-if="error" class="px-4 py-3 text-red-500 text-sm">
+            <div v-else-if="error" class="px-4 py-3 text-error text-sm">
                 <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="inline mr-2" />
                 {{ error }}
             </div>
@@ -203,7 +203,7 @@ defineExpose({
                 >
                     <div class="flex items-start justify-between">
                         <div class="flex-1 min-w-0">
-                            <div class="font-medium text-sm text-gray-900 truncate">
+                            <div class="font-medium text-sm text-default truncate">
                                 {{ preset.name }}
                             </div>
                             <div v-if="preset.description" class="text-xs text-gray-600 mt-1 line-clamp-2">
