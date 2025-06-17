@@ -1,50 +1,16 @@
 <template>
-    <div>
-        <Modal data-testid="modal" :visible="firstTime" @close="firstTime = false">
-            <h2 class="text-lg font-semibold mb-4">Welcome to the WATERWATCH Map!</h2>
-            <p>
-                View local water quality trends by selecting hexagons or record a measurement by pressing the plus
-                button in the bottom left corner. To view global analytics, select the bar chart icon in the bottom left
-                corner. For an in-depth tutorial on using the website, visit
-                <router-link
-                    to="/tutorial"
-                    @click="firstTime = false"
-                    class="underline text-primary hover:text-secondary"
-                >
-                    Tutorial
-                </router-link>
-                .
-            </p>
-            <div class="flex items-center mt-4 gap-2">
-                <button
-                    type="button"
-                    aria-label="open map menu"
-                    data-testid="view-button"
-                    @click="firstTime = false"
-                    class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
-                >
-                    View Map
-                </button>
-            </div>
-        </Modal>
-    </div>
     <div class="w-full h-full flex flex-col p-0 m-0">
-        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
-
         <div class="w-full h-full flex flex-row">
             <div
                 v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
-                class="analytics-panel left-0 top-19 md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
+                class="analytics-panel left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
             >
-                <MeasurementComponent
-                    v-if="addMeasurement"
-                    @close="handleCloseAll"
-                    @submitMeasurement="refresh = !refresh"
-                />
+                <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
                 <DataAnalyticsComponent
                     v-if="viewAnalytics"
                     :location="hexLocation"
                     :month="month"
+                    :fromExport="true"
                     @close="handleCloseAll"
                 />
 
@@ -85,7 +51,6 @@
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
                     :colorByTemp="colorByTemp"
-                    :month="month"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -94,23 +59,35 @@
                 />
 
                 <div
-                    class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
+                    class="absolute top-4 right-4 flex align-center z-20 justify-center gap-4"
                     v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                 >
-                    <MapMenu
-                        :selectMult="selectMult"
-                        @open="handleOpenClose"
-                        @enter-compare="enterCompareMode"
-                        @enter-select="enterSelectMode"
-                        @toggle-legend="
-                            () => {
-                                addMeasurement = false;
-                                viewAnalytics = false;
-                                showLegend = !showLegend;
-                            }
+                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="returnToExport">
+                        <div class="flex items-center">
+                            <ChevronLeftIcon class="w-10 h-10" />
+                            <span class="leading-none mr-2 whitespace-nowrap text-2xl">Go Back</span>
+                        </div>
+                    </button>
+                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
+                        <ScaleIcon class="w-10 h-10" />
+                    </button>
+                    <button
+                        class="text-white hover:cursor-pointer"
+                        :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
+                        @click="enterSelectMode"
+                    >
+                        <SquaresPlusIcon class="w-10 h-10" />
+                    </button>
+                    <button
+                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                        @click="
+                            addMeasurement = false;
+                            viewAnalytics = false;
+                            showLegend = !showLegend;
                         "
-                        @show-global="showGlobalAnalytics"
-                    />
+                    >
+                        <AdjustmentsVerticalIcon class="w-10 h-10" />
+                    </button>
                 </div>
 
                 <Legend
@@ -125,30 +102,12 @@
                     @update="updateMapFilters"
                 />
             </div>
-
-            <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
-                <UTooltip :delay-duration="0" text="Add a Measurement">
-                    <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        @click="
-                            addMeasurement = true;
-                            viewAnalytics = false;
-                            showLegend = false;
-                        "
-                        type="button"
-                        aria-label="add measurement"
-                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                    >
-                        <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
-                    </button>
-                </UTooltip>
-            </div>
         </div>
     </div>
 </template>
 
 <style>
-@media (max-width: 768px) and (orientation: landscape) {
+@media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
     .analytics-panel {
         width: 100% !important;
     }
@@ -157,44 +116,40 @@
 
 <script setup lang="ts">
 /**
- * Displays the campaign banner, measurement input form, and a hex map of sample data.
- * Provides a button to add new measurements when not in adding mode.
+ * ExportMapView
+ *
+ * Displays the map from the data gathered by the researchers
  */
 defineOptions({ name: "DashboardView" });
-import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 import HexMap from "../components/HexMap.vue";
-import { ref, onMounted, computed, nextTick } from "vue";
+import { ref, computed, nextTick } from "vue";
 import MeasurementComponent from "../components/MeasurementComponent.vue";
-import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Legend.vue";
+import { ScaleIcon, AdjustmentsVerticalIcon, SquaresPlusIcon, ChevronLeftIcon } from "@heroicons/vue/24/outline";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
-import MapMenu from "../components/MapMenu.vue";
-import axios from "axios";
+import { useRouter } from "vue-router";
+import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
+import { flattenSearchParams } from "../composables/Export/useSearch";
 
+const router = useRouter();
+const exportStore = useExportStore();
 const cookies = new Cookies();
 
-const open = ref(false);
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 
-const firstTime = ref(false);
 const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
 const selectMult = ref(false);
 const colorByTemp = ref(true);
-const campaigns = ref([]);
 const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
-type Location = {
-    latitude: number;
-    longitude: number;
-};
 
 const compareMode = ref(false);
 const selectMode = ref(false);
@@ -214,21 +169,25 @@ const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
 const range = ref<number[]>([0]);
 const month = ref<string>("0");
-const refresh = ref(false);
+
+// color, styling, and scale values for hexagon visualization
+const colors = ref(["#3183D4", "#E0563A"]);
+const scale = ref<[number, number]>([10, 40]);
+const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
 
 /**
- * Handle open and close of map menu
- *
- * @return {void}
+ * Returns to the export view, resetting all states and closing any open components.
  */
-function handleOpenClose() {
-    if (open.value) {
-        showLegend.value = false;
-        open.value = false;
-    } else {
-        showLegend.value = false;
-        open.value = true;
-    }
+function returnToExport() {
+    router.push({ name: "Export", query: { fromMap: "1" } });
+}
+
+/**
+ * Handles the switch between temperature and count color modes in the legend.
+ */
+function handleSwitch() {
+    colorByTemp.value = !colorByTemp.value;
+    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
 }
 
 /**
@@ -244,26 +203,6 @@ function updateMapFilters(timeRange: number[]) {
         month.value += `${range.value[i]},`;
     }
     month.value = month.value.substring(0, month.value.length - 1);
-}
-
-/**
- * Shows the global analytics in the sidebar component.
- *
- * @returns {void}
- */
-function showGlobalAnalytics() {
-    hexLocation.value = "";
-    viewAnalytics.value = true;
-    addMeasurement.value = false;
-    showLegend.value = false;
-}
-
-/**
- * Handles the switch between temperature and count color modes in the legend.
- */
-function handleSwitch() {
-    colorByTemp.value = !colorByTemp.value;
-    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
 }
 
 /**
@@ -493,139 +432,34 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
-    refresh.value = !refresh.value; // Trigger re-fetching when refresh changes
-    const res = await axios.post("/api/measurements/aggregated/", range.value ? { month: range.value } : {}, {
+    const filters = JSON.parse(JSON.stringify(exportStore.filters));
+    const bodyData = {
+        ...flattenSearchParams(filters),
+        month: month.value,
+        format: "map-format", // Add format to the body
+    };
+
+    const res = await fetch("/api/measurements/search/", {
+        method: "POST",
         headers: {
-            "Content-Type": "application/json",
             "X-CSRFToken": cookies.get("csrftoken"),
+            "Content-Type": "application/json", // Set Content-Type for JSON payload
         },
+        credentials: "same-origin",
+        body: JSON.stringify(bodyData), // Send data as a JSON string in the body
     });
 
-    if (res.status !== 200) throw new Error(`Status: ${res.status}`);
-    const data = res.data;
+    if (!res.ok) throw new Error(`Status: ${res.status}`);
+    const data = await res.json();
 
-    return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
+    const formated = data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),
         temperature: measurement.avg_temperature,
         min: measurement.min_temperature,
         max: measurement.max_temperature,
         count: measurement.count,
     }));
+
+    return formated;
 }, [] as MeasurementData[]);
-
-// color, styling, and scale values for hexagon visualization
-const colors = ref(["#3183D4", "#E0563A"]);
-const scale = ref<[number, number]>([10, 40]);
-const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
-
-/**
- * Fetches active campaigns based on the user's location
- *
- * @param {number} lat - The user's latitude
- * @param {number} lng - The user's longitude
- * @returns {Promise<void>} A promise that resolves when the campaigns are fetched
- */
-const fetchCampaigns = async (lat: number, lng: number) => {
-    const now = new Date().toISOString();
-
-    const res = await fetch(`/api/campaigns/active/?datetime=${encodeURIComponent(now)}&lat=${lat}&lng=${lng}`, {
-        method: "GET",
-        credentials: "same-origin",
-    });
-
-    if (!res.ok) throw new Error(`Status: ${res.status}`);
-
-    const data = await res.json();
-    campaigns.value = data.campaigns || [];
-};
-
-/**
- * Gets the user's location using the Geolocation API or falls back to IP-based location.
- *
- * @returns {Promise<Location>} A promise that resolves to the user's location
- */
-const getLocation = (): Promise<Location> => {
-    return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            console.warn("Geolocation not supported, falling back to IP-based location");
-            getIpLocation().then(resolve).catch(reject);
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                resolve({
-                    latitude: pos.coords.latitude,
-                    longitude: pos.coords.longitude,
-                });
-            },
-            (err) => {
-                console.warn("Geolocation failed, falling back to IP-based location", err);
-                getIpLocation().then(resolve).catch(reject);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0,
-            },
-        );
-    });
-};
-
-/**
- * Fetches the user's location based on their IP address.
- *
- * @returns {Promise<Location>} A promise that resolves to the user's location
- */
-const getIpLocation = (): Promise<Location> => {
-    return fetch("https://www.geolocation-db.com/json/")
-        .then((res) => res.json())
-        .then((data) => {
-            if (!data.latitude || !data.longitude) {
-                throw new Error("Invalid IP location data");
-            }
-            return {
-                latitude: data.latitude,
-                longitude: data.longitude,
-            };
-        });
-};
-
-// Lifecycle hook to get the user's location and fetch campaigns when the component is mounted
-onMounted(async () => {
-    /**
-     * Display modal only to firsttime users through saving value in localStorage
-     */
-    const already = localStorage.getItem("mapViewVisited");
-    if (!already) {
-        firstTime.value = true;
-        localStorage.setItem("mapViewVisited", "true");
-    } else {
-        firstTime.value = false;
-    }
-    /**
-     * Get location for campaigns
-     */
-    getLocation()
-        .then((position) => {
-            const lat = position.latitude;
-            const lng = position.longitude;
-
-            fetchCampaigns(lat, lng);
-        })
-        .catch((err) => {
-            console.error("Error getting location or fetching campaigns:", err);
-            campaigns.value = [];
-        });
-});
-
-// Expose functions for documentation
-defineExpose({
-    /** Fetches active campaigns based on the user's location. */
-    fetchCampaigns,
-    /** Gets the user's location using Geolocation API or IP fallback. */
-    getLocation,
-    /** Fetches the user's location based on IP address. */
-    getIpLocation,
-});
 </script>

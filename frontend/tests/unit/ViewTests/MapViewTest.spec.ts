@@ -87,9 +87,9 @@ vi.mock("@vuepic/vue-datepicker", () => ({
     default: {
         name: "VueDatePicker",
         template: `
-            <input 
+            <input
                 data-testid="vue-datepicker"
-                :value="modelValue" 
+                :value="modelValue"
                 @input="$emit('update:modelValue', $event.target.value)"
                 :placeholder="placeholder"
             />
@@ -111,8 +111,11 @@ vi.mock("./Measurement/MeasurementBlock.vue", () => ({
         `,
     },
 }));
+
+setActivePinia(createPinia());
+
 import MapView from "../../../src/views/MapView.vue";
-import VueDatePicker from "@vuepic/vue-datepicker";
+import { setActivePinia, createPinia } from "pinia";
 
 describe("MapView first-time modal appears", () => {
     beforeEach(() => {
@@ -137,6 +140,12 @@ describe("MapView first-time modal appears", () => {
             },
         }));
         vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
     });
 
     it("shows modal on first mount, hides on close, and sets localStorage", async () => {
