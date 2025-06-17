@@ -30,8 +30,9 @@ const graph = ref<HTMLElement | null>(null);
 async function render() {
     if (!graph.value) return;
 
+    const filters = JSON.parse(JSON.stringify(exportStore.filters));
     const values = props.fromExport
-        ? await getGraphDataExportMapView(exportStore.filters, props.location, props.month)
+        ? await getGraphDataExportMapView(filters, props.location, props.month)
         : await getGraphData(props.location, props.month);
 
     drawHistogramWithKDE(graph.value, values, "steelblue", "orange", {

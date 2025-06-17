@@ -48,7 +48,7 @@ const temperatureUnit = computed(() => {
 });
 
 // Use measurements composable
-const { results, isLoading, searchMeasurements, flattenSearchParams } = useSearch();
+const { results, isLoading, searchMeasurements } = useSearch();
 
 // Use export data composable
 const { exportData } = useExportData();
@@ -71,7 +71,7 @@ async function onSearch(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { query, ...filtersWithoutQuery } = searchParams;
     const cleanedFilters = Object.fromEntries(Object.entries(filtersWithoutQuery).filter(([, v]) => v !== undefined));
-    exportStore.filters = flattenSearchParams(cleanedFilters);
+    exportStore.filters = cleanedFilters;
 
     // Perform search
     await searchMeasurements(searchParams);
@@ -151,7 +151,7 @@ watch(
 
 <template>
     <div
-        class="h-auto bg-default w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10 outer-container"
+        class="bg-default w-full max-w-full mx-auto px-4 md:px-16 pt-6 flex flex-col flex-grow overflow-y-auto relative md:fixed md:top-[64px] md:bottom-0 z-10 outer-container"
     >
         <h1 class="text-2xl font-bold mb-6 shrink-0">Data Download</h1>
 
@@ -165,12 +165,12 @@ watch(
                         :search-disabled="presetSearchDisabled"
                     />
                 </div>
-                <div class="h-auto mb-[14px] overflow-auto landscape-component">
+                <div class="mb-[14px] overflow-auto landscape-component">
                     <FilterPanel ref="filterPanelRef" @search="onSearch" />
                 </div>
             </div>
 
-            <div class="w-full md:w-5/12 flex flex-col h-auto overflow-visible landscape-component component2">
+            <div class="w-full md:w-5/12 flex flex-col overflow-visible landscape-component component2">
                 <SearchResults
                     :results="results"
                     :searched="exportStore.hasSearched"

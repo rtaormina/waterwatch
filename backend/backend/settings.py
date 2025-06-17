@@ -29,7 +29,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", default=0)
+DEBUG = os.getenv("DJANGO_DEBUG", default=0) == "True"
 
 # should be a list of host/domain names that this Django site can serve.
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="localhost").split(",")

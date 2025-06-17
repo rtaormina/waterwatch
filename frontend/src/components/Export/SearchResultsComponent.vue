@@ -197,7 +197,6 @@ defineExpose({
 @media (max-height: 500px) {
     .result-component {
         padding: 0.5rem !important;
-        overflow-y: visible !important;
         height: auto !important;
     }
 

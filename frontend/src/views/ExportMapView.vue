@@ -135,6 +135,7 @@ import SelectBar from "../components/Analysis/SelectBar.vue";
 import { useRouter } from "vue-router";
 import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
+import { flattenSearchParams } from "../composables/Export/useSearch";
 
 const router = useRouter();
 const exportStore = useExportStore();
@@ -431,8 +432,9 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
+    const filters = JSON.parse(JSON.stringify(exportStore.filters));
     const bodyData = {
-        ...exportStore.filters,
+        ...flattenSearchParams(filters),
         month: month.value,
         format: "map-format", // Add format to the body
     };
