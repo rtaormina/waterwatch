@@ -10,5 +10,8 @@ Endpoints to upload, query, and delete water‑temperature (and other sensor) da
     /api/measurements/
     /api/measurements/search/
     /api/measurements/temperatures/
+    /api/measurements/aggregated/
+    /api/measurements/locations/
+    /api/measurements/presets/
    :encoding: utf-8
 ```
