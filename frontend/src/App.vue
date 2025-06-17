@@ -10,7 +10,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <UApp>
+    <UApp :toaster="{ expand: false }">
         <div class="w-full h-screen flex flex-col overflow-hidden">
             <NavBar />
 

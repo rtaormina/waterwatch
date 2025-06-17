@@ -13,9 +13,11 @@ import {
     waterSourceOptions,
 } from "../composables/MeasurementCollectionLogic.ts";
 import * as L from "leaflet";
+import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 
 const cookies = new Cookies();
 const router = useRouter();
+const toast = useToast();
 
 const selectedMetrics = ref<Metric[]>(["temperature"]);
 const metricOptions: MetricOptions = [{ label: "Temperature", value: "temperature" }];
@@ -77,7 +79,6 @@ const modalMessage = ref("");
  */
 const postData = () => {
     const payload = createPayload(data, selectedMetrics);
-
     return fetch("/api/measurements/", {
         method: "POST",
         headers: {
@@ -89,15 +90,31 @@ const postData = () => {
     })
         .then((res) => {
             if (res.status === 201) {
-                router.push({ name: "Map" });
+                toast.add({
+                    title: "Measurement successfully submitted!",
+                    color: "success",
+                    icon: "i-heroicons-check-circle",
+                });
                 showModal.value = false;
                 emit("submitMeasurement");
                 clear();
+                router.push({ name: "Map" });
             } else {
-                console.error("error with adding measurement");
+                console.error("Error with adding measurement");
+                toast.add({
+                    title: "Error Submitting Measurement!",
+                    color: "error",
+                    icon: "heroicons-solid:exclamation-circle",
+                });
             }
         })
         .catch((err) => {
+            toast.add({
+                title: "Error Submitting Measurement!",
+                description: err.message,
+                color: "error",
+                icon: "heroicons-solid:exclamation-circle",
+            });
             console.error(err);
         })
         .finally(() => {
@@ -210,6 +227,7 @@ defineExpose({
                         label="Cancel"
                     />
                     <UButton
+                        data-testid="submit-button"
                         @click="postData"
                         class="flex-1 justify-center bg-primary text-inverted px-4 py-2 rounded mr-2 hover:cursor-pointer"
                         label="Submit"

@@ -248,7 +248,14 @@ export function getLocateControl(location: Ref<L.LatLng>, opts?: L.ControlOption
         _handleLocationError: function (e: L.ErrorEvent) {
             this._endSpinner();
             console.error(e);
-            alert("Location could not be found, set a location manually." + e.message);
+            const toast = useToast();
+            toast.add({
+                title: "Location could not be found",
+                description: e.message,
+                duration: 2000,
+                color: "warning",
+                icon: "i-heroicons-exclamation-triangle",
+            });
         },
 
         /**

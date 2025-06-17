@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref, nextTick, Ref } from "vue";
 import * as L from "leaflet";
 import { createMarker, createMap, getLocateControl } from "../../../src/composables/LocationFallback";
+import { a } from "vitest/dist/chunks/suite.d.FvehnV49.js";
 
 // Mock leaflet and DOM-related APIs
 vi.mock("leaflet", async () => {
@@ -173,14 +174,19 @@ describe("LocationFallback composable", () => {
             expect(map.setView).toHaveBeenCalledWith(ev.latlng, 14);
         });
 
-        it("should stop spinner and alert on _handleLocationError", () => {
+        it("should stop spinner and show a toast on _handleLocationError", () => {
             const control = getLocateControl(location);
             control._endSpinner = vi.fn();
-            globalThis.alert = vi.fn();
+            const addToast = vi.fn();
+            globalThis.useToast = () => ({ add: addToast });
             const err = { message: "fail" };
             control._handleLocationError(err as any);
             expect(control._endSpinner).toHaveBeenCalled();
-            expect(globalThis.alert).toHaveBeenCalledWith(expect.stringContaining("fail"));
+            expect(addToast).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    description: err.message,
+                }),
+            );
         });
 
         it("should fetch IP location and update location/map", async () => {
