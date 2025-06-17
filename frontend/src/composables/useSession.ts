@@ -35,8 +35,8 @@ const createSession = () => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 .then((data: any) => {
                     return {
-                        isAuthenticated: data.isAuthenticated || false,
-                        groups: data.groups || [],
+                        isAuthenticated: data?.isAuthenticated ?? false,
+                        groups: data?.groups ?? [],
                     };
                 })
                 .catch((err) => {
@@ -116,4 +116,12 @@ export const useSession = () => {
         sessionInstance = createSession();
     }
     return sessionInstance;
+};
+
+/**
+ * Reset the session instance (for testing purposes)
+ * This function should only be used in tests to ensure clean state between test cases
+ */
+export const resetSessionInstance = () => {
+    sessionInstance = null;
 };

@@ -1,8 +1,4 @@
-import { vi, describe, it, expect, beforeEach, afterEach } from "vitest";
-
-vi.mock("file-saver", () => ({
-    saveAs: vi.fn(),
-}));
+import { vi, describe, it, expect, beforeEach } from "vitest";
 
 vi.mock("universal-cookie", () => ({
     default: vi.fn().mockImplementation(() => ({
@@ -12,10 +8,15 @@ vi.mock("universal-cookie", () => ({
 
 vi.mock("vue-router", () => ({ useRouter: vi.fn() }));
 
+vi.mock("../../../src/composables/useSession", () => ({
+    useSession: vi.fn(),
+}));
+
 global.fetch = vi.fn() as unknown as typeof fetch;
 
 import { useLogin, loggedIn } from "../../../src/composables/LoginLogic.ts";
 import { useRouter } from "vue-router";
+import { useSession } from "../../../src/composables/useSession";
 
 describe("useLogin composable", () => {
     let push: ReturnType<typeof vi.fn>;
@@ -23,6 +24,15 @@ describe("useLogin composable", () => {
     beforeEach(() => {
         push = vi.fn();
         (useRouter as unknown as any).mockReturnValue({ push });
+
+        // Mock useSession
+        (useSession as unknown as any).mockReturnValue({
+            initializeSession: vi.fn().mockResolvedValue(undefined),
+            refreshSession: vi.fn().mockResolvedValue({ groups: [] }),
+            invalidateSession: vi.fn(),
+            isAuthenticated: vi.fn().mockResolvedValue(false),
+        });
+
         vi.clearAllMocks();
         loggedIn.value = false;
     });
@@ -48,7 +58,15 @@ describe("useLogin composable", () => {
         it("redirects to Export for researcher users", async () => {
             (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
                 ok: true,
-                json: async () => ({ detail: "Successfully logged in.", groups: ["researcher"] }),
+                json: async () => ({ detail: "Successfully logged in." }),
+            });
+
+            // Mock session to return researcher group
+            (useSession as unknown as any).mockReturnValue({
+                initializeSession: vi.fn().mockResolvedValue(undefined),
+                refreshSession: vi.fn().mockResolvedValue({ groups: ["researcher"] }),
+                invalidateSession: vi.fn(),
+                isAuthenticated: vi.fn().mockResolvedValue(true),
             });
 
             const { formData, handleSubmit, showError } = useLogin();
@@ -91,10 +109,12 @@ describe("useLogin composable", () => {
             expect(errorMessage.value).toBe("An error occurred while logging in.");
         });
 
-        it("returns true and sets loggedIn when username present", async () => {
-            (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-                ok: true,
-                json: async () => ({ username: "foo" }),
+        it("returns true and sets loggedIn when isAuthenticated=true", async () => {
+            (useSession as unknown as any).mockReturnValue({
+                initializeSession: vi.fn().mockResolvedValue(undefined),
+                refreshSession: vi.fn().mockResolvedValue({ groups: [] }),
+                invalidateSession: vi.fn(),
+                isAuthenticated: vi.fn().mockResolvedValue(true),
             });
 
             const { isLoggedIn } = useLogin();
@@ -115,19 +135,32 @@ describe("useLogin composable", () => {
         });
 
         it("on failed logout (network) still clears state and routes to Map", async () => {
-            (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(new Error("Network down"));
+            (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("Network down"));
+
+            const mockSession = {
+                initializeSession: vi.fn().mockResolvedValue(undefined),
+                refreshSession: vi.fn().mockResolvedValue({ groups: [] }),
+                invalidateSession: vi.fn(),
+                isAuthenticated: vi.fn().mockResolvedValue(false),
+            };
+            (useSession as unknown as any).mockReturnValue(mockSession);
 
             const { logout } = useLogin();
             loggedIn.value = true;
 
             await logout();
             expect(loggedIn.value).toBe(false);
+            expect(mockSession.invalidateSession).toHaveBeenCalled();
+            expect(mockSession.refreshSession).toHaveBeenCalled();
             expect(push).toHaveBeenCalledWith({ name: "Map" });
         });
 
         it("returns false and sets loggedIn=false when isAuthenticated=false", async () => {
-            (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-                json: async () => ({ isAuthenticated: false }),
+            (useSession as unknown as any).mockReturnValue({
+                initializeSession: vi.fn().mockResolvedValue(undefined),
+                refreshSession: vi.fn().mockResolvedValue({ groups: [] }),
+                invalidateSession: vi.fn(),
+                isAuthenticated: vi.fn().mockResolvedValue(false),
             });
 
             const { isLoggedIn } = useLogin();
@@ -137,7 +170,12 @@ describe("useLogin composable", () => {
         });
 
         it("on network error returns false and sets loggedIn=false", async () => {
-            (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue(new Error("fail"));
+            (useSession as unknown as any).mockReturnValue({
+                initializeSession: vi.fn().mockResolvedValue(undefined),
+                refreshSession: vi.fn().mockResolvedValue({ groups: [] }),
+                invalidateSession: vi.fn(),
+                isAuthenticated: vi.fn().mockRejectedValue(new Error("fail")),
+            });
 
             const { isLoggedIn } = useLogin();
             const result = await isLoggedIn();
@@ -145,5 +183,4 @@ describe("useLogin composable", () => {
             expect(loggedIn.value).toBe(false);
         });
     });
-
 });
