@@ -25,6 +25,10 @@ describe("useLogin composable", () => {
         (useRouter as unknown as any).mockReturnValue({ push });
         vi.clearAllMocks();
         loggedIn.value = false;
+
+        globalThis.useToast = () => ({
+            add: vi.fn(),
+        });
     });
 
     describe("handleSubmit()", () => {
@@ -145,5 +149,4 @@ describe("useLogin composable", () => {
             expect(loggedIn.value).toBe(false);
         });
     });
-
 });

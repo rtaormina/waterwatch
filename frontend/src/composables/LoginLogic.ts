@@ -95,6 +95,7 @@ export function useLogin() {
      * Function to handle a user trying to log in
      */
     const handleSubmit = async () => {
+        showError.value = false;
         try {
             const response = await fetch("api/login/", {
                 method: "POST",
@@ -109,7 +110,6 @@ export function useLogin() {
             const data = await response.json();
 
             if (!response.ok) {
-                showErrorMessage(data.detail || "Login failed.");
                 throw new Error(data.detail);
             }
 
@@ -126,7 +126,6 @@ export function useLogin() {
         } catch (err: unknown) {
             const error = err as Error;
             console.error(error.message);
-
             if (error.message === "Invalid credentials.") {
                 showErrorMessage("Invalid username or password.");
             } else {
