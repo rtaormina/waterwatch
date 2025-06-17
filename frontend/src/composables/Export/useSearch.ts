@@ -27,7 +27,6 @@ const state = reactive({
  * user-defined filters, and returns the results including count and average temperature.
  *
  * @returns {Object} An object containing:
- * - `hasSearched`: A computed property indicating if a search has been performed.
  * - `isLoading`: A computed property indicating if a search is currently in progress.
  * - `results`: A computed property containing the search results (count and average temperature).
  * - `searchMeasurements`: A method to perform the search with given parameters.
