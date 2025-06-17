@@ -32,45 +32,69 @@
         <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-default" />
 
         <div class="w-full h-full flex flex-row">
-            <div
-                v-if="viewAnalytics || showCompareAnalytics"
-                class="analytics-panel left-0 top-19 md:top-0 bottom-0 md:bottom-auto w-screen md:w-4/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
-            >
-                <DataAnalyticsComponent
-                    v-if="viewAnalytics"
-                    :location="hexLocation"
-                    :month="month"
-                    @close="handleCloseAll"
-                />
-
-                <DataAnalyticsCompare
-                    v-if="showCompareAnalytics"
-                    :group1WKT="group1WKT"
-                    :group2WKT="group2WKT"
-                    :month="month"
-                    @close="handleCloseAll"
-                />
-            </div>
             <div class="relative w-full h-full">
-                <ComparisonBar
-                    v-if="compareMode"
-                    :mode="comparePhaseString"
-                    :phaseNum="comparePhaseNum"
-                    :group1Count="group1HexCount"
-                    :group2Count="group2HexCount"
-                    @cancel="exitCompareMode"
-                    @previous="goToPhase1"
-                    @next="goToPhase2"
-                    @compare="goToPhase3"
-                    @restart="goToPhase1"
-                    @exit="exitCompareMode"
-                />
-                <SelectBar
-                    v-if="selectMode"
-                    :count="count"
-                    @cancel-select="exitSelectMode"
-                    @select="handleSelectContinue"
-                />
+                <USlideover
+                    side="left"
+                    :open="showCompareAnalytics"
+                    :overlay="false"
+                    :dismissible="false"
+                    :modal="false"
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <DataAnalyticsCompare
+                                v-if="showCompareAnalytics"
+                                :group1WKT="group1WKT"
+                                :group2WKT="group2WKT"
+                                :month="month"
+                                @close="handleCloseAll"
+                            />
+                        </div>
+                    </template>
+                    <ComparisonBar
+                        v-if="compareMode"
+                        :mode="comparePhaseString"
+                        :phaseNum="comparePhaseNum"
+                        :group1Count="group1HexCount"
+                        :group2Count="group2HexCount"
+                        @cancel="exitCompareMode"
+                        @previous="goToPhase1"
+                        @next="goToPhase2"
+                        @compare="goToPhase3"
+                        @restart="goToPhase1"
+                        @exit="exitCompareMode"
+                    />
+                </USlideover>
+                <USlideover
+                    side="left"
+                    v-model:open="viewAnalytics"
+                    :overlay="false"
+                    :dismissible="false"
+                    :modal="false"
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <DataAnalyticsComponent
+                                v-if="viewAnalytics"
+                                :location="hexLocation"
+                                :month="month"
+                                @close="handleCloseAll"
+                            />
+                        </div>
+                    </template>
+                    <SelectBar
+                        v-if="selectMode"
+                        :count="count"
+                        @cancel-select="exitSelectMode"
+                        @select="handleSelectContinue"
+                    />
+                </USlideover>
                 <HexMap
                     ref="hexMapRef"
                     :colors="colors"

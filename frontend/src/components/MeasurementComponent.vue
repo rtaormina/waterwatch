@@ -13,7 +13,7 @@ import {
     waterSourceOptions,
 } from "../composables/MeasurementCollectionLogic.ts";
 import * as L from "leaflet";
-import { useToast } from "@nuxt/ui/runtime/composables/useToast";
+import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 
 const cookies = new Cookies();
 const router = useRouter();
