@@ -193,9 +193,11 @@ defineExpose({
                                 content: 'w-48 z-50',
                             }"
                         >
-                            <user-icon
-                                class="w-7 h-10 text-inverted cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
-                            />
+                            <div data-testid="user-icon-wrapper">
+                                <user-icon
+                                    class="w-7 h-10 text-inverted cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
+                                />
+                            </div>
                         </UDropdownMenu>
                     </div>
                     <div v-else>
