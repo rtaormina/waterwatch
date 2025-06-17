@@ -7,52 +7,54 @@
 Export with Filters and View in Map
 
 ## Tested By
-`tester`
+`stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-06-17`
 
 ## Summary
 Apply filters on the export page and visualize the filtered data on the map.
 
 ## Preconditions
-*State or setup required before test execution*
+3+ measurements in different continents with different temperatures.
 
 ## Test Steps
-*List of sequential steps to execute the test*
+1. Open the export page
+2. Filter by a continent that has measurements
+3. Select view in map
+4. Toggle legend to count
+5. Toggle time range
+6. Click go back
 
 ## Test Data
-*Enter data used for testing*
+n/a
 
 ## Expected Result
-*What should happen if the test passes*
+The matching filtered data should appear on the map with no other data. When toggling the legend should function normally and the time range should work to filter out measurements by month. Going back should maintain the preselected filters.
 
 ## Actual Result
-*To be filled during test execution*
+Mostly working, there are some issues with the legend.
 
 ## Status
-- Pass
 - Fail
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+- Low:
+The time range defaults to past 30 days which can be misleading for users who are filtering by a date that was not in the past 30 days, as it then appears that there were no results for the filter they set. Additionally the legend pointer is not pointing to the legend button but the go back button.
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
-| Environment  |           |
+| Browser      |  Firefox      |
+| OS           |  Windows     |
+| Device       |  Laptop         |
+| Environment  |  Development         |
 
 
 ## Related Requirement / User Story
-*Link or ID referencing the user story or requirement*
-
+#134
 
 ## Attachments
-*Screenshots, logs, or notes*
 
 ## Additional Notes
+- another manual test for production should be carried out once this feature is added to production.

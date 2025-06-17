@@ -7,10 +7,10 @@
 Export with Presets (In production)
 
 ## Tested By
-`tester`
+`stella`
 
 ## Test Date
-`YYYY-MM-DD`
+`2025-06-17`
 
 ## Summary
 Apply a preset when exporting and only get the filtered data included in the preset.
@@ -40,22 +40,20 @@ Temperature range: 50-100C
 The preset should appear visibly applied once selected in the preset dropdown. Only the measurements in europe with temperature in the 50-100 range should be in the downloaded CSV.
 
 ## Actual Result
-*To be filled during test execution*
+As expected
 
 ## Status
 - Pass
 
 ## Severity (if failed)
-- High
-- Medium
-- Low
+n/a
 
 ## Environment
 | Detail       | Value            |
 |--------------|------------------|
-| Browser      |        |
-| OS           |       |
-| Device       |           |
+| Browser      |  Firefox      |
+| OS           |   Windows    |
+| Device       |   Laptop        |
 | Environment  |   Production        |
 
 
