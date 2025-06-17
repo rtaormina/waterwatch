@@ -301,7 +301,16 @@ def search_measurements_view(request):
     Parameters
     ----------
     request : HttpRequest
-        The HTTP request object with filter parameters in the request body.
+        The HTTP request object containing JSON data with optional:
+        - month: Month parameter for temporal filtering
+        - boundary_geometry: WKT of a polygon to filter measurements within that area
+        - water_sources: List of water sources to filter by
+        - temperature: Dictionary with 'min' and 'max' values to filter measurements by temperature
+        - date_range: Dictionary with 'start' and 'end' dates to filter measurements by date
+        - time_slots: List of time slots to filter measurements by time
+        - location: Dictionary with 'country' and 'continent' to filter measurements by location
+        - format: Optional export format (csv, json, xml, geojson, map-format, analysis-format)
+        - measurements_included: List of metric types to include in the export
 
     Returns
     -------

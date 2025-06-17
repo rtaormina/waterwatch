@@ -304,6 +304,7 @@ def analyzed_measurements_view(request):
     request : HttpRequest
         The HTTP request object containing JSON data with optional:
         - month: Month parameter for temporal filtering
+        - boundary_geometry: WKT of a polygon to filter measurements within that area
 
     Returns
     -------
