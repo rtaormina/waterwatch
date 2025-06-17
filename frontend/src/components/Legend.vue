@@ -140,6 +140,7 @@ import { useLegendStore } from "../stores/LegendStore";
 
 const legendStore = useLegendStore();
 const props = defineProps<{
+    fromExport: boolean;
     colors: string[];
 }>();
 
@@ -148,7 +149,24 @@ const emit = defineEmits<{
 }>();
 
 const isMulti = computed(() => internalValue.value !== "Past 30 Days");
-const internalValue = ref<string | string[]>("Past 30 Days");
+const internalValue = ref<string | string[]>(
+    props.fromExport
+        ? [
+              "January",
+              "February",
+              "March",
+              "April",
+              "May",
+              "June",
+              "July",
+              "August",
+              "September",
+              "October",
+              "November",
+              "December",
+          ]
+        : "Past 30 Days",
+);
 const showInfoTextTime = ref(false);
 const showInfoTextColoring = ref(false);
 
@@ -263,17 +281,5 @@ const step = computed(() => (legendStore.scale[1] - legendStore.scale[0]) / 5);
     box-shadow:
         0 10px 15px -3px rgba(0, 0, 0, 0.1),
         0 4px 6px -4px rgba(0, 0, 0, 0.1);
-}
-
-.legend-popup::before {
-    content: "";
-    position: absolute;
-    top: 0.15rem;
-    right: 13rem;
-    transform: translateY(-100%);
-    border-width: 0 0.6rem 0.6rem 0.6rem;
-    border-style: solid;
-    border-color: transparent transparent var(--border-color-default) transparent;
-    border-radius: 0.75rem;
 }
 </style>

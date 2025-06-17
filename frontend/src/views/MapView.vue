@@ -116,6 +116,7 @@
                     class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
+                    :fromExport="false"
                     @update="updateMapFilters"
                 />
             </div>

@@ -59,11 +59,15 @@
                     class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
                     v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
                 >
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="returnToExport">
-                        <div class="flex items-center">
-                            <ChevronLeftIcon class="w-10 h-10" />
-                            <span class="leading-none mr-2 whitespace-nowrap text-2xl">Go Back</span>
-                        </div>
+                    <button
+                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                        @click="
+                            addMeasurement = false;
+                            viewAnalytics = false;
+                            showLegend = !showLegend;
+                        "
+                    >
+                        <AdjustmentsVerticalIcon class="w-10 h-10" />
                     </button>
                     <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
                         <ScaleIcon class="w-10 h-10" />
@@ -75,15 +79,11 @@
                     >
                         <SquaresPlusIcon class="w-10 h-10" />
                     </button>
-                    <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        @click="
-                            addMeasurement = false;
-                            viewAnalytics = false;
-                            showLegend = !showLegend;
-                        "
-                    >
-                        <AdjustmentsVerticalIcon class="w-10 h-10" />
+                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="returnToExport">
+                        <div class="flex items-center">
+                            <ChevronLeftIcon class="w-10 h-10" />
+                            <span class="leading-none mr-2 whitespace-nowrap text-2xl">Go Back</span>
+                        </div>
                     </button>
                 </div>
 
@@ -92,6 +92,7 @@
                     class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
+                    :fromExport="true"
                     @update="updateMapFilters"
                 />
             </div>
