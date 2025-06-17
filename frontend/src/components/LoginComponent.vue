@@ -36,22 +36,22 @@ defineExpose({
             <div class="w-full max-w-md p-6 input-container">
                 <form @submit.prevent="handleSubmit" class="space-y-5 form-container">
                     <div>
-                        <label class="block text-lg font-medium text-gray-700">Username</label>
+                        <label class="block text-lg font-medium text-default">Username</label>
                         <input
                             type="text"
                             v-model="formData.username"
                             placeholder="Your Username"
-                            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md placeholder:italic focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            class="w-full mt-1 px-4 py-2 border border-accented rounded-md placeholder:italic focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                     </div>
 
                     <div>
-                        <label class="block text-lg font-medium text-gray-700">Password</label>
+                        <label class="block text-lg font-medium text-default">Password</label>
                         <input
                             type="password"
                             v-model="formData.password"
                             placeholder="Your Password"
-                            class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none italic focus:ring-2 focus:ring-blue-400"
+                            class="w-full mt-1 px-4 py-2 border border-accented rounded-md focus:outline-none italic focus:ring-2 focus:ring-primary"
                         />
                         <!-- Add once we have account system -->
                         <!-- <div class="text-left">
@@ -59,17 +59,18 @@ defineExpose({
                         </div> -->
                     </div>
 
-                    <div v-if="showError" class="text-red-500 text-sm mt-1">{{ errorMessage }}</div>
+                    <div v-if="showError" class="text-error text-sm mt-1">{{ errorMessage }}</div>
 
-                    <button
+                    <UButton
+                        data-testid="login-button"
                         type="submit"
-                        class="w-full py-2 text-white bg-[#00A6D6] rounded-md hover:bg-sky-600 transition hover:cursor-pointer"
+                        class="w-full py-2 text-inverted text-lg bg-primary rounded-md justify-center transition hover:cursor-pointer"
                     >
                         Log In
-                    </button>
+                    </UButton>
 
                     <!-- Turn into email link once email address exists -->
-                    <p class="text-center text-sm text-gray-600">
+                    <p class="text-center text-sm text-toned">
                         Don’t have an account? Send an email to
                         <b>waterwatch@tudelft.nl</b>
                         to register!
