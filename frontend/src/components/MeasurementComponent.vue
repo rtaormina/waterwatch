@@ -64,6 +64,13 @@ function submitData() {
     const validTemperature =
         !selectedMetrics.value.includes("temperature") || TemperatureMetricComponent.value?.verify();
     if (validMeasurement && validTemperature) postDataCheck();
+    else {
+        toast.add({
+            title: "Please fill in all required fields.",
+            color: "error",
+            icon: "heroicons-solid:exclamation-triangle",
+        });
+    }
 }
 
 const emit = defineEmits<{
@@ -104,7 +111,7 @@ const postData = () => {
                 toast.add({
                     title: "Error Submitting Measurement!",
                     color: "error",
-                    icon: "heroicons-solid:exclamation-circle",
+                    icon: "heroicons-solid:exclamation-triangle",
                 });
             }
         })
@@ -113,7 +120,7 @@ const postData = () => {
                 title: "Error Submitting Measurement!",
                 description: err.message,
                 color: "error",
-                icon: "heroicons-solid:exclamation-circle",
+                icon: "heroicons-solid:exclamation-triangle",
             });
             console.error(err);
         })
@@ -135,6 +142,11 @@ const postDataCheck = () => {
     if (selectedMetrics.value.includes("temperature")) {
         if (temperatureValue === undefined || temperatureValue === null) {
             TemperatureMetricComponent.value?.verify();
+            toast.add({
+                title: "Please fill in the temperature value.",
+                color: "error",
+                icon: "heroicons-solid:exclamation-circle",
+            });
             return;
         }
         if (temperatureUnit === "F") {
