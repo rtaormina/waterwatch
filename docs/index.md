@@ -54,6 +54,6 @@ WATERWATCH welcomes feedback and contributions! Feel free to [open an issue](htt
 
    mobile_app/development
    mobile_app/installation
-   mobile_app/testing
+   mobile_app/contribution_guide
 
 ```
