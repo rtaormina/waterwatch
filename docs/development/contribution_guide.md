@@ -10,17 +10,17 @@ In this section you will find the guidelines for contributing and offering sugge
 ## Reporting Bugs
 This section contains resources on how to report a bug for WATERWATCH.
 
-Bugs are tracked as [issues](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2024-2025/cluster-e/06c/06c/-/issues) on the WATERWATCH gitlab. Reporting bugs is done by creating an issue and filling in the [bug report template](). When reporting bugs, try to include as many relevant details as possible to help the community and maintainers understand, reproduce, and fix the behaviors observed.
+Bugs are tracked as [issues](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2024-2025/cluster-e/06c/06c/-/issues) on the WATERWATCH gitlab. Reporting bugs is done by creating an issue and filling in the [bug report template](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2024-2025/cluster-e/06c/06c/-/blob/main/.gitlab/issue_templates/bugreport.md?ref_type=heads). When reporting bugs, try to include as many relevant details as possible to help the community and maintainers understand, reproduce, and fix the behaviors observed.
 
 ```{eval-rst}
 .. tip::
-Before you submit the report, be sure to check out our [troubleshooting steps](troubleshooting.md) to see if the problem is something you can already fix yourself.
+Before you submit the report, be sure to check out our `troubleshooting steps <troubleshooting.html>`_ to see if the problem is something you can already fix yourself.
 ```
 
 ## Suggesting Improvements
 WATERWATCH welcomes suggestions from the community! This section contains information on how to suggest potential improvements to the website.
 
-Suggesting potential features or improvements is done by creating an [issue](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2024-2025/cluster-e/06c/06c/-/issues) and filling in the [feature request template](). Please provide as many details as possible when filling in this template so that contributors will understand your suggestion and the motivation behind making it.
+Suggesting potential features or improvements is done by creating an [issue](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2024-2025/cluster-e/06c/06c/-/issues) and filling in the [feature request template](https://gitlab.ewi.tudelft.nl/cse2000-software-project/2024-2025/cluster-e/06c/06c/-/blob/main/.gitlab/issue_templates/featuresuggestions.md?ref_type=heads). Please provide as many details as possible when filling in this template so that contributors will understand your suggestion and the motivation behind making it.
 
 ## Code Contributions
 This section contains information on how to contribute to the WATERWATCH code base.
@@ -65,7 +65,7 @@ Commit messages should be concise but descriptive and contain information about 
 Changes should never be merged directly into main. Contributions should always be merged into dev first by creating a merge request, and dev is regularly merged into main. When creating a merge request, contributors must use the provided merge request template.
 
 ### Testing
-Contributions should generally be supported by unit tests. Frontend unit testing is done using [vitest](https://vitest.dev/), backend unit testing is done using django [unittest](https://docs.djangoproject.com/en/5.2/topics/testing/).
+Contributions should generally be supported by unit tests and manual tests. Frontend unit testing is done using [vitest](https://vitest.dev/), backend unit testing is done using django [unittest](https://docs.djangoproject.com/en/5.2/topics/testing/). Where applicable, fill in a the [manual testing template](../manual_testing/template.md) to record manual tests.
 
 Where applicable, end-to-end testing should also be carried out. End-to-end testing is done using [Playwright](https://playwright.dev/). Generally if significant changes to the UI/frontend are made these should be supported by an end to end test. To ensure that data modified during end-to-end testing does not affect the production database, a separate docker-compose file is used. See below for how to run the test version of WATERWATCH.
 
