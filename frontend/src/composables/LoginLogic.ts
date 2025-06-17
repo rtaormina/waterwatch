@@ -10,6 +10,7 @@ export const loggedIn = ref(false);
 export function useLogin() {
     const router = useRouter();
     const cookies = new Cookies();
+    const toast = useToast();
 
     const formData = reactive({
         username: "",
@@ -27,6 +28,13 @@ export function useLogin() {
     const showErrorMessage = (message: string) => {
         errorMessage.value = message;
         showError.value = true;
+        toast.add({
+            title: "Login Error",
+            description: message,
+            icon: "heroicons:exclamation-circle",
+            color: "error",
+            duration: 2500,
+        });
     };
 
     /**
@@ -109,7 +117,6 @@ export function useLogin() {
             const data = await response.json();
 
             if (!response.ok) {
-                showErrorMessage(data.detail || "Login failed.");
                 throw new Error(data.detail);
             }
 
@@ -126,7 +133,6 @@ export function useLogin() {
         } catch (err: unknown) {
             const error = err as Error;
             console.error(error.message);
-
             if (error.message === "Invalid credentials.") {
                 showErrorMessage("Invalid username or password.");
             } else {
