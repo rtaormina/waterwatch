@@ -87,9 +87,9 @@ vi.mock("@vuepic/vue-datepicker", () => ({
     default: {
         name: "VueDatePicker",
         template: `
-            <input 
+            <input
                 data-testid="vue-datepicker"
-                :value="modelValue" 
+                :value="modelValue"
                 @input="$emit('update:modelValue', $event.target.value)"
                 :placeholder="placeholder"
             />
@@ -112,7 +112,12 @@ vi.mock("./Measurement/MeasurementBlock.vue", () => ({
     },
 }));
 import MapView from "../../../src/views/MapView.vue";
-import VueDatePicker from "@vuepic/vue-datepicker";
+
+vi.mock("@nuxt/ui/runtime/composables/useToast", () => ({
+    useToast: () => ({
+        add: vi.fn(),
+    }),
+}));
 
 describe("MapView first-time modal appears", () => {
     beforeEach(() => {
