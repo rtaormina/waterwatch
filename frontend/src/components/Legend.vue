@@ -144,7 +144,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-    (e: "update", value: string | string[]): void;
+    (e: "update", value: number | number[]): void;
 }>();
 
 const isMulti = computed(() => internalValue.value !== "Past 30 Days");

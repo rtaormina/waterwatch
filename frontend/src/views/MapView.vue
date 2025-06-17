@@ -83,6 +83,7 @@
                     :selectMult="selectMult && !compareMode"
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
+                    :month="month"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -115,7 +116,6 @@
                     class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
-                    @close="handleCloseAll"
                     @update="updateMapFilters"
                 />
             </div>
