@@ -62,6 +62,13 @@ vi.mock("vue", async () => {
     };
 });
 
+vi.mock("vue-router", () => ({
+  useRoute: () => ({
+    query: {},
+    params: {},
+  }),
+}));
+
 describe("FilterPanelComponent.vue - country filtering UI", () => {
     let wrapper: VueWrapper<any>;
 
