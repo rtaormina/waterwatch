@@ -2,8 +2,10 @@
 import axios from "axios";
 import * as d3 from "d3";
 import Cookies from "universal-cookie";
+import { useSearch, type MeasurementSearchParams } from "../Export/useSearch";
 
 const cookies = new Cookies();
+const { flattenSearchParams } = useSearch();
 
 /**
  * Creates an Epanechnikov kernel function with a specified bandwidth.
@@ -110,12 +112,12 @@ export async function getGraphData(location?: string, month?: string): Promise<n
  * @returns the numeric values for the temperatures
  */
 export async function getGraphDataExportMapView(
-    exportFilters?: object,
+    exportFilters: MeasurementSearchParams,
     hexagon?: string,
     legendMonth?: string,
 ): Promise<number[]> {
     const bodyData = {
-        ...exportFilters,
+        ...flattenSearchParams(exportFilters),
         boundary_geometry: hexagon,
         month: legendMonth,
         format: "analysis-format",
