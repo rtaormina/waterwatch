@@ -68,8 +68,8 @@
     }
 }
 .leaflet-popup-content-wrapper {
-    background: var(--background-color-default);
-    color: var(--text-color-default);
+    background: var(--background-color-default) !important;
+    color: var(--text-color-default) !important;
 }
 
 @layer base {
