@@ -1,11 +1,7 @@
 openapi: 3.0.0
 servers:
-  - description: SwaggerHub API Auto Mocking
-    url: 'https://virtserver.swaggerhub.com/nicohammer-072/WATERWATCH_API/0.1.0'
-  - url: 'https://api.waterwatch.tudelft.nl/api'
+  - url: 'https://waterwatch.tudelft.nl/api'
     description: Production server (public API for all users)
-  - url: 'https://staging.waterwatch.tudelft.nl/api'
-    description: Staging server (for testing new features)
   - url: 'http://localhost:8000/api'
     description: Local development
 info:
@@ -34,7 +30,8 @@ tags:
 paths:
   /measurements:
     get:
-      tags: [measurements]
+      tags:
+        - measurements
       summary: Retrieve all measurements.
       description: |
         Returns a list of all measurements. Supports optional filtering by date, location, campaign, etc.
@@ -52,26 +49,10 @@ paths:
           description: Bad input parameter.
         '404':
           description: Not found.
-  '/users/{userId}':
-    parameters:
-      - in: path
-        name: userId
-        required: true
-        schema:
-          type: string
-          format: uuid
-  '/campaigns/{campaignId}':
-    parameters:
-      - in: path
-        name: campaignId
-        required: true
-        schema:
-          type: string
-          format: uuid
-
   /api/measurements/:
     get:
-      tags: [measurements]
+      tags:
+        - measurements
       summary: Retrieve all measurements
       responses:
         '200':
@@ -83,7 +64,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Measurement'
     post:
-      tags: [measurements]
+      tags:
+        - measurements
       summary: Add a new measurement
       requestBody:
         required: true
@@ -92,17 +74,19 @@ paths:
             schema:
               $ref: '#/components/schemas/MeasurementPayload'
             example:
-              timestamp: "2025-06-17T12:34:56.000Z"
-              local_date: "2025-06-17"
-              local_time: "14:34:56"
+              timestamp: '2025-06-17T12:34:56.000Z'
+              local_date: '2025-06-17'
+              local_time: '14:34:56'
               location:
-                type: "Point"
-                coordinates: [4.895, 52.370]
-              water_source: "well"
+                type: Point
+                coordinates:
+                  - 4.895
+                  - 52.37
+              water_source: well
               temperature:
-                sensor: "Analog Thermometer"
+                sensor: Analog Thermometer
                 value: 22.5
-                time_waited: "00:05:00"
+                time_waited: '00:05:00'
       responses:
         '201':
           description: Measurement created
@@ -112,11 +96,89 @@ paths:
                 $ref: '#/components/schemas/Measurement'
         '400':
           $ref: '#/components/responses/BadRequest'
-
+  /api/measurements/locations/:
+    get:
+      tags:
+        - measurements
+      summary: Get list of countries by continent
+      description: Returns a JSON object whose keys are continent names and values are arrays of country names.
+      responses:
+        '200':
+          description: Map of continents to country lists
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+              example:
+                Africa:
+                  - Algeria
+                  - Egypt
+                Asia:
+                  - China
+                  - India
+                Europe:
+                  - Netherlands
+                  - Germany
+    parameters: []
+  /api/measurements/presets/:
+    get:
+      tags:
+        - measurements
+      summary: Get list of public presets
+      description: Returns all presets marked as `is_public=true`.
+      responses:
+        '200':
+          description: List of presets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  presets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Preset'
+              example:
+                presets:
+                  - id: 1
+                    name: "Daily Summary"
+                    description: "Aggregate data every 24h"
+                    filters:
+                      dateRange:
+                        from: "2025-06-01"
+                        to: "2025-06-30"
+                      measurements_included:
+                        - "temperature"
+                        - "waterSources"
+                    created_by: "admin"
+                    created_at: "2025-04-15T09:30:00Z"
+                    updated_at: "2025-05-10T14:45:00Z"
+                    is_public: true
+                  - id: 2
+                    name: "Urban Rivers"
+                    description: "Temperatures from city waterways"
+                    filters:
+                      location:
+                        continents: ["Europe"]
+                        countries: ["Netherlands", "Germany"]
+                      measurements_included:
+                        - "temperature"
+                    created_by: "researcher"
+                    created_at: "2025-03-20T16:00:00Z"
+                    updated_at: "2025-03-22T08:15:00Z"
+                    is_public: true
+    parameters: []
   /api/measurements/search/:
     post:
-      tags: [measurements]
+      tags:
+        - measurements
       summary: Search measurements
+      description: |
+        Perform a filtered search over measurements.   Supports filtering by date range, location (continents & countries), water‑source, temperature range, included metrics, and time windows.
       requestBody:
         required: true
         content:
@@ -124,11 +186,23 @@ paths:
             schema:
               $ref: '#/components/schemas/MeasurementSearchRequest'
             example:
-              start_date: "2025-01-01T00:00:00Z"
-              end_date: "2025-06-17T23:59:59Z"
-              metrics:
-                - "temperature"
-                - "humidity"
+              'dateRange[from]': '2025-06-05'
+              'dateRange[to]': '2025-06-12'
+              'location[continents]':
+                - Europe
+                - Asia
+              'location[countries]':
+                - Netherlands
+                - India
+              measurements_included:
+                - waterSources
+                - temperature
+              'measurements[waterSources]':
+                - well
+                - river
+              'measurements[temperature][from]': 5
+              'measurements[temperature][to]': 10
+              times: '[{"from":"08:00","to":"13:00"}]'
       responses:
         '200':
           description: Search results
@@ -140,10 +214,10 @@ paths:
                   $ref: '#/components/schemas/Measurement'
         '400':
           $ref: '#/components/responses/BadRequest'
-
   /api/measurements/temperatures/:
     post:
-      tags: [measurements]
+      tags:
+        - measurements
       summary: Retrieve temperature measurements
       requestBody:
         content:
@@ -152,10 +226,21 @@ paths:
               $ref: '#/components/schemas/TemperatureRequest'
             example:
               boundary_geometry:
-                type: "Polygon"
+                type: Polygon
                 coordinates:
-                  - [[4.88,52.36],[4.90,52.36],[4.90,52.38],[4.88,52.38],[4.88,52.36]]
-              month: [0, 6]
+                  - - - 4.88
+                      - 52.36
+                    - - 4.9
+                      - 52.36
+                    - - 4.9
+                      - 52.38
+                    - - 4.88
+                      - 52.38
+                    - - 4.88
+                      - 52.36
+              month:
+                - 0
+                - 6
       responses:
         '200':
           description: List of temperature values
@@ -169,10 +254,10 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalError'
-
   /api/login/:
     post:
-      tags: [users]
+      tags:
+        - users
       summary: Authenticate and log in a user
       description: |
         Expects JSON with `username` and `password`.  
@@ -184,8 +269,8 @@ paths:
             schema:
               $ref: '#/components/schemas/LoginRequest'
             example:
-              username: "admin"
-              password: "secret123"
+              username: admin
+              password: secret123
       responses:
         '200':
           description: Successfully logged in
@@ -195,10 +280,10 @@ paths:
                 $ref: '#/components/schemas/LoginResponse'
         '400':
           $ref: '#/components/responses/BadCredentials'
-
   /api/logout/:
     post:
-      tags: [users]
+      tags:
+        - users
       summary: Log out the current user
       description: Invalid if not authenticated.
       responses:
@@ -209,7 +294,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenericDetail'
                 example:
-                  detail: "Successfully logged out."
+                  detail: Successfully logged out.
         '400':
           description: User not logged in
           content:
@@ -217,11 +302,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenericDetail'
                 example:
-                  detail: "You're not logged in."
-
+                  detail: You're not logged in.
   /api/session/:
     get:
-      tags: [users]
+      tags:
+        - users
       summary: Check authentication status (sets CSRF cookie)
       responses:
         '200':
@@ -230,10 +315,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SessionResponse'
-
   /api/whoami/:
     get:
-      tags: [users]
+      tags:
+        - users
       summary: Get authenticated username
       responses:
         '200':
@@ -244,10 +329,10 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/WhoAmIResponse'
                   - $ref: '#/components/schemas/SessionResponse'
-
   /api/user-permissions/:
     get:
-      tags: [users]
+      tags:
+        - users
       summary: List user's groups and permissions
       security:
         - cookieAuth: []
@@ -260,10 +345,10 @@ paths:
                 $ref: '#/components/schemas/UserPermissionsResponse'
         '403':
           description: Forbidden (not authenticated)
-
   /api/health/:
     get:
-      tags: [users]
+      tags:
+        - users
       summary: Health check
       description: Returns status ok when server is up.
       responses:
@@ -273,10 +358,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
-
   /api/campaigns/active/:
     get:
-      tags: [campaigns]
+      tags:
+        - campaigns
       summary: Retrieve active campaigns
       description: |
         Returns all campaigns active at the given datetime and within the specified location.
@@ -288,7 +373,7 @@ paths:
           schema:
             type: string
             format: date-time
-            example: "2025-06-17T12:00:00Z"
+            example: '2025-06-17T12:00:00Z'
         - name: lat
           in: query
           description: Latitude to filter campaigns by region proximity
@@ -296,7 +381,7 @@ paths:
           schema:
             type: number
             format: float
-            example: 52.370
+            example: 52.37
         - name: lng
           in: query
           description: Longitude to filter campaigns by region proximity
@@ -315,19 +400,28 @@ paths:
               example:
                 campaigns:
                   - id: 123
-                    name: "Summer Promo"
-                    description: "Discounts on all summer items"
-                    start_time: "2025-06-01T00:00:00Z"
-                    end_time: "2025-08-31T23:59:59Z"
+                    name: Summer Promo
+                    description: Discounts on all summer items
+                    start_time: '2025-06-01T00:00:00Z'
+                    end_time: '2025-08-31T23:59:59Z'
                     region:
-                      type: "Polygon"
+                      type: Polygon
                       coordinates:
-                        - [[4.88,52.36],[4.90,52.36],[4.90,52.38],[4.88,52.38],[4.88,52.36]]
+                        - - - 4.88
+                            - 52.36
+                          - - 4.9
+                            - 52.36
+                          - - 4.9
+                            - 52.38
+                          - - 4.88
+                            - 52.38
+                          - - 4.88
+                            - 52.36
                   - id: 456
-                    name: "Heat Wave Alert"
-                    description: "Special campaigns during heat waves"
-                    start_time: "2025-06-15T08:00:00Z"
-                    end_time: "2025-06-20T20:00:00Z"
+                    name: Heat Wave Alert
+                    description: Special campaigns during heat waves
+                    start_time: '2025-06-15T08:00:00Z'
+                    end_time: '2025-06-20T20:00:00Z'
                     region: null
         '400':
           description: Invalid or missing datetime
@@ -336,15 +430,57 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
               example:
-                error: "Invalid or missing datetime"
-
+                error: Invalid or missing datetime
+  /api/measurements/aggregated/:
+    post:
+      tags:
+        - measurements
+      summary: Export aggregated measurements
+      description: |
+        Returns measurements aggregated by location and month, optionally filtered by one or more months (0 = last 30 days). Uses smart caching for performance.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AggregatedRequest'
+            example:
+              month:
+                - 6
+                - 7
+      responses:
+        '200':
+          description: Aggregated measurements payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AggregatedMeasurementsResponse'
+              example:
+                measurements:
+                  - location:
+                      type: Point
+                      coordinates:
+                        - 4.895
+                        - 52.37
+                    longitude: 4.895
+                    latitude: 52.37
+                    month: 6
+                    count: 12
+                    avg_temperature: 21.4
+                    min_temperature: 19.8
+                    max_temperature: 24.1
+                count: 1
+                status: success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
 components:
   securitySchemes:
     cookieAuth:
       type: apiKey
       in: cookie
       name: sessionid
-
   responses:
     BadRequest:
       description: Invalid request parameters or payload
@@ -353,7 +489,7 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error: "Invalid or missing parameter"
+            error: Invalid or missing parameter
     InternalError:
       description: Internal server error
       content:
@@ -361,7 +497,7 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
           example:
-            error: "Internal server error"
+            error: Internal server error
     BadCredentials:
       description: Missing or invalid username/password
       content:
@@ -369,9 +505,134 @@ components:
           schema:
             $ref: '#/components/schemas/GenericDetail'
           example:
-            detail: "Invalid credentials."
-
+            detail: Invalid credentials.
   schemas:
+    Preset:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - filters
+        - created_by
+        - created_at
+        - updated_at
+        - is_public
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        filters:
+          type: object
+          additionalProperties:
+            type: string
+          description: Arbitrary key/value filter parameters
+        created_by:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        is_public:
+          type: boolean
+    MeasurementSearchRequest:
+      type: object
+      description: Flat search parameters for measurements
+      properties:
+        'dateRange[from]':
+          type: string
+          format: date
+        'dateRange[to]':
+          type: string
+          format: date
+        'location[continents]':
+          type: array
+          items:
+            type: string
+        'location[countries]':
+          type: array
+          items:
+            type: string
+        measurements_included:
+          type: array
+          items:
+            type: string
+        'measurements[waterSources]':
+          type: array
+          items:
+            type: string
+        'measurements[temperature][from]':
+          type: number
+        'measurements[temperature][to]':
+          type: number
+        times:
+          type: string
+          description: JSON‑encoded array of time‑window objects
+      required:
+        - 'dateRange[from]'
+        - 'dateRange[to]'
+    AggregatedRequest:
+      type: object
+      properties:
+        month:
+          oneOf:
+            - type: integer
+            - type: array
+              items:
+                type: integer
+          description: |
+            Month number (1–12) or 0 for last 30 days; or list thereof.
+    AggregatedMeasurement:
+      type: object
+      required:
+        - location
+        - longitude
+        - latitude
+        - month
+        - count
+        - avg_temperature
+        - min_temperature
+        - max_temperature
+      properties:
+        location:
+          $ref: '#/components/schemas/GeoJSON'
+        longitude:
+          type: number
+          format: float
+        latitude:
+          type: number
+          format: float
+        month:
+          type: integer
+        count:
+          type: integer
+        avg_temperature:
+          type: number
+        min_temperature:
+          type: number
+        max_temperature:
+          type: number
+    AggregatedMeasurementsResponse:
+      type: object
+      required:
+        - measurements
+        - count
+        - status
+      properties:
+        measurements:
+          type: array
+          items:
+            $ref: '#/components/schemas/AggregatedMeasurement'
+        count:
+          type: integer
+        status:
+          type: string
+          example: success
     Measurement:
       type: object
       required:
@@ -401,7 +662,6 @@ components:
         temperature:
           nullable: true
           $ref: '#/components/schemas/TemperatureDetail'
-
     MeasurementPayload:
       type: object
       required:
@@ -427,21 +687,6 @@ components:
         temperature:
           nullable: true
           $ref: '#/components/schemas/TemperatureDetail'
-
-    MeasurementSearchRequest:
-      type: object
-      properties:
-        start_date:
-          type: string
-          format: date-time
-        end_date:
-          type: string
-          format: date-time
-        metrics:
-          type: array
-          items:
-            type: string
-
     TemperatureRequest:
       type: object
       properties:
@@ -453,7 +698,6 @@ components:
             - type: array
               items:
                 type: integer
-
     TemperatureDetail:
       type: object
       required:
@@ -468,7 +712,6 @@ components:
         time_waited:
           type: string
           pattern: '^\\d{2}:\\d{2}:\\d{2}$'
-
     GeoJSON:
       type: object
       required:
@@ -479,14 +722,13 @@ components:
           type: string
         coordinates:
           type: array
-          items: 
+          items:
             type: number
     ErrorResponse:
       type: object
       properties:
         error:
           type: string
-
     LoginRequest:
       type: object
       required:
@@ -497,44 +739,39 @@ components:
           type: string
         password:
           type: string
-
     LoginResponse:
       type: object
       properties:
         detail:
           type: string
-          example: "Successfully logged in."
+          example: Successfully logged in.
         groups:
           type: array
           items:
             type: string
-
     GenericDetail:
       type: object
       properties:
         detail:
           type: string
-
     SessionResponse:
       type: object
       properties:
         isAuthenticated:
           type: boolean
           example: false
-
     WhoAmIResponse:
       type: object
       properties:
         username:
           type: string
-          example: "admin"
-
+          example: admin
     UserPermissionsResponse:
       type: object
       properties:
         username:
           type: string
-          example: "alice"
+          example: alice
         groups:
           type: array
           items:
@@ -546,15 +783,14 @@ components:
         is_superuser:
           type: boolean
           example: false
-
     HealthResponse:
       type: object
       properties:
         status:
           type: string
-          enum: ["ok"]
-          example: "ok"
-
+          enum:
+            - ok
+          example: ok
     ActiveCampaignsResponse:
       type: object
       properties:
@@ -562,7 +798,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Campaign'
-
     Campaign:
       type: object
       required:
@@ -587,4 +822,4 @@ components:
         region:
           oneOf:
             - $ref: '#/components/schemas/GeoJSON'
-            - type: 'object'
+            - type: object
