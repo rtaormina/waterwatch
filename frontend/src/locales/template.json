@@ -115,17 +115,14 @@
             "title": "",
             "text": ""
         },
-        "step1": {
+        "measurement":{
             "title": "",
-            "text": ""
-        },
-        "step2": {
-            "title": "",
-            "text": ""
-        },
-        "step3": {
-            "title": "",
-            "text": ""
+            "text1": "",
+            "caption1": "",
+            "text2": "",
+            "caption2": "",
+            "text3": "",
+            "caption3": ""
         },
         "conclusion": {
             "title": "",

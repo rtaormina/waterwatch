@@ -336,29 +336,68 @@
                         <TextSection :title="t('app.introduction.title')">
                             <p>{{ t("app.introduction.text") }}</p>
                         </TextSection>
-                        <TextSectionSplit>
+                        <TextSectionFlex :title="t('app.measurement.title')">
                             <template #left>
-                                <TextSubSection :title="t('app.step1.title')">
-                                    <p>{{ t("app.step1.text") }}</p>
-                                </TextSubSection>
-                                <TextSubSection :title="t('app.step2.title')">
-                                    <p>{{ t("app.step2.text") }}</p>
-                                </TextSubSection>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/images/measurement-mobile.png"
+                                        alt="Measurement data entry screen"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("app.measurement.caption1") }}
+                                    </figcaption>
+                                </figure>
                             </template>
-
-                            <TextSubSection :title="t('app.step3.title')">
-                                <p>{{ t("app.step3.text") }}</p>
-                            </TextSubSection>
                             <template #right>
-                                <USkeleton class="w-full aspect-video"></USkeleton>
+                                <TextSubSection>
+                                    <p>{{ t("app.measurement.text1") }}</p>
+                                </TextSubSection>
                             </template>
-                        </TextSectionSplit>
+                        </TextSectionFlex>
+                        <TextSectionFlex>
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/images/temp-mobile.png"
+                                        alt="Measurement temperature entry screen"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("app.measurement.caption2") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p>{{ t("app.measurement.text2") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+
+                        <TextSectionFlex>
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/images/duration-mobile.png"
+                                        alt="Measurement temperature entry screen"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("app.measurement.caption3") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p>{{ t("app.measurement.text3") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+
                         <TextSection :title="t('app.conclusion.title')">
                             <TextSubSection>
                                 <p>{{ t("app.conclusion.text") }}</p>
-                            </TextSubSection>
-                            <TextSubSection :title="t('app.next-steps.title')">
-                                <p>{{ t("app.next-steps.text") }}</p>
                             </TextSubSection>
                         </TextSection>
                     </template>
@@ -458,7 +497,6 @@
 defineOptions({ name: "TutorialsView" });
 import { computed, ref } from "vue";
 import TextSection from "../components/Text/Section.vue";
-import TextSectionSplit from "../components/Text/SectionSplit.vue";
 import TextSubSection from "../components/Text/SubSection.vue";
 import TextTabs from "../components/Text/Tabs.vue";
 import TextSectionFlex from "../components/Text/SectionFlex.vue";
