@@ -115,23 +115,55 @@ const router = createRouter({
 
 const session = useSession();
 
+// Initialize session early - this sets the CSRF token
+// Wait for this to complete before setting up router guards
+let sessionInitialized = false;
+const initPromise = session
+    .initializeSession()
+    .then(() => {
+        sessionInitialized = true;
+    })
+    .catch((err) => {
+        console.error("Failed to initialize session:", err);
+        sessionInitialized = true; // Still allow app to continue
+    });
+
 router.beforeEach(async (to) => {
-    // Group‐based auth
-    const requiredGroups = to.meta.requiredGroups as string[] | undefined;
-    if (requiredGroups?.length) {
-        const userGroups = await session.getUserGroups();
-        const ok = requiredGroups.some((g) => userGroups.includes(g));
-        return ok ? true : { name: "Unauthorized" };
+    // Ensure session is initialized before checking auth
+    if (!sessionInitialized) {
+        await initPromise;
     }
 
-    // General auth
-    if (to.meta.requiresAuth) {
-        const ok = await session.isAuthenticated();
-        return ok ? true : { name: "Unauthenticated" };
-    }
+    try {
+        // Group-based auth
+        const requiredGroups = to.meta.requiredGroups as string[] | undefined;
+        if (requiredGroups?.length) {
+            // Get fresh session data to avoid cache issues
+            const currentSession = await session.getSession();
+            const hasRequiredGroup = requiredGroups.some((requiredGroup) =>
+                currentSession.groups.includes(requiredGroup),
+            );
 
-    // Public route
-    return true;
+            if (!hasRequiredGroup) {
+                return { name: "Unauthorized" };
+            }
+        }
+
+        // General auth check
+        if (to.meta.requiresAuth) {
+            const isAuth = await session.isAuthenticated();
+            if (!isAuth) {
+                return { name: "Unauthenticated" };
+            }
+        }
+
+        // Public route or authorized
+        return true;
+    } catch (error) {
+        console.error("Error in router guard:", error);
+        // On error, redirect to safe page
+        return { name: "Unauthenticated" };
+    }
 });
 
 export default router;

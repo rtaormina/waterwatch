@@ -53,7 +53,9 @@ const router = useRouter();
 function goBack() {
     router.back();
     setTimeout(() => {
-        router.push({ path: "/" });
+        if (window.history.state === null) {
+            router.push("/");
+        }
     }, 500);
 }
 </script>
