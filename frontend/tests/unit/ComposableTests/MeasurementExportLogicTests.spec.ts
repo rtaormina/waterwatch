@@ -25,7 +25,7 @@ import * as fileSaver from "file-saver";
 import axios from "axios"; // This will be the mocked version
 import { useExportData } from "../../../src/composables/Export/useExportData.ts";
 import { useFilters } from "../../../src/composables/Export/useFilters.ts";
-import { useSearch, MeasurementSearchParams } from "../../../src/composables/Export/useSearch.ts";
+import { useSearch, MeasurementSearchParams, flattenSearchParams } from "../../../src/composables/Export/useSearch.ts";
 
 /**
  * Mock response class to simulate fetch responses
@@ -290,8 +290,6 @@ describe("useExportData", () => {
             times: [{ from: "09:00", to: "17:00" }],
         };
 
-        // Need to get flattenSearchParams from useSearch to correctly form expected body
-        const { flattenSearchParams } = useSearch();
         const expectedFlatFilters = flattenSearchParams(filters);
         const expectedBody = JSON.stringify({
             ...expectedFlatFilters,
@@ -383,8 +381,6 @@ describe("useSearch", () => {
     });
 
     it("flattens search parameters correctly", () => {
-        const { flattenSearchParams } = useSearch();
-
         const params: MeasurementSearchParams = {
             query: "test",
             location: { continents: ["Asia", "Europe"], countries: ["Japan", "Germany"] },
@@ -470,7 +466,6 @@ describe("useSearch", () => {
     });
 
     it("flattens parameters with null temperature", () => {
-        const { flattenSearchParams } = useSearch();
         const params: MeasurementSearchParams = {
             measurements: {
                 waterSources: ["Network"], // waterSources is not null

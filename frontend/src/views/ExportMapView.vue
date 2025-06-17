@@ -135,12 +135,11 @@ import SelectBar from "../components/Analysis/SelectBar.vue";
 import { useRouter } from "vue-router";
 import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
-import { useSearch } from "../composables/Export/useSearch";
+import { flattenSearchParams } from "../composables/Export/useSearch";
 
 const router = useRouter();
 const exportStore = useExportStore();
 const cookies = new Cookies();
-const { flattenSearchParams } = useSearch();
 
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
 

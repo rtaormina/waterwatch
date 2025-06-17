@@ -20,8 +20,6 @@ const state = reactive({
     avgTemp: 0,
 });
 
-const exportStore = useExportStore();
-
 /**
  * Composable for searching measurements with various filters.
 
@@ -38,6 +36,7 @@ const exportStore = useExportStore();
  */
 export function useSearch() {
     const cookies = new Cookies();
+    const exportStore = useExportStore();
 
     /**
      * Searches for measurements with the given parameters.
@@ -46,7 +45,6 @@ export function useSearch() {
      * @return {Promise<void>} A promise that resolves when the search is complete.
      */
     async function searchMeasurements(params: MeasurementSearchParams): Promise<void> {
-        exportStore.hasSearched = true;
         state.activeSearchCount++;
         state.isLoading = state.activeSearchCount > 0;
         const flatParams = flattenSearchParams(params);
@@ -63,7 +61,7 @@ export function useSearch() {
             state.count = response.data.count;
             const raw = response.data.avgTemp;
             state.avgTemp = Math.round(raw * 10) / 10;
-            state.hasSearched = true;
+            exportStore.hasSearched = true;
         } catch (err) {
             console.error("Search failed:", err);
             state.count = 0;
@@ -96,62 +94,6 @@ export function useSearch() {
         state.avgTemp = 0;
     }
 
-    /**
-     * Flattens the nested search parameters for use in API requests.
-     * This function converts the structured search parameters into a flat object
-     * suitable for URL query parameters.
-     *
-     * @param params The search parameters to flatten.
-     * @return {Record<string, any>} A flat object containing the search parameters.
-     */
-    function flattenSearchParams(params: MeasurementSearchParams): Record<string, string | string[] | undefined> {
-        const flattened: Record<string, string | string[] | undefined> = {};
-
-        if (params.query) {
-            flattened.query = params.query;
-        }
-
-        if (params.location) {
-            if (params.location.continents?.length) {
-                flattened["location[continents]"] = params.location.continents;
-            }
-            if (params.location.countries?.length) {
-                flattened["location[countries]"] = params.location.countries;
-            }
-        }
-
-        if (params.measurements) {
-            const includedMetrics = Object.entries(params.measurements)
-                .filter(([, filter]) => filter != null)
-                .map(([metric]) => metric);
-
-            if (includedMetrics.length) {
-                flattened["measurements_included"] = includedMetrics;
-            }
-        }
-
-        if (params.measurements?.waterSources?.length) {
-            flattened["measurements[waterSources]"] = params.measurements.waterSources;
-        }
-
-        if (params.measurements?.temperature) {
-            const temp = params.measurements.temperature;
-            if (temp.from) flattened["measurements[temperature][from]"] = temp.from;
-            if (temp.to) flattened["measurements[temperature][to]"] = temp.to;
-        }
-
-        if (params.dateRange) {
-            if (params.dateRange.from) flattened["dateRange[from]"] = params.dateRange.from;
-            if (params.dateRange.to) flattened["dateRange[to]"] = params.dateRange.to;
-        }
-
-        if (params.times?.length) {
-            flattened["times"] = JSON.stringify(params.times);
-        }
-
-        return flattened;
-    }
-
     return {
         // Expose primitive state value directly
         isLoading: computed(() => state.isLoading),
@@ -162,6 +104,61 @@ export function useSearch() {
         // Methods
         searchMeasurements,
         resetSearch,
-        flattenSearchParams,
     };
+}
+
+/**
+ * Flattens the nested search parameters for use in API requests.
+ * This function converts the structured search parameters into a flat object
+ * suitable for URL query parameters.
+ *
+ * @param params The search parameters to flatten.
+ * @return {Record<string, any>} A flat object containing the search parameters.
+ */
+export function flattenSearchParams(params: MeasurementSearchParams): Record<string, string | string[] | undefined> {
+    const flattened: Record<string, string | string[] | undefined> = {};
+
+    if (params.query) {
+        flattened.query = params.query;
+    }
+
+    if (params.location) {
+        if (params.location.continents?.length) {
+            flattened["location[continents]"] = params.location.continents;
+        }
+        if (params.location.countries?.length) {
+            flattened["location[countries]"] = params.location.countries;
+        }
+    }
+
+    if (params.measurements) {
+        const includedMetrics = Object.entries(params.measurements)
+            .filter(([, filter]) => filter != null)
+            .map(([metric]) => metric);
+
+        if (includedMetrics.length) {
+            flattened["measurements_included"] = includedMetrics;
+        }
+    }
+
+    if (params.measurements?.waterSources?.length) {
+        flattened["measurements[waterSources]"] = params.measurements.waterSources;
+    }
+
+    if (params.measurements?.temperature) {
+        const temp = params.measurements.temperature;
+        if (temp.from) flattened["measurements[temperature][from]"] = temp.from;
+        if (temp.to) flattened["measurements[temperature][to]"] = temp.to;
+    }
+
+    if (params.dateRange) {
+        if (params.dateRange.from) flattened["dateRange[from]"] = params.dateRange.from;
+        if (params.dateRange.to) flattened["dateRange[to]"] = params.dateRange.to;
+    }
+
+    if (params.times?.length) {
+        flattened["times"] = JSON.stringify(params.times);
+    }
+
+    return flattened;
 }
