@@ -14,6 +14,7 @@ const routes = [
     },
     {
         path: "/",
+        alias: ["/home"],
         name: "Map",
         /** */
         component: () => import("@/views/MapView.vue"),
@@ -32,22 +33,26 @@ const routes = [
     },
     {
         path: "/export",
+        alias: ["/data"],
         name: "Export",
         /** */
         component: () => import("@/views/ExportView.vue"),
         meta: {
-            requiresAuth: false,
+            requiresAuth: true,
+            requiredGroups: ["researcher", "admin", "staff"],
         },
     },
     {
         path: "/export/map",
+        alias: ["/data/map"],
         name: "ExportMap",
         /**
          *
          */
         component: () => import("@/views/ExportMapView.vue"),
         meta: {
-            requiresAuth: false,
+            requiresAuth: true,
+            requiredGroups: ["researcher", "admin", "staff"],
         },
     },
     {
@@ -78,6 +83,24 @@ const routes = [
         },
     },
     {
+        path: "/unauthenticated",
+        name: "Unauthenticated",
+        /** */
+        component: () => import("@/views/UnauthenticatedView.vue"),
+        meta: {
+            requiresAuth: false,
+        },
+    },
+    {
+        path: "/unauthorized",
+        name: "Unauthorized",
+        /** */
+        component: () => import("@/views/UnauthorizedView.vue"),
+        meta: {
+            requiresAuth: false,
+        },
+    },
+    {
         path: "/:pathMatch(.*)*",
         /** */
         component: () => import("@/views/PageNotFound.vue"),
@@ -87,15 +110,28 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    strict: false,
 });
 
 const session = useSession();
 
 router.beforeEach(async (to) => {
-    const isAuthenticated = session.isAuthenticated();
-    if (to.meta.requiresAuth && !(await isAuthenticated)) {
-        return { name: "Login" };
+    // Group‐based auth
+    const requiredGroups = to.meta.requiredGroups as string[] | undefined;
+    if (requiredGroups?.length) {
+        const userGroups = await session.getUserGroups();
+        const ok = requiredGroups.some((g) => userGroups.includes(g));
+        return ok ? true : { name: "Unauthorized" };
     }
+
+    // General auth
+    if (to.meta.requiresAuth) {
+        const ok = await session.isAuthenticated();
+        return ok ? true : { name: "Unauthenticated" };
+    }
+
+    // Public route
+    return true;
 });
 
 export default router;
