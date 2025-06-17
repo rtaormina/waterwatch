@@ -20,9 +20,10 @@ vi.mock("universal-cookie", () => {
 global.fetch = vi.fn() as unknown as typeof fetch;
 
 describe("LoginPage.vue", () => {
-
     beforeEach(() => {
-
+        globalThis.useToast = () => ({
+            add: vi.fn(),
+        });
     });
 
     it("renders username and password inputs and submit button", () => {
@@ -55,18 +56,14 @@ describe("LoginPage.vue", () => {
         // (optionally) wait for any async work to finish
         await flushPromises();
 
-        expect(fetch).toHaveBeenCalledWith(
-            "api/login/",
-            {
-            "body": "{\"username\":\"alice\",\"password\":\"secret\"}",
-            "credentials": "same-origin",
-            "headers": {
+        expect(fetch).toHaveBeenCalledWith("api/login/", {
+            body: '{"username":"alice","password":"secret"}',
+            credentials: "same-origin",
+            headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "dummy",
             },
-            "method": "POST",
-            }
-
-        );
+            method: "POST",
+        });
     });
 });
