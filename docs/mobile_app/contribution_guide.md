@@ -40,8 +40,10 @@ Testing the mobile app is done using [flutter_test](https://api.flutter.dev/flut
 Contributions are expected to be supported with unit tests. Unit tests should test functions in isolation. For more information on unit testing flutter apps see [Flutter docs](https://docs.flutter.dev/testing/overview#unit-tests).
 
 ### Widget Tests
-Contributions are expected to be supported with widget tests where applicable. Widget tests should test widgets in isolation and screens. For more information on widget testing flutter apps see [Flutter docs](https://docs.flutter.dev/testing/overview#widget-tests).
+Contributions are expected to be supported with widget tests where applicable. Widget tests should test widgets in isolation. For more information on widget testing flutter apps see [Flutter docs](https://docs.flutter.dev/testing/overview#widget-tests).
 
+### Integration Tests
+WATERWATCH mobile uses integration tests to test workflows. Integration tests are not required with all contributions but should be conducted in the case of large functionality or workflow changes. For more information on integration testing flutter apps see [Flutter docs](https://docs.flutter.dev/testing/overview#integration-tests).
 
 To run tests please first run:
 ```bash
@@ -57,6 +59,11 @@ docker exec mobile-app flutter test test/unit_tests
 To run the widget tests in the project run:
 ```bash
 docker exec mobile-app flutter test test/widget_tests
+```
+
+To run integration tests in the project run:
+```bash
+fluter test integration_test/{filename}
 ```
 
 To get coverage information on the project
