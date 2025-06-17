@@ -113,7 +113,9 @@ describe("getGraphData", () => {
         });
 
         const data = await getGraphData("MULTIPOLYGON((...))");
-        expect(global.fetch).toHaveBeenCalledWith(`/api/measurements/temperatures/?boundary_geometry=MULTIPOLYGON((...))`);
+        expect(global.fetch).toHaveBeenCalledWith(
+            `/api/measurements/temperatures/?boundary_geometry=MULTIPOLYGON((...))`,
+        );
         // Since JSON returned ["1","2","3"], getGraphData maps each to Number
         expect(data).toEqual([1, 2, 3]);
     });
@@ -255,7 +257,9 @@ describe("drawComparisonGraph", () => {
         expect(paths.length).toBeGreaterThan(0);
 
         // Should have the legend background
-        const legendBg = container.querySelector("rect[fill='white'][stroke='#ccc']");
+        const legendBg = container.querySelector(
+            "rect[fill='var(--background-color-muted)'][stroke='var(--text-color-toned)']",
+        );
         expect(legendBg).not.toBeNull();
     });
 });

@@ -62,6 +62,7 @@ defineExpose({
                     <div v-if="showError" class="text-error text-sm mt-1">{{ errorMessage }}</div>
 
                     <UButton
+                        data-testid="login-button"
                         type="submit"
                         class="w-full py-2 text-inverted text-lg bg-primary rounded-md justify-center transition hover:cursor-pointer"
                     >
