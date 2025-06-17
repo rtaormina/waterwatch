@@ -27,6 +27,7 @@ describe("Legend.vue filtering tests", () => {
         wrapper = shallowMount(Legend, {
             props: {
                 colors: ["#111", "#eee"],
+                fromExport: false,
             },
             global: {
                 stubs: { USelect: true },
@@ -94,6 +95,7 @@ describe("Legend.vue filtering tests", () => {
 
 describe("Legend.vue gradient tests", () => {
     const colors = ["#0000ff", "#ff0000"];
+    const fromExport = false;
     let legendStore;
 
     beforeEach(() => {
@@ -103,7 +105,7 @@ describe("Legend.vue gradient tests", () => {
 
     it("renders gradient style correctly", () => {
         const wrapper = mount(Legend, {
-            props: { colors },
+            props: { colors, fromExport, },
         });
 
         const gradientDiv = wrapper.find(".relative > div");
@@ -113,7 +115,7 @@ describe("Legend.vue gradient tests", () => {
 
     it('computes step and renders five labels', () => {
     const wrapper = mount(Legend, {
-      props: { colors }
+      props: { colors, fromExport, }
     })
 
     // Order is messed up because how the wrapper returns the spans from the DOM
@@ -127,13 +129,13 @@ describe("Legend.vue gradient tests", () => {
   })
 
   it('has the correct root class', () => {
-    const wrapper = mount(Legend, { props: { colors } })
+    const wrapper = mount(Legend, { props: { colors, fromExport, } })
     expect(wrapper.classes()).toContain('legend-popup')
   })
 
   it('updates scale when button is clicked', async () => {
     const wrapper = mount(Legend, {
-      props: { colors }
+      props: { colors, fromExport, }
     });
 
     // Simulate changing the mode in the legendStore
@@ -147,7 +149,7 @@ describe("Legend.vue gradient tests", () => {
     const expected = [`0`, `8`, `16`, `24`, `32`, `≥40`]
 
     const labelSpans = wrapper.findAll('.mt-1 span')
-    expect(labelSpans).toHaveLength(5)
+    expect(labelSpans).toHaveLength(6)
     labelSpans.forEach((span, i) => {
       expect(span.text()).toContain(expected[i])
     })
