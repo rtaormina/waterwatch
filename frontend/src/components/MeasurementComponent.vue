@@ -154,7 +154,7 @@ defineExpose({
 
 <template>
     <SideBar title="Record Measurement" @close="emit('close')">
-        <div class="flex-1 overflow-y-auto pb-16 md:overflow-visible md:pb-0">
+        <div class="flex-1 pb-16 md:pb-0">
             <!-- Measurement block -->
             <MeasurementBasisBlock
                 v-model:location="data.location"

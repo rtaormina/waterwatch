@@ -33,14 +33,9 @@
 
         <div class="w-full h-full flex flex-row">
             <div
-                v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
+                v-if="viewAnalytics || showCompareAnalytics"
                 class="analytics-panel left-0 top-19 md:top-0 bottom-0 md:bottom-auto w-screen md:w-4/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
             >
-                <MeasurementComponent
-                    v-if="addMeasurement"
-                    @close="handleCloseAll"
-                    @submitMeasurement="refresh = !refresh"
-                />
                 <DataAnalyticsComponent
                     v-if="viewAnalytics"
                     :location="hexLocation"
@@ -127,21 +122,39 @@
             </div>
 
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
-                <UTooltip :delay-duration="0" text="Add a Measurement">
-                    <button
-                        class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
-                        @click="
-                            addMeasurement = true;
-                            viewAnalytics = false;
-                            showLegend = false;
-                        "
-                        type="button"
-                        aria-label="add measurement"
-                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                    >
-                        <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
-                    </button>
-                </UTooltip>
+                <USlideover
+                    side="left"
+                    v-model:open="addMeasurement"
+                    modal
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <MeasurementComponent
+                                v-if="addMeasurement"
+                                @close="handleCloseAll"
+                                @submitMeasurement="refresh = !refresh"
+                            />
+                        </div>
+                    </template>
+                    <UTooltip :delay-duration="0" text="Add a Measurement">
+                        <button
+                            class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
+                            @click="
+                                addMeasurement = true;
+                                viewAnalytics = false;
+                                showLegend = false;
+                            "
+                            type="button"
+                            aria-label="add measurement"
+                            v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                        >
+                            <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
+                        </button>
+                    </UTooltip>
+                </USlideover>
             </div>
         </div>
     </div>
