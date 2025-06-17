@@ -322,12 +322,12 @@ defineExpose({
 </script>
 
 <template>
-    <div class="bg-muted p-6 rounded-lg flex flex-col h-full max-h-full panel-component" ref="filterPanelRef">
+    <div class="bg-muted p-6 rounded-lg flex flex-col h-screen max-h-full" ref="filterPanelRef">
         <!-- Filter Header -->
         <div class="font-bold text-lg mb-2 shrink-0">Filter By</div>
 
         <!-- Scrollable Filter Content Area -->
-        <div class="overflow-y-auto flex-grow flex flex-col pr-6 mb-4 panel-subcomponent" ref="scrollableAreaRef">
+        <div class="overflow-y-auto flex-grow flex flex-col pr-6 mb-4" ref="scrollableAreaRef">
             <!-- Location: two‑column grid -->
             <div class="mb-2">
                 <div class="font-semibold mb-1">Location</div>
