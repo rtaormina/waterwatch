@@ -16,6 +16,7 @@ const emit = defineEmits<{
 
 const inputQuery = ref(props.query);
 const showDropdown = ref(false);
+const inputRef = ref();
 
 // Computed property for filtered presets
 const filteredPresets = computed(() => {
@@ -44,6 +45,13 @@ watch(
     },
 );
 
+// Watch for input changes to show dropdown when user starts typing
+watch(inputQuery, (newValue) => {
+    if (newValue.trim()) {
+        showDropdown.value = true;
+    }
+});
+
 /**
  * Clears the search input and hides the dropdown.
  * This function is called when the clear button is clicked.
@@ -52,6 +60,8 @@ watch(
  */
 function clearSearch() {
     inputQuery.value = "";
+    showDropdown.value = false;
+    inputRef.value?.$el?.querySelector("input")?.blur();
 }
 
 /**
@@ -113,6 +123,7 @@ function handleKeydown(event: KeyboardEvent) {
     }
     if (event.key === "Escape") {
         showDropdown.value = false;
+        inputRef.value?.$el?.querySelector("input")?.blur();
     }
 }
 
@@ -133,6 +144,7 @@ defineExpose({
     <div class="relative w-full">
         <div class="flex items-center">
             <UInput
+                ref="inputRef"
                 v-model="inputQuery"
                 placeholder="Search for presets..."
                 size="lg"
