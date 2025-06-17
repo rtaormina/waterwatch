@@ -20,7 +20,11 @@ vi.mock("universal-cookie", () => {
 global.fetch = vi.fn() as unknown as typeof fetch;
 
 describe("LoginPage.vue", () => {
-    beforeEach(() => {});
+    beforeEach(() => {
+        globalThis.useToast = () => ({
+            add: vi.fn(),
+        });
+    });
 
     it("renders username and password inputs and submit button", () => {
         const wrapper = mount(LoginPage);

@@ -117,6 +117,12 @@ setActivePinia(createPinia());
 import MapView from "../../../src/views/MapView.vue";
 import { setActivePinia, createPinia } from "pinia";
 
+vi.mock("@nuxt/ui/runtime/composables/useToast", () => ({
+    useToast: () => ({
+        add: vi.fn(),
+    }),
+}));
+
 describe("MapView first-time modal appears", () => {
     beforeEach(() => {
         localStorage.clear();
