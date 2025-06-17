@@ -318,6 +318,11 @@ def search_measurements_view(request):
         If format is specified (csv, json, xml, geojson): returns full measurement data
         Otherwise: returns JSON with count and average temperature statistics
     """
+    # Check permissions for data export
+    user = request.user
+    if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
+        return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
+
     # Parse request data
     request_data = request.data
 
@@ -344,20 +349,10 @@ def search_measurements_view(request):
     fmt = str(request_data.get("format", "")).lower()
 
     if fmt in ("map-format", "analysis-format"):
-        # Check permissions for data export
-        user = request.user
-        if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
-            return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
-
         strategy = get_strategy(fmt)
         return strategy.export(qs)
 
     if fmt in ("csv", "json", "xml", "geojson"):
-        # Check permissions for data export
-        user = request.user
-        if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
-            return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
-
         # Validate included metrics parameter
         included_metrics = request_data.get("measurements_included", [])
         if not isinstance(included_metrics, list):

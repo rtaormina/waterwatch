@@ -103,6 +103,9 @@ def logout_view(request):
 def session_view(request):
     """Check whether the user is currently authenticated, setting CSRF cookie.
 
+    Includes user groups information for route-based authorization.
+    Includes virtual "superuser" and "staff" groups for users with those privileges.
+
     Parameters
     ----------
     request : HttpRequest
@@ -111,13 +114,38 @@ def session_view(request):
     Returns
     -------
     JsonResponse
-        JSON with {"isAuthenticated": bool}, where the boolean reflects
-        the user's authentication status.
+        - If user is not authenticated:
+            JSON with {"isAuthenticated": False, "groups": []}.
+        - If authenticated:
+            JSON with {
+                "isAuthenticated": True,
+                "user": {
+                    "username": <str>,
+                },
+                "groups": [<str>, ...]
+            }
     """
     if not request.user.is_authenticated:
-        return JsonResponse({"isAuthenticated": False})
+        return JsonResponse({"isAuthenticated": False, "user": None, "groups": []})
 
-    return JsonResponse({"isAuthenticated": True})
+    user = request.user
+    groups = list(user.groups.values_list("name", flat=True))
+
+    # Add virtual groups for superuser and staff
+    if user.is_superuser:
+        groups.append("admin")
+    if user.is_staff:
+        groups.append("staff")
+
+    return JsonResponse(
+        {
+            "isAuthenticated": True,
+            "user": {
+                "username": user.username,
+            },
+            "groups": groups,
+        }
+    )
 
 
 def whoami_view(request):
