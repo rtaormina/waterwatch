@@ -13,16 +13,16 @@
             ></div>
             <!-- ticks -->
             <div class="absolute inset-0 flex justify-between items-center">
-                <span class="w-px h-2 bg-gray-700"></span>
-                <span class="w-px h-2 bg-gray-700"></span>
-                <span class="w-px h-2 bg-gray-700"></span>
-                <span class="w-px h-2 bg-gray-700"></span>
-                <span class="w-px h-2 bg-gray-700"></span>
+                <span class="w-px h-2 bg-inverted"></span>
+                <span class="w-px h-2 bg-inverted"></span>
+                <span class="w-px h-2 bg-inverted"></span>
+                <span class="w-px h-2 bg-inverted"></span>
+                <span class="w-px h-2 bg-inverted"></span>
             </div>
         </div>
 
         <!-- Labels under ticks -->
-        <div class="mt-1 mb-2 flex justify-between text-sm text-gray-700">
+        <div class="mt-1 mb-2 flex justify-between text-sm text-default">
             <span>
                 <span v-if="colorByTemp">&leq;</span>
                 {{ props.scale[0] }}
@@ -51,7 +51,7 @@
             <button
                 data-testid="info-button-hex"
                 @click="toggleInfoTextColoring"
-                class="cursor-pointer hover:text-blue-600 transition-colors"
+                class="cursor-pointer hover:text-primary transition-colors"
                 aria-label="map coloring information"
             >
                 <InformationCircleIcon class="w-5 h-5" />
@@ -60,7 +60,7 @@
         <div
             data-testid="info-text-hex"
             v-if="showInfoTextColoring"
-            class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800"
+            class="mb-3 p-3 bg-muted border border-primary rounded-md text-sm text-primary"
         >
             <p>
                 Use the buttons below to toggle between the hexagon overlay being colored according to the average
@@ -70,7 +70,7 @@
         <div class="flex gap-2 w-full">
             <button
                 @click="toTempMode"
-                :class="{ 'bg-main text-white': colorByTemp }"
+                :class="{ 'bg-main text-inverted': colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
                 aria-label="toggle hexagon coloring by temperature"
             >
@@ -79,7 +79,7 @@
             <button
                 data-testid="count"
                 @click="toCountMode"
-                :class="{ 'bg-main text-white': !colorByTemp }"
+                :class="{ 'bg-main text-inverted': !colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
                 aria-label="toggle hexagon coloring by measurement count"
             >
@@ -93,7 +93,7 @@
             <button
                 data-testid="info-button"
                 @click="toggleInfoTextTimeRange"
-                class="cursor-pointer hover:text-blue-600 transition-colors"
+                class="cursor-pointer hover:text-primary transition-colors"
                 aria-label="show time range information"
             >
                 <InformationCircleIcon class="w-5 h-5" />
@@ -104,7 +104,7 @@
         <div
             data-testid="info-text"
             v-if="showInfoTextTime"
-            class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-800"
+            class="mb-3 p-3 bg-muted border border-primary rounded-md text-sm text-primary"
         >
             <p>
                 Time range corresponds to which measurements are displayed on the map. Selecting a month means that all
@@ -252,7 +252,7 @@ const step = computed(() => (props.scale[1] - props.scale[0]) / 4);
 <style scoped>
 .legend-popup {
     position: absolute;
-    background-color: #fff;
+    background-color: var(--background-color-default);
     border-radius: 0.75rem;
     padding: 1rem;
     box-shadow:
@@ -268,7 +268,7 @@ const step = computed(() => (props.scale[1] - props.scale[0]) / 4);
     transform: translateY(-100%);
     border-width: 0 0.6rem 0.6rem 0.6rem;
     border-style: solid;
-    border-color: transparent transparent white transparent;
+    border-color: transparent transparent var(--border-color-default) transparent;
     border-radius: 0.75rem;
 }
 </style>

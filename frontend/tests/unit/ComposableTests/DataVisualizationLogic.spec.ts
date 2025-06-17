@@ -271,7 +271,9 @@ describe("drawComparisonGraph", () => {
         expect(paths.length).toBeGreaterThan(0);
 
         // Should have the legend background
-        const legendBg = container.querySelector("rect[fill='white'][stroke='#ccc']");
+        const legendBg = container.querySelector(
+            "rect[fill='var(--background-color-muted)'][stroke='var(--text-color-toned)']",
+        );
         expect(legendBg).not.toBeNull();
     });
 });

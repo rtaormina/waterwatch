@@ -516,12 +516,12 @@ onMounted(() => {
                     "/api/measurements/aggregated/",
                     {
                         boundary_geometry: wkt,
-                        month: props.month,
+                        month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
                     },
                     {
                         headers: {
                             "Content-Type": "application/json",
-                            "X-CSRF-Token": cookies.get("csrftoken") || "",
+                            "X-CSRFToken": cookies.get("csrftoken"),
                         },
                     },
                 );

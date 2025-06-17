@@ -85,9 +85,9 @@ defineExpose({
         leave-from-class="translate-x-0"
         leave-to-class="translate-x-full"
     >
-        <div v-if="showOverlay" class="fixed inset-0 bg-[#00A6D6] z-50 overlay">
+        <div v-if="showOverlay" class="fixed inset-0 bg-primary z-50 overlay">
             <div class="flex">
-                <div translate="no" class="text-4xl text-white font-custom mt-6 ml-6">WATERWATCH</div>
+                <div translate="no" class="text-4xl text-inverted font-custom mt-6 ml-6">WATERWATCH</div>
             </div>
             <div class="flex flex-row h-full">
                 <div class="flex flex-col items-center space-y-3 h-full ml-10">
@@ -96,14 +96,14 @@ defineExpose({
 
                     <div class="flex flex-row justify-center space-y-6">
                         <!-- white bar -->
-                        <div class="bg-white w-1.5 h-75 ml-auto mx-4 bar"></div>
+                        <div class="bg-default w-1.5 h-75 ml-auto mx-4 bar"></div>
 
                         <!-- Menu items -->
                         <div class="flex flex-col justify-right space-y-6 text-4xl menu-items">
                             <div v-for="item in navItems" :key="item.name">
                                 <router-link
                                     :to="item.to"
-                                    class="text-white"
+                                    class="text-inverted hover:text-accented"
                                     @click="closeOverlay()"
                                     active-class="underline"
                                     exact-active-class="underline"
@@ -139,7 +139,7 @@ defineExpose({
                         <router-link
                             @click="logout()"
                             to="/"
-                            class="w-48 text-center px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
+                            class="w-48 text-center px-7 py-1 rounded-md bg-default border-2 border-transparent text-primary font-medium text-2xl hover:bg-muted transition-colors duration-200"
                         >
                             Logout
                         </router-link>
@@ -150,7 +150,7 @@ defineExpose({
                         <router-link
                             to="/login"
                             @click="closeOverlay()"
-                            class="w-48 text-center px-7 py-1 rounded-md border-2 border-white text-white text-2xl hover:bg-white hover:text-[#00A6D6] transition-colors duration-200"
+                            class="w-48 text-center px-7 py-1 rounded-md border-2 border-default text-inverted text-2xl hover:bg-default hover:text-primary transition-colors duration-200"
                         >
                             Sign in
                         </router-link>
@@ -158,7 +158,7 @@ defineExpose({
                         <router-link
                             to="/register"
                             @click="closeOverlay()"
-                            class="w-48 text-center px-7 py-1 rounded-md bg-white border-2 border-transparent text-[#00A6D6] font-medium text-2xl hover:bg-gray-100 transition-colors duration-200"
+                            class="w-48 text-center px-7 py-1 rounded-md bg-default border-2 border-transparent text-primary font-medium text-2xl hover:bg-muted transition-colors duration-200"
                         >
                             Register
                         </router-link>
@@ -170,15 +170,15 @@ defineExpose({
 
     <!-- main navbar desktop -->
     <div v-if="!isMobile" class="relative z-30">
-        <div class="font-custom bg-[#00A6D6] text-white p-4 w-full text-3xl flex flex-row justify-between">
-            <router-link to="/">
+        <div class="font-custom bg-primary text-inverted p-4 w-full text-3xl flex flex-row justify-between">
+            <router-link class="hover:text-accented" to="/">
                 <div translate="no">WATERWATCH</div>
             </router-link>
             <div class="flex flex-row space-x-6">
                 <div v-for="item in navItems" :key="item.name">
                     <router-link
                         :to="item.to"
-                        class="text-white text-2xl hover:border-white"
+                        class="text-inverted text-2xl hover:text-accented"
                         active-class="underline"
                         exact-active-class="underline"
                     >
@@ -194,13 +194,13 @@ defineExpose({
                             }"
                         >
                             <user-icon
-                                class="w-7 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
+                                class="w-7 h-10 text-inverted cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
                             />
                         </UDropdownMenu>
                     </div>
                     <div v-else>
                         <user-icon
-                            class="w-7 h-10 text-white cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
+                            class="w-7 h-10 text-inverted cursor-pointer hover:scale-110 transition duration-200 ease-in-out"
                             @click="login()"
                         />
                     </div>
@@ -211,12 +211,12 @@ defineExpose({
 
     <!-- main navbar mobile -->
     <div v-else class="relative z-60">
-        <div class="font-custom bg-[#00A6D6] text-white p-2 w-full flex justify-between">
+        <div class="font-custom bg-main text-inverted p-2 w-full flex justify-between">
             <router-link
                 to="/"
                 @click="closeOverlay()"
                 translate="no"
-                class="text-4xl text-white font-custom mt-3 mb-2 ml-3"
+                class="text-4xl text-inverted hover:text-accented font-custom mt-3 mb-2 ml-3"
             >
                 WATERWATCH
             </router-link>
@@ -231,8 +231,8 @@ defineExpose({
                         leave-from-class="opacity-100 rotate-0"
                         leave-to-class="opacity-0 rotate-90"
                     >
-                        <Bars3Icon v-if="!showOverlay" key="bars" class="w-12 h-12 text-white cursor-pointer" />
-                        <XMarkIcon v-else key="close" class="w-12 h-12 text-white cursor-pointer" />
+                        <Bars3Icon v-if="!showOverlay" key="bars" class="w-12 h-12 text-inverted cursor-pointer" />
+                        <XMarkIcon v-else key="close" class="w-12 h-12 text-inverted cursor-pointer" />
                     </transition>
                 </button>
             </div>

@@ -40,7 +40,7 @@ onUnmounted(() => {
 
 <template>
     <div
-        class="w-full text-black px-4 py-2 shadow-md bg-white backdrop-blur-sm hover:cursor-pointer"
+        class="w-full text-default px-4 py-2 shadow-md bg-default backdrop-blur-sm hover:cursor-pointer"
         @click="showModal = true"
     >
         <div class="w-full flex justify-center items-center">
@@ -70,7 +70,7 @@ onUnmounted(() => {
         <div class="flex items-center mt-4 gap-2">
             <button
                 @click="showModal = false"
-                class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+                class="flex-1 bg-main text-inverted px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
             >
                 Okay
             </button>
