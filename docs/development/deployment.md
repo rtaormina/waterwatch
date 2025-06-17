@@ -1,6 +1,9 @@
 # Deployment to Production
 
-> Currently a production build exists already and is available at [https://waterwatch.tudelft.nl](https://waterwatch.tudelft.nl).
+```{eval-rst}
+.. tip::
+  Currently a production build exists already and is available at [https://waterwatch.tudelft.nl](https://waterwatch.tudelft.nl).
+```
 
 This section will go over the steps and details needed to deploy to a production environment.
 
@@ -131,7 +134,7 @@ docker exec "$BACKEND" python manage.py migrate
 
 ### Clean up
 
-Every time a new deployement is made some data is stored such as the previous containers or local build cache. This can accumulate overtime to quite a significant amount of data. In order to inspect disk usage or prune unneccesarry data. The following commands can be run.
+Every time a new deployment is made some data is stored such as the previous containers or local build cache. This can accumulate overtime to quite a significant amount of data. In order to inspect disk usage or prune unnecessary data. The following commands can be run.
 
 ```bash
 docker system df

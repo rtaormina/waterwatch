@@ -17,12 +17,14 @@ After installation the project will run at [localhost](http://127.0.0.1/).
 There are two standard users:
 
 Admin
-    - username: admin
-    - password: admin
+
+- username: admin
+- password: admin
 
 Researcher
-    - username: researcher
-    - password: researcher
+
+- username: researcher
+- password: researcher
 
 Create and activate the python virtual environment with the following commands:
 ```bash
@@ -50,6 +52,7 @@ After installation the project will run at [localhost](http://127.0.0.1/).
 There are two standard users after executing the script.
 
 Admin
+
 - username: admin
 - password: admin
 
