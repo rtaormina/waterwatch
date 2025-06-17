@@ -23,9 +23,19 @@ docker stack deploy -c docker-compose.prod.stack.yaml production --prune --detac
 echo "Waiting for deployment to complete..."
 sleep 2  # Wait for services to start
 
-# Apply database migrations
+# Get the names of the backend and database containers
 BACKEND=$(docker ps --format "{{.Names}}" | grep django_backend_app)
 DATABASE=$(docker ps --format "{{.Names}}" | grep postgres)
+
+# Apply PostgreSQL configurations
+echo "Applying PostgreSQL configuration..."
+docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET max_connections = '${POSTGRES_MAX_CONNECTIONS}';"
+docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET idle_in_transaction_session_timeout = '${POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT}';"
+docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET statement_timeout = '${POSTGRES_STATEMENT_TIMEOUT}';"
+
+# Reload PostgreSQL to apply the new settings
+echo "Reloading PostgreSQL configuration..."
+docker exec "$DATABASE" pg_ctl reload
 
 # Import data
 echo "Importing data..."
