@@ -212,7 +212,12 @@ defineExpose({
     <!-- main navbar mobile -->
     <div v-else class="relative z-60">
         <div class="font-custom bg-[#00A6D6] text-white p-2 w-full flex justify-between">
-            <router-link to="/" @click="closeOverlay()" translate="no" class="text-4xl text-white font-custom mt-3 mb-2 ml-3">
+            <router-link
+                to="/"
+                @click="closeOverlay()"
+                translate="no"
+                class="text-4xl text-white font-custom mt-3 mb-2 ml-3"
+            >
                 WATERWATCH
             </router-link>
             <div class="mt-2 mr-4">
