@@ -70,7 +70,7 @@ describe("postData", () => {
             location: L.latLng(0, 0),
             waterSource: "network",
             temperature: {
-                sensor: "analog thermomether",
+                sensor: "analog thermometer",
                 value: 20,
                 unit: "C",
                 time_waited: {
@@ -161,7 +161,7 @@ describe("postData", () => {
             },
             water_source: "network",
             temperature: {
-                sensor: "analog thermomether",
+                sensor: "analog thermometer",
                 value: 20,
                 time_waited: "00:10:05",
             },
