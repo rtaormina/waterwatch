@@ -111,7 +111,11 @@ vi.mock("./Measurement/MeasurementBlock.vue", () => ({
         `,
     },
 }));
+
+setActivePinia(createPinia());
+
 import MapView from "../../../src/views/MapView.vue";
+import { setActivePinia, createPinia } from "pinia";
 
 vi.mock("@nuxt/ui/runtime/composables/useToast", () => ({
     useToast: () => ({
@@ -142,6 +146,12 @@ describe("MapView first-time modal appears", () => {
             },
         }));
         vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
     });
 
     it("shows modal on first mount, hides on close, and sets localStorage", async () => {

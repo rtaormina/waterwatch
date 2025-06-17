@@ -1,7 +1,14 @@
 <script setup lang="ts">
-import { drawHistogramWithKDE, getGraphData } from "../../composables/Analysis/DataVisualizationLogic";
+import {
+    drawHistogramWithKDE,
+    getGraphData,
+    getGraphDataExportMapView,
+} from "../../composables/Analysis/DataVisualizationLogic";
 import { onMounted, ref, watch } from "vue";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
+import { useExportStore } from "../../stores/ExportStore";
+
+const exportStore = useExportStore();
 
 const props = defineProps({
     location: {
@@ -9,6 +16,10 @@ const props = defineProps({
     },
     month: {
         type: String,
+    },
+    fromExport: {
+        type: Boolean,
+        default: false,
     },
 });
 
@@ -18,7 +29,12 @@ const graph = ref<HTMLElement | null>(null);
  */
 async function render() {
     if (!graph.value) return;
-    const values = await getGraphData(props.location, props.month);
+
+    const filters = JSON.parse(JSON.stringify(exportStore.filters));
+    const values = props.fromExport
+        ? await getGraphDataExportMapView(filters, props.location, props.month)
+        : await getGraphData(props.location, props.month);
+
     drawHistogramWithKDE(graph.value, values, "steelblue", "orange", {
         barOpacity: 0.5,
     });
