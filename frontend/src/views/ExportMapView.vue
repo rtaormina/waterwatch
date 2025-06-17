@@ -160,7 +160,7 @@ const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
 const range = ref<number[]>([0]);
-const month = ref<string>("0");
+const month = ref<string>("1,2,3,4,5,6,7,8,9,10,11,12");
 
 // color, styling, and scale values for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);

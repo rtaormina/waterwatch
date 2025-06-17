@@ -228,7 +228,6 @@ function onChange(val: string | string[]) {
 
     if (Array.isArray(val)) {
         const nums = val.map((x) => monthMap.get(x) ?? 0).filter((x) => x != 0);
-        console.log(nums);
         internalValue.value = val.filter((x) => x != "Past 30 Days");
         emit("update", nums);
 
