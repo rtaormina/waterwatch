@@ -155,14 +155,14 @@ import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
-import Legend from "../components/Menu/Legend.vue";
+import Legend from "../components/MenuItems/Legend.vue";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
-import MapMenu from "../components/Menu/MapMenu.vue";
+import MapMenu from "../components/MenuItems/MapMenu.vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
-import MenuButton from "@/components/Menu/MenuButton.vue";
+import MenuButton from "@/components/MenuItems/MenuButton.vue";
 
 const cookies = new Cookies();
 

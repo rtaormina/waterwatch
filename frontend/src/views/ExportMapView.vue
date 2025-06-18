@@ -122,7 +122,7 @@ import { ref, computed, nextTick } from "vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
-import Legend from "../components/Menu/Legend.vue";
+import Legend from "../components/MenuItems/Legend.vue";
 import { ScaleIcon, AdjustmentsVerticalIcon, SquaresPlusIcon, ChevronLeftIcon } from "@heroicons/vue/24/outline";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
