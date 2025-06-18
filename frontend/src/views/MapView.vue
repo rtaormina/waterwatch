@@ -45,6 +45,7 @@
                     v-if="viewAnalytics"
                     :location="hexLocation"
                     :month="month"
+                    :fromExport="false"
                     @close="handleCloseAll"
                 />
 
@@ -53,6 +54,7 @@
                     :group1WKT="group1WKT"
                     :group2WKT="group2WKT"
                     :month="month"
+                    :fromExport="false"
                     @close="handleCloseAll"
                 />
             </div>
@@ -84,6 +86,7 @@
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
                     :month="month"
+                    :fromExport="false"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"

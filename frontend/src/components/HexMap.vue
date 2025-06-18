@@ -11,6 +11,8 @@ import HexAnalysis from "./Analysis/HexAnalysis.vue";
 import { useLegendStore } from "../stores/LegendStore";
 import axios from "axios";
 import Cookies from "universal-cookie";
+import { useExportStore } from "../stores/ExportStore";
+import { flattenSearchParams } from "../composables/Export/useSearch";
 
 declare module "leaflet" {
     /*
@@ -119,6 +121,7 @@ const props = defineProps<{
     compareMode: boolean;
     activePhase: 1 | 2 | null;
     month: string;
+    fromExport: boolean;
 }>();
 
 // default center if none is passed
@@ -533,12 +536,24 @@ onMounted(() => {
             (async () => {
                 // Fetch the hexagon data for the selected hexagon
                 const cookies = new Cookies();
+                const exportStore = useExportStore();
+
+                const filters = JSON.parse(JSON.stringify(exportStore.filters));
+                const bodyData = {
+                    ...flattenSearchParams(filters),
+                    month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
+                    boundary_geometry: wkt,
+                    format: "map-format",
+                };
+
                 const res = await axios.post(
-                    "/api/measurements/aggregated/",
-                    {
-                        boundary_geometry: wkt,
-                        month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
-                    },
+                    props.fromExport ? "/api/measurements/search/" : "/api/measurements/aggregated/",
+                    props.fromExport
+                        ? bodyData
+                        : {
+                              boundary_geometry: wkt,
+                              month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
+                          },
                     {
                         headers: {
                             "Content-Type": "application/json",

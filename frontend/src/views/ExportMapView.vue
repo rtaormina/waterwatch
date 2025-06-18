@@ -9,6 +9,7 @@
                     v-if="viewAnalytics"
                     :location="hexLocation"
                     :month="month"
+                    :fromExport="true"
                     @close="handleCloseAll"
                 />
 
@@ -17,6 +18,7 @@
                     :group1WKT="group1WKT"
                     :group2WKT="group2WKT"
                     :month="month"
+                    :fromExport="true"
                     @close="handleCloseAll"
                 />
             </div>
@@ -48,6 +50,7 @@
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
                     :month="month"
+                    :fromExport="true"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -129,6 +132,7 @@ import { useRouter } from "vue-router";
 import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
 import { flattenSearchParams } from "../composables/Export/useSearch";
+import axios from "axios";
 
 const router = useRouter();
 const exportStore = useExportStore();
@@ -422,18 +426,16 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
         format: "map-format", // Add format to the body
     };
 
-    const res = await fetch("/api/measurements/search/", {
-        method: "POST",
+    const res = await axios.post("/api/measurements/search/", bodyData, {
         headers: {
             "X-CSRFToken": cookies.get("csrftoken"),
-            "Content-Type": "application/json", // Set Content-Type for JSON payload
+            "Content-Type": "application/json",
         },
-        credentials: "same-origin",
-        body: JSON.stringify(bodyData), // Send data as a JSON string in the body
+        withCredentials: true,
     });
 
-    if (!res.ok) throw new Error(`Status: ${res.status}`);
-    const data = await res.json();
+    if (res.status !== 200) throw new Error(`Status: ${res.status}`);
+    const data = res.data;
 
     const formated = data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),

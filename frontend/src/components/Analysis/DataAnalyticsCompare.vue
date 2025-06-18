@@ -4,13 +4,18 @@ import {
     getGraphData,
     drawHistogramWithKDE,
     drawComparisonGraph,
+    getGraphDataExportMapView,
 } from "../../composables/Analysis/DataVisualizationLogic";
 import { XMarkIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/outline";
+import { useExportStore } from "../../stores/ExportStore";
+
+const exportStore = useExportStore();
 
 const props = defineProps<{
     group1WKT: string;
     group2WKT: string;
     month: string;
+    fromExport: boolean;
 }>();
 
 const graph1 = ref<HTMLElement | null>(null);
@@ -63,16 +68,21 @@ async function renderCompare() {
 
     let vals1: number[] = [];
     let vals2: number[] = [];
+    const filters = JSON.parse(JSON.stringify(exportStore.filters));
 
     // Catch errors when fetching data
     try {
-        vals1 = await getGraphData(props.group1WKT, props.month);
+        vals1 = props.fromExport
+            ? await getGraphDataExportMapView(filters, props.group1WKT, props.month)
+            : await getGraphData(props.group1WKT, props.month);
     } catch {
         vals1 = [];
     }
 
     try {
-        vals2 = await getGraphData(props.group2WKT, props.month);
+        vals2 = props.fromExport
+            ? await getGraphDataExportMapView(filters, props.group2WKT, props.month)
+            : await getGraphData(props.group2WKT, props.month);
     } catch {
         vals2 = [];
     }
