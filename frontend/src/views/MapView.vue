@@ -162,7 +162,7 @@ import SelectBar from "../components/Analysis/SelectBar.vue";
 import MapMenu from "../components/MenuItems/MapMenu.vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
-import MenuButton from "@/components/MenuItems/MenuButton.vue";
+import MenuButton from "../components/MenuItems/MenuButton.vue";
 
 const cookies = new Cookies();
 
@@ -203,14 +203,10 @@ const month = ref<string>("0");
 const refresh = ref(false);
 
 const menuItems = [
-    //eslint-disable-next-line jsdoc/require-jsdoc
-    { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: () => toggleLegend() },
-    //eslint-disable-next-line jsdoc/require-jsdoc
-    { icon: "i-heroicons-chart-bar", tooltip: "Show Global Analytics", handler: () => showGlobalAnalytics() },
-    //eslint-disable-next-line jsdoc/require-jsdoc
-    { icon: "i-heroicons-squares-plus", tooltip: "Select Multiple Hexagons", handler: () => enterSelectMode() },
-    //eslint-disable-next-line jsdoc/require-jsdoc
-    { icon: "i-heroicons-scale", tooltip: "Compare Hexagon Groups", handler: () => enterCompareMode() },
+    { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: toggleLegend },
+    { icon: "i-heroicons-chart-bar", tooltip: "Show Global Analytics", handler: showGlobalAnalytics },
+    { icon: "i-heroicons-squares-plus", tooltip: "Select Multiple Hexagons", handler: enterSelectMode },
+    { icon: "i-heroicons-scale", tooltip: "Compare Hexagon Groups", handler: enterCompareMode },
 ];
 
 /**

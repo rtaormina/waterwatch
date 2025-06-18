@@ -15,10 +15,7 @@ describe('MapMenu Tests', () => {
 
   const defaultProps = {
     selectMult: false,
-    viewAnalytics: false,
-    addMeasurement: false,
-    compareMode: false,
-    selectMode: false
+    menuItems: [],
   }
 
   beforeEach(() => {

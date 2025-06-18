@@ -6,6 +6,7 @@
             :aria-label="props.tooltip"
         >
             <UIcon :name="props.icon" class="w-10 h-10" />
+            <label v-if="props.label" class="leading-none mr-2 whitespace-nowrap text-2xl">{{ props.label }}</label>
         </UButton>
     </UTooltip>
 </template>
@@ -14,6 +15,7 @@
 const props = defineProps<{
     icon: string;
     tooltip: string;
+    label?: string;
 }>();
 
 defineEmits(["click"]);
