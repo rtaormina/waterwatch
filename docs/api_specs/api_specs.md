@@ -7,6 +7,5 @@ View the API specifications for WATERWATCH using the following links.
 
    measurements_api
    users_api
-   admin_api
    campaigns_api
 ```

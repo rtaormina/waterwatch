@@ -8,4 +8,10 @@
 | switchPoint |             | number | -      |         |
 | class       |             | string | -      |         |
 
+## Slots
+
+| Name      | Description | Bindings |
+| --------- | ----------- | -------- |
+| item.slot |             |          |
+
 ---

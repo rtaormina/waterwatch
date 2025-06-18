@@ -1,14 +1,8 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [LocationFallback](../README.md) / getLocateControl
-
 # Function: getLocateControl()
 
 > **getLocateControl**(`location`, `opts?`): `LocateControl`
 
-Defined in: src/composables/LocationFallback.ts:114
+Defined in: src/composables/LocationFallback.ts:124
 
 Creates a custom Leaflet control for locating the user's position.
 

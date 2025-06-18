@@ -60,27 +60,31 @@ describe("createPayload Tests", () => {
                 {
                     location: L.latLng(110, 100),
                     temperature: {
-                        sensor: "digital thermomether",
+                        sensor: "digital thermometer",
                         value: 15.5,
                         unit: "C",
                         time_waited: { minutes: 1, seconds: 15 },
                     },
                     waterSource: "well",
                     selectedMetrics: ["temperature"],
+                    time: {
+                        localDate: "2025-01-01",
+                        localTime: "08:00:00",
+                    },
                 },
                 ["temperature"],
             ),
         ).toStrictEqual({
             timestamp: "2025-01-01T12:00:00.000Z",
             local_date: "2025-01-01",
-            local_time: "07:00:00",
+            local_time: "08:00:00",
             location: {
                 type: "Point",
                 coordinates: [100, 110],
             },
             water_source: "well",
             temperature: {
-                sensor: "digital thermomether",
+                sensor: "digital thermometer",
                 value: 15.5,
                 time_waited: "00:01:15",
             },
@@ -95,13 +99,17 @@ describe("createPayload Tests", () => {
                 {
                     location: L.latLng(110.23491, 100.3423),
                     temperature: {
-                        sensor: "digital thermomether",
+                        sensor: "digital thermometer",
                         value: 15.5,
                         unit: "C",
                         time_waited: { minutes: 1, seconds: 15 },
                     },
                     waterSource: "well",
                     selectedMetrics: ["temperature"],
+                    time: {
+                        localDate: "2025-01-01",
+                        localTime: "08:00:00",
+                    },
                 },
                 ["temperature"],
             ),
@@ -115,10 +123,10 @@ describe("createPayload Tests", () => {
             },
             water_source: "well",
             temperature: {
-                sensor: "digital thermomether",
+                sensor: "digital thermometer",
                 value: 15.5,
                 time_waited: "00:01:15",
-            },
+            }
         });
     });
     it("creates correct fahrenheit payload", () => {
@@ -129,14 +137,18 @@ describe("createPayload Tests", () => {
             createPayload(
                 {
                     location: L.latLng(110, 100),
+                    waterSource: "well",
                     temperature: {
-                        sensor: "digital thermomether",
+                        sensor: "digital thermometer",
                         value: 48,
                         unit: "F",
                         time_waited: { minutes: 1, seconds: 15 },
                     },
-                    waterSource: "well",
                     selectedMetrics: ["temperature"],
+                    time: {
+                        localDate: "2025-01-01",
+                        localTime: "08:00:00",
+                    },
                 },
                 ["temperature"],
             ),
@@ -150,7 +162,7 @@ describe("createPayload Tests", () => {
             },
             water_source: "well",
             temperature: {
-                sensor: "digital thermomether",
+                sensor: "digital thermometer",
                 value: 8.9,
                 time_waited: "00:01:15",
             },
@@ -164,14 +176,18 @@ describe("createPayload Tests", () => {
             createPayload(
                 {
                     location: L.latLng(110, 100),
+                    waterSource: "well",
                     temperature: {
-                        sensor: "digital thermomether",
+                        sensor: "digital thermometer",
                         value: 48,
                         unit: "F",
                         time_waited: { minutes: 1, seconds: 5 },
                     },
-                    waterSource: "well",
                     selectedMetrics: ["temperature"],
+                    time: {
+                        localDate: "2025-01-01",
+                        localTime: "08:00:00",
+                    },
                 },
                 ["temperature"],
             ),
@@ -185,10 +201,10 @@ describe("createPayload Tests", () => {
             },
             water_source: "well",
             temperature: {
-                sensor: "digital thermomether",
+                sensor: "digital thermometer",
                 value: 8.9,
                 time_waited: "00:01:05",
-            },
+            }
         });
     });
 });
