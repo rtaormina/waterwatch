@@ -55,6 +55,66 @@ export async function addMeasurement(page: Page, opts: AddMeasurementOpts, url: 
     if (err) throw new Error("addMeasurement failed: " + err);
 }
 
+/**
+ * Clicks a button identified by a test ID.
+ * @param page the current page
+ * @param testId the test ID of the button
+ */
+export async function clickButton(page: Page, testId: string) {
+    await page.getByTestId(testId).click();
+}
+
+/**
+ * Select an option from a dropdown
+ * @param page the current page
+ * @param testId the test ID of the dropdown
+ * @param option the option to select from the dropdown
+ */
+async function selectFromDropdown(page:Page, testId: string, option: string) {
+    await page.getByTestId(testId).click();
+    await page.waitForSelector(`text=${option}`);
+    await page.locator(`text=${option}`).click();
+}
+
+/**
+ * Fills out a text field with the provided value.
+ * @param page the current page
+ * @param testId the test ID of the text field
+ * @param value the text to fill in the field
+ */
+async function fillOutTextField(page: Page, testId: string, value: string) {
+    await page.getByTestId(testId).fill(value);
+}
+
+export async function zoomToLevel(page: Page, zoomLevel: number) {
+    // Zoom in to the specified level
+    await page.evaluate((zl) => {
+        // If you have animations on, wait until the map has actually zoomed:
+        return new Promise<void>((resolve) => {
+            window.map.once("zoomend", () => resolve());
+            window.map.setZoom(zl);
+        });
+    }, zoomLevel);
+}
+
+export async function moveToCoordinates(page: Page, latitude: number, longitude: number) {
+    await page.evaluate(
+        ([lat, lng]) => {
+            return new Promise<void>((resolve) => {
+                window.map.once("moveend", () => resolve());
+                window.map.setView([lat, lng]);
+            });
+        },
+        // Pack both values into one array argument:
+        [latitude, longitude],
+    );
+}
+
+export async function clickNthHexagonOnMap(page: Page, n: number) {
+    await page.waitForSelector("path.hexbin-grid", { state: "visible" });
+            await page.locator("path.hexbin-grid").nth(n).click();
+}
+
 export interface AddPresetOpts {
     name: string; // e.g. "My Preset"
     description: string; // e.g. "A description of my preset"

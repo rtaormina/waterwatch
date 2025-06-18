@@ -37,7 +37,11 @@ watch(() => props.month, render);
             class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
         >
             Data Analytics
-            <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="emit('close')">
+            <button
+                data-testid="close-global-analytics"
+                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                @click="emit('close')"
+            >
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>

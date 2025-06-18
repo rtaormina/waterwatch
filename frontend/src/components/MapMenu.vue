@@ -38,6 +38,7 @@
             <UTooltip :delay-duration="0" text="Show Global Analytics">
                 <button
                     class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
+                    data-testid="global-analytics-button"
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('show-global')"
                     style="--delay: 0.2s"
@@ -50,6 +51,7 @@
             <UTooltip :delay-duration="0" text="Select Multiple Hexagons">
                 <button
                     class="text-white hover:cursor-pointer menu-button"
+                    data-testid="select-multiple-hexagons-button"
                     :class="[
                         props.selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1',
                         { 'menu-visible': showButtons },
@@ -64,6 +66,7 @@
 
             <UTooltip :delay-duration="0" text="Compare Hexagon Groups">
                 <button
+                    data-testid="comparing-hexagons-button"
                     class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('enter-compare')"
