@@ -54,20 +54,21 @@
                             />
                         </div>
                     </template>
-                    <ComparisonBar
-                        v-if="compareMode"
-                        :mode="comparePhaseString"
-                        :phaseNum="comparePhaseNum"
-                        :group1Count="group1HexCount"
-                        :group2Count="group2HexCount"
-                        @cancel="exitCompareMode"
-                        @previous="goToPhase1"
-                        @next="goToPhase2"
-                        @compare="goToPhase3"
-                        @restart="goToPhase1"
-                        @exit="exitCompareMode"
-                    />
                 </USlideover>
+                <ComparisonBar
+                    v-if="compareMode"
+                    :style="showCompareAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
+                    :mode="comparePhaseString"
+                    :phaseNum="comparePhaseNum"
+                    :group1Count="group1HexCount"
+                    :group2Count="group2HexCount"
+                    @cancel="exitCompareMode"
+                    @previous="goToPhase1"
+                    @next="goToPhase2"
+                    @compare="goToPhase3"
+                    @restart="goToPhase1"
+                    @exit="exitCompareMode"
+                />
                 <USlideover
                     side="left"
                     v-model:open="viewAnalytics"
@@ -88,13 +89,14 @@
                             />
                         </div>
                     </template>
-                    <SelectBar
-                        v-if="selectMode"
-                        :count="count"
-                        @cancel-select="exitSelectMode"
-                        @select="handleSelectContinue"
-                    />
                 </USlideover>
+                <SelectBar
+                    v-if="selectMode"
+                    :style="viewAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
+                    :count="count"
+                    @cancel-select="exitSelectMode"
+                    @select="handleSelectContinue"
+                />
                 <HexMap
                     ref="hexMapRef"
                     :colors="colors"
@@ -114,7 +116,7 @@
 
                 <div
                     class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    :class="{ 'hidden md:block': viewAnalytics || addMeasurement || compareMode || selectMode }"
                 >
                     <MapMenu
                         :selectMult="selectMult"
