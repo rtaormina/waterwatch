@@ -116,7 +116,14 @@
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
                 <SideBar v-model:open="addMeasurement" title="Record Measurement" @close="handleCloseAll">
                     <template #content>
-                        <MeasurementComponent @submitMeasurement="refresh = !refresh" />
+                        <MeasurementComponent
+                            @submitMeasurement="
+                                () => {
+                                    refresh = !refresh;
+                                    handleCloseAll();
+                                }
+                            "
+                        />
                     </template>
                     <MenuButton
                         icon="i-heroicons-plus-circle"
