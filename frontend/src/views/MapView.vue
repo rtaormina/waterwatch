@@ -70,13 +70,7 @@
                     @close="handleCloseAll"
                 >
                     <template #content>
-                        <DataAnalyticsComponent
-                            v-if="viewAnalytics"
-                            :location="hexLocation"
-                            :month="month"
-                            :fromExport="false"
-                            @close="viewAnalytics = false"
-                        />
+                        <DataAnalyticsComponent :location="hexLocation" :month="month" :fromExport="false" />
                     </template>
                 </SideBar>
                 <SelectBar

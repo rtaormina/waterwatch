@@ -2,29 +2,21 @@
     <div class="w-full h-full flex flex-col p-0 m-0">
         <div class="w-full h-full flex flex-row">
             <div class="relative w-full h-full">
-                <USlideover
-                    side="left"
-                    :open="showCompareAnalytics"
-                    :overlay="false"
-                    :dismissible="false"
-                    :modal="false"
-                    :ui="{
-                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
-                    }"
+                <SideBar
+                    v-model:open="showCompareAnalytics"
+                    :settings="{ modal: false, overlay: false, dismissible: false }"
+                    title="Compare Distributions"
+                    @close="handleCloseAll"
                 >
                     <template #content>
-                        <div class="pt-16 w-full h-full">
-                            <DataAnalyticsCompare
-                                v-if="showCompareAnalytics"
-                                :group1WKT="group1WKT"
-                                :group2WKT="group2WKT"
-                                :month="month"
-                                :fromExport="true"
-                                @close="handleCloseAll"
-                            />
-                        </div>
+                        <DataAnalyticsCompare
+                            :group1WKT="group1WKT"
+                            :group2WKT="group2WKT"
+                            :month="month"
+                            :fromExport="false"
+                        />
                     </template>
-                </USlideover>
+                </SideBar>
                 <ComparisonBar
                     v-if="compareMode"
                     :style="showCompareAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
@@ -39,28 +31,16 @@
                     @restart="goToPhase1"
                     @exit="exitCompareMode"
                 />
-                <USlideover
-                    side="left"
+                <SideBar
                     v-model:open="viewAnalytics"
-                    :overlay="false"
-                    :dismissible="false"
-                    :modal="false"
-                    :ui="{
-                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
-                    }"
+                    :settings="{ modal: false, overlay: false, dismissible: false }"
+                    title="Data Analytics"
+                    @close="handleCloseAll"
                 >
                     <template #content>
-                        <div class="pt-16 w-full h-full">
-                            <DataAnalyticsComponent
-                                v-if="viewAnalytics"
-                                :location="hexLocation"
-                                :month="month"
-                                :fromExport="true"
-                                @close="handleCloseAll"
-                            />
-                        </div>
+                        <DataAnalyticsComponent :location="hexLocation" :month="month" :fromExport="false" />
                     </template>
-                </USlideover>
+                </SideBar>
                 <SelectBar
                     v-if="selectMode"
                     :style="viewAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
