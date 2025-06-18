@@ -1,30 +1,33 @@
 <template>
     <div class="w-full h-full flex flex-col p-0 m-0">
         <div class="w-full h-full flex flex-row">
-            <div
-                v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
-                class="analytics-panel left-0 top-19 md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
-            >
-                <DataAnalyticsComponent
-                    v-if="viewAnalytics"
-                    :location="hexLocation"
-                    :month="month"
-                    :fromExport="true"
-                    @close="handleCloseAll"
-                />
-
-                <DataAnalyticsCompare
-                    v-if="showCompareAnalytics"
-                    :group1WKT="group1WKT"
-                    :group2WKT="group2WKT"
-                    :month="month"
-                    :fromExport="true"
-                    @close="handleCloseAll"
-                />
-            </div>
             <div class="relative w-full h-full">
+                <USlideover
+                    side="left"
+                    :open="showCompareAnalytics"
+                    :overlay="false"
+                    :dismissible="false"
+                    :modal="false"
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <DataAnalyticsCompare
+                                v-if="showCompareAnalytics"
+                                :group1WKT="group1WKT"
+                                :group2WKT="group2WKT"
+                                :month="month"
+                                :fromExport="false"
+                                @close="handleCloseAll"
+                            />
+                        </div>
+                    </template>
+                </USlideover>
                 <ComparisonBar
                     v-if="compareMode"
+                    :style="showCompareAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
                     :mode="comparePhaseString"
                     :phaseNum="comparePhaseNum"
                     :group1Count="group1HexCount"
@@ -36,8 +39,31 @@
                     @restart="goToPhase1"
                     @exit="exitCompareMode"
                 />
+                <USlideover
+                    side="left"
+                    v-model:open="viewAnalytics"
+                    :overlay="false"
+                    :dismissible="false"
+                    :modal="false"
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <DataAnalyticsComponent
+                                v-if="viewAnalytics"
+                                :location="hexLocation"
+                                :month="month"
+                                :fromExport="false"
+                                @close="handleCloseAll"
+                            />
+                        </div>
+                    </template>
+                </USlideover>
                 <SelectBar
                     v-if="selectMode"
+                    :style="viewAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
                     :count="count"
                     @cancel-select="exitSelectMode"
                     @select="handleSelectContinue"
@@ -50,7 +76,7 @@
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
                     :month="month"
-                    :fromExport="true"
+                    :fromExport="false"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -58,10 +84,7 @@
                     @open-details="handleOpenAnalysis"
                 />
 
-                <div
-                    class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                >
+                <div class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4">
                     <button
                         class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
                         @click="
@@ -75,11 +98,7 @@
                     <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
                         <ScaleIcon class="w-10 h-10" />
                     </button>
-                    <button
-                        class="text-white hover:cursor-pointer"
-                        :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
-                        @click="enterSelectMode"
-                    >
+                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterSelectMode">
                         <SquaresPlusIcon class="w-10 h-10" />
                     </button>
                     <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="returnToExport">
@@ -95,7 +114,7 @@
                     class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
-                    :fromExport="true"
+                    :fromExport="false"
                     @update="updateMapFilters"
                 />
             </div>
