@@ -35,6 +35,10 @@ describe("useLogin composable", () => {
 
         vi.clearAllMocks();
         loggedIn.value = false;
+
+        globalThis.useToast = () => ({
+            add: vi.fn(),
+        });
     });
 
     describe("handleSubmit()", () => {
