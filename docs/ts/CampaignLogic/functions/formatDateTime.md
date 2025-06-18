@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [CampaignLogic](../README.md) / formatDateTime
-
 # Function: formatDateTime()
 
 > **formatDateTime**(`isoString`): `string`

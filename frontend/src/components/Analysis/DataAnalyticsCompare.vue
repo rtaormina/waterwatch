@@ -4,13 +4,18 @@ import {
     getGraphData,
     drawHistogramWithKDE,
     drawComparisonGraph,
+    getGraphDataExportMapView,
 } from "../../composables/Analysis/DataVisualizationLogic";
 import { XMarkIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/outline";
+import { useExportStore } from "../../stores/ExportStore";
+
+const exportStore = useExportStore();
 
 const props = defineProps<{
     group1WKT: string;
     group2WKT: string;
     month: string;
+    fromExport: boolean;
 }>();
 
 const graph1 = ref<HTMLElement | null>(null);
@@ -63,16 +68,21 @@ async function renderCompare() {
 
     let vals1: number[] = [];
     let vals2: number[] = [];
+    const filters = JSON.parse(JSON.stringify(exportStore.filters));
 
     // Catch errors when fetching data
     try {
-        vals1 = await getGraphData(props.group1WKT, props.month);
+        vals1 = props.fromExport
+            ? await getGraphDataExportMapView(filters, props.group1WKT, props.month)
+            : await getGraphData(props.group1WKT, props.month);
     } catch {
         vals1 = [];
     }
 
     try {
-        vals2 = await getGraphData(props.group2WKT, props.month);
+        vals2 = props.fromExport
+            ? await getGraphDataExportMapView(filters, props.group2WKT, props.month)
+            : await getGraphData(props.group2WKT, props.month);
     } catch {
         vals2 = [];
     }
@@ -121,16 +131,17 @@ watch(
 
 <template>
     <div
-        class="bg-white m-4 p-1 md:p-4 h-full overflow-y-scroll overflow-x-hidden box-border"
+        class="bg-default mx-4 pt-4 md:p-4 overflow-y-scroll h-full overflow-x-hidden box-border"
         style="scrollbar-width: thin"
     >
         <h1
-            class="bg-main text-lg font-bold text-white rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
+            class="bg-main text-lg font-bold text-inverted rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
         >
             Compare Distributions
+
             <button
                 data-testid="close-comparing-analytics"
-                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
                 @click="$emit('close')"
             >
                 <XMarkIcon class="w-10 h-10" />
@@ -139,54 +150,54 @@ watch(
 
         <div class="max-w-screen-md mx-auto space-y-2">
             <!-- Overlaid KDEs Accordion Item -->
-            <div class="border border-gray-200 rounded-lg">
+            <div class="border border-muted rounded-lg">
                 <button
                     @click="toggleAccordion('overlaid')"
-                    class="w-full flex items-center justify-between p-4 text-left text-sm font-semibold bg-gray-50 hover:bg-gray-100 rounded-t-lg cursor-pointer transition-colors"
+                    class="w-full flex items-center justify-between p-4 text-left text-sm font-semibold bg-muted hover:bg-elevated rounded-t-lg cursor-pointer transition-colors"
                     :class="{ 'rounded-b-lg': !isOpen('overlaid') }"
                 >
                     <span>Frequency Analysis: Group 1 and Group 2</span>
                     <ChevronUpIcon v-if="isOpen('overlaid')" class="w-5 h-5" />
                     <ChevronDownIcon v-else class="w-5 h-5" />
                 </button>
-                <div v-if="isOpen('overlaid')" class="p-4 border-t border-gray-200" data-testid="overlaid-content">
-                    <div class="bg-white rounded-lg p-4 shadow">
+                <div v-if="isOpen('overlaid')" class="p-4 border-t border-muted" data-testid="overlaid-content">
+                    <div class="bg-default rounded-lg p-4 shadow">
                         <div ref="graphOverlay" class="w-full h-64"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Group 1 Accordion Item -->
-            <div class="border border-gray-200 rounded-lg">
+            <div class="border border-muted rounded-lg">
                 <button
                     @click="toggleAccordion('group1')"
-                    class="w-full flex items-center justify-between p-4 text-left text-sm font-semibold bg-gray-50 hover:bg-gray-100 rounded-t-lg cursor-pointer transition-colors"
+                    class="w-full flex items-center justify-between p-4 text-left text-sm font-semibold bg-muted hover:bg-elevated rounded-t-lg cursor-pointer transition-colors"
                     :class="{ 'rounded-b-lg': !isOpen('group1') }"
                 >
                     <span>Frequency Analysis: Group 1</span>
                     <ChevronUpIcon v-if="isOpen('group1')" class="w-5 h-5" />
                     <ChevronDownIcon v-else class="w-5 h-5" />
                 </button>
-                <div v-if="isOpen('group1')" class="p-4 border-t border-gray-200">
-                    <div class="bg-white rounded-lg p-4 shadow">
+                <div v-if="isOpen('group1')" class="p-4 border-t border-muted">
+                    <div class="bg-default rounded-lg p-4 shadow">
                         <div ref="graph1" class="w-full h-64"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Group 2 Accordion Item -->
-            <div class="border border-gray-200 rounded-lg">
+            <div class="border border-muted rounded-lg">
                 <button
                     @click="toggleAccordion('group2')"
-                    class="w-full flex items-center justify-between p-4 text-left text-sm font-semibold bg-gray-50 hover:bg-gray-100 rounded-t-lg cursor-pointer transition-colors"
+                    class="w-full flex items-center justify-between p-4 text-left text-sm font-semibold bg-muted hover:bg-elevated rounded-t-lg cursor-pointer transition-colors"
                     :class="{ 'rounded-b-lg': !isOpen('group2') }"
                 >
                     <span>Frequency Analysis: Group 2</span>
                     <ChevronUpIcon v-if="isOpen('group2')" class="w-5 h-5" />
                     <ChevronDownIcon v-else class="w-5 h-5" />
                 </button>
-                <div v-if="isOpen('group2')" class="p-4 border-t border-gray-200">
-                    <div class="bg-white rounded-lg p-4 shadow">
+                <div v-if="isOpen('group2')" class="p-4 border-t border-muted">
+                    <div class="bg-default rounded-lg p-4 shadow">
                         <div ref="graph2" class="w-full h-64"></div>
                     </div>
                 </div>

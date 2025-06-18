@@ -16,6 +16,11 @@ declare global {
         map: LeafletMap;
     }
 }
+import { useLegendStore } from "../stores/LegendStore";
+import axios from "axios";
+import Cookies from "universal-cookie";
+import { useExportStore } from "../stores/ExportStore";
+import { flattenSearchParams } from "../composables/Export/useSearch";
 
 declare module "leaflet" {
     /*
@@ -105,6 +110,7 @@ declare module "leaflet" {
 let map: L.Map;
 const mapElement = useTemplateRef("mapElement");
 const layer = createOSMLayer({ noWrap: true });
+const legendStore = useLegendStore();
 
 // type for each incoming “measurement” point
 type DataPoint = {
@@ -119,11 +125,11 @@ const props = defineProps<{
     center?: L.LatLng;
     data: DataPoint[]; // this will be unwrapped automatically
     colors: string[];
-    colorScale: [number, number];
     selectMult: boolean;
-    colorByTemp: boolean;
     compareMode: boolean;
     activePhase: 1 | 2 | null;
+    month: string;
+    fromExport: boolean;
 }>();
 
 // default center if none is passed
@@ -133,7 +139,7 @@ const hexbinOptions: L.HexbinLayerConfig = {
     radius: 30,
     opacity: 0.3,
     colorRange: props.colors,
-    colorScaleExtent: props.colorScale,
+    colorScaleExtent: legendStore.scale,
     radiusRange: [4, 30],
 };
 
@@ -141,7 +147,7 @@ const hexbinLayer: L.HexbinLayer = L.hexbinLayer(hexbinOptions);
 hexbinLayer.lat((d: DataPoint) => d.point.lat);
 hexbinLayer.lng((d: DataPoint) => d.point.lng);
 hexbinLayer.colorValue((d) => {
-    const color = props.colorByTemp
+    const color = legendStore.colorByTemp
         ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length
         : d.map((v) => v.o.count).reduce((a, b) => a + b, 0);
     return color;
@@ -198,6 +204,21 @@ function getHexagonCorners(
 }
 
 /**
+ * Function to determine the upper bound for zoom levels in measurement count mode.
+ *
+ * @param z the zoom level
+ * @return the upper bound for zoom levels
+ */
+function zoomCutoff(z: number): number {
+    if (z >= 3 && z <= 4) return 1000;
+    if (z >= 5 && z <= 6) return 500;
+    if (z >= 7 && z <= 9) return 250;
+    if (z >= 10 && z <= 13) return 100;
+    if (z >= 14 && z <= 16) return 50;
+    return 0;
+}
+
+/**
  * Initializes the Leaflet map and sets up event listeners.
  * This function is called when the component is mounted.
  */
@@ -228,6 +249,13 @@ onMounted(() => {
         }
     });
 
+    map.on("zoomend", () => {
+        if (!legendStore.colorByTemp) {
+            const zoom = map.getZoom();
+            legendStore.scale = [0, zoomCutoff(zoom)];
+        }
+    });
+
     // Set max bounds to prevent panning too far
     map.setMaxBounds(
         L.latLngBounds([
@@ -246,6 +274,15 @@ onMounted(() => {
         () => props.data,
         (newData) => {
             hexbinLayer.data(newData);
+        },
+    );
+
+    watch(
+        () => props.selectMult,
+        (newVal) => {
+            if (newVal) {
+                clearSelection();
+            }
         },
     );
 
@@ -313,6 +350,14 @@ onMounted(() => {
                 clearSelection();
             }
         },
+    );
+
+    watch(
+        () => legendStore.colorByTemp,
+        () => {
+            if (!legendStore.colorByTemp) legendStore.scale = [0, zoomCutoff(map.getZoom())];
+        },
+        { immediate: true },
     );
 
     // Watch for changes in month selection to clear selections if selected hexagon data has changed
@@ -440,9 +485,15 @@ onMounted(() => {
          * @param geometry The GeoJSON polygon geometry.
          * @returns The WKT representation of the polygon.
          */
-        function geoJsonToWktPolygon(geometry: { coordinates: number[][][] }) {
-            const coords = geometry.coordinates[0].map(([lng, lat]) => `${lng} ${lat}`).join(", ");
-            return `POLYGON((${coords}))`;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        function geoJsonToWktPolygon(geometry: { coordinates: any }) {
+            // Make a shallow copy of the ring
+            const ring = geometry.coordinates[0].slice();
+            // Push the first coordinate onto the end to close the ring
+            ring.push(ring[0]);
+            // Build the “x y” strings
+            const coordText = ring.map(([lng, lat]: [number, number]) => `${lng} ${lat}`).join(", ");
+            return `POLYGON((${coordText}))`;
         }
 
         // Convert the corners to a GeoJSON polygon and then to WKT
@@ -501,38 +552,78 @@ onMounted(() => {
         }
         // If we are in selectMult mode, we emit the MultiPolygon WKT
         if (!props.selectMult) {
-            const layerPoint = L.point(d.x, d.y);
-            const latlng = map.layerPointToLatLng(layerPoint);
-            const container = document.createElement("div");
-            const vm = createApp(HexAnalysis, {
-                points: d,
-                /**
-                 * Opens the details popup for the selected hexagon.
-                 *
-                 * @returns {void}
-                 */
-                onOpenDetails: () => {
-                    emit("open-details", wkt);
-                },
-                /**
-                 * Closes the popup when the close button is clicked.
-                 *
-                 * @returns {void}
-                 */
-                onClose: () => {
-                    map.closePopup();
-                },
-            });
-            vm.mount(container);
-            const popup = L.popup({
-                offset: [0, -hexbinLayer.radius()],
-                autoClose: true,
-                closeOnClick: false,
-            })
-                .setLatLng(latlng)
-                .setContent(container)
-                .openOn(map);
-            popup.on("remove", () => vm.unmount());
+            (async () => {
+                // Fetch the hexagon data for the selected hexagon
+                const cookies = new Cookies();
+                const exportStore = useExportStore();
+
+                const filters = JSON.parse(JSON.stringify(exportStore.filters));
+                const bodyData = {
+                    ...flattenSearchParams(filters),
+                    month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
+                    boundary_geometry: wkt,
+                    format: "map-format",
+                };
+
+                const res = await axios.post(
+                    props.fromExport ? "/api/measurements/search/" : "/api/measurements/aggregated/",
+                    props.fromExport
+                        ? bodyData
+                        : {
+                              boundary_geometry: wkt,
+                              month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
+                          },
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": cookies.get("csrftoken"),
+                        },
+                    },
+                );
+
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const points = res.data.measurements.map((m: any) => ({
+                    o: {
+                        temperature: m.avg_temperature,
+                        min: m.min_temperature,
+                        max: m.max_temperature,
+                        count: m.count,
+                    },
+                }));
+
+                const layerPoint = L.point(d.x, d.y);
+                const latlng = map.layerPointToLatLng(layerPoint);
+                const container = document.createElement("div");
+                const vm = createApp(HexAnalysis, {
+                    points: points,
+                    /**
+                     * Opens the details popup for the selected hexagon.
+                     *
+                     * @returns {void}
+                     */
+                    onOpenDetails: () => {
+                        emit("open-details", wkt);
+                    },
+                    /**
+                     * Closes the popup when the close button is clicked.
+                     *
+                     * @returns {void}
+                     */
+                    onClose: () => {
+                        map.closePopup();
+                    },
+                });
+                vm.mount(container);
+                const popup = L.popup({
+                    offset: [0, -hexbinLayer.radius()],
+                    autoClose: true,
+                    closeOnClick: false,
+                })
+                    .setLatLng(latlng)
+                    .setContent(container)
+                    .openOn(map);
+                popup.on("remove", () => vm.unmount());
+            })();
         }
         // If we are in selectMult mode, we emit the MultiPolygon WKT, else we emit the single WKT
         if (props.selectMult) {
@@ -641,9 +732,8 @@ function drawPhase3Highlights(params: { corners1: Array<L.LatLng[]>; corners2: A
     });
 }
 
-// Refresh the color scale
 watch(
-    () => props.colorScale,
+    () => legendStore.scale,
     (newVal) => {
         hexbinLayer.colorScaleExtent(newVal);
         hexbinLayer.redraw();

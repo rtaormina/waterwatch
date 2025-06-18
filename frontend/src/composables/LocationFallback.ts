@@ -2,6 +2,7 @@ import * as L from "leaflet";
 import { Spinner, type SpinnerOptions } from "spin.js";
 import "spin.js/spin.css";
 import { toValue, watch, type MaybeRefOrGetter, type Ref } from "vue";
+import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 
 // For Leaflets marker to work properly on production, we need to set the default marker icon URLs explicitly.
 // This is a workaround for the issue where Leaflet does not correctly build the marker icon images in production builds.
@@ -248,7 +249,14 @@ export function getLocateControl(location: Ref<L.LatLng>, opts?: L.ControlOption
         _handleLocationError: function (e: L.ErrorEvent) {
             this._endSpinner();
             console.error(e);
-            alert("Location could not be found, set a location manually." + e.message);
+            const toast = useToast();
+            toast.add({
+                title: "Location could not be found",
+                description: e.message,
+                duration: 2000,
+                color: "warning",
+                icon: "i-heroicons-exclamation-triangle",
+            });
         },
 
         /**

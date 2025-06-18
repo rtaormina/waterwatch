@@ -20,9 +20,10 @@ vi.mock("universal-cookie", () => {
 global.fetch = vi.fn() as unknown as typeof fetch;
 
 describe("LoginPage.vue", () => {
-
     beforeEach(() => {
-
+        globalThis.useToast = () => ({
+            add: vi.fn(),
+        });
     });
 
     it("renders username and password inputs and submit button", () => {
@@ -31,7 +32,7 @@ describe("LoginPage.vue", () => {
         // find inputs by placeholder
         const usernameInput = wrapper.find('input[placeholder="Your Username"]');
         const passwordInput = wrapper.find('input[placeholder="Your Password"]');
-        const submitBtn = wrapper.find('button[type="submit"]');
+        const submitBtn = wrapper.find('[data-testid="login-button"]');
 
         expect(usernameInput.exists()).toBe(true);
         expect(passwordInput.exists()).toBe(true);
@@ -55,18 +56,14 @@ describe("LoginPage.vue", () => {
         // (optionally) wait for any async work to finish
         await flushPromises();
 
-        expect(fetch).toHaveBeenCalledWith(
-            "api/login/",
-            {
-            "body": "{\"username\":\"alice\",\"password\":\"secret\"}",
-            "credentials": "same-origin",
-            "headers": {
+        expect(fetch).toHaveBeenCalledWith("api/login/", {
+            body: '{"username":"alice","password":"secret"}',
+            credentials: "same-origin",
+            headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "dummy",
             },
-            "method": "POST",
-            }
-
-        );
+            method: "POST",
+        });
     });
 });

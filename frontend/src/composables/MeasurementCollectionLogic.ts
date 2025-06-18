@@ -1,12 +1,12 @@
 import { DateTime } from "luxon";
 import { toValue, type MaybeRefOrGetter } from "vue";
 
-export type TemperatureSensor = "analog thermomether" | "digital thermomether" | "infrared thermomether" | "other";
+export type TemperatureSensor = "analog thermometer" | "digital thermometer" | "infrared thermometer" | "other";
 
 export const sensorOptions: SensorOptions = [
-    { label: "Analog Thermomether", value: "analog thermomether" },
-    { label: "Digital Thermomether", value: "digital thermomether" },
-    { label: "Infrared Thermomether", value: "infrared thermomether" },
+    { label: "Analog Thermometer", value: "analog thermometer" },
+    { label: "Digital Thermometer", value: "digital thermometer" },
+    { label: "Infrared Thermometer", value: "infrared thermometer" },
     { label: "Other", value: "other" },
 ];
 

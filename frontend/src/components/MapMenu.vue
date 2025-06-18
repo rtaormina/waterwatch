@@ -4,7 +4,7 @@
             <button
                 data-testid="open-button"
                 @click="toggleMenu"
-                class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
+                class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
                 aria-label="toggle map menu"
             >
                 <transition
@@ -25,7 +25,7 @@
         <div class="flex flex-row-reverse items-center gap-4">
             <UTooltip :delay-duration="0" text="Map Settings">
                 <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
+                    class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer menu-button"
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('toggle-legend')"
                     style="--delay: 0.1s"
@@ -37,7 +37,7 @@
 
             <UTooltip :delay-duration="0" text="Show Global Analytics">
                 <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
+                    class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer menu-button"
                     data-testid="global-analytics-button"
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('show-global')"
@@ -50,10 +50,10 @@
 
             <UTooltip :delay-duration="0" text="Select Multiple Hexagons">
                 <button
-                    class="text-white hover:cursor-pointer menu-button"
+                    class="text-inverted hover:cursor-pointer menu-button"
                     data-testid="select-multiple-hexagons-button"
                     :class="[
-                        props.selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1',
+                        props.selectMult ? 'bg-main rounded-md p-1' : 'bg-main rounded-md p-1',
                         { 'menu-visible': showButtons },
                     ]"
                     @click="$emit('enter-select')"
@@ -67,7 +67,7 @@
             <UTooltip :delay-duration="0" text="Compare Hexagon Groups">
                 <button
                     data-testid="comparing-hexagons-button"
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer menu-button"
+                    class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer menu-button"
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('enter-compare')"
                     style="--delay: 0.4s"

@@ -1,6 +1,9 @@
 # Deployment to Production
 
-> Currently a production build exists already and is available at [https://waterwatch.tudelft.nl](https://waterwatch.tudelft.nl).
+```{eval-rst}
+.. tip::
+  Currently a production build exists already and is available at [https://waterwatch.tudelft.nl](https://waterwatch.tudelft.nl).
+```
 
 This section will go over the steps and details needed to deploy to a production environment.
 
@@ -70,8 +73,9 @@ docker stack deploy -c docker-compose.prod.stack.yaml production --prune --detac
 ```
 
 ```{eval-rst}
-.. important::
-WATERWATCH needs a countries.sql to be aware of the continent and country borders. The countries.sql file can be downloaded from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql) and then needs to be stored in the root assets folder.
+.. note::
+  WATERWATCH needs a countries.sql to be aware of the continent and country borders. The countries.sql file can be downloaded from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql) and then needs to be stored in the root assets folder.
+
 ```
 
 After the services are running, the database needs to load in the countries.sql file. The following commands copy the sql file to the container and then load in the database, this needs to be done only once as this data will persists in the volume.
@@ -130,7 +134,7 @@ docker exec "$BACKEND" python manage.py migrate
 
 ### Clean up
 
-Every time a new deployement is made some data is stored such as the previous containers or local build cache. This can accumulate overtime to quite a significant amount of data. In order to inspect disk usage or prune unneccesarry data. The following commands can be run.
+Every time a new deployment is made some data is stored such as the previous containers or local build cache. This can accumulate overtime to quite a significant amount of data. In order to inspect disk usage or prune unnecessary data. The following commands can be run.
 
 ```bash
 docker system df

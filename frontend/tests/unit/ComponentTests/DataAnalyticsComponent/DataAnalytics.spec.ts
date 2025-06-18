@@ -2,6 +2,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import DataAnalyticsComponent from "../../../../src/components/Analysis/DataAnalyticsComponent.vue";
 import axios from "axios";
+import { createPinia, setActivePinia } from "pinia";
+
+setActivePinia(createPinia());
 
 // Mock axios
 vi.mock("axios");
@@ -22,6 +25,13 @@ import { getGraphData, drawHistogramWithKDE } from "../../../../src/composables/
 describe("DataAnalyticsComponent", () => {
     beforeEach(() => {
         vi.clearAllMocks();
+
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
 
         // Setup default mock implementations
         (getGraphData as any).mockResolvedValue([1, 2, 3, 4, 5]);

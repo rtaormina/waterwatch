@@ -15,6 +15,7 @@ const emit = defineEmits<{
     (e: "update:format", newFormat: typeof props.format): void;
     (e: "download"): void;
     (e: "close-modal"): void;
+    (e: "show-on-map"): void;
 }>();
 
 // Define the props for the component
@@ -113,7 +114,7 @@ defineExpose({
                         <div class="w-2 h-2 bg-main rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
                         <div class="w-2 h-2 bg-main rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
                     </div>
-                    <span class="ml-3 text-gray-600">Searching...</span>
+                    <span class="ml-3 text-toned">Searching...</span>
                 </div>
                 <!-- Show results only when search is complete and not loading -->
                 <template v-else-if="searched">
@@ -155,6 +156,18 @@ defineExpose({
                 </select>
             </div>
             <button
+                @click="emit('show-on-map')"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
+                class="w-11/12 md:w-9/12 py-3 text-default rounded-2xl font-semibold text-lg mb-2"
+                :class="
+                    canDownload && searched && !props.filtersOutOfSync && !props.isLoading
+                        ? 'bg-main cursor-pointer hover:bg-[#007ea4]'
+                        : 'bg-accented cursor-not-allowed'
+                "
+            >
+                See Results on Map
+            </button>
+            <button
                 @click="emit('download')"
                 :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
                 class="w-11/12 md:w-9/12 py-3 text-default rounded-2xl font-semibold text-lg"
@@ -169,12 +182,12 @@ defineExpose({
             <Modal data-testid="export-failed-modal" :visible="props.showModal" @close="emit('close-modal')">
                 <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
                 <div class="flex items-center mt-4 gap-2">
-                    <button
+                    <UButton
                         @click="emit('close-modal')"
-                        class="flex-1 bg-main text-default mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
+                        class="flex-1 bg-main text-default mr-2 px-4 py-2 rounded hover:cursor-pointer justify-center"
                     >
                         Okay
-                    </button>
+                    </UButton>
                 </div>
             </Modal>
         </div>
@@ -184,7 +197,6 @@ defineExpose({
 @media (max-height: 500px) {
     .result-component {
         padding: 0.5rem !important;
-        overflow-y: visible !important;
         height: auto !important;
     }
 

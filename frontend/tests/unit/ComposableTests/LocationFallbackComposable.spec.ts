@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref, nextTick, Ref } from "vue";
 import * as L from "leaflet";
 import { createMarker, createMap, getLocateControl } from "../../../src/composables/LocationFallback";
+import { useToast } from "@nuxt/ui/runtime/composables/useToast.js";
 
 // Mock leaflet and DOM-related APIs
 vi.mock("leaflet", async () => {
@@ -84,6 +85,13 @@ vi.mock("spin.js", () => ({
     })),
 }));
 
+const AddToast = vi.fn();
+vi.mock("@nuxt/ui/runtime/composables/useToast", () => ({
+    useToast: () => ({
+        add: AddToast,
+    }),
+}));
+
 describe("LocationFallback composable", () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -92,7 +100,7 @@ describe("LocationFallback composable", () => {
     describe("createMarker", () => {
         it("should create a draggable marker and sync with location ref", async () => {
             const location = ref({ lat: 1, lng: 2 } as L.LatLng);
-            const marker = createMarker(location);
+            const marker = createMarker(location) as L.Marker & { _events: {} };
 
             expect(L.marker).toHaveBeenCalledWith(location.value, {
                 draggable: true,
@@ -173,14 +181,17 @@ describe("LocationFallback composable", () => {
             expect(map.setView).toHaveBeenCalledWith(ev.latlng, 14);
         });
 
-        it("should stop spinner and alert on _handleLocationError", () => {
+        it("should stop spinner and show a toast on _handleLocationError", () => {
             const control = getLocateControl(location);
             control._endSpinner = vi.fn();
-            globalThis.alert = vi.fn();
             const err = { message: "fail" };
             control._handleLocationError(err as any);
             expect(control._endSpinner).toHaveBeenCalled();
-            expect(globalThis.alert).toHaveBeenCalledWith(expect.stringContaining("fail"));
+            expect(AddToast).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    description: err.message,
+                }),
+            );
         });
 
         it("should fetch IP location and update location/map", async () => {

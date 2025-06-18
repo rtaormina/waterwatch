@@ -16,49 +16,49 @@
                 .
             </p>
             <div class="flex items-center mt-4 gap-2">
-                <button
+                <UButton
                     type="button"
                     aria-label="open map menu"
                     data-testid="view-button"
                     @click="firstTime = false"
-                    class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+                    class="flex-1 bg-main text-default justify-center text-xl px-4 py-2 rounded mr-2 hover:cursor-pointer"
                 >
                     View Map
-                </button>
+                </UButton>
             </div>
         </Modal>
     </div>
     <div class="w-full h-full flex flex-col p-0 m-0">
-        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
+        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-default" />
 
         <div class="w-full h-full flex flex-row">
-            <div
-                v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
-                class="analytics-panel left-0 top-19 md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 md:min-w-[400px] fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-default z-10"
-            >
-                <MeasurementComponent
-                    v-if="addMeasurement"
-                    @close="handleCloseAll"
-                    @submitMeasurement="refresh = !refresh"
-                />
-                <DataAnalyticsComponent
-                    v-if="viewAnalytics"
-                    :location="hexLocation"
-                    :month="month"
-                    @close="handleCloseAll"
-                />
-
-                <DataAnalyticsCompare
-                    v-if="showCompareAnalytics"
-                    :group1WKT="group1WKT"
-                    :group2WKT="group2WKT"
-                    :month="month"
-                    @close="handleCloseAll"
-                />
-            </div>
             <div class="relative w-full h-full">
+                <USlideover
+                    side="left"
+                    :open="showCompareAnalytics"
+                    :overlay="false"
+                    :dismissible="false"
+                    :modal="false"
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <DataAnalyticsCompare
+                                v-if="showCompareAnalytics"
+                                :group1WKT="group1WKT"
+                                :group2WKT="group2WKT"
+                                :month="month"
+                                :fromExport="false"
+                                @close="handleCloseAll"
+                            />
+                        </div>
+                    </template>
+                </USlideover>
                 <ComparisonBar
                     v-if="compareMode"
+                    :style="showCompareAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
                     :mode="comparePhaseString"
                     :phaseNum="comparePhaseNum"
                     :group1Count="group1HexCount"
@@ -70,8 +70,31 @@
                     @restart="goToPhase1"
                     @exit="exitCompareMode"
                 />
+                <USlideover
+                    side="left"
+                    v-model:open="viewAnalytics"
+                    :overlay="false"
+                    :dismissible="false"
+                    :modal="false"
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <DataAnalyticsComponent
+                                v-if="viewAnalytics"
+                                :location="hexLocation"
+                                :month="month"
+                                :fromExport="false"
+                                @close="handleCloseAll"
+                            />
+                        </div>
+                    </template>
+                </USlideover>
                 <SelectBar
                     v-if="selectMode"
+                    :style="viewAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
                     :count="count"
                     @cancel-select="exitSelectMode"
                     @select="handleSelectContinue"
@@ -80,11 +103,11 @@
                     ref="hexMapRef"
                     :colors="colors"
                     :data="data"
-                    :colorScale="scale"
                     :selectMult="selectMult && !compareMode"
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
-                    :colorByTemp="colorByTemp"
+                    :month="month"
+                    :fromExport="false"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -94,7 +117,7 @@
 
                 <div
                     class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    :class="{ 'hidden md:block': viewAnalytics || addMeasurement || compareMode || selectMode }"
                 >
                     <MapMenu
                         :selectMult="selectMult"
@@ -117,30 +140,45 @@
                     class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
-                    :scale="scale"
-                    :colorByTemp="colorByTemp"
-                    @close="handleCloseAll"
-                    @switch="handleSwitch"
+                    :fromExport="false"
                     @update="updateMapFilters"
                 />
             </div>
 
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
-                <UTooltip :delay-duration="0" text="Add a Measurement">
-                    <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        @click="
-                            addMeasurement = true;
-                            viewAnalytics = false;
-                            showLegend = false;
-                        "
-                        type="button"
-                        aria-label="add measurement"
-                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                    >
-                        <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
-                    </button>
-                </UTooltip>
+                <USlideover
+                    side="left"
+                    v-model:open="addMeasurement"
+                    modal
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <MeasurementComponent
+                                v-if="addMeasurement"
+                                @close="handleCloseAll"
+                                @submitMeasurement="refresh = !refresh"
+                            />
+                        </div>
+                    </template>
+                    <UTooltip :delay-duration="0" text="Add a Measurement">
+                        <button
+                            class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
+                            @click="
+                                addMeasurement = true;
+                                viewAnalytics = false;
+                                showLegend = false;
+                            "
+                            type="button"
+                            aria-label="add measurement"
+                            v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                        >
+                            <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
+                        </button>
+                    </UTooltip>
+                </USlideover>
             </div>
         </div>
     </div>
@@ -156,8 +194,6 @@
 
 <script setup lang="ts">
 /**
- * MapView
- *
  * Displays the campaign banner, measurement input form, and a hex map of sample data.
  * Provides a button to add new measurements when not in adding mode.
  */
@@ -188,7 +224,6 @@ const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
 const selectMult = ref(false);
-const colorByTemp = ref(true);
 const campaigns = ref([]);
 const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
@@ -257,14 +292,6 @@ function showGlobalAnalytics() {
     viewAnalytics.value = true;
     addMeasurement.value = false;
     showLegend.value = false;
-}
-
-/**
- * Handles the switch between temperature and count color modes in the legend.
- */
-function handleSwitch() {
-    colorByTemp.value = !colorByTemp.value;
-    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
 }
 
 /**
@@ -514,9 +541,8 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     }));
 }, [] as MeasurementData[]);
 
-// color, styling, and scale values for hexagon visualization
+// color and styling for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);
-const scale = ref<[number, number]>([10, 40]);
 const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
 
 /**

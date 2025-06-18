@@ -7,7 +7,12 @@ import MeasurementComponent from "../../../../src/components/MeasurementComponen
 import { ref } from "vue";
 import { DateTime } from "luxon";
 import * as L from "leaflet";
-import VueDatePicker from "@vuepic/vue-datepicker";
+
+vi.mock("@nuxt/ui/runtime/composables/useToast", () => ({
+    useToast: () => ({
+        add: vi.fn(),
+    }),
+}));
 
 const pushMock = vi.fn();
 vi.mock("vue-router", () => ({
@@ -70,7 +75,7 @@ describe("postData", () => {
             location: L.latLng(0, 0),
             waterSource: "network",
             temperature: {
-                sensor: "analog thermomether",
+                sensor: "analog thermometer",
                 value: 20,
                 unit: "C",
                 time_waited: {
@@ -109,7 +114,7 @@ describe("postData", () => {
         await wrapper.vm.postData();
         await flushPromises();
 
-        expect(errorSpy).toHaveBeenCalledWith("error with adding measurement");
+        expect(errorSpy).toHaveBeenCalledWith("Error with adding measurement");
         expect(wrapper.vm.router.push).not.toHaveBeenCalled();
 
         errorSpy.mockRestore();
@@ -161,7 +166,7 @@ describe("postData", () => {
             },
             water_source: "network",
             temperature: {
-                sensor: "analog thermomether",
+                sensor: "analog thermometer",
                 value: 20,
                 time_waited: "00:10:05",
             },
