@@ -19,7 +19,7 @@
                                 :group1WKT="group1WKT"
                                 :group2WKT="group2WKT"
                                 :month="month"
-                                :fromExport="false"
+                                :fromExport="true"
                                 @close="handleCloseAll"
                             />
                         </div>
@@ -55,7 +55,7 @@
                                 v-if="viewAnalytics"
                                 :location="hexLocation"
                                 :month="month"
-                                :fromExport="false"
+                                :fromExport="true"
                                 @close="handleCloseAll"
                             />
                         </div>
@@ -76,7 +76,7 @@
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
                     :month="month"
-                    :fromExport="false"
+                    :fromExport="true"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -114,7 +114,7 @@
                     class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
-                    :fromExport="false"
+                    :fromExport="true"
                     @update="updateMapFilters"
                 />
             </div>
