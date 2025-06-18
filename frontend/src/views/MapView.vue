@@ -206,11 +206,11 @@ import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
-import Legend from "../components/Legend.vue";
+import Legend from "../components/Menu/Legend.vue";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
-import MapMenu from "../components/MapMenu.vue";
+import MapMenu from "../components/Menu/MapMenu.vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
 
