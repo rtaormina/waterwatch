@@ -309,23 +309,59 @@ test.describe("Map Analysis Select Multiple Hexagons", () => {
     });
 
     test("Select multiple hexagons", async ({ page }) => {
+        //wait for map to load and tutorial dialog to show
+        await page.waitForTimeout(2500);
 
-        //close tutorial dialog
-        await clickButton(page, "view-button");
+        //add measurement 1
+        await addMeasurement(
+            page,
+            {
+                timestamp: "2025-05-26T14:30:00Z",
+                localDate: "2025-05-26",
+                localTime: "14:30:00",
+                latitude: 54.0,
+                longitude: 4.0,
+                waterSource: "well",
+                temperature: {
+                    sensor: "Analog Thermometer",
+                    value: 30,
+                    time_waited: 5,
+                },
+            },
+            url,
+        );
+
+        //navigate to map
+        await page.goto(url, { waitUntil: "domcontentloaded" });
 
         //open select multiple hexagons
         await clickButton(page, "open-button");
-        await clickButton(page, "global-analytics-button");
+        await clickButton(page, "select-multiple-hexagons-button");
 
+        //opened select multiple hexagons
         await expect(page.locator('text="Select Hexagons"')).toBeVisible();
+
+        //select hexagon 1
+        await moveToCoordinates(page, 54.0, 4.0);
+        await clickNthHexagonOnMap(page, 0);
+
+        //assert hexagon is selected
+        await expect(page.locator("path.leaflet-interactive")).toHaveCount(1);
+
+        //open hexagon selection
+        await clickButton(page, "select-button");
+
+        //assert analytics show up
+        await expect(page.locator('text="Data Analytics"')).toBeVisible();
+
+        //close select multiple hexagons
+        await clickButton(page, "cancel-select-button");
+
+        //assert select multiple hexagons is closed
+        await expect(page.locator('text="Select Hexagons"')).toHaveCount(0);
+
+        //assert analytics is closed
+        await expect(page.locator('text="Data Analytics"')).toHaveCount(0);
     });
 
-    test("Select multiple hexagons at different zoomlevels", async ({ page }) => {
-        //close tutorial dialog
-        await clickButton(page, "view-button");
-
-        //open select multiple hexagons
-        await clickButton(page, "open-button");
-        await clickButton(page, "global-analytics-button");
-    });
 });
