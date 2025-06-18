@@ -131,7 +131,7 @@ watch(
 
 <template>
     <div
-        class="bg-default mx-4 p-1 md:p-4 overflow-y-scroll h-full overflow-x-hidden box-border"
+        class="bg-default mx-4 pt-4 md:p-4 overflow-y-scroll h-full overflow-x-hidden box-border"
         style="scrollbar-width: thin"
     >
         <h1
