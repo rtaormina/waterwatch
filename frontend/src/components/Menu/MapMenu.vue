@@ -23,79 +23,36 @@
         </UTooltip>
 
         <div class="flex flex-row-reverse items-center gap-4">
-            <UTooltip :delay-duration="0" text="Map Settings">
-                <button
-                    class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer menu-button"
-                    :class="{ 'menu-visible': showButtons }"
-                    @click="$emit('toggle-legend')"
-                    style="--delay: 0.1s"
-                    aria-label="open map settings"
-                >
-                    <AdjustmentsVerticalIcon class="w-10 h-10" />
-                </button>
-            </UTooltip>
-
-            <UTooltip :delay-duration="0" text="Show Global Analytics">
-                <button
-                    class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer menu-button"
-                    :class="{ 'menu-visible': showButtons }"
-                    @click="$emit('show-global')"
-                    style="--delay: 0.2s"
-                    aria-label="global analytics"
-                >
-                    <ChartBarIcon class="w-10 h-10" />
-                </button>
-            </UTooltip>
-
-            <UTooltip :delay-duration="0" text="Select Multiple Hexagons">
-                <button
-                    class="text-inverted hover:cursor-pointer menu-button"
-                    :class="[
-                        props.selectMult ? 'bg-main rounded-md p-1' : 'bg-main rounded-md p-1',
-                        { 'menu-visible': showButtons },
-                    ]"
-                    @click="$emit('enter-select')"
-                    style="--delay: 0.3s"
-                    aria-label="select multiple hexagons"
-                >
-                    <SquaresPlusIcon class="w-10 h-10" />
-                </button>
-            </UTooltip>
-
-            <UTooltip :delay-duration="0" text="Compare Hexagon Groups">
-                <button
-                    class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer menu-button"
-                    :class="{ 'menu-visible': showButtons }"
-                    @click="$emit('enter-compare')"
-                    style="--delay: 0.4s"
-                    aria-label="compare hexagon groups"
-                >
-                    <ScaleIcon class="w-10 h-10" />
-                </button>
-            </UTooltip>
+            <MenuButton
+                class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer menu-button"
+                :class="{ 'menu-visible': showButtons }"
+                :style="{ '--delay': '0.1s' }"
+                v-for="item in menuItems"
+                :key="item.icon"
+                :icon="item.icon"
+                :tooltip="item.tooltip"
+                @click="item.handler"
+            />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import {
-    EllipsisHorizontalCircleIcon,
-    XMarkIcon,
-    ScaleIcon,
-    SquaresPlusIcon,
-    AdjustmentsVerticalIcon,
-    ChartBarIcon,
-} from "@heroicons/vue/24/outline";
+import { EllipsisHorizontalCircleIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 
-const props = defineProps<{
+type MenuItem = {
+    icon: string;
+    tooltip: string;
+    handler: () => void;
+};
+
+defineProps<{
     selectMult: boolean;
+    menuItems: MenuItem[];
 }>();
+
 const emit = defineEmits<{
-    (e: "enter-compare"): void;
-    (e: "enter-select"): void;
-    (e: "toggle-legend"): void;
-    (e: "show-global"): void;
     (e: "open"): void;
 }>();
 
@@ -123,7 +80,7 @@ function toggleMenu() {
 }
 </script>
 
-<style scoped>
+<style>
 .menu-button {
     opacity: 0;
     transform: translateX(50px) scale(0.8);

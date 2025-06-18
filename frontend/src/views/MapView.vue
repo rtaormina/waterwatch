@@ -119,20 +119,7 @@
                     class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
                     :class="{ 'hidden md:block': viewAnalytics || addMeasurement || compareMode || selectMode }"
                 >
-                    <MapMenu
-                        :selectMult="selectMult"
-                        @open="handleOpenClose"
-                        @enter-compare="enterCompareMode"
-                        @enter-select="enterSelectMode"
-                        @toggle-legend="
-                            () => {
-                                addMeasurement = false;
-                                viewAnalytics = false;
-                                showLegend = !showLegend;
-                            }
-                        "
-                        @show-global="showGlobalAnalytics"
-                    />
+                    <MapMenu :selectMult="selectMult" :menuItems="menuItems" @open="handleOpenClose" />
                 </div>
 
                 <Legend
@@ -252,6 +239,17 @@ const range = ref<number[]>([0]);
 const month = ref<string>("0");
 const refresh = ref(false);
 
+const menuItems = [
+    //eslint-disable-next-line jsdoc/require-jsdoc
+    { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: () => toggleLegend() },
+    //eslint-disable-next-line jsdoc/require-jsdoc
+    { icon: "i-heroicons-chart-bar", tooltip: "Show Global Analytics", handler: () => showGlobalAnalytics() },
+    //eslint-disable-next-line jsdoc/require-jsdoc
+    { icon: "i-heroicons-squares-plus", tooltip: "Select Multiple Hexagons", handler: () => enterSelectMode() },
+    //eslint-disable-next-line jsdoc/require-jsdoc
+    { icon: "i-heroicons-scale", tooltip: "Compare Hexagon Groups", handler: () => enterCompareMode() },
+];
+
 /**
  * Handle open and close of map menu
  *
@@ -267,6 +265,72 @@ function handleOpenClose() {
     }
 }
 
+// Menu Item Handlers
+
+/**
+ * Toggles the visibility of the legend in the map view.
+ */
+function toggleLegend() {
+    addMeasurement.value = false;
+    viewAnalytics.value = false;
+    showLegend.value = !showLegend.value;
+}
+
+/**
+ * Shows the global analytics in the sidebar component.
+ *
+ * @returns {void}
+ */
+function showGlobalAnalytics() {
+    hexLocation.value = "";
+    viewAnalytics.value = true;
+    addMeasurement.value = false;
+    showLegend.value = false;
+}
+
+/**
+ * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
+ *
+ * @returns {void}
+ */
+function enterSelectMode() {
+    selectMode.value = true;
+    selectMult.value = true;
+    addMeasurement.value = false;
+    showLegend.value = false;
+    compareMode.value = false;
+    count.value = 0;
+}
+
+/**
+ * Enters compare mode, resetting all necessary states and preparing for group selection.
+ *
+ * @returns {void}
+ */
+function enterCompareMode() {
+    compareMode.value = true;
+    comparePhaseString.value = "phase1";
+    group1WKT.value = "";
+    group2WKT.value = "";
+    group1HexCount.value = 0;
+    group2HexCount.value = 0;
+    group1Corners.value = [];
+    group2Corners.value = [];
+    viewAnalytics.value = false;
+    addMeasurement.value = false;
+    showLegend.value = false;
+    selectMult.value = false;
+    showCompareAnalytics.value = false;
+
+    // **Immediately re‐enable `selectMult` so Phase 1 hex‐clicks work**
+    // We use setTimeout to let Vue finish the re‐render in phase1 first.
+    setTimeout(() => {
+        selectMult.value = true;
+    }, 30);
+}
+
+// --------------------------
+
 /**
  * Handles filtering observations by time
  *
@@ -280,18 +344,6 @@ function updateMapFilters(timeRange: number[]) {
         month.value += `${range.value[i]},`;
     }
     month.value = month.value.substring(0, month.value.length - 1);
-}
-
-/**
- * Shows the global analytics in the sidebar component.
- *
- * @returns {void}
- */
-function showGlobalAnalytics() {
-    hexLocation.value = "";
-    viewAnalytics.value = true;
-    addMeasurement.value = false;
-    showLegend.value = false;
 }
 
 /**
@@ -334,20 +386,6 @@ function handleSelectContinue() {
 }
 
 /**
- * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
- *
- * @returns {void}
- */
-function enterSelectMode() {
-    selectMode.value = true;
-    selectMult.value = true;
-    addMeasurement.value = false;
-    showLegend.value = false;
-    compareMode.value = false;
-    count.value = 0;
-}
-
-/**
  * Exits select multiple hexagon mode, resets necessary states
  *
  * @returns {void}
@@ -377,33 +415,6 @@ function handleCloseAll() {
     } else if (selectMode.value) {
         exitSelectMode();
     }
-}
-
-/**
- * Enters compare mode, resetting all necessary states and preparing for group selection.
- *
- * @returns {void}
- */
-function enterCompareMode() {
-    compareMode.value = true;
-    comparePhaseString.value = "phase1";
-    group1WKT.value = "";
-    group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
-    group1Corners.value = [];
-    group2Corners.value = [];
-    viewAnalytics.value = false;
-    addMeasurement.value = false;
-    showLegend.value = false;
-    selectMult.value = false;
-    showCompareAnalytics.value = false;
-
-    // **Immediately re‐enable `selectMult` so Phase 1 hex‐clicks work**
-    // We use setTimeout to let Vue finish the re‐render in phase1 first.
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
 }
 
 /**
