@@ -16,7 +16,7 @@ const {
 const emit = defineEmits<{
     (e: "close"): void;
 }>();
-import { XMarkIcon } from "@heroicons/vue/24/outline";
+
 const open = defineModel<boolean>("open", { default: false });
 </script>
 
@@ -38,7 +38,7 @@ const open = defineModel<boolean>("open", { default: false });
                         class="bg-primary text-lg font-bold text-inverted rounded-lg p-4 mb-6 mt-2 shadow w-full md:max-w-screen-md md:mx-auto flex items-center justify-between"
                     >
                         {{ title }}
-                        <button
+                        <UButton
                             class="bg-primary rounded-md p-1 text-inverted hover:cursor-pointer"
                             @click="
                                 () => {
@@ -48,8 +48,8 @@ const open = defineModel<boolean>("open", { default: false });
                             "
                             aria-label="close sidebar"
                         >
-                            <XMarkIcon class="w-10 h-10" />
-                        </button>
+                            <UIcon name="i-heroicons-x-mark" class="w-10 h-10" />
+                        </UButton>
                     </h1>
                     <slot name="content"></slot>
                 </div>
