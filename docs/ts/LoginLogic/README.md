@@ -1,15 +1,17 @@
-[**frontend**](../README.md)
-
-***
-
-[frontend](../README.md) / LoginLogic
-
 # LoginLogic
 
 ## Variables
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
 
-- [loggedIn](variables/loggedIn.md)
+   variables/loggedIn.md
+```
 
 ## Functions
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
 
-- [useLogin](functions/useLogin.md)
+   functions/useLogin.md
+```

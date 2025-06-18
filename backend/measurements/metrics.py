@@ -4,5 +4,4 @@ from .models import Temperature
 
 METRIC_MODELS = [
     Temperature,
-    # TestMetric
 ]
