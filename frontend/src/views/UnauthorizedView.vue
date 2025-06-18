@@ -20,5 +20,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * This component renders an unauthorized view.
+ * It provides a message indicating insufficient permissions and a button to navigate to the login page.
+ */
 import ErrorPage from "../components/ErrorPage.vue";
 </script>

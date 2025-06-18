@@ -89,7 +89,7 @@ def parse_month_parameter(month_param):
 
 def apply_boundary_filter(queryset, boundary_wkt):
     """
-    Only return points *strictly inside* the given polygon WKT (in EPSG:4326).
+    Only return points *strictly inside* or *on the boundary* of the given polygon WKT (in EPSG:4326).
 
     Parameters
     ----------
@@ -111,8 +111,8 @@ def apply_boundary_filter(queryset, boundary_wkt):
             logger.exception("Invalid boundary_geometry: %s", boundary_wkt)
             raise ValueError("Invalid boundary_geometry format") from err
 
-        # Use `within` to exclude points on or outside the boundary
-        queryset = queryset.filter(location__within=poly)
+        # Use `covered_by` to include points on the boundary and inside the polygon
+        queryset = queryset.filter(location__coveredby=poly)
 
     return queryset
 

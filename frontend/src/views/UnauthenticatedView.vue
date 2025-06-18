@@ -20,5 +20,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * This component renders an unauthenticated view.
+ * It provides a message indicating that authentication is required and a button to navigate to the login page.
+ */
 import ErrorPage from "../components/ErrorPage.vue";
 </script>
