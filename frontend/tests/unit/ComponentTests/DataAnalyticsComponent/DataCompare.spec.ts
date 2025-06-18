@@ -6,6 +6,8 @@ import { nextTick } from "vue";
 const mockMeasurements1 = ["23.0", "25.0", "24.5", "26.0"];
 const mockMeasurements2 = ["28.0", "30.0", "29.5", "31.0"];
 
+setActivePinia(createPinia());
+
 vi.mock("../../../../src/composables/Analysis/DataVisualizationLogic", () => ({
     getGraphData: vi.fn(),
     drawHistogramWithKDE: vi.fn(),
@@ -17,6 +19,7 @@ import {
     drawHistogramWithKDE,
     drawComparisonGraph,
 } from "../../../../src/composables/Analysis/DataVisualizationLogic";
+import { createPinia, setActivePinia } from "pinia";
 
 describe("DataAnalyticsCompare good weather tests", () => {
     let wrapper: VueWrapper<any>;
@@ -31,11 +34,19 @@ describe("DataAnalyticsCompare good weather tests", () => {
             return Promise.resolve([]);
         });
 
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
+
         wrapper = mount(DataAnalyticsCompare, {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
                 month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -218,11 +229,19 @@ describe("DataAnalyticsCompare bad weather tests", () => {
             return Promise.reject(new Error("Network error"));
         });
 
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
+
         wrapper = mount(DataAnalyticsCompare, {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
                 month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -251,6 +270,7 @@ describe("DataAnalyticsCompare bad weather tests", () => {
                 group1WKT: "",
                 group2WKT: "",
                 month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -278,6 +298,7 @@ describe("DataAnalyticsCompare bad weather tests", () => {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
                 month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -308,6 +329,13 @@ describe("DataAnalyticsCompare edge cases", () => {
             }
             return Promise.resolve([]);
         });
+
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
     });
 
     afterEach(() => {
@@ -320,6 +348,7 @@ describe("DataAnalyticsCompare edge cases", () => {
                 group1WKT: "single-value-wkt",
                 group2WKT: "single-value-wkt",
                 month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -341,6 +370,7 @@ describe("DataAnalyticsCompare edge cases", () => {
                 group1WKT: "large-dataset-wkt",
                 group2WKT: "large-dataset-wkt",
                 month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -362,6 +392,7 @@ describe("DataAnalyticsCompare edge cases", () => {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
                 month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });

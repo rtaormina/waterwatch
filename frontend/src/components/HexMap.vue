@@ -8,8 +8,11 @@ import * as L from "leaflet";
 import { createApp, onMounted, ref, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
 import HexAnalysis from "./Analysis/HexAnalysis.vue";
+import { useLegendStore } from "../stores/LegendStore";
 import axios from "axios";
 import Cookies from "universal-cookie";
+import { useExportStore } from "../stores/ExportStore";
+import { flattenSearchParams } from "../composables/Export/useSearch";
 
 declare module "leaflet" {
     /*
@@ -99,6 +102,7 @@ declare module "leaflet" {
 let map: L.Map;
 const mapElement = useTemplateRef("mapElement");
 const layer = createOSMLayer({ noWrap: true });
+const legendStore = useLegendStore();
 
 // type for each incoming “measurement” point
 type DataPoint = {
@@ -113,12 +117,11 @@ const props = defineProps<{
     center?: L.LatLng;
     data: DataPoint[]; // this will be unwrapped automatically
     colors: string[];
-    colorScale: [number, number];
     selectMult: boolean;
-    colorByTemp: boolean;
     compareMode: boolean;
     activePhase: 1 | 2 | null;
     month: string;
+    fromExport: boolean;
 }>();
 
 // default center if none is passed
@@ -128,7 +131,7 @@ const hexbinOptions: L.HexbinLayerConfig = {
     radius: 30,
     opacity: 0.3,
     colorRange: props.colors,
-    colorScaleExtent: props.colorScale,
+    colorScaleExtent: legendStore.scale,
     radiusRange: [4, 30],
 };
 
@@ -136,7 +139,7 @@ const hexbinLayer: L.HexbinLayer = L.hexbinLayer(hexbinOptions);
 hexbinLayer.lat((d: DataPoint) => d.point.lat);
 hexbinLayer.lng((d: DataPoint) => d.point.lng);
 hexbinLayer.colorValue((d) => {
-    const color = props.colorByTemp
+    const color = legendStore.colorByTemp
         ? d.map((v) => v.o.temperature).reduce((a, b) => a + b, 0) / d.length
         : d.map((v) => v.o.count).reduce((a, b) => a + b, 0);
     return color;
@@ -193,6 +196,21 @@ function getHexagonCorners(
 }
 
 /**
+ * Function to determine the upper bound for zoom levels in measurement count mode.
+ *
+ * @param z the zoom level
+ * @return the upper bound for zoom levels
+ */
+function zoomCutoff(z: number): number {
+    if (z >= 3 && z <= 4) return 1000;
+    if (z >= 5 && z <= 6) return 500;
+    if (z >= 7 && z <= 9) return 250;
+    if (z >= 10 && z <= 13) return 100;
+    if (z >= 14 && z <= 16) return 50;
+    return 0;
+}
+
+/**
  * Initializes the Leaflet map and sets up event listeners.
  * This function is called when the component is mounted.
  */
@@ -218,6 +236,13 @@ onMounted(() => {
         } else if (props.compareMode && (props.activePhase === 1 || props.activePhase === 2)) {
             clearSelection();
             emit("hex-group-select", { wkt: "", phase: props.activePhase, cornersList: [] });
+        }
+    });
+
+    map.on("zoomend", () => {
+        if (!legendStore.colorByTemp) {
+            const zoom = map.getZoom();
+            legendStore.scale = [0, zoomCutoff(zoom)];
         }
     });
 
@@ -315,6 +340,14 @@ onMounted(() => {
                 clearSelection();
             }
         },
+    );
+
+    watch(
+        () => legendStore.colorByTemp,
+        () => {
+            if (!legendStore.colorByTemp) legendStore.scale = [0, zoomCutoff(map.getZoom())];
+        },
+        { immediate: true },
     );
 
     // Watch for changes in month selection to clear selections if selected hexagon data has changed
@@ -512,12 +545,24 @@ onMounted(() => {
             (async () => {
                 // Fetch the hexagon data for the selected hexagon
                 const cookies = new Cookies();
+                const exportStore = useExportStore();
+
+                const filters = JSON.parse(JSON.stringify(exportStore.filters));
+                const bodyData = {
+                    ...flattenSearchParams(filters),
+                    month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
+                    boundary_geometry: wkt,
+                    format: "map-format",
+                };
+
                 const res = await axios.post(
-                    "/api/measurements/aggregated/",
-                    {
-                        boundary_geometry: wkt,
-                        month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
-                    },
+                    props.fromExport ? "/api/measurements/search/" : "/api/measurements/aggregated/",
+                    props.fromExport
+                        ? bodyData
+                        : {
+                              boundary_geometry: wkt,
+                              month: props.month.split(",").map((m) => parseInt(m.trim(), 10)),
+                          },
                     {
                         headers: {
                             "Content-Type": "application/json",
@@ -677,9 +722,8 @@ function drawPhase3Highlights(params: { corners1: Array<L.LatLng[]>; corners2: A
     });
 }
 
-// Refresh the color scale
 watch(
-    () => props.colorScale,
+    () => legendStore.scale,
     (newVal) => {
         hexbinLayer.colorScaleExtent(newVal);
         hexbinLayer.redraw();

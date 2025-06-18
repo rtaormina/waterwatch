@@ -50,6 +50,7 @@
                                 :group1WKT="group1WKT"
                                 :group2WKT="group2WKT"
                                 :month="month"
+                                :fromExport="false"
                                 @close="handleCloseAll"
                             />
                         </div>
@@ -85,6 +86,7 @@
                                 v-if="viewAnalytics"
                                 :location="hexLocation"
                                 :month="month"
+                                :fromExport="false"
                                 @close="handleCloseAll"
                             />
                         </div>
@@ -101,12 +103,11 @@
                     ref="hexMapRef"
                     :colors="colors"
                     :data="data"
-                    :colorScale="scale"
                     :selectMult="selectMult && !compareMode"
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
-                    :colorByTemp="colorByTemp"
                     :month="month"
+                    :fromExport="false"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -139,10 +140,7 @@
                     class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
-                    :scale="scale"
-                    :colorByTemp="colorByTemp"
-                    @close="handleCloseAll"
-                    @switch="handleSwitch"
+                    :fromExport="false"
                     @update="updateMapFilters"
                 />
             </div>
@@ -226,7 +224,6 @@ const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
 const selectMult = ref(false);
-const colorByTemp = ref(true);
 const campaigns = ref([]);
 const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
@@ -295,14 +292,6 @@ function showGlobalAnalytics() {
     viewAnalytics.value = true;
     addMeasurement.value = false;
     showLegend.value = false;
-}
-
-/**
- * Handles the switch between temperature and count color modes in the legend.
- */
-function handleSwitch() {
-    colorByTemp.value = !colorByTemp.value;
-    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
 }
 
 /**
@@ -552,9 +541,8 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     }));
 }, [] as MeasurementData[]);
 
-// color, styling, and scale values for hexagon visualization
+// color and styling for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);
-const scale = ref<[number, number]>([10, 40]);
 const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
 
 /**

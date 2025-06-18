@@ -1,7 +1,7 @@
 <template>
     <div class="legend-popup">
-        <h4 v-if="colorByTemp" class="text-lg font-bold mb-2">Average Temperature</h4>
-        <h4 v-if="!colorByTemp" class="text-lg font-bold mb-2">Number of Measurements</h4>
+        <h4 v-if="legendStore.colorByTemp" class="text-lg font-bold mb-2">Average Temperature</h4>
+        <h4 v-if="!legendStore.colorByTemp" class="text-lg font-bold mb-2">Number of Measurements</h4>
 
         <!-- Gradient bar -->
         <div class="relative w-full h-3 rounded overflow-hidden">
@@ -18,31 +18,36 @@
                 <span class="w-px h-2 bg-inverted"></span>
                 <span class="w-px h-2 bg-inverted"></span>
                 <span class="w-px h-2 bg-inverted"></span>
+                <span class="w-px h-2 bg-inverted"></span>
             </div>
         </div>
 
         <!-- Labels under ticks -->
         <div class="mt-1 mb-2 flex justify-between text-sm text-default">
             <span>
-                <span v-if="colorByTemp">&leq;</span>
-                {{ props.scale[0] }}
-                <span v-if="colorByTemp">°C</span>
+                <span v-if="legendStore.colorByTemp">&leq;</span>
+                {{ legendStore.scale[0] }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
             <span>
-                {{ props.scale[0] + step }}
-                <span v-if="colorByTemp">°C</span>
+                {{ legendStore.scale[0] + step }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
             <span>
-                {{ props.scale[0] + step * 2 }}
-                <span v-if="colorByTemp">°C</span>
+                {{ legendStore.scale[0] + step * 2 }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
             <span>
-                {{ props.scale[0] + step * 3 }}
-                <span v-if="colorByTemp">°C</span>
+                {{ legendStore.scale[0] + step * 3 }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
             <span>
-                &geq;{{ props.scale[1] }}
-                <span v-if="colorByTemp">°C</span>
+                {{ legendStore.scale[0] + step * 4 }}
+                <span v-if="legendStore.colorByTemp">°C</span>
+            </span>
+            <span>
+                &geq;{{ legendStore.scale[1] }}
+                <span v-if="legendStore.colorByTemp">°C</span>
             </span>
         </div>
 
@@ -70,7 +75,7 @@
         <div class="flex gap-2 w-full">
             <button
                 @click="toTempMode"
-                :class="{ 'bg-main text-inverted': colorByTemp }"
+                :class="{ 'bg-main text-inverted': legendStore.colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
                 aria-label="toggle hexagon coloring by temperature"
             >
@@ -79,7 +84,7 @@
             <button
                 data-testid="count"
                 @click="toCountMode"
-                :class="{ 'bg-main text-inverted': !colorByTemp }"
+                :class="{ 'bg-main text-inverted': !legendStore.colorByTemp }"
                 class="flex-1 text-center cursor-pointer px-3 rounded border rounded-md"
                 aria-label="toggle hexagon coloring by measurement count"
             >
@@ -131,14 +136,37 @@
 <script setup lang="ts">
 import { InformationCircleIcon } from "@heroicons/vue/24/outline";
 import { computed, ref } from "vue";
+import { useLegendStore } from "../stores/LegendStore";
+
+const legendStore = useLegendStore();
+const props = defineProps<{
+    fromExport: boolean;
+    colors: string[];
+}>();
 
 const emit = defineEmits<{
     (e: "update", value: number[]): void;
-    (e: "switch"): void;
 }>();
 
 const isMulti = computed(() => internalValue.value !== "Past 30 Days");
-const internalValue = ref<string | string[]>("Past 30 Days");
+const internalValue = ref<string | string[]>(
+    props.fromExport
+        ? [
+              "January",
+              "February",
+              "March",
+              "April",
+              "May",
+              "June",
+              "July",
+              "August",
+              "September",
+              "October",
+              "November",
+              "December",
+          ]
+        : "Past 30 Days",
+);
 const showInfoTextTime = ref(false);
 const showInfoTextColoring = ref(false);
 
@@ -200,7 +228,6 @@ function onChange(val: string | string[]) {
 
     if (Array.isArray(val)) {
         const nums = val.map((x) => monthMap.get(x) ?? 0).filter((x) => x != 0);
-        console.log(nums);
         internalValue.value = val.filter((x) => x != "Past 30 Days");
         emit("update", nums);
 
@@ -224,29 +251,24 @@ const items = ref([
     "December",
 ]);
 
-const props = defineProps<{
-    colors: string[];
-    scale: [number, number];
-    colorByTemp: boolean;
-}>();
-
 /**
  * Switch to count mode.
  */
 function toCountMode() {
-    if (!props.colorByTemp) return;
-    emit("switch");
+    if (!legendStore.colorByTemp) return;
+    legendStore.colorByTemp = false;
 }
 
 /**
  * Switch to temperature mode.
  */
 function toTempMode() {
-    if (props.colorByTemp) return;
-    emit("switch");
+    if (legendStore.colorByTemp) return;
+    legendStore.colorByTemp = true;
+    legendStore.scale = [0, 40];
 }
 
-const step = computed(() => (props.scale[1] - props.scale[0]) / 4);
+const step = computed(() => (legendStore.scale[1] - legendStore.scale[0]) / 5);
 </script>
 
 <style scoped>
@@ -258,17 +280,5 @@ const step = computed(() => (props.scale[1] - props.scale[0]) / 4);
     box-shadow:
         0 10px 15px -3px rgba(0, 0, 0, 0.1),
         0 4px 6px -4px rgba(0, 0, 0, 0.1);
-}
-
-.legend-popup::before {
-    content: "";
-    position: absolute;
-    top: 0.15rem;
-    right: 13rem;
-    transform: translateY(-100%);
-    border-width: 0 0.6rem 0.6rem 0.6rem;
-    border-style: solid;
-    border-color: transparent transparent var(--border-color-default) transparent;
-    border-radius: 0.75rem;
 }
 </style>
