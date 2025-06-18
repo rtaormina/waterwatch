@@ -150,21 +150,18 @@
                             />
                         </div>
                     </template>
-                    <UTooltip :delay-duration="0" text="Add a Measurement">
-                        <button
-                            class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
-                            @click="
+                    <MenuButton
+                        icon="i-heroicons-plus-circle"
+                        tooltip="Add a Measurement"
+                        :handler="
+                            () => {
                                 addMeasurement = true;
                                 viewAnalytics = false;
                                 showLegend = false;
-                            "
-                            type="button"
-                            aria-label="add measurement"
-                            v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                        >
-                            <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
-                        </button>
-                    </UTooltip>
+                            }
+                        "
+                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    />
                 </USlideover>
             </div>
         </div>
@@ -185,7 +182,6 @@
  * Provides a button to add new measurements when not in adding mode.
  */
 defineOptions({ name: "DashboardView" });
-import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 import HexMap from "../components/HexMap.vue";
 import { ref, onMounted, computed, nextTick } from "vue";
 import MeasurementComponent from "../components/MeasurementComponent.vue";
@@ -200,6 +196,7 @@ import SelectBar from "../components/Analysis/SelectBar.vue";
 import MapMenu from "../components/Menu/MapMenu.vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
+import MenuButton from "@/components/Menu/MenuButton.vue";
 
 const cookies = new Cookies();
 
