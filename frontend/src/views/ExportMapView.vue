@@ -84,29 +84,11 @@
                     @open-details="handleOpenAnalysis"
                 />
 
-                <div class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4">
-                    <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        @click="
-                            addMeasurement = false;
-                            viewAnalytics = false;
-                            showLegend = !showLegend;
-                        "
-                    >
-                        <AdjustmentsVerticalIcon class="w-10 h-10" />
-                    </button>
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
-                        <ScaleIcon class="w-10 h-10" />
-                    </button>
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterSelectMode">
-                        <SquaresPlusIcon class="w-10 h-10" />
-                    </button>
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="returnToExport">
-                        <div class="flex items-center">
-                            <ChevronLeftIcon class="w-10 h-10" />
-                            <span class="leading-none mr-2 whitespace-nowrap text-2xl">Go Back</span>
-                        </div>
-                    </button>
+                <div
+                    class="flex flex-row-reverse flex-nowrap items-center z-20 justify-center gap-4 absolute top-4 right-4"
+                    :class="{ 'hidden md:block': viewAnalytics || addMeasurement || compareMode || selectMode }"
+                >
+                    <MapMenu :selectMult="selectMult" :menuItems="menuItems" @open="handleOpenClose" />
                 </div>
 
                 <Legend
@@ -116,6 +98,16 @@
                     :colors="colors"
                     :fromExport="true"
                     @update="updateMapFilters"
+                />
+            </div>
+
+            <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
+                <MenuButton
+                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    :icon="'i-heroicons-arrow-left'"
+                    :tooltip="'Go Back'"
+                    :label="'Go Back'"
+                    @click="returnToExport"
                 />
             </div>
         </div>
@@ -143,7 +135,6 @@ import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Menu/Legend.vue";
-import { ScaleIcon, AdjustmentsVerticalIcon, SquaresPlusIcon, ChevronLeftIcon } from "@heroicons/vue/24/outline";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
@@ -152,6 +143,7 @@ import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
 import { flattenSearchParams } from "../composables/Export/useSearch";
 import axios from "axios";
+import MenuButton from "../components/Menu/MenuButton.vue";
 
 const router = useRouter();
 const exportStore = useExportStore();
@@ -188,6 +180,75 @@ const month = ref<string>("1,2,3,4,5,6,7,8,9,10,11,12");
 // color, styling, and scale values for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);
 const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
+
+const menuItems = [
+    { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: toggleLegend },
+    { icon: "i-heroicons-chart-bar", tooltip: "Show Global Analytics", handler: showGlobalAnalytics },
+    { icon: "i-heroicons-squares-plus", tooltip: "Select Multiple Hexagons", handler: enterSelectMode },
+    { icon: "i-heroicons-scale", tooltip: "Compare Hexagon Groups", handler: enterCompareMode },
+];
+
+/**
+ * Toggles the visibility of the legend in the map view.
+ */
+function toggleLegend() {
+    addMeasurement.value = false;
+    viewAnalytics.value = false;
+    showLegend.value = !showLegend.value;
+}
+
+/**
+ * Shows the global analytics in the sidebar component.
+ *
+ * @returns {void}
+ */
+function showGlobalAnalytics() {
+    hexLocation.value = "";
+    viewAnalytics.value = true;
+    addMeasurement.value = false;
+    showLegend.value = false;
+}
+
+/**
+ * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
+ *
+ * @returns {void}
+ */
+function enterSelectMode() {
+    selectMode.value = true;
+    selectMult.value = true;
+    addMeasurement.value = false;
+    showLegend.value = false;
+    compareMode.value = false;
+    count.value = 0;
+}
+
+/**
+ * Enters compare mode, resetting all necessary states and preparing for group selection.
+ *
+ * @returns {void}
+ */
+function enterCompareMode() {
+    compareMode.value = true;
+    comparePhaseString.value = "phase1";
+    group1WKT.value = "";
+    group2WKT.value = "";
+    group1HexCount.value = 0;
+    group2HexCount.value = 0;
+    group1Corners.value = [];
+    group2Corners.value = [];
+    viewAnalytics.value = false;
+    addMeasurement.value = false;
+    showLegend.value = false;
+    selectMult.value = false;
+    showCompareAnalytics.value = false;
+
+    // **Immediately re‐enable `selectMult` so Phase 1 hex‐clicks work**
+    // We use setTimeout to let Vue finish the re‐render in phase1 first.
+    setTimeout(() => {
+        selectMult.value = true;
+    }, 30);
+}
 
 /**
  * Returns to the export view, resetting all states and closing any open components.
@@ -251,20 +312,6 @@ function handleSelectContinue() {
 }
 
 /**
- * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
- *
- * @returns {void}
- */
-function enterSelectMode() {
-    selectMode.value = true;
-    selectMult.value = true;
-    addMeasurement.value = false;
-    showLegend.value = false;
-    compareMode.value = false;
-    count.value = 0;
-}
-
-/**
  * Exits select multiple hexagon mode, resets necessary states
  *
  * @returns {void}
@@ -294,33 +341,6 @@ function handleCloseAll() {
     } else if (selectMode.value) {
         exitSelectMode();
     }
-}
-
-/**
- * Enters compare mode, resetting all necessary states and preparing for group selection.
- *
- * @returns {void}
- */
-function enterCompareMode() {
-    compareMode.value = true;
-    comparePhaseString.value = "phase1";
-    group1WKT.value = "";
-    group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
-    group1Corners.value = [];
-    group2Corners.value = [];
-    viewAnalytics.value = false;
-    addMeasurement.value = false;
-    showLegend.value = false;
-    selectMult.value = false;
-    showCompareAnalytics.value = false;
-
-    // **Immediately re‐enable `selectMult` so Phase 1 hex‐clicks work**
-    // We use setTimeout to let Vue finish the re‐render in phase1 first.
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
 }
 
 /**
