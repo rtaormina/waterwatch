@@ -10,6 +10,6 @@
 
 ### verify
 
->
+> Verifies the validity of the temperature measurement fields.
 
 ---

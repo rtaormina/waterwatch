@@ -1,5 +1,5 @@
 # Vue Components
-this is a list of all Vue components in the application.
+This is a list of all Vue components in the application.
 ```{eval-rst}
 .. toctree::
    :maxdepth: 4
@@ -14,7 +14,6 @@ this is a list of all Vue components in the application.
    src/components/Export/FilterPanelComponent
    src/components/Export/SearchBarComponent
    src/components/Export/SearchResultsComponent
-   src/components/FilterPanelComponent
    src/components/HexMap
    src/components/LanguageSwitcher
    src/components/Legend
@@ -28,8 +27,6 @@ this is a list of all Vue components in the application.
    src/components/MeasurementComponent
    src/components/Modal
    src/components/NavBar
-   src/components/SearchBarComponent
-   src/components/SearchResultsComponent
    src/components/SideBar
    src/components/Text/Section
    src/components/Text/SectionFlex

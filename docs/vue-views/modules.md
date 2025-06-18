@@ -1,5 +1,5 @@
 # Vue Views
-this is a list of all Vue views in the application.
+This is a list of all Vue views in the application.
 ```{eval-rst}
 .. toctree::
    :maxdepth: 4
