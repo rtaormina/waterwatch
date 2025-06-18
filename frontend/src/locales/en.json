@@ -115,25 +115,18 @@
             "title": "How to Use the WATERWATCH Mobile App",
             "text": "Welcome to the tutorial page for using the WATERWATCH mobile app! The WATERWATCH app was created for researchers and citizen scientists to report water quality measurements and gather data offline. In this tutorial you will learn how to download the app and add your first measurement. This guide is designed for first-time users and experienced researchers looking to get the most out of the WATERWATCH app."
         },
-        "step1": {
-            "title": "",
-            "text": ""
-        },
-        "step2": {
-            "title": "",
-            "text": ""
-        },
-        "step3": {
-            "title": "",
-            "text": ""
+        "measurement":{
+            "title": "Recording Measurement Data",
+            "text1": "The first section of the app is the measurement data section. In this section you can fill out basic measurement details such as the measurement location and the water source.",
+            "caption1": "Measurement Data Section",
+            "text2": "The second section of the app is the temperature measurement section. In this section you can fill out the type of thermometer and the temperature reading. You can also fill out the time waited for the thermometer to stabilize. \n\nMake sure to double check the values that you record before hitting submit. If you cannot hit the submit button, check that you have filled in all of the required fields with the appropriate values! \n\nIf you would like to reset the form, you can select 'Clear'. Once you have completed the form, select 'Submit'.",
+            "caption2": "Temperature Measurement Section",
+            "text3": "To record the time waited you can use the timer button pictured. To change the recorded duration, spin the knob to the desired time waited. Once you have selected the time waited, select 'Done'.",
+            "caption3": "Time Waited Button"
         },
         "conclusion": {
-            "title": "",
-            "text": ""
-        },
-        "next-steps": {
-            "title": "",
-            "text": ""
+            "title": "Conclusion",
+            "text": "Thank you for taking the time to follow this tutorial on how to use the WATERWATCH mobile app! With the help of researchers and citizen scientists like you, WATERWATCH is able to gather important water data to support scientific research. If you have any questions, feel free to contact the team via email."
         }
     },
     "api": {

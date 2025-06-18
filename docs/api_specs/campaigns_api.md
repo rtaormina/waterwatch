@@ -6,7 +6,6 @@ Endpoints to manage and explore campaigns.
 .. openapi:: WATERWATCH_API.yaml
    :examples:
    :paths:
-    /campaigns
-    /campaigns/{campaignId}
+    /api/campaigns/active/
    :encoding: utf-8
 ```

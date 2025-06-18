@@ -1,82 +1,24 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / [MeasurementCollectionLogic](../README.md) / createPayload
-
 # Function: createPayload()
 
-> **createPayload**(`tempUnit`, `selectedMetrics`, `temperature`, `tempVal`, `time`, `waterSource`, `longitude`, `latitude`): `object`
+> **createPayload**(`data`, `selectedMetrics`): `object`
 
-Defined in: src/composables/MeasurementCollectionLogic.ts:114
+Defined in: src/composables/MeasurementCollectionLogic.ts:176
 
 Creates a payload object for measurement collection.
 
 ## Parameters
 
-### tempUnit
+### data
 
-`string`
+`MaybeRefOrGetter`\<[`MeasurementData`](../type-aliases/MeasurementData.md)\>
 
-The unit of temperature measurement ("C" for Celsius or "F" for Fahrenheit).
+The measurement data containing location, water source, and temperature information.
 
 ### selectedMetrics
 
-`string`[]
+`MaybeRefOrGetter`\<`"temperature"`[]\>
 
-An array of selected metric names to include in the payload.
-
-### temperature
-
-An object containing temperature information
-
-#### sensor
-
-`string`
-
-#### time_waited
-
-`string`
-
-#### value
-
-`number`
-
-### tempVal
-
-`string`
-
-The raw temperature value as a string (to be parsed and converted).
-
-### time
-
-An object containing the time waited for the measurement
-
-#### mins
-
-`string`
-
-#### sec
-
-`string`
-
-### waterSource
-
-`string`
-
-The water source.
-
-### longitude
-
-The longitude coordinate
-
-`undefined` | `number`
-
-### latitude
-
-The latitude coordinate
-
-`undefined` | `number`
+An array of selected metrics to include in the payload.
 
 ## Returns
 
@@ -86,11 +28,11 @@ the payload
 
 ### local\_date
 
-> **local\_date**: `undefined` \| `string`
+> **local\_date**: `string`
 
 ### local\_time
 
-> **local\_time**: `undefined` \| `string`
+> **local\_time**: `string`
 
 ### location
 
@@ -98,7 +40,7 @@ the payload
 
 #### location.coordinates
 
-> **coordinates**: (`undefined` \| `number`)[]
+> **coordinates**: `number`[]
 
 #### location.type
 
@@ -106,19 +48,7 @@ the payload
 
 ### temperature
 
-> **temperature**: `object`
-
-#### temperature.sensor
-
-> **sensor**: `string`
-
-#### temperature.time\_waited
-
-> **time\_waited**: `string`
-
-#### temperature.value
-
-> **value**: `number`
+> **temperature**: `undefined` \| \{ `sensor`: `undefined` \| [`TemperatureSensor`](../type-aliases/TemperatureSensor.md); `time_waited`: `string`; `value`: `undefined` \| `number`; \}
 
 ### timestamp
 
@@ -126,4 +56,4 @@ the payload
 
 ### water\_source
 
-> **water\_source**: `string` = `waterSource`
+> **water\_source**: `undefined` \| [`WaterSource`](../type-aliases/WaterSource.md) = `measurementData.waterSource`

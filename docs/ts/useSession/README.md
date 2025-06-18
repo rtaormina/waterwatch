@@ -1,11 +1,9 @@
-[**frontend**](../README.md)
-
-***
-
-[frontend](../README.md) / useSession
-
 # useSession
 
 ## Functions
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
 
-- [useSession](functions/useSession.md)
+   functions/useSession.md
+```

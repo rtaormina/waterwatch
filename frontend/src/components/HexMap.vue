@@ -267,6 +267,15 @@ onMounted(() => {
         },
     );
 
+    watch(
+        () => props.selectMult,
+        (newVal) => {
+            if (newVal) {
+                clearSelection();
+            }
+        },
+    );
+
     /**
      * Highlights a hexagon on the map.
      *

@@ -1,11 +1,9 @@
-[**frontend**](../README.md)
-
-***
-
-[frontend](../README.md) / PermissionsLogic
-
 # PermissionsLogic
 
 ## Functions
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
 
-- [permissionsLogic](functions/permissionsLogic.md)
+   functions/permissionsLogic.md
+```
