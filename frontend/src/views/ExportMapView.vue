@@ -123,7 +123,7 @@ import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
 import { flattenSearchParams } from "../composables/Export/useSearch";
 import axios from "axios";
-import MenuButton from "../components/Menu/MenuButton.vue";
+import MenuButton from "../components/MenuItems/MenuButton.vue";
 
 const router = useRouter();
 const exportStore = useExportStore();
