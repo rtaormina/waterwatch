@@ -19,7 +19,8 @@ services:
   django_backend_app:
     container_name: django_backend_app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     build:
       context: ../
       dockerfile: production/dockerfile.backend.prod
@@ -112,6 +113,7 @@ services:
     image: redis:alpine
     ports:
       - "6379:6379"
+    restart: always
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
