@@ -168,28 +168,26 @@ defineExpose({
 <template>
     <Block title="Temperature">
         <!-- Sensor Type -->
-        <div class="flex items-baseline justify-between mb-6">
+        <div class="flex md:flex-row flex-col items-baseline justify-between mb-6 gap-4">
             <label class="text-sm font-medium mt-2">Sensor Type</label>
-            <div class="flex flex-col w-60">
+            <div class="md:w-60 w-full">
                 <USelect
                     data-testid="sensor-type"
                     :items="sensorOptions"
                     value-key="value"
                     v-model="modelValue.sensor"
                     class="w-full"
-                    :ui="{
-                        content: 'z-10',
-                    }"
+                    :ui="{ content: 'z-10' }"
                 />
                 <div v-if="errors.sensor" class="text-red-500 text-sm mt-1">{{ errors.sensor }}</div>
             </div>
         </div>
 
         <!-- Temperature Value + Unit -->
-        <div class="flex items-start justify-between mb-6">
+        <div class="flex md:flex-row flex-col items-start justify-between mb-6 gap-4">
             <label class="text-sm font-medium mt-2">Temperature Value</label>
-            <div class="flex flex-col w-60">
-                <div class="flex items-center gap-2">
+            <div class="md:w-60 w-full">
+                <div class="flex md:flex-row flex-row items-center gap-4">
                     <UInput
                         data-testid="temp-val"
                         id="temp-val"
@@ -202,7 +200,6 @@ defineExpose({
                         class="flex-1"
                         aria-label="Temperature value input"
                     />
-
                     <URadioGroup
                         data-testid="temp-unit"
                         v-model="modelValue.unit"
@@ -216,9 +213,7 @@ defineExpose({
                         variant="table"
                         default-value="C"
                         indicator="hidden"
-                        :ui="{
-                            item: 'p-2',
-                        }"
+                        :ui="{ item: 'p-2 cursor-pointer hover:bg-primary/10' }"
                     ></URadioGroup>
                 </div>
                 <div v-if="errors.value" class="text-red-500 text-sm mt-1">{{ errors.value }}</div>
@@ -226,9 +221,9 @@ defineExpose({
         </div>
 
         <!-- Time waited -->
-        <div class="flex items-start justify-between">
+        <div class="flex md:flex-row flex-col items-start justify-between gap-4">
             <label class="text-sm font-medium mt-1">Time Waited</label>
-            <div class="flex flex-col w-60">
+            <div class="md:w-60 w-full">
                 <DurationInput v-model="modelValue.time_waited" class="w-full" />
                 <div v-if="errors.time_waited" class="text-red-500 text-sm mt-1">{{ errors.time_waited }}</div>
             </div>

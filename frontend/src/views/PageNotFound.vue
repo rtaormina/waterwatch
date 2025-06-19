@@ -1,7 +1,8 @@
 <template>
     <ErrorPage
         title="404"
-        title-size="text-9xl"
+        title-size="text-6xl"
+        md-title-size="text-9xl"
         subtitle="Page Not Found"
         description="Oops! It seems this part of WATERWATCH is yet to be discovered."
     />

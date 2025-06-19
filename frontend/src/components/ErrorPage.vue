@@ -1,13 +1,18 @@
 <template>
     <div class="max-w-2xl h-full flex flex-col justify-center mx-auto">
         <div class="text-center">
-            <UIcon v-if="icon" :name="icon" class="w-24 h-24 text-highlight mb-4 mx-auto" />
-            <h1 v-if="title" :class="['font-bold', 'text-highlight', 'mb-4', titleSize]">{{ title }}</h1>
+            <UIcon v-if="icon" :name="icon" class="w-14 h-14 md:w-24 md:h-24 text-highlight mb-4 mx-auto" />
+            <h1
+                v-if="title"
+                :class="['font-bold', 'text-highlight', 'mb-4', titleSize, mdTitleSize && `md:${mdTitleSize}`]"
+            >
+                {{ title }}
+            </h1>
             <p v-if="subtitle" class="text-2xl text-muted mb-6">{{ subtitle }}</p>
             <p v-if="description" class="text-dimmed mb-8">{{ description }}</p>
         </div>
 
-        <div class="flex flex-col sm:flex-row mx-4 gap-4 justify-center">
+        <div class="flex flex-col sm:flex-row mx-12 gap-4 justify-center">
             <UButton
                 @click="goBack"
                 size="xl"
@@ -38,6 +43,10 @@ defineProps({
     icon: String,
     title: String,
     titleSize: {
+        type: String,
+        default: "text-4xl",
+    },
+    mdTitleSize: {
         type: String,
         default: "text-6xl",
     },

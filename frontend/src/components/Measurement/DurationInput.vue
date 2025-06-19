@@ -79,7 +79,7 @@ defineExpose({
 </script>
 
 <template>
-    <div class="flex items-center w-full gap-2">
+    <div class="flex items-center w-full gap-4">
         <UInput
             data-testid="time-waited-mins"
             id="time-waited_min"
