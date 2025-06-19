@@ -562,7 +562,6 @@ test.describe("Measurement Export Page Tests", () => {
 
     test.describe("Full User Flow Tests", () => {
         let measurementWithTemp;
-        let measurementWithoutTemp;
         let measurementTheHague;
         let measurementBoston;
         let measurementWell;
@@ -584,15 +583,6 @@ test.describe("Measurement Export Page Tests", () => {
                 longitude: 5.0,
                 waterSource: "well",
                 temperature: { sensor: "analog thermometer", value: 12.5, time_waited: 3 },
-            };
-
-            measurementWithoutTemp = {
-                timestamp: "2024-06-01T15:30:00Z",
-                localDate: "2024-06-01",
-                localTime: "15:30:00",
-                latitude: 52.1,
-                longitude: 5.1,
-                waterSource: "network",
             };
 
             measurementTheHague = {
@@ -631,14 +621,13 @@ test.describe("Measurement Export Page Tests", () => {
 
             const before = await getSummary(page);
 
-            // add two measurements to the database
+            // add measurement to the database
             await addMeasurement(page, measurementWithTemp);
-            await addMeasurement(page, measurementWithoutTemp);
 
             const after = await getSummary(page);
 
-            expect(after.count).toBe(before.count + 2);
-            const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 12.5) * 10) / (after.count - 1)) / 10;
+            expect(after.count).toBe(before.count + 1);
+            const expectedAvgTemp = Math.round(((before.avgTemp * before.count + 12.5) * 10) / (before.count + 1)) / 10;
             expect(after.avgTemp).toBeCloseTo(expectedAvgTemp, 0);
         });
 

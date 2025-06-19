@@ -111,7 +111,7 @@ def apply_boundary_filter(queryset, boundary_wkt):
             logger.exception("Invalid boundary_geometry: %s", boundary_wkt)
             raise ValueError("Invalid boundary_geometry format") from err
 
-        # Use `covered_by` to include points on the boundary and inside the polygon
+        # Use `coveredby` to include points on the boundary and inside the polygon
         queryset = queryset.filter(location__coveredby=poly)
 
     return queryset

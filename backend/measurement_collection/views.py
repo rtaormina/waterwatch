@@ -2,6 +2,7 @@
 
 from django.core.cache import cache
 from django.http import JsonResponse
+from measurements.metrics import METRIC_MODELS
 
 from .serializers import MeasurementSerializer
 
@@ -24,6 +25,21 @@ def add_measurement_view(request):
     serializer = MeasurementSerializer(data=request.data)
     if serializer.is_valid():
         measurement = serializer.save()
+
+        has_metrics = False
+        for metric_cls in METRIC_MODELS:
+            attr = metric_cls.__name__.lower()
+            if hasattr(measurement, attr) and getattr(measurement, attr, None):
+                has_metrics = True
+                break
+
+        if not has_metrics:
+            measurement.delete()
+            return JsonResponse(
+                {"error": "At least one metric must be provided with the measurement."},
+                status=400,
+            )
+
         cache.clear()
         return JsonResponse(
             {
