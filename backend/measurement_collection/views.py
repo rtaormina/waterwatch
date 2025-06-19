@@ -1,5 +1,6 @@
 """Create views associated with measurement collection."""
 
+from django.core.cache import cache
 from django.http import JsonResponse
 
 from .serializers import MeasurementSerializer
@@ -23,6 +24,7 @@ def add_measurement_view(request):
     serializer = MeasurementSerializer(data=request.data)
     if serializer.is_valid():
         measurement = serializer.save()
+        cache.clear()
         return JsonResponse(
             {
                 "measurement_id": measurement.id,
