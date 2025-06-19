@@ -7,6 +7,7 @@
         <div class="flex items-center justify-between gap-4">
             <div class="flex-1">
                 <UButton
+                    data-testid="left-button-comparison"
                     class="font-medium flex justify-center items-center cursor-pointer disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted md:px-4 md:py-2 md:w-40 md:text-base px-2 py-1 w-30 text-sm whitespace-nowrap"
                     :color="leftButtonColor"
                     @click="handleLeftButtonClick"
@@ -21,6 +22,7 @@
             </div>
             <div class="flex-1">
                 <UButton
+                    data-testid="right-button-comparison"
                     class="font-medium flex justify-center items-center cursor-pointer disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted md:px-4 md:py-2 md:w-40 md:text-base px-2 py-1 w-30 text-sm whitespace-nowrap"
                     :color="rightButtonColor"
                     :disabled="rightButtonDisabled"
