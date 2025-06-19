@@ -108,7 +108,7 @@
                     class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
                     :class="{ 'hidden md:block': viewAnalytics || addMeasurement || compareMode || selectMode }"
                 >
-                    <MapMenu :selectMult="selectMult" :menuItems="menuItems" @open="handleOpenClose" />
+                    <MapMenu :menuItems="menuItems" @open="handleOpenClose" />
                 </div>
 
                 <Legend
