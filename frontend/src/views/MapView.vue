@@ -21,7 +21,7 @@
                     aria-label="open map menu"
                     data-testid="view-button"
                     @click="firstTime = false"
-                    class="flex-1 bg-main text-default justify-center text-xl px-4 py-2 rounded mr-2 hover:cursor-pointer"
+                    class="flex-1 bg-main text-white justify-center text-xl px-4 py-2 rounded mr-2 hover:cursor-pointer"
                 >
                     View Map
                 </UButton>
