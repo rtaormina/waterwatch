@@ -72,11 +72,10 @@ function clear() {
             localTime: undefined,
         },
     });
-    
+
     selectedMetrics.value = ["temperature"];
     MeasurementBlock.value?.clearErrors?.();
     TemperatureMetricComponent.value?.clearErrors?.();
-    
 }
 
 /**

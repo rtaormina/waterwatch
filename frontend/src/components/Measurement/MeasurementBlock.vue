@@ -91,6 +91,6 @@ function clearErrors(): void {
 
 defineExpose({
     verify,
-    clearErrors
+    clearErrors,
 });
 </script>
