@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import Menu from '../../../../src/components/MapMenu.vue' 
+import Menu from '../../../../src/components/Menu/MapMenu.vue'
 
 
 const UTooltipStub = {
@@ -15,10 +15,7 @@ describe('MapMenu Tests', () => {
 
   const defaultProps = {
     selectMult: false,
-    viewAnalytics: false,
-    addMeasurement: false,
-    compareMode: false,
-    selectMode: false
+    menuItems: [],
   }
 
   beforeEach(() => {
@@ -59,10 +56,10 @@ describe('MapMenu Tests', () => {
     it('opens menu when button is clicked', async () => {
       wrapper = createWrapper()
       const toggleButton = wrapper.find('[data-testid="open-button"]')
-      
+
       await toggleButton.trigger('click')
       await nextTick()
-      
+
       expect(wrapper.vm.open).toBe(true)
     })
 
@@ -72,22 +69,22 @@ describe('MapMenu Tests', () => {
       await toggleButton.trigger('click')
       await nextTick()
       expect(wrapper.vm.open).toBe(true)
-      
+
       await toggleButton.trigger('click')
       await nextTick()
-      
+
       vi.advanceTimersByTime(200)
       await nextTick()
-      
+
       expect(wrapper.vm.open).toBe(false)
     })
 
     it('emits open event when button is clicked', async () => {
       wrapper = createWrapper()
       const toggleButton = wrapper.find('[data-testid="open-button"]')
-      
+
       await toggleButton.trigger('click')
-      
+
       expect(wrapper.emitted('open')).toHaveLength(1)
     })
   })
@@ -96,32 +93,32 @@ describe('MapMenu Tests', () => {
     it('shows buttons with delay after opening menu', async () => {
       wrapper = createWrapper()
       const toggleButton = wrapper.find('[data-testid="open-button"]')
-      
+
       await toggleButton.trigger('click')
       await nextTick()
-      
+
       expect(wrapper.vm.open).toBe(true)
       expect(wrapper.vm.showButtons).toBe(false)
-      
+
       vi.advanceTimersByTime(50)
       await nextTick()
-      
+
       expect(wrapper.vm.showButtons).toBe(true)
     })
 
     it('hides buttons immediately when closing menu', async () => {
       wrapper = createWrapper()
       const toggleButton = wrapper.find('[data-testid="open-button"]')
-      
+
       await toggleButton.trigger('click')
       vi.advanceTimersByTime(50)
       await nextTick()
-      
+
       expect(wrapper.vm.showButtons).toBe(true)
-      
+
       await toggleButton.trigger('click')
       await nextTick()
-      
+
       expect(wrapper.vm.showButtons).toBe(false)
     })
   })
@@ -129,27 +126,27 @@ describe('MapMenu Tests', () => {
   describe('test watchers', () => {
     it('sets showButtons to false when open becomes false', async () => {
       wrapper = createWrapper()
-      
+
       wrapper.vm.open = true
       wrapper.vm.showButtons = true
       await nextTick()
-      
+
       wrapper.vm.open = false
       await nextTick()
-      
+
       expect(wrapper.vm.showButtons).toBe(false)
     })
 
     it('does not change showButtons when open becomes true', async () => {
       wrapper = createWrapper()
-      
+
       wrapper.vm.open = false
       wrapper.vm.showButtons = false
       await nextTick()
-      
+
       wrapper.vm.open = true
       await nextTick()
-      
+
       expect(wrapper.vm.showButtons).toBe(false)
     })
   })
