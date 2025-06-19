@@ -1,30 +1,33 @@
 <template>
     <div class="w-full h-full flex flex-col p-0 m-0">
         <div class="w-full h-full flex flex-row">
-            <div
-                v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
-                class="analytics-panel left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
-            >
-                <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
-                <DataAnalyticsComponent
-                    v-if="viewAnalytics"
-                    :location="hexLocation"
-                    :month="month"
-                    :fromExport="true"
-                    @close="handleCloseAll"
-                />
-
-                <DataAnalyticsCompare
-                    v-if="showCompareAnalytics"
-                    :group1WKT="group1WKT"
-                    :group2WKT="group2WKT"
-                    :month="month"
-                    @close="handleCloseAll"
-                />
-            </div>
             <div class="relative w-full h-full">
+                <USlideover
+                    side="left"
+                    :open="showCompareAnalytics"
+                    :overlay="false"
+                    :dismissible="false"
+                    :modal="false"
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <DataAnalyticsCompare
+                                v-if="showCompareAnalytics"
+                                :group1WKT="group1WKT"
+                                :group2WKT="group2WKT"
+                                :month="month"
+                                :fromExport="true"
+                                @close="handleCloseAll"
+                            />
+                        </div>
+                    </template>
+                </USlideover>
                 <ComparisonBar
                     v-if="compareMode"
+                    :style="showCompareAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
                     :mode="comparePhaseString"
                     :phaseNum="comparePhaseNum"
                     :group1Count="group1HexCount"
@@ -36,8 +39,31 @@
                     @restart="goToPhase1"
                     @exit="exitCompareMode"
                 />
+                <USlideover
+                    side="left"
+                    v-model:open="viewAnalytics"
+                    :overlay="false"
+                    :dismissible="false"
+                    :modal="false"
+                    :ui="{
+                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
+                    }"
+                >
+                    <template #content>
+                        <div class="pt-16 w-full h-full">
+                            <DataAnalyticsComponent
+                                v-if="viewAnalytics"
+                                :location="hexLocation"
+                                :month="month"
+                                :fromExport="true"
+                                @close="handleCloseAll"
+                            />
+                        </div>
+                    </template>
+                </USlideover>
                 <SelectBar
                     v-if="selectMode"
+                    :style="viewAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
                     :count="count"
                     @cancel-select="exitSelectMode"
                     @select="handleSelectContinue"
@@ -46,11 +72,11 @@
                     ref="hexMapRef"
                     :colors="colors"
                     :data="data"
-                    :colorScale="scale"
                     :selectMult="selectMult && !compareMode"
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
-                    :colorByTemp="colorByTemp"
+                    :month="month"
+                    :fromExport="true"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
@@ -58,26 +84,7 @@
                     @open-details="handleOpenAnalysis"
                 />
 
-                <div
-                    class="absolute top-4 right-4 flex align-center z-20 justify-center gap-4"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                >
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="returnToExport">
-                        <div class="flex items-center">
-                            <ChevronLeftIcon class="w-10 h-10" />
-                            <span class="leading-none mr-2 whitespace-nowrap text-2xl">Go Back</span>
-                        </div>
-                    </button>
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
-                        <ScaleIcon class="w-10 h-10" />
-                    </button>
-                    <button
-                        class="text-white hover:cursor-pointer"
-                        :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
-                        @click="enterSelectMode"
-                    >
-                        <SquaresPlusIcon class="w-10 h-10" />
-                    </button>
+                <div class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4">
                     <button
                         class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
                         @click="
@@ -88,6 +95,18 @@
                     >
                         <AdjustmentsVerticalIcon class="w-10 h-10" />
                     </button>
+                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
+                        <ScaleIcon class="w-10 h-10" />
+                    </button>
+                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterSelectMode">
+                        <SquaresPlusIcon class="w-10 h-10" />
+                    </button>
+                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="returnToExport">
+                        <div class="flex items-center">
+                            <ChevronLeftIcon class="w-10 h-10" />
+                            <span class="leading-none mr-2 whitespace-nowrap text-2xl">Go Back</span>
+                        </div>
+                    </button>
                 </div>
 
                 <Legend
@@ -95,10 +114,7 @@
                     class="absolute z-40 mt-0.95 h-auto"
                     :class="legendClasses"
                     :colors="colors"
-                    :scale="scale"
-                    :colorByTemp="colorByTemp"
-                    @close="handleCloseAll"
-                    @switch="handleSwitch"
+                    :fromExport="true"
                     @update="updateMapFilters"
                 />
             </div>
@@ -123,7 +139,6 @@
 defineOptions({ name: "DashboardView" });
 import HexMap from "../components/HexMap.vue";
 import { ref, computed, nextTick } from "vue";
-import MeasurementComponent from "../components/MeasurementComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
@@ -136,6 +151,7 @@ import { useRouter } from "vue-router";
 import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";
 import { flattenSearchParams } from "../composables/Export/useSearch";
+import axios from "axios";
 
 const router = useRouter();
 const exportStore = useExportStore();
@@ -147,7 +163,6 @@ const viewAnalytics = ref(false);
 const addMeasurement = ref(false);
 const showLegend = ref(false);
 const selectMult = ref(false);
-const colorByTemp = ref(true);
 const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
 
@@ -168,11 +183,10 @@ const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
 const range = ref<number[]>([0]);
-const month = ref<string>("0");
+const month = ref<string>("1,2,3,4,5,6,7,8,9,10,11,12");
 
 // color, styling, and scale values for hexagon visualization
 const colors = ref(["#3183D4", "#E0563A"]);
-const scale = ref<[number, number]>([10, 40]);
 const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
 
 /**
@@ -180,14 +194,6 @@ const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
  */
 function returnToExport() {
     router.push({ name: "Export", query: { fromMap: "1" } });
-}
-
-/**
- * Handles the switch between temperature and count color modes in the legend.
- */
-function handleSwitch() {
-    colorByTemp.value = !colorByTemp.value;
-    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
 }
 
 /**
@@ -439,18 +445,16 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
         format: "map-format", // Add format to the body
     };
 
-    const res = await fetch("/api/measurements/search/", {
-        method: "POST",
+    const res = await axios.post("/api/measurements/search/", bodyData, {
         headers: {
             "X-CSRFToken": cookies.get("csrftoken"),
-            "Content-Type": "application/json", // Set Content-Type for JSON payload
+            "Content-Type": "application/json",
         },
-        credentials: "same-origin",
-        body: JSON.stringify(bodyData), // Send data as a JSON string in the body
+        withCredentials: true,
     });
 
-    if (!res.ok) throw new Error(`Status: ${res.status}`);
-    const data = await res.json();
+    if (res.status !== 200) throw new Error(`Status: ${res.status}`);
+    const data = res.data;
 
     const formated = data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),

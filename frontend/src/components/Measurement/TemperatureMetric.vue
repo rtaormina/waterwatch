@@ -12,6 +12,7 @@ const priorDot = ref(false);
 const handleTempPress = (event: KeyboardEvent) => {
     const key = event.key;
     const target = event.target as HTMLInputElement;
+    if (key == "Tab") return; // Allow tabbing out of the input
 
     if (key === "Backspace" || key === "Delete") {
         // handle backspace and delete

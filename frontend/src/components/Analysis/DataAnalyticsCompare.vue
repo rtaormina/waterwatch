@@ -4,13 +4,18 @@ import {
     getGraphData,
     drawHistogramWithKDE,
     drawComparisonGraph,
+    getGraphDataExportMapView,
 } from "../../composables/Analysis/DataVisualizationLogic";
 import { XMarkIcon, ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/24/outline";
+import { useExportStore } from "../../stores/ExportStore";
+
+const exportStore = useExportStore();
 
 const props = defineProps<{
     group1WKT: string;
     group2WKT: string;
     month: string;
+    fromExport: boolean;
 }>();
 
 const graph1 = ref<HTMLElement | null>(null);
@@ -63,16 +68,21 @@ async function renderCompare() {
 
     let vals1: number[] = [];
     let vals2: number[] = [];
+    const filters = JSON.parse(JSON.stringify(exportStore.filters));
 
     // Catch errors when fetching data
     try {
-        vals1 = await getGraphData(props.group1WKT, props.month);
+        vals1 = props.fromExport
+            ? await getGraphDataExportMapView(filters, props.group1WKT, props.month)
+            : await getGraphData(props.group1WKT, props.month);
     } catch {
         vals1 = [];
     }
 
     try {
-        vals2 = await getGraphData(props.group2WKT, props.month);
+        vals2 = props.fromExport
+            ? await getGraphDataExportMapView(filters, props.group2WKT, props.month)
+            : await getGraphData(props.group2WKT, props.month);
     } catch {
         vals2 = [];
     }
@@ -121,14 +131,19 @@ watch(
 
 <template>
     <div
-        class="bg-default mx-4 p-1 md:p-4 overflow-y-scroll h-full overflow-x-hidden box-border"
+        class="bg-default mx-4 pt-4 md:p-4 overflow-y-scroll h-full overflow-x-hidden box-border"
         style="scrollbar-width: thin"
     >
         <h1
             class="bg-main text-lg font-bold text-inverted rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
         >
             Compare Distributions
-            <button class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer" @click="$emit('close')">
+
+            <button
+                data-testid="close-comparing-analytics"
+                class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
+                @click="$emit('close')"
+            >
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>

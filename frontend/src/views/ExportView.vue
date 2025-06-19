@@ -132,8 +132,6 @@ watch(
         if (exportStore.hasSearched) {
             // Only act if a search has already been performed
             if (currentParams && lastSearchParams.value) {
-                console.log("Current Params:", currentParams);
-                console.log("Last Search Params:", lastSearchParams.value);
                 if (JSON.stringify(currentParams) !== JSON.stringify(lastSearchParams.value)) {
                     filtersOutOfSync.value = true;
                 }
