@@ -29,7 +29,7 @@
         </Modal>
     </div>
     <div class="w-full h-full flex flex-col p-0 m-0">
-        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-default" />
+        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" />
 
         <div class="w-full h-full flex flex-row">
             <div class="relative w-full h-full">
@@ -56,20 +56,6 @@
                         </div>
                     </template>
                 </USlideover>
-                <ComparisonBar
-                    v-if="compareMode"
-                    :style="showCompareAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
-                    :mode="comparePhaseString"
-                    :phaseNum="comparePhaseNum"
-                    :group1Count="group1HexCount"
-                    :group2Count="group2HexCount"
-                    @cancel="exitCompareMode"
-                    @previous="goToPhase1"
-                    @next="goToPhase2"
-                    @compare="goToPhase3"
-                    @restart="goToPhase1"
-                    @exit="exitCompareMode"
-                />
                 <USlideover
                     side="left"
                     v-model:open="viewAnalytics"
@@ -92,13 +78,16 @@
                         </div>
                     </template>
                 </USlideover>
+
                 <SelectBar
-                    v-if="selectMode"
+                    v-if="selectMode || compareMode"
                     :style="viewAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
-                    :count="count"
-                    @cancel-select="exitSelectMode"
-                    @select="handleSelectContinue"
+                    :rightButton="selectBarRight"
+                    :rightButtonDisabled="selectBarRightButtonDisabled"
+                    :leftButton="selectBarLeft"
+                    :centerLabel="centerLabel"
                 />
+
                 <HexMap
                     ref="hexMapRef"
                     :colors="colors"
@@ -195,7 +184,6 @@ import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponen
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Menu/Legend.vue";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
-import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
 import MapMenu from "../components/Menu/MapMenu.vue";
 import axios from "axios";
@@ -239,29 +227,30 @@ const range = ref<number[]>([0]);
 const month = ref<string>("0");
 const refresh = ref(false);
 
+const selectBarLeft = ref({
+    label: "Cancel",
+    onButtonClick: exitSelectMode,
+});
+
+const selectBarRight = ref({
+    label: "Select",
+    onButtonClick: handleSelectContinue,
+});
+
+const centerLabel = ref("Select group 1");
+
+const selectBarRightButtonDisabled = computed(() => {
+    if (selectMode.value) return count.value <= 0;
+    if (compareMode.value) return comparePhaseNum.value == 1 ? group1HexCount.value <= 0 : group2HexCount.value <= 0;
+    return false;
+});
+
 const menuItems = [
     { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: toggleLegend },
     { icon: "i-heroicons-chart-bar", tooltip: "Show Global Analytics", handler: showGlobalAnalytics },
     { icon: "i-heroicons-squares-plus", tooltip: "Select Multiple Hexagons", handler: enterSelectMode },
     { icon: "i-heroicons-scale", tooltip: "Compare Hexagon Groups", handler: enterCompareMode },
 ];
-
-/**
- * Handle open and close of map menu
- *
- * @return {void}
- */
-function handleOpenClose() {
-    if (open.value) {
-        showLegend.value = false;
-        open.value = false;
-    } else {
-        showLegend.value = false;
-        open.value = true;
-    }
-}
-
-// Menu Item Handlers
 
 /**
  * Toggles the visibility of the legend in the map view.
@@ -284,19 +273,58 @@ function showGlobalAnalytics() {
     showLegend.value = false;
 }
 
+// === Functions to handle select mode === //
+
 /**
  * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
  *
  * @returns {void}
  */
 function enterSelectMode() {
+    setSelectBarProps("Cancel", exitSelectMode, "Select", handleSelectContinue, "Select hexagons");
+
     selectMode.value = true;
+    compareMode.value = false;
+
     selectMult.value = true;
     addMeasurement.value = false;
     showLegend.value = false;
-    compareMode.value = false;
     count.value = 0;
 }
+
+/**
+ * Handles selecting multiple hexagons
+ * @param location  the data of the hexagons clicked
+ * @return {void}
+ */
+function handleSelect(location: string) {
+    count.value = (location.match(/\(\(/g) || []).length;
+    hexIntermediary.value = location;
+}
+
+/**
+ * Handles submitting selected hexagons to see analysis
+ *
+ * @return {void}
+ */
+function handleSelectContinue() {
+    viewAnalytics.value = true;
+    hexLocation.value = hexIntermediary.value;
+}
+
+/**
+ * Exits select multiple hexagon mode, resets necessary states
+ *
+ * @returns {void}
+ */
+function exitSelectMode() {
+    selectMode.value = false;
+    viewAnalytics.value = false;
+    selectMult.value = false;
+    count.value = 0;
+}
+
+// === Functions to handle compare mode === //
 
 /**
  * Enters compare mode, resetting all necessary states and preparing for group selection.
@@ -304,8 +332,16 @@ function enterSelectMode() {
  * @returns {void}
  */
 function enterCompareMode() {
+    setSelectBarProps("Cancel", exitCompareMode, "Next group", goToPhase2, "Select group 1");
+
     compareMode.value = true;
+    selectMode.value = false;
+
+    hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
     comparePhaseString.value = "phase1";
+    showCompareAnalytics.value = false;
+
+    // Clear all selections
     group1WKT.value = "";
     group2WKT.value = "";
     group1HexCount.value = 0;
@@ -325,7 +361,126 @@ function enterCompareMode() {
     }, 30);
 }
 
-// --------------------------
+/**
+ * Navigates to Phase 2 of the comparison process, resetting all selections and states.
+ * This function is called when the user wants to start a new comparison from scratch.
+ *
+ * @returns {void}
+ */
+function goToPhase2() {
+    setSelectBarProps("Previous group", enterCompareMode, "Next group", goToPhase3, "Select group 2");
+
+    comparePhaseString.value = "phase2";
+    selectMult.value = false;
+    setTimeout(() => {
+        selectMult.value = true;
+    }, 30);
+}
+
+/**
+ * Navigates to Phase 3 of the comparison process, showing the comparison analytics.
+ * This function is called when the user has selected two groups and wants to compare them.
+ *
+ * @returns {void}
+ */
+function goToPhase3() {
+    setSelectBarProps("Restart", enterCompareMode, "Exit", exitCompareMode, "Comparing");
+
+    comparePhaseString.value = "phase3";
+    showCompareAnalytics.value = true;
+
+    nextTick(() => {
+        // Ask HexMap to re‐draw the orange/green/yellow outlines
+        hexMapRef.value?.phase3Highlight({
+            corners1: group1Corners.value,
+            corners2: group2Corners.value,
+        });
+    });
+}
+
+/**
+ * Exits compare mode, resetting all states and clearing selections.
+ *
+ * @returns {void}
+ */
+function exitCompareMode() {
+    hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
+    compareMode.value = false;
+    comparePhaseString.value = "phase1";
+    group1WKT.value = "";
+    group2WKT.value = "";
+    group1HexCount.value = 0;
+    group2HexCount.value = 0;
+    showCompareAnalytics.value = false;
+    selectMult.value = false;
+    group1Corners.value = [];
+    group2Corners.value = [];
+}
+
+/**
+ * Handles the selection of a group in the comparison process.
+ * This function is called when the user selects a group for comparison.
+ *
+ * @param {Object} payload - The payload containing the WKT, phase, and corners list.
+ * @returns {void}
+ */
+function handleGroupSelect(payload: { wkt: string; phase: number; cornersList: Array<L.LatLng[]> }) {
+    if (payload.phase === 1) {
+        group1WKT.value = payload.wkt;
+        group1HexCount.value = (payload.wkt.match(/\(\(/g) || []).length;
+        group1Corners.value = payload.cornersList;
+    } else {
+        group2WKT.value = payload.wkt;
+        group2HexCount.value = (payload.wkt.match(/\(\(/g) || []).length;
+        group2Corners.value = payload.cornersList;
+    }
+}
+
+/**
+ * Sets the properties for the select bar component.
+ * @param leftLabel the label for the left button
+ * @param leftButtonClick the handler for the left button click
+ * @param rightLabel the label for the right button
+ * @param rightButtonClick the handler for the right button click
+ * @param centerLabelText the center label text
+ * @returns {void}
+ */
+function setSelectBarProps(
+    leftLabel: string,
+    leftButtonClick: () => void,
+    rightLabel: string,
+    rightButtonClick: () => void,
+    centerLabelText: string,
+) {
+    selectBarLeft.value = {
+        label: leftLabel,
+        onButtonClick: leftButtonClick,
+    };
+
+    selectBarRight.value = {
+        label: rightLabel,
+        onButtonClick: rightButtonClick,
+    };
+
+    centerLabel.value = centerLabelText;
+}
+
+// ======================================== //
+
+/**
+ * Handle open and close of map menu
+ *
+ * @return {void}
+ */
+function handleOpenClose() {
+    if (open.value) {
+        showLegend.value = false;
+        open.value = false;
+    } else {
+        showLegend.value = false;
+        open.value = true;
+    }
+}
 
 /**
  * Handles filtering observations by time
@@ -362,38 +517,6 @@ function handleOpenAnalysis(location: string) {
 }
 
 /**
- * Handles selecting multiple hexagons
- * @param location  the data of the hexagons clicked
- * @return {void}
- */
-function handleSelect(location: string) {
-    count.value = (location.match(/\(\(/g) || []).length;
-    hexIntermediary.value = location;
-}
-
-/**
- * Handles submitting selected hexagons to see analysis
- *
- * @return {void}
- */
-function handleSelectContinue() {
-    viewAnalytics.value = true;
-    hexLocation.value = hexIntermediary.value;
-}
-
-/**
- * Exits select multiple hexagon mode, resets necessary states
- *
- * @returns {void}
- */
-function exitSelectMode() {
-    selectMode.value = false;
-    viewAnalytics.value = false;
-    selectMult.value = false;
-    count.value = 0;
-}
-
-/**
  * Handles the close event for the sidebar components.
  *
  * @returns {void}
@@ -410,100 +533,6 @@ function handleCloseAll() {
         exitCompareMode();
     } else if (selectMode.value) {
         exitSelectMode();
-    }
-}
-
-/**
- * Exits compare mode, resetting all states and clearing selections.
- *
- * @returns {void}
- */
-function exitCompareMode() {
-    hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
-    compareMode.value = false;
-    comparePhaseString.value = "phase1";
-    group1WKT.value = "";
-    group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
-    showCompareAnalytics.value = false;
-    selectMult.value = false;
-    group1Corners.value = [];
-    group2Corners.value = [];
-}
-
-/**
- * Navigates to Phase 1 of the comparison process, resetting all selections and states.
- * This function is called when the user wants to start a new comparison from scratch.
- *
- * @returns {void}
- */
-function goToPhase1() {
-    hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
-    comparePhaseString.value = "phase1";
-    showCompareAnalytics.value = false;
-    // Clear all selections
-    group1WKT.value = "";
-    group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
-    group1Corners.value = [];
-    group2Corners.value = [];
-    selectMult.value = false;
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
-}
-
-/**
- * Navigates to Phase 2 of the comparison process, resetting all selections and states.
- * This function is called when the user wants to start a new comparison from scratch.
- *
- * @returns {void}
- */
-function goToPhase2() {
-    comparePhaseString.value = "phase2";
-    selectMult.value = false;
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
-}
-
-/**
- * Navigates to Phase 3 of the comparison process, showing the comparison analytics.
- * This function is called when the user has selected two groups and wants to compare them.
- *
- * @returns {void}
- */
-function goToPhase3() {
-    comparePhaseString.value = "phase3";
-    showCompareAnalytics.value = true;
-
-    nextTick(() => {
-        // Ask HexMap to re‐draw the orange/green/yellow outlines
-        hexMapRef.value?.phase3Highlight({
-            corners1: group1Corners.value,
-            corners2: group2Corners.value,
-        });
-    });
-}
-
-/**
- * Handles the selection of a group in the comparison process.
- * This function is called when the user selects a group for comparison.
- *
- * @param {Object} payload - The payload containing the WKT, phase, and corners list.
- * @returns {void}
- */
-function handleGroupSelect(payload: { wkt: string; phase: number; cornersList: Array<L.LatLng[]> }) {
-    if (payload.phase === 1) {
-        group1WKT.value = payload.wkt;
-        group1HexCount.value = (payload.wkt.match(/\(\(/g) || []).length;
-        group1Corners.value = payload.cornersList;
-    } else {
-        group2WKT.value = payload.wkt;
-        group2HexCount.value = (payload.wkt.match(/\(\(/g) || []).length;
-        group2Corners.value = payload.cornersList;
     }
 }
 
