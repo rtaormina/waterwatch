@@ -138,7 +138,12 @@ watch(
             class="bg-main text-lg font-bold text-inverted rounded-lg p-4 mb-6 mt-2 shadow max-w-screen-md mx-auto flex items-center justify-between"
         >
             Compare Distributions
-            <button class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer" @click="$emit('close')">
+
+            <button
+                data-testid="close-comparing-analytics"
+                class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
+                @click="$emit('close')"
+            >
                 <XMarkIcon class="w-10 h-10" />
             </button>
         </h1>
