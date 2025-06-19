@@ -86,6 +86,11 @@ async function fillOutTextField(page: Page, testId: string, value: string) {
     await page.getByTestId(testId).fill(value);
 }
 
+/**
+ * Adds a new preset with the provided options.
+ * @param page the current page
+ * @param zoomLevel the zoom level
+ */
 export async function zoomToLevel(page: Page, zoomLevel: number) {
     // Zoom in to the specified level
     await page.evaluate((zl) => {
@@ -97,6 +102,12 @@ export async function zoomToLevel(page: Page, zoomLevel: number) {
     }, zoomLevel);
 }
 
+/**
+ * move to the specified coordinates on the map.
+ * @param page the current page
+ * @param latitude the latitude to move to
+ * @param longitude the longitude to move to
+ */
 export async function moveToCoordinates(page: Page, latitude: number, longitude: number) {
     await page.evaluate(
         ([lat, lng]) => {
@@ -110,6 +121,11 @@ export async function moveToCoordinates(page: Page, latitude: number, longitude:
     );
 }
 
+/**
+ * Clicks the nth hexagon on the map.
+ * @param page the current page
+ * @param n the index of the hexagon to click (0-based)
+ */
 export async function clickNthHexagonOnMap(page: Page, n: number) {
     await page.waitForSelector("path.hexbin-grid", { state: "visible" });
             await page.locator("path.hexbin-grid").nth(n).click();
