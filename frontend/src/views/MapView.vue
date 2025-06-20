@@ -209,12 +209,7 @@ type Location = {
 
 const compareMode = ref(false);
 const selectMode = ref(false);
-const comparePhaseString = ref<"phase1" | "phase2" | "phase3">("phase1");
-const comparePhaseNum = computed<1 | 2 | null>(() => {
-    if (comparePhaseString.value === "phase1") return 1;
-    if (comparePhaseString.value === "phase2") return 2;
-    return null;
-});
+const comparePhaseNum = ref<1 | 2 | null>(null);
 const group1WKT = ref("");
 const group2WKT = ref("");
 const count = ref(0);
@@ -337,7 +332,7 @@ function enterCompareMode() {
     selectMode.value = false;
 
     hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
-    comparePhaseString.value = "phase1";
+    comparePhaseNum.value = 1;
     showCompareAnalytics.value = false;
 
     // Clear all selections
@@ -367,7 +362,7 @@ function enterCompareMode() {
 function goToPhase2() {
     setSelectBarProps("Previous group", enterCompareMode, "Next group", goToPhase3, "Select group 2");
 
-    comparePhaseString.value = "phase2";
+    comparePhaseNum.value = 2;
     selectMult.value = false;
     setTimeout(() => {
         selectMult.value = true;
@@ -383,7 +378,7 @@ function goToPhase2() {
 function goToPhase3() {
     setSelectBarProps("Restart", enterCompareMode, "Exit", exitCompareMode, "Comparing");
 
-    comparePhaseString.value = "phase3";
+    comparePhaseNum.value = null;
     showCompareAnalytics.value = true;
 
     nextTick(() => {
@@ -403,7 +398,7 @@ function goToPhase3() {
 function exitCompareMode() {
     hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
     compareMode.value = false;
-    comparePhaseString.value = "phase1";
+    comparePhaseNum.value = null;
     group1WKT.value = "";
     group2WKT.value = "";
     showCompareAnalytics.value = false;
