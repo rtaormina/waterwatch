@@ -112,21 +112,21 @@
     },
     "app": {
         "introduction": {
-            "title": "",
-            "text": ""
+            "title": "Hoe de WATERWATCH Mobiele App te Gebruiken",
+            "text": "Welkom op de tutorial-pagina voor het gebruik van de WATERWATCH mobiele app! De WATERWATCH app is ontwikkeld voor onderzoekers en burgerwetenschappers om waterkwaliteitsmetingen te rapporteren en gegevens offline te verzamelen. In deze tutorial leer je hoe je de app downloadt en je eerste meting toevoegt. Deze gids is bedoeld voor zowel nieuwe gebruikers als ervaren onderzoekers die het maximale uit de WATERWATCH app willen halen."
         },
-        "measurement":{
-            "title": "",
-            "text1": "",
-            "caption1": "",
-            "text2": "",
-            "caption2": "",
-            "text3": "",
-            "caption3": ""
+        "measurement": {
+            "title": "Het Vastleggen van Meetgegevens",
+            "text1": "Het eerste gedeelte van de app is de sectie voor meetgegevens. In deze sectie kun je basisdetails over de meting invullen, zoals de locatie van de meting en de waterbron.",
+            "caption1": "Sectie Meetgegevens",
+            "text2": "Het tweede gedeelte van de app is de sectie voor temperatuuropname. In deze sectie kun je het type thermometer en de temperatuuraflezing invullen. Je kunt ook de wachttijd invullen om de thermometer te laten stabiliseren.\n\nZorg ervoor dat je de waarden die je invoert dubbel controleert voordat je op 'Verzenden' drukt. Als je de verzendknop niet kunt indrukken, controleer dan of je alle verplichte velden hebt ingevuld met de juiste waarden!\n\nAls je het formulier wilt resetten, kun je 'Wissen' selecteren. Zodra je het formulier hebt voltooid, selecteer je 'Verzenden'.",
+            "caption2": "Sectie Temperatuuropname",
+            "text3": "Om de gewachte tijd vast te leggen kun je de timerknop op de afbeelding gebruiken. Om de geregistreerde duur aan te passen, draai je aan de knop naar de gewenste wachttijd. Zodra je de wachttijd hebt geselecteerd, selecteer je 'Gereed'.",
+            "caption3": "Timerknop"
         },
         "conclusion": {
-            "title": "",
-            "text": ""
+            "title": "Conclusie",
+            "text": "Bedankt dat je de tijd hebt genomen om deze tutorial te volgen over het gebruik van de WATERWATCH mobiele app! Met de hulp van onderzoekers en burgerwetenschappers zoals jij kan WATERWATCH belangrijke watergegevens verzamelen ter ondersteuning van wetenschappelijk onderzoek. Als je vragen hebt, kun je contact opnemen met het team via e-mail."
         }
     },
     "api": {
