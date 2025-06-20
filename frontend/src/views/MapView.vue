@@ -217,12 +217,11 @@ const comparePhaseNum = computed<1 | 2 | null>(() => {
 });
 const group1WKT = ref("");
 const group2WKT = ref("");
-const group1HexCount = ref(0);
-const group2HexCount = ref(0);
 const count = ref(0);
 const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
+
 const range = ref<number[]>([0]);
 const month = ref<string>("0");
 const refresh = ref(false);
@@ -241,7 +240,7 @@ const centerLabel = ref("Select group 1");
 
 const selectBarRightButtonDisabled = computed(() => {
     if (selectMode.value) return count.value <= 0;
-    if (compareMode.value) return comparePhaseNum.value == 1 ? group1HexCount.value <= 0 : group2HexCount.value <= 0;
+    if (compareMode.value) return comparePhaseNum.value == 1 ? group1WKT.value === "" : group2WKT.value === "";
     return false;
 });
 
@@ -344,8 +343,6 @@ function enterCompareMode() {
     // Clear all selections
     group1WKT.value = "";
     group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
     group1Corners.value = [];
     group2Corners.value = [];
     viewAnalytics.value = false;
@@ -409,8 +406,6 @@ function exitCompareMode() {
     comparePhaseString.value = "phase1";
     group1WKT.value = "";
     group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
     showCompareAnalytics.value = false;
     selectMult.value = false;
     group1Corners.value = [];
@@ -427,11 +422,9 @@ function exitCompareMode() {
 function handleGroupSelect(payload: { wkt: string; phase: number; cornersList: Array<L.LatLng[]> }) {
     if (payload.phase === 1) {
         group1WKT.value = payload.wkt;
-        group1HexCount.value = (payload.wkt.match(/\(\(/g) || []).length;
         group1Corners.value = payload.cornersList;
     } else {
         group2WKT.value = payload.wkt;
-        group2HexCount.value = (payload.wkt.match(/\(\(/g) || []).length;
         group2Corners.value = payload.cornersList;
     }
 }
