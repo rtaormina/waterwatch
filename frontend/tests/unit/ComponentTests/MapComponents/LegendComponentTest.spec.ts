@@ -1,6 +1,6 @@
 import { mount, VueWrapper } from "@vue/test-utils";
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import Legend from "../../../../src/components/Menu/Legend.vue";
+import Legend from "../../../../src/components/MenuItems/Legend.vue";
 import { setActivePinia, createPinia } from "pinia";
 import { useLegendStore } from "../../../../src/stores/LegendStore";
 

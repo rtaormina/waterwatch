@@ -21,7 +21,7 @@
                     aria-label="open map menu"
                     data-testid="view-button"
                     @click="firstTime = false"
-                    class="flex-1 bg-main text-default justify-center text-xl px-4 py-2 rounded mr-2 hover:cursor-pointer"
+                    class="flex-1 bg-main text-white justify-center text-xl px-4 py-2 rounded mr-2 hover:cursor-pointer"
                 >
                     View Map
                 </UButton>
@@ -33,29 +33,22 @@
 
         <div class="w-full h-full flex flex-row">
             <div class="relative w-full h-full">
-                <USlideover
-                    side="left"
-                    :open="showCompareAnalytics"
-                    :overlay="false"
-                    :dismissible="false"
-                    :modal="false"
-                    :ui="{
-                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
-                    }"
+                <SideBar
+                    v-model:open="showCompareAnalytics"
+                    :settings="{ modal: false, overlay: false, dismissible: false }"
+                    title="Compare Distributions"
+                    @close="handleCloseAll"
                 >
                     <template #content>
-                        <div class="pt-16 w-full h-full">
-                            <DataAnalyticsCompare
-                                v-if="showCompareAnalytics"
-                                :group1WKT="group1WKT"
-                                :group2WKT="group2WKT"
-                                :month="month"
-                                :fromExport="false"
-                                @close="handleCloseAll"
-                            />
-                        </div>
+                        <DataAnalyticsCompare
+                            :group1WKT="group1WKT"
+                            :group2WKT="group2WKT"
+                            :month="month"
+                            :fromExport="false"
+                        />
                     </template>
-                </USlideover>
+                </SideBar>
+
                 <ComparisonBar
                     v-if="compareMode"
                     :style="showCompareAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
@@ -70,28 +63,16 @@
                     @restart="goToPhase1"
                     @exit="exitCompareMode"
                 />
-                <USlideover
-                    side="left"
+                <SideBar
                     v-model:open="viewAnalytics"
-                    :overlay="false"
-                    :dismissible="false"
-                    :modal="false"
-                    :ui="{
-                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
-                    }"
+                    :settings="{ modal: false, overlay: false, dismissible: false }"
+                    title="Data Analytics"
+                    @close="handleCloseAll"
                 >
                     <template #content>
-                        <div class="pt-16 w-full h-full">
-                            <DataAnalyticsComponent
-                                v-if="viewAnalytics"
-                                :location="hexLocation"
-                                :month="month"
-                                :fromExport="false"
-                                @close="handleCloseAll"
-                            />
-                        </div>
+                        <DataAnalyticsComponent :location="hexLocation" :month="month" :fromExport="false" />
                     </template>
-                </USlideover>
+                </SideBar>
                 <SelectBar
                     v-if="selectMode"
                     :style="viewAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
@@ -133,39 +114,28 @@
             </div>
 
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
-                <USlideover
-                    side="left"
-                    v-model:open="addMeasurement"
-                    modal
-                    :ui="{
-                        content: 'w-screen max-w-screen md:w-1/2 md:max-w-lg overflow-y-auto',
-                    }"
-                >
+                <SideBar v-model:open="addMeasurement" title="Record Measurement" @close="handleCloseAll">
                     <template #content>
-                        <div class="pt-16 w-full h-full">
-                            <MeasurementComponent
-                                v-if="addMeasurement"
-                                @close="handleCloseAll"
-                                @submitMeasurement="refresh = !refresh"
-                            />
-                        </div>
-                    </template>
-                    <UTooltip :delay-duration="0" text="Add a Measurement">
-                        <button
-                            class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
-                            @click="
-                                addMeasurement = true;
-                                viewAnalytics = false;
-                                showLegend = false;
+                        <MeasurementComponent
+                            @submitMeasurement="
+                                () => {
+                                    refresh = !refresh;
+                                    handleCloseAll();
+                                }
                             "
-                            type="button"
-                            aria-label="add measurement"
-                            v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                        >
-                            <PlusCircleIcon class="w-10 h-10" aria-label="add measurement" />
-                        </button>
-                    </UTooltip>
-                </USlideover>
+                        />
+                    </template>
+                    <MenuButton
+                        icon="i-heroicons-plus-circle"
+                        tooltip="Add a Measurement"
+                        :handler="
+                            () => {
+                                addMeasurement = true;
+                            }
+                        "
+                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    />
+                </SideBar>
             </div>
         </div>
     </div>
@@ -185,7 +155,6 @@
  * Provides a button to add new measurements when not in adding mode.
  */
 defineOptions({ name: "DashboardView" });
-import { PlusCircleIcon } from "@heroicons/vue/24/outline";
 import HexMap from "../components/HexMap.vue";
 import { ref, onMounted, computed, nextTick } from "vue";
 import MeasurementComponent from "../components/MeasurementComponent.vue";
@@ -193,13 +162,14 @@ import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
 import * as L from "leaflet";
 import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
-import Legend from "../components/Menu/Legend.vue";
+import Legend from "../components/MenuItems/Legend.vue";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
 import SelectBar from "../components/Analysis/SelectBar.vue";
-import MapMenu from "../components/Menu/MapMenu.vue";
+import MapMenu from "../components/MenuItems/MapMenu.vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
+import MenuButton from "../components/MenuItems/MenuButton.vue";
 
 const cookies = new Cookies();
 

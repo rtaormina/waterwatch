@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import Menu from '../../../../src/components/Menu/MapMenu.vue'
+import Menu from '../../../../src/components/MenuItems/MapMenu.vue'
 
 
 const UTooltipStub = {

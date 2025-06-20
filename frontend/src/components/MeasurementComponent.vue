@@ -204,7 +204,7 @@ defineExpose({
 </script>
 
 <template>
-    <SideBar title="Record Measurement" @close="emit('close')">
+    <div>
         <div class="flex-1 pb-16 md:pb-0">
             <!-- Measurement block -->
             <MeasurementBasisBlock
@@ -269,5 +269,5 @@ defineExpose({
                 </div>
             </Modal>
         </div>
-    </SideBar>
+    </div>
 </template>
