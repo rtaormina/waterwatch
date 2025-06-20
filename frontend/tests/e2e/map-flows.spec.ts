@@ -54,14 +54,60 @@ test.describe("Map user flows", () => {
 
     test("see hexagon info", async ({ page }) => {
 
+        //add measurement by hand
+        await clickButton(page, "add-measurement-button");
+
+        //select water source
+        await page.getByTestId("select-water-source").click();
+        await page.locator("text=Well").click();
+
+        //maybe scroll??
+
+        //select sensor
+
+
+        //enter temperature
+
+
+        //enter time waited
+        const timeWaited = await page.getByTestId("time-waited-mins");
+        await timeWaited.fill("5");
+
+        //click submit
+        await clickButton(page, "submit-button");
+
+        //click pop up submit button
+        await clickButton(page, "submit-button");
+
+        //refresh the page to ensure the measurement is saved
+        await page.reload({ waitUntil: "domcontentloaded" });
+
+        //zoom in to the map
+        await zoomToLevel(page, 10);
+
         //move to the first measurement
-        moveToCoordinates(page, 52.0, 4.0);
+        moveToCoordinates(page, 0, 0);
 
         //select the first hexagon
+        clickNthHexagonOnMap(page, 0);
 
-        //assert the pop up
+        //assert the pop up by finding text
+        await expect(page.locator('text="See Details"')).toBeVisible();
 
         //assert temp in pop up
+        await expect(page.locator('text="Min: 10.0°C"')).toBeVisible();
+
+        //click see details
+        await clickButton(page, "submit");
+
+        //assert the details page is loaded
+        await expect(page.locator('text="Data Analytics"')).toBeVisible();
+
+        //close the details page
+        await clickButton(page, "close-global-analytics");
+
+        //assert that the pop up is closed
+        await expect(page.locator('text="See Details"')).not.toBeVisible();
 
     });
 });
