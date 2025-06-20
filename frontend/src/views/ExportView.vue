@@ -15,6 +15,7 @@ import { useExportData } from "../composables/Export/useExportData";
 import { type Preset } from "../composables/Export/usePresets";
 import { useRouter, useRoute } from "vue-router";
 import { useExportStore } from "../stores/ExportStore";
+import { nextTick } from "process";
 
 const router = useRouter();
 const route = useRoute();
@@ -113,10 +114,10 @@ async function onDownload(): Promise<void> {
     showModal.value = !ok;
 }
 
-onMounted(() => {
+onMounted(async () => {
     if (route.query.fromMap === "1" && exportStore.hasSearched && filterPanelRef.value) {
         filterPanelRef.value.applyFilters(exportStore.filters);
-        onSearch();
+        await nextTick(() => onSearch());
     }
 });
 
