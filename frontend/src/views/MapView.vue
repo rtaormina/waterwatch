@@ -143,20 +143,22 @@
  * Provides a button to add new measurements when not in adding mode.
  */
 defineOptions({ name: "DashboardView" });
-import HexMap from "../components/HexMap.vue";
+
 import { ref, onMounted, computed, nextTick } from "vue";
-import MeasurementComponent from "../components/MeasurementComponent.vue";
-import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
-import * as L from "leaflet";
-import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
-import Legend from "../components/MenuItems/Legend.vue";
-import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
-import SelectBar from "../components/MenuItems/SelectBar.vue";
-import MapMenu from "../components/MenuItems/MapMenu.vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
+import * as L from "leaflet";
+
+import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
+import HexMap from "../components/HexMap.vue";
+import MapMenu from "../components/MenuItems/MapMenu.vue";
 import MenuButton from "../components/MenuItems/MenuButton.vue";
+import Legend from "../components/MenuItems/Legend.vue";
+import SelectBar from "../components/MenuItems/SelectBar.vue";
+import MeasurementComponent from "../components/MeasurementComponent.vue";
+import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
+import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 
 const cookies = new Cookies();
 
