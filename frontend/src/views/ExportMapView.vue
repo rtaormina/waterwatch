@@ -137,7 +137,7 @@ import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Menu/Legend.vue";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
 import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
-import SelectBar from "../components/Analysis/SelectBar.vue";
+import SelectBar from "../components/Menu/SelectBar.vue";
 import { useRouter } from "vue-router";
 import { useExportStore } from "../stores/ExportStore";
 import Cookies from "universal-cookie";

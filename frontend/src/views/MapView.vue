@@ -184,7 +184,7 @@ import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponen
 import { asyncComputed } from "@vueuse/core";
 import Legend from "../components/Menu/Legend.vue";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
-import SelectBar from "../components/Analysis/SelectBar.vue";
+import SelectBar from "../components/Menu/SelectBar.vue";
 import MapMenu from "../components/Menu/MapMenu.vue";
 import axios from "axios";
 import Cookies from "universal-cookie";
