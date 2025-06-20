@@ -13,7 +13,7 @@
                             :group1WKT="group1WKT"
                             :group2WKT="group2WKT"
                             :month="month"
-                            :fromExport="false"
+                            :fromExport="true"
                         />
                     </template>
                 </SideBar>
@@ -38,7 +38,7 @@
                     @close="handleCloseAll"
                 >
                     <template #content>
-                        <DataAnalyticsComponent :location="hexLocation" :month="month" :fromExport="false" />
+                        <DataAnalyticsComponent :location="hexLocation" :month="month" :fromExport="true" />
                     </template>
                 </SideBar>
                 <SelectBar
