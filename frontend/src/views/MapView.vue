@@ -92,7 +92,7 @@
                     ref="hexMapRef"
                     :colors="colors"
                     :data="data"
-                    :selectMult="selectMult && !compareMode"
+                    :selectMode="selectMode"
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
                     :month="month"
@@ -193,13 +193,12 @@ const cookies = new Cookies();
 
 const open = ref(false);
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
-
+const campaigns = ref([]);
 const firstTime = ref(false);
-const viewAnalytics = ref(false);
+
 const addMeasurement = ref(false);
 const showLegend = ref(false);
-const selectMult = ref(false);
-const campaigns = ref([]);
+const viewAnalytics = ref(false);
 const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
 type Location = {
@@ -207,19 +206,16 @@ type Location = {
     longitude: number;
 };
 
-const compareMode = ref(false);
 const selectMode = ref(false);
+const count = ref(0);
+
+const compareMode = ref(false);
 const comparePhaseNum = ref<1 | 2 | null>(null);
 const group1WKT = ref("");
 const group2WKT = ref("");
-const count = ref(0);
-const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
-
-const range = ref<number[]>([0]);
-const month = ref<string>("0");
-const refresh = ref(false);
+const showCompareAnalytics = ref(false);
 
 const selectBarLeft = ref({
     label: "Cancel",
@@ -238,6 +234,10 @@ const selectBarRightButtonDisabled = computed(() => {
     if (compareMode.value) return comparePhaseNum.value == 1 ? group1WKT.value === "" : group2WKT.value === "";
     return false;
 });
+
+const range = ref<number[]>([0]);
+const month = ref<string>("0");
+const refresh = ref(false);
 
 const menuItems = [
     { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: toggleLegend },
@@ -280,7 +280,6 @@ function enterSelectMode() {
     selectMode.value = true;
     compareMode.value = false;
 
-    selectMult.value = true;
     addMeasurement.value = false;
     showLegend.value = false;
     count.value = 0;
@@ -314,7 +313,6 @@ function handleSelectContinue() {
 function exitSelectMode() {
     selectMode.value = false;
     viewAnalytics.value = false;
-    selectMult.value = false;
     count.value = 0;
 }
 
@@ -343,14 +341,7 @@ function enterCompareMode() {
     viewAnalytics.value = false;
     addMeasurement.value = false;
     showLegend.value = false;
-    selectMult.value = false;
     showCompareAnalytics.value = false;
-
-    // **Immediately re‐enable `selectMult` so Phase 1 hex‐clicks work**
-    // We use setTimeout to let Vue finish the re‐render in phase1 first.
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
 }
 
 /**
@@ -361,12 +352,7 @@ function enterCompareMode() {
  */
 function goToPhase2() {
     setSelectBarProps("Previous group", enterCompareMode, "Next group", goToPhase3, "Select group 2");
-
     comparePhaseNum.value = 2;
-    selectMult.value = false;
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
 }
 
 /**
@@ -402,7 +388,7 @@ function exitCompareMode() {
     group1WKT.value = "";
     group2WKT.value = "";
     showCompareAnalytics.value = false;
-    selectMult.value = false;
+    selectMode.value = false;
     group1Corners.value = [];
     group2Corners.value = [];
 }
@@ -512,7 +498,7 @@ function handleOpenAnalysis(location: string) {
 function handleCloseAll() {
     viewAnalytics.value = false;
     addMeasurement.value = false;
-    selectMult.value = false;
+    selectMode.value = false;
     showLegend.value = false;
 
     // If we close from DataAnalyticsCompare, also exit compareMode
