@@ -7,8 +7,7 @@
 
    functions/createMap.md
    functions/createMarker.md
-   functions/createOSMLayer.md
+   functions/createMapLayer.md
    functions/getLocateControl.md
    functions/intializeMap.md
 ```
-

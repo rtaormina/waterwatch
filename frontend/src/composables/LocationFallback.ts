@@ -15,18 +15,45 @@ L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
 L.Icon.Default.imagePath = ""; // necessary to avoid Leaflet adds some prefix to image path.
 
 /**
- * Creates the OSM Layer for the map.
+ * Creates the base map layer for the Leaflet map.
  *
- * @returns {Leaflet.TileLayer} The OSM Layer
+ * This function sets up a layer with high-quality imagery and labels.
+ *
+ * @param {Object} [options] - Optional parameters for the map layer.
+ * @param {boolean} [options.noWrap=false] - If true, the map will not wrap around the world.
+ * @param {L.LatLngBoundsExpression} [options.bounds] - The bounds of the map layer.
+ * @returns {L.Layer} A Leaflet layer containing the base map and labels.
  */
-export function createOSMLayer(options?: { noWrap: boolean }): L.TileLayer {
-    return L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        ...options,
-    });
-}
+export function createMapLayer(options?: { noWrap?: boolean; bounds?: L.LatLngBoundsExpression }): L.Layer {
+    const worldBounds = L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180));
 
+    // 1) High‑quality imagery (no borders, no labels)
+    const base = L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+            maxZoom: 19,
+            attribution: "Esri, Maxar, Earthstar Geographics, and the GIS User Community",
+            ...options,
+            noWrap: true,
+            bounds: worldBounds,
+        },
+    );
+
+    // 2) Labels only: just city/town/POI names (no border lines)
+    const labels = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
+        maxZoom: 19,
+        attribution:
+            '&copy; <a href="https://www.openstreetmap.org">OpenStreetMap</a> ' +
+            '&copy; <a href="https://carto.com/">CARTO</a>',
+        ...options,
+        noWrap: true,
+        bounds: worldBounds,
+        subdomains: "abcd",
+    });
+
+    // 3) Composite them
+    return L.layerGroup([base, labels]);
+}
 /**
  * Creates a marker on the map.
  *
@@ -75,7 +102,7 @@ export function createMap(element: HTMLElement, location: MaybeRefOrGetter<L.Lat
  */
 export function initializeMap(mapElement: HTMLElement, location: Ref<L.LatLng>): L.Map {
     const map: L.Map = createMap(mapElement, location);
-    const layer: L.TileLayer = createOSMLayer();
+    const layer: L.TileLayer = createMapLayer();
     layer.addTo(map);
     const marker: L.Marker = createMarker(location);
     marker.addTo(map);

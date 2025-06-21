@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { createOSMLayer } from "../composables/LocationFallback";
+import { createMapLayer } from "../composables/LocationFallback";
 import * as L from "leaflet";
 import { createApp, onMounted, ref, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
@@ -109,7 +109,7 @@ declare module "leaflet" {
 
 let map: L.Map;
 const mapElement = useTemplateRef("mapElement");
-const layer = createOSMLayer({ noWrap: true });
+const layer = createMapLayer({ noWrap: true });
 const legendStore = useLegendStore();
 
 // type for each incoming “measurement” point
@@ -137,7 +137,7 @@ const center = props.center ?? L.latLng(51.999, 4.3737);
 
 const hexbinOptions: L.HexbinLayerConfig = {
     radius: 30,
-    opacity: 0.3,
+    opacity: 0.5,
     colorRange: props.colors,
     colorScaleExtent: legendStore.scale,
     radiusRange: [4, 30],
