@@ -263,7 +263,7 @@ function showGlobalAnalytics() {
  * @returns {void}
  */
 function enterSelectMode() {
-    setSelectBarProps("Cancel", exitSelectMode, "Select", handleSelectContinue, "Select hexagons");
+    setSelectBarProps("Cancel", exitSelectMode, "Select", handleSelectContinue, "Select Hexagons");
 
     selectMode.value = true;
     compareMode.value = false;

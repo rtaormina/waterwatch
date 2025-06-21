@@ -72,7 +72,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(1);
 
         //click next group
-        await clickButton(page, "right-button-comparison");
+        await clickButton(page, "select-bar-right-button");
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(0);
 
         //find measurement 2 hexagon
@@ -85,7 +85,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(1);
 
         //click compare button
-        await clickButton(page, "right-button-comparison");
+        await clickButton(page, "select-bar-right-button");
 
         //assert Compare Distributions
         await expect(page.locator('text="Compare Distributions"')).toBeVisible();
@@ -103,7 +103,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator('text="Frequency Analysis: Group 2"')).toBeVisible();
 
         //close comparing hexagons
-        await clickButton(page, "close-comparing-analytics");
+        await clickButton(page, "select-bar-left-button");
 
         //assert that comparing hexagons is closed
         await expect(page.locator('text="Compare Distributions"')).toHaveCount(0)
@@ -129,7 +129,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(1);
 
         //click next group
-        await clickButton(page, "right-button-comparison");
+        await clickButton(page, "select-bar-right-button");
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(0);
 
         //zoom to different level
@@ -145,7 +145,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(1);
 
         //click compare button
-        await clickButton(page, "right-button-comparison");
+        await clickButton(page, "select-bar-right-button");
 
         //assert Compare Distributions
         await expect(page.locator('text="Compare Distributions"')).toBeVisible();
@@ -163,7 +163,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator('text="Frequency Analysis: Group 2"')).toBeVisible();
 
         //restart comparison
-        await clickButton(page, "left-button-comparison");
+        await clickButton(page, "select-bar-left-button");
 
         //assert that comparing is back on
         await expect(page.locator('text="Select group 1"')).toBeVisible();
@@ -214,7 +214,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(2);
 
         //click next group
-        await clickButton(page, "right-button-comparison");
+        await clickButton(page, "select-bar-right-button");
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(0);
 
         //zoom to different level
@@ -234,7 +234,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(2);
 
         //click compare button
-        await clickButton(page, "right-button-comparison");
+        await clickButton(page, "select-bar-right-button");
 
         //assert Compare Distributions
         await expect(page.locator('text="Compare Distributions"')).toBeVisible();
@@ -252,7 +252,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await expect(page.locator('text="Frequency Analysis: Group 2"')).toBeVisible();
 
         //exit comparing hexagons
-        await clickButton(page, "left-button-comparison");
+        await clickButton(page, "select-bar-left-button");
 
         //assert that comparing hexagons is closed
         await expect(page.locator('text="Compare Distributions"')).toHaveCount(0);
@@ -268,7 +268,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
         await clickButton(page, "comparing-hexagons-button");
 
         //click cancel button
-        await clickButton(page, "left-button-comparison");
+        await clickButton(page, "select-bar-left-button");
 
         //no more comparison
         await expect(page.locator('text="Select group 1"')).toHaveCount(0);
@@ -296,7 +296,7 @@ test.describe("Map Analysis Global Analytics", () => {
         await expect(page.locator('text="Data Analytics"')).toBeVisible();
 
         //click close button
-        await clickButton(page, "close-global-analytics");
+        await clickButton(page, "close-sidebar-button");
 
         //assert global analytics is closed
         await expect(page.locator('text="Data Analytics"')).toHaveCount(0);
@@ -349,13 +349,13 @@ test.describe("Map Analysis Select Multiple Hexagons", () => {
         await expect(page.locator("path.leaflet-interactive")).toHaveCount(1);
 
         //open hexagon selection
-        await clickButton(page, "select-button");
+        await clickButton(page, "select-bar-right-button");
 
         //assert analytics show up
         await expect(page.locator('text="Data Analytics"')).toBeVisible();
 
         //close select multiple hexagons
-        await clickButton(page, "cancel-select-button");
+        await clickButton(page, "select-bar-left-button");
 
         //assert select multiple hexagons is closed
         await expect(page.locator('text="Select Hexagons"')).toHaveCount(0);

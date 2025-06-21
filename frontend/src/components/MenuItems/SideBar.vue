@@ -47,6 +47,7 @@ const open = defineModel<boolean>("open", { default: false });
                                 }
                             "
                             aria-label="close sidebar"
+                            data-testid="close-sidebar-button"
                         >
                             <UIcon name="i-heroicons-x-mark" class="w-10 h-10" />
                         </UButton>
