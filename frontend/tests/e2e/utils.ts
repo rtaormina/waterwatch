@@ -70,7 +70,7 @@ export async function clickButton(page: Page, testId: string) {
  * @param testId the test ID of the dropdown
  * @param option the option to select from the dropdown
  */
-async function selectFromDropdown(page:Page, testId: string, option: string) {
+export async function selectFromDropdown(page:Page, testId: string, option: string) {
     await page.getByTestId(testId).click();
     await page.waitForSelector(`text=${option}`);
     await page.locator(`text=${option}`).click();
@@ -82,7 +82,7 @@ async function selectFromDropdown(page:Page, testId: string, option: string) {
  * @param testId the test ID of the text field
  * @param value the text to fill in the field
  */
-async function fillOutTextField(page: Page, testId: string, value: string) {
+export async function fillOutTextField(page: Page, testId: string, value: string) {
     await page.getByTestId(testId).fill(value);
 }
 
@@ -128,7 +128,7 @@ export async function moveToCoordinates(page: Page, latitude: number, longitude:
  */
 export async function clickNthHexagonOnMap(page: Page, n: number) {
     await page.waitForSelector("path.hexbin-grid", { state: "visible" });
-            await page.locator("path.hexbin-grid").nth(n).click();
+    await page.locator("path.hexbin-grid").nth(n).click();
 }
 
 export interface AddPresetOpts {

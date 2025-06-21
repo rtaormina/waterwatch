@@ -166,6 +166,7 @@
                     <UTooltip :delay-duration="0" text="Add a Measurement">
                         <button
                             class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
+                            data-testid="add-measurement-button"
                             @click="
                                 addMeasurement = true;
                                 viewAnalytics = false;
