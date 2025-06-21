@@ -13,5 +13,5 @@
  * This component renders a 404 page not found view.
  * It provides options to navigate back or return to the homepage.
  */
-import ErrorPage from "../components/ErrorPage.vue";
+import ErrorPage from "../../components/ErrorPage.vue";
 </script>

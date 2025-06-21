@@ -1,9 +1,9 @@
 <template>
     <ErrorPage
-        icon="i-heroicons-shield-exclamation-20-solid"
-        title="Access Denied"
-        subtitle="Insufficient Permissions"
-        description="This section of WATERWATCH requires researcher or admin privileges."
+        icon="i-heroicons-no-symbol-20-solid"
+        title="Authentication Required"
+        subtitle="Please Login"
+        description="You must be logged in to access this part of WATERWATCH."
     >
         <template #action-button>
             <RouterLink to="/login">
@@ -21,8 +21,8 @@
 
 <script setup lang="ts">
 /**
- * This component renders an unauthorized view.
- * It provides a message indicating insufficient permissions and a button to navigate to the login page.
+ * This component renders an unauthenticated view.
+ * It provides a message indicating that authentication is required and a button to navigate to the login page.
  */
-import ErrorPage from "../components/ErrorPage.vue";
+import ErrorPage from "../../components/ErrorPage.vue";
 </script>

@@ -86,7 +86,7 @@ const routes = [
         path: "/unauthenticated",
         name: "Unauthenticated",
         /** */
-        component: () => import("@/views/UnauthenticatedView.vue"),
+        component: () => import("@/views/ErrorPages/UnauthenticatedView.vue"),
         meta: {
             requiresAuth: false,
         },
@@ -95,7 +95,7 @@ const routes = [
         path: "/unauthorized",
         name: "Unauthorized",
         /** */
-        component: () => import("@/views/UnauthorizedView.vue"),
+        component: () => import("@/views/ErrorPages/UnauthorizedView.vue"),
         meta: {
             requiresAuth: false,
         },
@@ -103,7 +103,7 @@ const routes = [
     {
         path: "/:pathMatch(.*)*",
         /** */
-        component: () => import("@/views/PageNotFound.vue"),
+        component: () => import("@/views/ErrorPages/PageNotFound.vue"),
     },
 ];
 
