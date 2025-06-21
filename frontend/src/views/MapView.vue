@@ -214,9 +214,24 @@ const refresh = ref(false);
 
 const menuItems = [
     { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: toggleLegend },
-    { icon: "i-heroicons-chart-bar", tooltip: "Show Global Analytics", handler: showGlobalAnalytics },
-    { icon: "i-heroicons-squares-plus", tooltip: "Select Multiple Hexagons", handler: enterSelectMode },
-    { icon: "i-heroicons-scale", tooltip: "Compare Hexagon Groups", handler: enterCompareMode },
+    {
+        icon: "i-heroicons-chart-bar",
+        tooltip: "Show Global Analytics",
+        handler: showGlobalAnalytics,
+        testid: "global-analytics-button",
+    },
+    {
+        icon: "i-heroicons-squares-plus",
+        tooltip: "Select Multiple Hexagons",
+        handler: enterSelectMode,
+        testid: "select-multiple-hexagons-button",
+    },
+    {
+        icon: "i-heroicons-scale",
+        tooltip: "Compare Hexagon Groups",
+        handler: enterCompareMode,
+        testid: "comparing-hexagons-button",
+    },
 ];
 
 /**

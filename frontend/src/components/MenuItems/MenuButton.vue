@@ -2,6 +2,7 @@
     <UTooltip :delay-duration="0" :text="props.tooltip">
         <UButton
             class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer"
+            :data-testid="props.testid"
             @click="$emit('click')"
             :aria-label="props.tooltip"
         >
@@ -16,6 +17,7 @@ const props = defineProps<{
     icon: string;
     tooltip: string;
     label?: string;
+    testid?: string;
 }>();
 
 defineEmits(["click"]);

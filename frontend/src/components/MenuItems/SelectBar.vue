@@ -6,6 +6,7 @@
         <div class="flex items-center justify-between">
             <UButton
                 class="font-medium flex justify-center items-center cursor-pointer disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted md:px-4 md:py-2 md:w-40 md:text-base px-2 py-1 w-30 text-sm whitespace-nowrap"
+                data-testid="select-bar-left-button"
                 @click="props.leftButton.onButtonClick"
             >
                 {{ props.leftButton.label }}
@@ -15,6 +16,7 @@
             </span>
             <UButton
                 class="font-medium flex justify-center items-center cursor-pointer disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted md:px-4 md:py-2 md:w-40 md:text-base px-2 py-1 w-30 text-sm whitespace-nowrap"
+                data-testid="select-bar-right-button"
                 :disabled="props.rightButtonDisabled"
                 @click="props.rightButton.onButtonClick"
             >

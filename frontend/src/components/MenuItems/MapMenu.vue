@@ -31,6 +31,7 @@
                 :key="item.icon"
                 :icon="item.icon"
                 :tooltip="item.tooltip"
+                v-bind="item.testid ? { 'data-testid': item.testid } : {}"
                 @click="item.handler"
             />
         </div>
@@ -45,6 +46,7 @@ type MenuItem = {
     icon: string;
     tooltip: string;
     handler: () => void;
+    testid?: string;
 };
 
 defineProps<{

@@ -492,6 +492,8 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
         count: measurement.count,
     }));
 
+    console.log(formated);
+
     return formated;
 }, [] as MeasurementData[]);
 </script>

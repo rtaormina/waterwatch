@@ -8,6 +8,14 @@ import * as L from "leaflet";
 import { createApp, onMounted, ref, useTemplateRef, watch } from "vue";
 import "@asymmetrik/leaflet-d3/dist/leaflet-d3.js";
 import HexAnalysis from "./Analysis/HexAnalysis.vue";
+import type { Map as LeafletMap } from "leaflet";
+
+// ── Extend the global Window interface ──
+declare global {
+    interface Window {
+        map: LeafletMap;
+    }
+}
 import { useLegendStore } from "../stores/LegendStore";
 import axios from "axios";
 import Cookies from "universal-cookie";
@@ -227,6 +235,8 @@ onMounted(() => {
         maxZoom: 16,
         minZoom: 3,
     });
+
+    window.map = map;
 
     // On zoom start, close any open popups and clear selections
     map.on("zoomstart", () => {
