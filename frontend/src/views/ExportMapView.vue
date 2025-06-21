@@ -165,7 +165,7 @@ const selectBarRightButtonDisabled = computed(() => {
 });
 
 const range = ref<number[]>([0]);
-const month = ref<string>("0");
+const month = ref<string>("1,2,3,4,5,6,7,8,9,10,11,12");
 
 const menuItems = [
     { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: toggleLegend },
