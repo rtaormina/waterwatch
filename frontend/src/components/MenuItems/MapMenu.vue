@@ -48,7 +48,6 @@ type MenuItem = {
 };
 
 defineProps<{
-    selectMult: boolean;
     menuItems: MenuItem[];
 }>();
 
