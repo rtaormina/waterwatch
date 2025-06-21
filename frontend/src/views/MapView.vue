@@ -324,7 +324,7 @@ function enterCompareMode() {
  * @returns {void}
  */
 function goToPhase2() {
-    setSelectBarProps("Previous group", enterCompareMode, "Next group", goToPhase3, "Select group 2");
+    setSelectBarProps("Previous group", enterCompareMode, "Compare", goToPhase3, "Select group 2");
     comparePhaseNum.value = 2;
 }
 
