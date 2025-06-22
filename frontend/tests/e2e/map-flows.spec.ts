@@ -15,8 +15,6 @@ test.describe("Map user flows", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto(url, { waitUntil: "domcontentloaded" });
 
-        await page.waitForTimeout(2500);
-
         //create measurement 1
         await addMeasurement(
             page,
@@ -52,9 +50,6 @@ test.describe("Map user flows", () => {
                 },
             }
         );
-
-        await page.goto(url, { waitUntil: "domcontentloaded" });
-
     });
 
     test("see hexagon info", async ({ page }) => {
@@ -82,7 +77,7 @@ test.describe("Map user flows", () => {
         await clickButton(page, "submit-measurement");
 
         //click pop up submit button
-        await clickButton(page, "submit-button");
+        await clickButton(page, "submit-modal-button");
 
         //zoom in to the map
         await zoomToLevel(page, 10);
