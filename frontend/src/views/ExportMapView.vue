@@ -30,7 +30,11 @@
 
                 <SelectBar
                     v-if="selectMode || compareMode"
-                    :style="viewAnalytics ? 'left: var(--container-lg); transform: none; margin-left: 2%;' : ''"
+                    :style="
+                        viewAnalytics || showCompareAnalytics
+                            ? 'left: var(--container-lg); transform: none; margin-left: 2%;'
+                            : ''
+                    "
                     :rightButton="selectBarRight"
                     :rightButtonDisabled="selectBarRightButtonDisabled"
                     :leftButton="selectBarLeft"
@@ -190,9 +194,21 @@ function toggleLegend() {
  */
 function showGlobalAnalytics() {
     hexLocation.value = "";
-    viewAnalytics.value = true;
+
+    if (viewAnalytics.value || showCompareAnalytics.value) {
+        viewAnalytics.value = false;
+        setTimeout(() => {
+            viewAnalytics.value = true;
+        }, 300);
+    } else {
+        viewAnalytics.value = true;
+    }
+
+    showCompareAnalytics.value = false;
     addMeasurement.value = false;
     showLegend.value = false;
+    compareMode.value = false;
+    selectMode.value = false;
 }
 
 // === Functions to handle select mode === //
@@ -207,6 +223,9 @@ function enterSelectMode() {
 
     selectMode.value = true;
     compareMode.value = false;
+
+    viewAnalytics.value = false;
+    showCompareAnalytics.value = false;
 
     addMeasurement.value = false;
     showLegend.value = false;
@@ -259,7 +278,9 @@ function enterCompareMode() {
 
     hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
     comparePhaseNum.value = 1;
+
     showCompareAnalytics.value = false;
+    viewAnalytics.value = false;
 
     // Clear all selections
     group1WKT.value = "";
@@ -415,7 +436,15 @@ function handleHexClick() {
  */
 function handleOpenAnalysis(location: string) {
     hexLocation.value = location;
-    viewAnalytics.value = true;
+    if (viewAnalytics.value || showCompareAnalytics.value) {
+        viewAnalytics.value = false;
+        console.log("entered");
+        setTimeout(() => {
+            viewAnalytics.value = true;
+        }, 300);
+    } else {
+        viewAnalytics.value = true;
+    }
 }
 
 /**
