@@ -125,7 +125,7 @@ const props = defineProps<{
     center?: L.LatLng;
     data: DataPoint[]; // this will be unwrapped automatically
     colors: string[];
-    selectMult: boolean;
+    selectMode: boolean;
     compareMode: boolean;
     activePhase: 1 | 2 | null;
     month: string;
@@ -278,7 +278,7 @@ onMounted(() => {
     );
 
     watch(
-        () => props.selectMult,
+        () => props.selectMode,
         (newVal) => {
             if (newVal) {
                 clearSelection();
@@ -538,7 +538,7 @@ onMounted(() => {
         }
 
         // If we are not in compareMode, clear the selection
-        if (!props.selectMult) {
+        if (!props.selectMode) {
             clearSelection();
         }
         // If we are in selectMult mode, we toggle the selection
@@ -551,7 +551,7 @@ onMounted(() => {
             selected.value.push({ wkt, corners, layer });
         }
         // If we are in selectMult mode, we emit the MultiPolygon WKT
-        if (!props.selectMult) {
+        if (!props.selectMode) {
             (async () => {
                 // Fetch the hexagon data for the selected hexagon
                 const cookies = new Cookies();
@@ -626,7 +626,7 @@ onMounted(() => {
             })();
         }
         // If we are in selectMult mode, we emit the MultiPolygon WKT, else we emit the single WKT
-        if (props.selectMult) {
+        if (props.selectMode) {
             const allWkts = wktsToMultiPolygon(selected.value);
             emit("hex-select", allWkts);
         } else {
@@ -636,7 +636,7 @@ onMounted(() => {
 
     // Watch for changes in selectMult to clear selections if it becomes false
     watch(
-        () => props.selectMult,
+        () => props.selectMode,
         (newVal) => {
             if (!newVal) {
                 clearSelection();
