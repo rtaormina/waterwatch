@@ -65,8 +65,8 @@ test.describe("Measurement Export Page Tests", () => {
 
         test("should display all filter sections", async ({ page }) => {
             await expect(page.getByText("Location", { exact: true })).toBeVisible();
-            await expect(page.getByText("Continent", { exact: true })).toBeVisible();
-            await expect(page.getByText("Country", { exact: true })).toBeVisible();
+            await expect(page.getByText("Region", { exact: true })).toBeVisible();
+            await expect(page.getByText("Subregion", { exact: true })).toBeVisible();
             await expect(page.getByText("Measurement Type", { exact: true })).toBeVisible();
             await expect(page.getByText("Water Source", { exact: true })).toBeVisible();
             await expect(page.getByText("Date", { exact: true })).toBeVisible();
@@ -122,7 +122,7 @@ test.describe("Measurement Export Page Tests", () => {
             const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
             await countryDropdown.click();
 
-            const searchInput = page.locator('input[placeholder="Search countries..."]');
+            const searchInput = page.locator('input[placeholder="Search subregions..."]');
             await expect(searchInput).toBeVisible();
 
             await searchInput.fill("United");
@@ -139,7 +139,7 @@ test.describe("Measurement Export Page Tests", () => {
             const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
             await countryDropdown.click();
 
-            const searchInput = page.locator('input[placeholder="Search countries..."]');
+            const searchInput = page.locator('input[placeholder="Search subregions..."]');
             await searchInput.fill("test search");
 
             // Close dropdown
@@ -435,8 +435,8 @@ test.describe("Measurement Export Page Tests", () => {
             await resetButton.click();
 
             // Check that filters are reset
-            await expect(continentDropdown).toHaveText("Select continents");
-            await expect(countryDropdown).toHaveText("Select countries");
+            await expect(continentDropdown).toHaveText("Select regions");
+            await expect(countryDropdown).toHaveText("Select subregions");
             await expect(waterSourceDropdown).toHaveText("Select water sources");
             await expect(tempCheckbox).toHaveAttribute("aria-checked", "true");
             await expect(celsiusButton).toHaveClass(/bg-main/);
@@ -693,7 +693,7 @@ test.describe("Measurement Export Page Tests", () => {
             const countryDropdown = page.locator(".multiselect-custom-wrapper").nth(1);
             await countryDropdown.click();
 
-            const searchInput = page.locator('input[placeholder="Search countries..."]');
+            const searchInput = page.locator('input[placeholder="Search subregions..."]');
             await searchInput.fill("Netherlands");
             const netherlands = page.getByText("Netherlands").first();
             await netherlands.click();
@@ -738,7 +738,7 @@ test.describe("Measurement Export Page Tests", () => {
             const selectAllCountriesButton = page.locator(".multiselect-select-all").nth(1);
             await selectAllCountriesButton.click();
 
-            const searchInput = page.locator('input[placeholder="Search countries..."]');
+            const searchInput = page.locator('input[placeholder="Search subregions..."]');
             await searchInput.fill("Netherlands");
             const netherlands = page.getByText("Netherlands").first();
             await netherlands.click();
@@ -1077,7 +1077,7 @@ test.describe("Measurement Export Page Tests", () => {
             const selectAllCountriesButton = page.locator(".multiselect-select-all").nth(1);
             await selectAllCountriesButton.click();
 
-            const searchInput = page.locator('input[placeholder="Search countries..."]');
+            const searchInput = page.locator('input[placeholder="Search subregions..."]');
             await searchInput.fill("Netherlands");
             const netherlands = page.getByText("Netherlands").first();
             await netherlands.click();
