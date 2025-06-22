@@ -26,6 +26,7 @@
             <UTooltip :delay-duration="0" text="Map Settings">
                 <button
                     class="bg-main rounded-md p-1 text-inverted hover:cursor-pointer menu-button"
+                    data-testid="map-settings-button"
                     :class="{ 'menu-visible': showButtons }"
                     @click="$emit('toggle-legend')"
                     style="--delay: 0.1s"

@@ -4,11 +4,13 @@ import json
 from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
+from django.contrib.auth import get_user_model
 from django.contrib.gis.geos import Point, Polygon
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.test import Client, TestCase
 from django.utils import timezone
+from rest_framework.test import APIClient
 
 from measurements.models import Measurement, Temperature
 
@@ -18,7 +20,9 @@ class MeasurementViewTest(TestCase):
 
     def setUp(self):
         """Set up the test client before each test."""
-        self.client = Client()
+        self.client = APIClient()
+        user = get_user_model()
+        self.staff = user.objects.create_user("s", "s@x", "p", is_staff=True)
 
     @patch("measurements.views.get_all_measurements")
     def test_get_request_calls_get_all_measurements(self, mock_get_all_measurements):
@@ -32,6 +36,7 @@ class MeasurementViewTest(TestCase):
         mock_get_all_measurements : MagicMock
             A mock of the `get_all_measurements` function.
         """
+        self.client.force_authenticate(user=self.staff)
         # Configure the mock to return a valid response
         mock_get_all_measurements.return_value = HttpResponse(status=200)
 
@@ -63,13 +68,16 @@ class GetAllMeasurementsTest(TestCase):
 
     def setUp(self):
         """Set up test data."""
-        self.client = Client()
+        self.client = APIClient()
+        user = get_user_model()
+        self.staff = user.objects.create_user("s", "s@x", "p", is_staff=True)
 
     @patch("measurements.views.build_base_queryset")
     @patch("measurements.views.apply_location_annotations")
     @patch("measurements.views.prepare_measurement_data")
     def test_get_all_measurements_pipeline(self, mock_prepare, mock_annotate, mock_build):
         """Test that get_all_measurements calls the correct functions in order."""
+        self.client.force_authenticate(user=self.staff)
         # Setup mocks
         mock_queryset = MagicMock()
         mock_annotated_qs = MagicMock()

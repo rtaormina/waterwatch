@@ -38,19 +38,20 @@ class EndpointTests(TestCase):
             c.execute("DELETE FROM locations;")
             c.execute("""
                 INSERT INTO locations (country_name, continent, geom)
-                VALUES ('Aland','Europe',
+                VALUES ('Netherlands','Europe',
                   ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))',4326)
                 );
             """)
 
-        user = get_user_model().objects.create_user("u", "u@x", "p")
+        user = get_user_model()
+        cls.staff = user.objects.create_user("u", "u@x", "p", is_staff=True)
         cls.inside = Measurement.objects.create(
             location=Point(5, 5),
             local_date=date(2024, 1, 1),
             local_time=time(1, 1),
             flag=False,
             water_source="well",
-            user=user,
+            user=cls.staff,
         )
         cls.outside = Measurement.objects.create(
             location=Point(20, 20),
@@ -58,7 +59,7 @@ class EndpointTests(TestCase):
             local_time=time(2, 2),
             flag=True,
             water_source="network",
-            user=user,
+            user=cls.staff,
         )
         Temperature.objects.create(measurement=cls.inside, value=11.1, time_waited=timedelta())
         Temperature.objects.create(measurement=cls.outside, value=22.2, time_waited=timedelta())
@@ -70,7 +71,7 @@ class EndpointTests(TestCase):
     def test_location_list(self):
         r = self.client.get("/api/locations/")
         assert r.status_code == 200
-        assert r.json() == {"Europe": ["Aland"]}
+        assert r.json() == {"Europe": ["Netherlands"]}
 
         with connection.cursor() as c:
             c.execute("DELETE FROM locations;")
@@ -78,7 +79,8 @@ class EndpointTests(TestCase):
         assert r2.json() == {}
 
     def test_get_all_measurements(self):
-        r = self.client.get("/api/measurements/")
+        self.client.force_authenticate(user=self.staff)
+        r = self.client.get("/api/measurements/", user=self.staff)
         assert r.status_code == 200
         arr = r.json()
         assert {m["id"] for m in arr} == {self.inside.id}
@@ -99,20 +101,30 @@ class EndpointTests(TestCase):
         ):
             assert field in arr[0]
 
+    def test_search_not_authorized(self):
+        r = self.client.post("/api/measurements/search/", "", content_type="application/json")
+        assert r.status_code == 403
+
     def test_search_invalid_json(self):
-        r = self.client.post("/api/measurements/search/", "nope", content_type="application/json")
+        self.client.force_authenticate(user=self.staff)
+        r = self.client.post("/api/measurements/search/", "nope", content_type="application/json", user=self.staff)
         assert r.status_code == 400
 
     def test_search_empty(self):
-        r = self.client.post("/api/measurements/search/", "", content_type="application/json")
+        self.client.force_authenticate(user=self.staff)
+        r = self.client.post("/api/measurements/search/", "", content_type="application/json", user=self.staff)
         assert r.status_code == 200
         assert "count" in r.json()
         assert "avgTemp" in r.json()
 
     def test_search_location_filter(self):
+        self.client.force_authenticate(user=self.staff)
         poly = Polygon.from_bbox((0, 0, 10, 10)).wkt
         r = self.client.post(
-            "/api/measurements/search/", json.dumps({"boundary_geometry": poly}), content_type="application/json"
+            "/api/measurements/search/",
+            json.dumps({"boundary_geometry": poly}),
+            content_type="application/json",
+            user=self.staff,
         )
         assert r.status_code == 200
         assert r.json()["count"] == 1
@@ -223,14 +235,23 @@ class ErrorHandlingTests(TransactionTestCase):
     def setUp(self):
         cache.clear()
         self.client = APIClient()
+        user = get_user_model()
+        self.staff = user.objects.create_user("s", "s@x", "p", is_staff=True)
 
     def test_invalid_month_yields_200(self):
-        r = self.client.post("/api/measurements/search/", json.dumps({"month": "abc"}), content_type="application/json")
+        self.client.force_authenticate(user=self.staff)
+        r = self.client.post(
+            "/api/measurements/search/", json.dumps({"month": "abc"}), content_type="application/json", user=self.staff
+        )
         assert r.status_code == 200
 
     def test_invalid_boundary_yields_200(self):
+        self.client.force_authenticate(user=self.staff)
         r = self.client.post(
-            "/api/measurements/search/", json.dumps({"boundary_geometry": "XYZ"}), content_type="application/json"
+            "/api/measurements/search/",
+            json.dumps({"boundary_geometry": "XYZ"}),
+            content_type="application/json",
+            user=self.staff,
         )
         assert r.status_code == 200
 
@@ -319,7 +340,7 @@ class SearchMeasurementsViewTest(TransactionTestCase):
             {
                 "boundary_geometry": small,
             },
-            self.reg,
+            self.res,
         )
         data = response.json()
         assert data["count"] == 2

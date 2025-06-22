@@ -31,10 +31,18 @@ In this section provide the related epic, issue, or requirement that the bug rel
 
 In this section provide a path or link to the file containing the relevant end-to-end test.
 
-## End-to-end Test Records
+## End-to-end Test Template
 ```{eval-rst}
 .. toctree::
    :maxdepth: 1
+
+   template.md
+```
+
+## End-to-end Test Records
+```{eval-rst}
+.. toctree::
+   :maxdepth: 2
 
    index.md
 ```
