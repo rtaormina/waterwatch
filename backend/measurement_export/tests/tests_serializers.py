@@ -131,32 +131,33 @@ class TestMeasurementSerializer(TestCase):
         del self.measurement2.country
         del self.measurement2.continent
 
-    def test_get_country_continent_with_context_map(self):
-        """Test get_country/get_continent using the context location_map."""
-        key = (self.measurement2.location.x, self.measurement2.location.y)
-        context = {"location_map": {key: {"country": "United States", "continent": "NA"}}}
+    def test_get_country_continent_with_location_ref(self):
+        """Test get_country/get_continent using the location_ref foreign key."""
+        # Create a mock location_ref object
+        from measurement_export.models import Location
 
-        serializer = MeasurementSerializer(instance=self.measurement2, context=context)
-        assert serializer.data["country"] == "United States"
-        assert serializer.data["continent"] == "NA"
+        location_ref = Location()
+        location_ref.country_name = "United States"
+        location_ref.continent = "North America"
 
-    def test_get_country_continent_with_reverse_geocode_fallback(self):
-        """Test the final fallback to reverse-geocoding, which should be mocked."""
-        # Configure the mock to return a predictable dictionary
-        self.mock_lookup.return_value = {
-            "country": "Mock Country",
-            "continent": "Mock Continent",
-        }
+        # Assign the mock to the measurement
+        self.measurement2.location_ref = location_ref
 
         serializer = MeasurementSerializer(instance=self.measurement2)
-        data = serializer.data
+        assert serializer.data["country"] == "United States"
+        assert serializer.data["continent"] == "North America"
 
-        # Assert that the mock was called with the correct coordinates
-        self.mock_lookup.assert_called_with(lat=40.7128, lon=-74.0060)
+        # Clean up
+        self.measurement2.location_ref = None
 
-        # Assert that the serializer used the data from the mocked function
-        assert data["country"] == "Mock Country"
-        assert data["continent"] == "Mock Continent"
+    def test_get_country_continent_returns_none_when_no_data(self):
+        """Test get_country/get_continent return None when no data is available."""
+        # Ensure measurement2 has no annotated values or location_ref
+        self.measurement2.location_ref = None
+
+        serializer = MeasurementSerializer(instance=self.measurement2)
+        assert serializer.data["country"] is None
+        assert serializer.data["continent"] is None
 
     def test_get_metrics_without_context(self):
         """Test that get_metrics returns an empty list if no context is provided."""

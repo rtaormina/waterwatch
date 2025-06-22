@@ -26,6 +26,11 @@ docker compose -f docker-compose.test.yaml up --build -d
 docker cp assets/countries.sql postgres:/countries.sql
 docker compose -f docker-compose.test.yaml exec postgres psql -U "${POSTGRES_USER}" -d "${POSTGRES_DB}" -f countries.sql
 
+# First, create migrations for measurement_export app only since it has the Location model
+docker compose exec backend python manage.py makemigrations measurement_export
+# Then migrate measurement_export first
+docker compose exec backend python manage.py migrate measurement_export
+
 # Run migrations on test backend
 docker compose -f docker-compose.test.yaml exec backend python manage.py makemigrations
 docker compose -f docker-compose.test.yaml exec backend python manage.py migrate

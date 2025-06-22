@@ -14,6 +14,12 @@ then
     docker cp ../assets/countries.sql postgres:/countries.sql
     docker compose exec postgres psql -U admin -d pg4django -f countries.sql
 
+    # First, create migrations for measurement_export app only since it has the Location model
+    docker compose exec backend python manage.py makemigrations measurement_export
+
+    # Then migrate measurement_export first
+    docker compose exec backend python manage.py migrate measurement_export
+
     # Run migrations
     docker compose exec backend python manage.py makemigrations
     docker compose exec backend python manage.py migrate
