@@ -224,7 +224,7 @@ defineExpose({
             />
             <UButton
                 type="submit"
-                data-testid="submit-measurement-button"
+                data-testid="submit-measurement"
                 @click="submitData"
                 class="flex-1 px-4 py-2 rounded text-inverted justify-center text-md bg-primary hover:cursor-pointer"
                 label="Submit"

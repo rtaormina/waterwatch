@@ -85,7 +85,7 @@ export async function fillOutTextField(page: Page, testId: string, value: string
 }
 
 /**
- * Adds a new preset with the provided options.
+ * Zoom in on map to desired level
  * @param page the current page
  * @param zoomLevel the zoom level
  */
