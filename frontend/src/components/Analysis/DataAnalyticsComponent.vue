@@ -45,7 +45,7 @@ watch(() => props.month, render);
 </script>
 
 <template>
-    <div class="bg-default rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
+    <div class="bg-default w-full rounded-lg p-4 mb-6 shadow max-w-screen-md mx-auto">
         <h3 class="text-lg font-semibold mb-4">Frequency Analysis</h3>
         <div ref="graph" class="w-full h-64"></div>
     </div>
