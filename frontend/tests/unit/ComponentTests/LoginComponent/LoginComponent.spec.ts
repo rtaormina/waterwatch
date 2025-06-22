@@ -56,7 +56,7 @@ describe("LoginPage.vue", () => {
         // (optionally) wait for any async work to finish
         await flushPromises();
 
-        expect(fetch).toHaveBeenCalledWith("api/login/", {
+        expect(fetch).toHaveBeenCalledWith("/api/login/", {
             body: '{"username":"alice","password":"secret"}',
             credentials: "same-origin",
             headers: {

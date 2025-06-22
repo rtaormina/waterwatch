@@ -22,9 +22,7 @@ export interface AddMeasurementOpts {
  * @param opts Options for the measurement to be added.
  * @param url Base URL for the application.
  */
-export async function addMeasurement(page: Page, opts: AddMeasurementOpts, url: string) {
-    await page.goto(url + "login");
-
+export async function addMeasurement(page: Page, opts: AddMeasurementOpts) {
     const err = await page.evaluate(async (m) => {
         const match = document.cookie.match(/csrftoken=([^;]+)/);
         if (!match) return "no csrf cookie";
