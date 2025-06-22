@@ -1,5 +1,3 @@
-# Manual Test Records
-
 ```{eval-rst}
 .. toctree::
    :maxdepth: 2
