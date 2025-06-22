@@ -7,63 +7,63 @@
     },
     "measurement": {
         "introduction": {
-            "title": "",
-            "text": ""
+            "title": "Het Maken van een Water Temperatuur Meting",
+            "text": "Welkom op de instructie pagina over het maken van een meting voor WATERWATCH! Deze instructie legt uit hoe je een water temperatuur meting kan maken voor de WATERWATCH website of app. De instructie is bedoeld voor iedereen, van burger wetenschappers tot onderzoekers. Voor het maken van een water temperatuur meting heb je een gewone of infrarood thermometer nodig."
         },
         "step1": {
-            "title": "",
-            "text": "",
+            "title": "Stap 1",
+            "text": "Open de kraan.",
             "taps": {
                 "separate": {
-                    "title": "",
-                    "text": "",
-                    "caption": ""
+                    "title": "Lose koud en warme kraan",
+                    "text": "Open de koude kraan.",
+                    "caption": "voorbeeld van verschillende koude en warme kranen."
                 },
                 "faucet1": {
-                    "title": "",
-                    "text": "",
-                    "caption": ""
+                    "title": "Dubbele hendel kraan",
+                    "text": "Open enkel de koude hendel.",
+                    "caption": "Voorbeeld van een kraan met een warme en koude hendel."
                 },
                 "faucet2": {
-                    "title": "",
-                    "text": "",
-                    "caption": ""
+                    "title": "Enkele hendel kraan",
+                    "text": "Open de kraan zo ver mogelijk naar de koude kant zodat enkel koud water uit de kraan komt.",
+                    "caption": "Voorbeeld van een kraan met een enkel hendel die warm en koud water mixt."
                 },
-                "thermostatic":{
-                    "title": "",
-                    "text": "",
-                    "caption": ""
+                "thermostatic": {
+                    "title": "Thermostaat kraan",
+                    "text": "Zet de thermostaat zo koud mogelijk en open dan pas de kraan.",
+                    "caption": "Voorbeeld van een kraan met thermostaat."
                 }
             }
         },
         "step2": {
-            "title": "",
-            "text": ""
+            "title": "Stap 2",
+            "text": "Laat de kraan een minuutje lopen zodat het water niet gemixt is met warm water. Mocht je geen water willen verspillen kan je dit water opvangen in een emmer."
         },
         "step3": {
-            "title": "",
-            "text": "",
+            "title": "Stap 3",
+            "text": "Meet de water temperatuur.",
             "tabs": {
                 "room": {
-                    "title": "",
-                    "text": "",
-                    "caption": ""
+                    "title": "Analoge thermometer",
+                    "text": "Als je een analoge thermometer gebruikt, plaats deze (met de bolling onder) in de stroming van het water. wacht tot de thermometer is gestabiliseerd is, dit kan ongeveer 20 seconden duren. Lees dan de temperatuur af met een nauwkeurigheid van +/-0.5°C.",
+                    "caption": "Voorbeeld van een analoge thermometer."
                 },
                 "infrared": {
-                    "title": "",
-                    "text": "",
-                    "caption": ""
-               },
-               "fever": {
-                    "title": "",
-                    "text": "",
-                    "caption": ""
+                    "title": "Infrarood thermometer",
+                    "text": "Richt de infrarood thermometer op het stromende water. Zorg ervoor dat de thermometer goed gericht is op het water. Zet de kraan volledig open, want de stroom breed genoeg zijn voor acurate metingen. Wacht tot de infrarood thermometer is gestabiliseerd en lees de temperatuur af met een nauwkeurigheid van +/-0.1°C.",
+                    "caption": "Voorbeeld van een infrarood thermomether."
+                },
+                "fever": {
+                    "title": "Koorts thermometer",
+                    "text": "Dit type thermometer is niet geschikt voor het meten van water temperatuur. Koorts thermometers kunnen niet goed omgaan met de lage temperatuur van water en kunnen hierdoor onjuiste metingen geven. Gebruik in plaats daarvan een gewone of infrarood thermometer.",
+                    "caption": "Voorbeeld van een koorts thermomether."
                 }
             }
         },
         "step4": {
-            "title": "",
-            "text": ""
+            "title": "Stap 4",
+            "text": "Vul de meting in op de WATERWATCH website of app. Zie de andere instructies voor het gebruik van de WATERWATCH website of app."
         },
         "conclusion": {
             "title": "",
@@ -91,7 +91,10 @@
             "text1": "In deze instructie wordt uitgelegd hoe je de kaart van WATERWATCH kan gebruiken.\n\nGa naar de pagina met de kaart door 'Map' te selecteren in de navigatie balk. Het is mogelijk om in en uit te zoomen door op de + en - knoppen links boven te klikken. Om meer informatie over een hexagon te krijgen kan je erop klikken. Voor meer gedetaileerde data analyse, klik op het grafiek icon links onder in de pagina.",
             "text2": "\n\nVoor een legenda van kaart klik op de knop linksboven.",
             "caption1": "Data Analyse knop",
-            "caption2": "Kaart Legenda"
+            "caption2": "",
+            "caption3": "",
+            "caption4": "",
+            "caption5": ""
         },
         "export": {
             "title": "Exporteren van Data",
@@ -109,28 +112,21 @@
     },
     "app": {
         "introduction": {
-            "title": "",
-            "text": ""
+            "title": "Hoe de WATERWATCH Mobiele App te Gebruiken",
+            "text": "Welkom op de tutorial-pagina voor het gebruik van de WATERWATCH mobiele app! De WATERWATCH app is ontwikkeld voor onderzoekers en burgerwetenschappers om waterkwaliteitsmetingen te rapporteren en gegevens offline te verzamelen. In deze tutorial leer je hoe je de app downloadt en je eerste meting toevoegt. Deze gids is bedoeld voor zowel nieuwe gebruikers als ervaren onderzoekers die het maximale uit de WATERWATCH app willen halen."
         },
-        "step1": {
-            "title": "",
-            "text": ""
-        },
-        "step2": {
-            "title": "",
-            "text": ""
-        },
-        "step3": {
-            "title": "",
-            "text": ""
+        "measurement": {
+            "title": "Het Vastleggen van Meetgegevens",
+            "text1": "Het eerste gedeelte van de app is de sectie voor meetgegevens. In deze sectie kun je basisdetails over de meting invullen, zoals de locatie van de meting en de waterbron.",
+            "caption1": "Sectie Meetgegevens",
+            "text2": "Het tweede gedeelte van de app is de sectie voor temperatuuropname. In deze sectie kun je het type thermometer en de temperatuuraflezing invullen. Je kunt ook de wachttijd invullen om de thermometer te laten stabiliseren.\n\nZorg ervoor dat je de waarden die je invoert dubbel controleert voordat je op 'Verzenden' drukt. Als je de verzendknop niet kunt indrukken, controleer dan of je alle verplichte velden hebt ingevuld met de juiste waarden!\n\nAls je het formulier wilt resetten, kun je 'Wissen' selecteren. Zodra je het formulier hebt voltooid, selecteer je 'Verzenden'.",
+            "caption2": "Sectie Temperatuuropname",
+            "text3": "Om de gewachte tijd vast te leggen kun je de timerknop op de afbeelding gebruiken. Om de geregistreerde duur aan te passen, draai je aan de knop naar de gewenste wachttijd. Zodra je de wachttijd hebt geselecteerd, selecteer je 'Gereed'.",
+            "caption3": "Timerknop"
         },
         "conclusion": {
-            "title": "",
-            "text": ""
-        },
-        "next-steps": {
-            "title": "",
-            "text": ""
+            "title": "Conclusie",
+            "text": "Bedankt dat je de tijd hebt genomen om deze tutorial te volgen over het gebruik van de WATERWATCH mobiele app! Met de hulp van onderzoekers en burgerwetenschappers zoals jij kan WATERWATCH belangrijke watergegevens verzamelen ter ondersteuning van wetenschappelijk onderzoek. Als je vragen hebt, kun je contact opnemen met het team via e-mail."
         }
     },
     "api": {

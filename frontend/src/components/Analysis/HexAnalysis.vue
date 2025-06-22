@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-white text-center">
+    <div class="bg-default text-center">
         <h4 data-testid="count" class="font-bold mt-2">{{ count }} Measurement{{ count === 1 ? "" : "s" }}</h4>
         <p data-testid="avg">Avg: {{ avgTemp }}°C</p>
         <p data-testid="min">Min: {{ minTemp }}°C</p>
@@ -7,7 +7,7 @@
 
         <button
             data-testid="submit"
-            class="bg-main text-white px-2 py-1 rounded hover:cursor-pointer"
+            class="bg-main text-inverted px-2 py-1 rounded hover:cursor-pointer"
             @click="
                 props.onOpenDetails();
                 props.onClose();

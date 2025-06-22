@@ -74,6 +74,7 @@ class PresetAdminForm(forms.ModelForm):
     temperature_enabled = forms.BooleanField(
         label="Enable temperature filter",
         required=False,
+        initial=True,
     )
     temp_from = forms.DecimalField(label="Minimum temperature", required=False)
     temp_to = forms.DecimalField(label="Maximum temperature", required=False)
@@ -81,6 +82,7 @@ class PresetAdminForm(forms.ModelForm):
         label="Unit",
         choices=(("C", "°C"), ("F", "°F")),
         required=False,
+        initial="C",
     )
 
     # — Date range
@@ -153,7 +155,8 @@ class PresetAdminForm(forms.ModelForm):
             self.fields["temp_to"].initial = temp.get("to")
             self.fields["temp_unit"].initial = temp.get("unit")
         else:
-            self.fields["temperature_enabled"].initial = False
+            if not self.instance.pk:  # Only for new instances
+                self.fields["temp_unit"].initial = "C"
 
         # ---- Date range
         dr = data.get("dateRange", {})

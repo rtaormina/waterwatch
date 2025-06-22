@@ -11,18 +11,18 @@ then
     docker compose up --build -d
 
     # Import data
-    docker cp ../assets/countries_1.sql postgres:/countries_1.sql
-    docker cp ../assets/countries_2.sql postgres:/countries_2.sql
-    docker compose exec postgres psql -U admin -d pg4django -f countries_1.sql
-    docker compose exec postgres psql -U admin -d pg4django -f countries_2.sql
+    docker cp ../assets/countries.sql postgres:/countries.sql
+    docker compose exec postgres psql -U admin -d pg4django -f countries.sql
 
     # Run migrations
     docker compose exec backend python manage.py makemigrations
     docker compose exec backend python manage.py migrate
 
     # Create superuser and groups
-
     docker compose exec backend python manage.py groups
+
+    # Initialize location geometries
+    docker compose exec backend python manage.py initialize_location_cache
 
 else
     echo "Volume already exists, skipping data import."

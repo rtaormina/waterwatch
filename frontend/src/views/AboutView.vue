@@ -85,14 +85,131 @@
                     </TextSectionSplit>
                 </div>
             </template>
+
+            <template #privacy>
+                <TextSection id="privacy-policy" class="mx-4 md:mx-8" title="Privacy Policy">
+                    <p>
+                        <strong>Data Controller:</strong>
+                        Delft University of Technology
+                        <br />
+                        <strong>Address:</strong>
+                        Mekelweg 5, 2628 CD Delft, The Netherlands
+                        <br />
+                        <strong>Contact:</strong>
+                        <a href="mailto:r.taormina@tudelft.nl">r.taormina@tudelft.nl</a>
+                    </p>
+
+                    <ol class="list-decimal list-inside ml-6 space-y-8">
+                        <li>
+                            <strong>What We Collect</strong>
+                            <p>
+                                We collect the geolocation of your device (“location data”) when you visit
+                                <em>waterwatch.tudelft.nl</em>
+                                . No user accounts or personal identifiers (names, emails) are linked to this data.
+                            </p>
+                        </li>
+
+                        <li>
+                            <strong>Purpose of Processing</strong>
+                            <p>
+                                Your location data is used solely for scientific research on water temperature patterns.
+                                Aggregated results may be published in academic reports or shared with research
+                                partners, but no individual location traces will be identifiable.
+                            </p>
+                        </li>
+
+                        <li>
+                            <strong>Legal Basis</strong>
+                            <p>
+                                We process location data on the legal basis of public interest in scientific research
+                                (GDPR Art. 6(1)(e) and 89). You may withdraw your consent at any time by disabling
+                                location sharing in your browser; this stops new data collection but does not remove
+                                data already gathered.
+                            </p>
+                        </li>
+
+                        <li>
+                            <strong>Data Retention</strong>
+                            <p>
+                                We retain location data indefinitely, unless you request deletion. All requests should
+                                be sent to
+                                <a href="mailto:r.taormina@tudelft.nl">r.taormina@tudelft.nl</a>
+                                .
+                            </p>
+                        </li>
+
+                        <li>
+                            <strong>Data Sharing &amp; Third Parties</strong>
+                            <p>We do not sell, rent or otherwise share your location data with any third parties.</p>
+                        </li>
+
+                        <li>
+                            <strong>Cookies &amp; Tracking</strong>
+                            <p>
+                                We do not use any analytics scripts, cookies, or other tracking technologies beyond the
+                                geolocation request itself.
+                            </p>
+                        </li>
+
+                        <li>
+                            <strong>Your Rights</strong>
+                            <p>Under the GDPR you have the right to:</p>
+                            <ul class="list-disc list-inside ml-6 space-y-1">
+                                <li>Access the location data we hold about you</li>
+                                <li>Rectify inaccurate data</li>
+                                <li>Erase data (“right to be forgotten”)</li>
+                                <li>Restrict or object to processing</li>
+                                <li>Data portability</li>
+                            </ul>
+                            <p>
+                                To exercise these rights, contact us at
+                                <a href="mailto:r.taormina@tudelft.nl">r.taormina@tudelft.nl</a>
+                                .
+                            </p>
+                        </li>
+
+                        <li>
+                            <strong>Security</strong>
+                            <p>
+                                We implement the following technical and organizational measures to safeguard your
+                                location data:
+                            </p>
+                            <ul class="list-disc list-inside ml-6 space-y-1">
+                                <li>
+                                    Location data is pseudonymized by rounding to three decimal places before storage.
+                                </li>
+                                <li>All data transmissions occur over HTTPS (TLS-encrypted in transit).</li>
+                                <li>
+                                    Data is stored on secure servers managed by Delft University of Technology, using
+                                    Django’s built‑in authentication and permission system to restrict access.
+                                </li>
+                                <li>
+                                    Regular backups and security audits are performed to ensure data integrity and
+                                    availability.
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <strong>Changes to This Policy</strong>
+                            <p>
+                                We may update this policy from time to time. The latest version will always be available
+                                at
+                                <em>waterwatch.tudelft.nl/about</em>
+                                .
+                            </p>
+                        </li>
+                    </ol>
+
+                    <p class="mt-2"><em>Effective date: June 20, 2025</em></p>
+                </TextSection>
+            </template>
         </TextTabs>
     </div>
 </template>
 
 <script setup lang="ts">
 /**
- * AboutView
- *
  * This component renders the “About WATERWATCH” and “The WATERWATCH Team” pages
  * as two tabs.  It uses `TextTabs`, `TextSection` and `TextSectionSplit` to
  * organize content about the project mission and the people behind it.
@@ -115,6 +232,11 @@ const aboutPages = [
         label: "The WATERWATCH Team",
         slot: "why",
         value: "why",
+    },
+    {
+        label: "Privacy Policy",
+        slot: "privacy",
+        value: "privacy",
     },
 ];
 

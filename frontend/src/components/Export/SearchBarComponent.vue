@@ -16,6 +16,7 @@ const emit = defineEmits<{
 
 const inputQuery = ref(props.query);
 const showDropdown = ref(false);
+const inputRef = ref();
 
 // Computed property for filtered presets
 const filteredPresets = computed(() => {
@@ -44,6 +45,13 @@ watch(
     },
 );
 
+// Watch for input changes to show dropdown when user starts typing
+watch(inputQuery, (newValue) => {
+    if (newValue.trim()) {
+        showDropdown.value = true;
+    }
+});
+
 /**
  * Clears the search input and hides the dropdown.
  * This function is called when the clear button is clicked.
@@ -52,6 +60,8 @@ watch(
  */
 function clearSearch() {
     inputQuery.value = "";
+    showDropdown.value = false;
+    inputRef.value?.$el?.querySelector("input")?.blur();
 }
 
 /**
@@ -113,6 +123,7 @@ function handleKeydown(event: KeyboardEvent) {
     }
     if (event.key === "Escape") {
         showDropdown.value = false;
+        inputRef.value?.$el?.querySelector("input")?.blur();
     }
 }
 
@@ -133,6 +144,7 @@ defineExpose({
     <div class="relative w-full">
         <div class="flex items-center">
             <UInput
+                ref="inputRef"
                 v-model="inputQuery"
                 placeholder="Search for presets..."
                 size="lg"
@@ -179,13 +191,13 @@ defineExpose({
         <div
             v-if="showDropdown"
             data-testid="preset-dropdown"
-            class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-md shadow-lg z-50 max-h-[50vh] overflow-y-scroll mt-1"
+            class="absolute top-full left-0 right-0 bg-default border border-gray-200 rounded-b-md shadow-lg z-50 max-h-[50vh] overflow-y-scroll mt-1"
         >
             <div v-if="loading" class="px-4 py-3 text-gray-500 text-sm flex items-center gap-2">
                 <UIcon name="i-heroicons-arrow-path-20-solid" class="animate-spin" />
                 Loading presets...
             </div>
-            <div v-else-if="error" class="px-4 py-3 text-red-500 text-sm">
+            <div v-else-if="error" class="px-4 py-3 text-error text-sm">
                 <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="inline mr-2" />
                 {{ error }}
             </div>
@@ -197,13 +209,13 @@ defineExpose({
                 <div
                     v-for="preset in filteredPresets"
                     :key="preset.id"
-                    class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors"
+                    class="px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-muted transition-colors"
                     @click="applyPreset(preset)"
                     data-testid="preset-item"
                 >
                     <div class="flex items-start justify-between">
                         <div class="flex-1 min-w-0">
-                            <div class="font-medium text-sm text-gray-900 truncate">
+                            <div class="font-medium text-sm text-default truncate">
                                 {{ preset.name }}
                             </div>
                             <div v-if="preset.description" class="text-xs text-gray-600 mt-1 line-clamp-2">

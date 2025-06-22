@@ -5,6 +5,7 @@ from datetime import datetime
 
 from campaigns.views import find_matching_campaigns
 from django.contrib.gis.geos import Point
+from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement, Temperature
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
@@ -72,6 +73,17 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         dict
             The validated data.
         """
+        # Check if at least one metric is provided
+        has_metrics = False
+        for metric_cls in METRIC_MODELS:
+            attr = metric_cls.__name__.lower()
+            if data.get(attr):
+                has_metrics = True
+                break
+
+        if not has_metrics:
+            raise serializers.ValidationError("At least one metric must be provided with the measurement.")
+
         # Set flag if temperature is out of range
         temperature_data = data.get("temperature")
         if temperature_data and temperature_data.get("value") > 40.0:

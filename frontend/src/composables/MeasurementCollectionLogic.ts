@@ -1,4 +1,73 @@
 import { DateTime } from "luxon";
+import { toValue, type MaybeRefOrGetter } from "vue";
+
+export type TemperatureSensor = "analog thermometer" | "digital thermometer" | "infrared thermometer" | "other";
+
+export const sensorOptions: SensorOptions = [
+    { label: "Analog Thermometer", value: "analog thermometer" },
+    { label: "Digital Thermometer", value: "digital thermometer" },
+    { label: "Infrared Thermometer", value: "infrared thermometer" },
+    { label: "Other", value: "other" },
+];
+
+export type TemperatureUnit = "C" | "F";
+export type Temperature = {
+    sensor?: TemperatureSensor;
+    time_waited: Duration;
+    value?: number;
+    unit: TemperatureUnit;
+};
+export type Time = {
+    localDate?: string;
+    localTime?: string;
+};
+
+/**
+ * Converts a temperature value to Celsius, rounding to one decimal place.
+ *
+ * If the temperature is already in Celsius ("C"), it returns the value rounded to one decimal.
+ * If the temperature is in Fahrenheit ("F"), it converts it to Celsius and rounds to one decimal.
+ * If the unit is unrecognized, returns `undefined`.
+ *
+ * @param temperature - An object containing the temperature value and its unit ("C" or "F").
+ * @returns The temperature in Celsius rounded to one decimal place, or `undefined` if the unit is not supported.
+ */
+export function getTemperatureInCelsius(temperature: Temperature): number | undefined {
+    if (temperature.unit === "C") {
+        return Math.round((temperature.value ?? 0) * 10) / 10;
+    } else if (temperature.unit === "F") {
+        return Math.round(((temperature.value ?? 0) - 32) * (5 / 9) * 10) / 10;
+    }
+    return undefined;
+}
+
+export type Duration = {
+    minutes?: number;
+    seconds?: number;
+};
+
+export type LabelValuePairs<ValueType> = { label: string; value: ValueType };
+export type SensorOptions = LabelValuePairs<TemperatureSensor>[];
+export type WaterSourceOptions = LabelValuePairs<WaterSource>[];
+export type MetricOptions = LabelValuePairs<Metric>[];
+
+export type Metric = "temperature" | never;
+
+export type WaterSource = "network" | "rooftop tank" | "well" | "other";
+export const waterSourceOptions: WaterSourceOptions = [
+    { label: "Network", value: "network" },
+    { label: "Rooftop Tank", value: "rooftop tank" },
+    { label: "Well", value: "well" },
+    { label: "Other", value: "other" },
+];
+
+export type MeasurementData = {
+    location: L.LatLng;
+    waterSource?: WaterSource;
+    temperature: Temperature;
+    selectedMetrics: Metric[];
+    time: Time;
+};
 
 /**
  * Validates the temperature range based on the selected temperature unit.
@@ -14,7 +83,6 @@ export function validateTempRange(val: string, tempUnit: string) {
         }
     } else if (tempUnit === "F") {
         if (Number(val) < 32 || Number(val) > 212) {
-            console.log(val);
             return false;
         }
     }
@@ -101,50 +169,36 @@ export function validateInputs(
 /**
  * Creates a payload object for measurement collection.
  *
- * @param {string} tempUnit - The unit of temperature measurement ("C" for Celsius or "F" for Fahrenheit).
- * @param {string[]} selectedMetrics - An array of selected metric names to include in the payload.
- * @param {{ sensor: string; value: number; time_waited: string }} temperature - An object containing temperature information
- * @param {string} tempVal - The raw temperature value as a string (to be parsed and converted).
- * @param {{ mins: string; sec: string }} time - An object containing the time waited for the measurement
- * @param {string} waterSource - The water source.
- * @param {number | undefined} longitude - The longitude coordinate
- * @param {number | undefined} latitude - The latitude coordinate
+ * @param {MeasurementData} data - The measurement data containing location, water source, and temperature information.
+ * @param {Metric[]} selectedMetrics - An array of selected metrics to include in the payload.
  * @returns {{ timestamp_local: string; location: { type: string; coordinates: [number | undefined, number | undefined] }; water_source: string; temperature: { sensor: string; value: number; time_waited: string } }} the payload
  */
-export function createPayload(
-    tempUnit: string,
-    selectedMetrics: string[],
-    temperature: {
-        sensor: string;
-        value: number;
-        time_waited: string;
-    },
-    tempVal: string,
-    time: {
-        mins: string;
-        sec: string;
-    },
-    waterSource: string,
-    longitude: number | undefined,
-    latitude: number | undefined,
-) {
-    if (selectedMetrics.includes("temperature")) {
-        if (tempUnit === "F") {
-            temperature.value = Math.round((+tempVal - 32) * (5 / 9) * 10) / 10;
-        } else {
-            temperature.value = Math.round(+tempVal * 10) / 10;
-        }
-        const mins = time.mins;
-        const secs = time.sec;
-        const mm = String(mins).padStart(2, "0");
-        const ss = String(secs).padStart(2, "0");
-        temperature.time_waited = `00:${mm}:${ss}`;
+export function createPayload(data: MaybeRefOrGetter<MeasurementData>, selectedMetrics: MaybeRefOrGetter<Metric[]>) {
+    const measurementData = toValue(data);
+    const temperature = toValue(selectedMetrics).includes("temperature")
+        ? {
+              sensor: measurementData.temperature.sensor,
+              value: getTemperatureInCelsius(measurementData.temperature),
+              time_waited: `00:${String(measurementData.temperature.time_waited.minutes ?? 0).padStart(2, "0")}:${String(measurementData.temperature.time_waited.seconds ?? 0).padStart(2, "0")}`,
+          }
+        : undefined;
+    const longitudeRounded = Number(measurementData.location.lng.toFixed(3));
+    const latitudeRounded = Number(measurementData.location.lat.toFixed(3));
+    let local_date: string;
+    let local_time: string;
+    if (
+        measurementData.time &&
+        measurementData.time.localDate != undefined &&
+        measurementData.time.localTime != undefined
+    ) {
+        local_date = measurementData.time.localDate;
+        local_time = measurementData.time.localTime;
+    } else {
+        const localISO = DateTime.local().toISO();
+        local_date = localISO ? localISO.split("T")[0] : DateTime.local().toFormat("yyyy-MM-dd");
+        local_time = localISO ? localISO.split("T")[1].split(".")[0] : DateTime.local().toFormat("HH:mm:ss");
     }
-    const longitudeRounded = longitude !== undefined ? Number(longitude.toFixed(3)) : undefined;
-    const latitudeRounded = latitude !== undefined ? Number(latitude.toFixed(3)) : undefined;
-    const localISO = DateTime.local().toISO();
-    const local_date = localISO ? localISO.split("T")[0] : undefined;
-    const local_time = localISO ? localISO.split("T")[1].split(".")[0] : undefined;
+
     return {
         timestamp: DateTime.utc().toISO(),
         local_date: local_date,
@@ -153,7 +207,7 @@ export function createPayload(
             type: "Point",
             coordinates: [longitudeRounded, latitudeRounded],
         },
-        water_source: waterSource,
+        water_source: measurementData.waterSource,
         temperature: temperature,
     };
 }

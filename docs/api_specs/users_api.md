@@ -1,12 +1,16 @@
 # Users API
-User account operations (self‑registration, profile, delete own account)
+Endpoints for user account operations (login/out, session management, permissions, server health).
 
 ```{eval-rst}
 
 .. openapi:: WATERWATCH_API.yaml
    :examples:
    :paths:
-    /users
-    /users/{userId}
+    /api/login/
+    /api/logout/
+    /api/session/
+    /api/whoami/
+    /api/user-permissions/
+    /api/health/
    :encoding: utf-8
 ```

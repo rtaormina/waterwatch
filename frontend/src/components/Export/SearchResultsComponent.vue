@@ -15,12 +15,14 @@ const emit = defineEmits<{
     (e: "update:format", newFormat: typeof props.format): void;
     (e: "download"): void;
     (e: "close-modal"): void;
+    (e: "show-on-map"): void;
 }>();
 
 // Define the props for the component
 interface Props {
     results: { count: number; avgTemp: number };
     searched: boolean;
+    isLoading: boolean;
     showModal: boolean;
     filtersOutOfSync: boolean;
     temperatureUnit: "C" | "F";
@@ -31,6 +33,9 @@ const props = defineProps<Props>();
 // Computed properties for average temperature conversion and format handling
 const avgTempConverted = computed(() => {
     const c = props.results.avgTemp || 0;
+    if (props.results.count === 0) {
+        return 0;
+    }
     return props.temperatureUnit === "F" ? (c * 9) / 5 + 32 : c;
 });
 
@@ -102,14 +107,28 @@ defineExpose({
             <h3 class="font-bold text-lg mb-4 hidden md:block">Search Results</h3>
             <h4 class="font-semibold text-lg hidden md:block">Summary</h4>
             <div class="mt-2 space-y-1">
-                <div v-if="searched" class="flex justify-between">
-                    <span>Number of Results:</span>
-                    <span data-testid="num-results">{{ props.results.count }}</span>
+                <!-- Show loading state -->
+                <div v-if="isLoading" class="flex justify-center items-center py-4">
+                    <div class="flex space-x-1">
+                        <div class="w-2 h-2 bg-main rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-main rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-2 h-2 bg-main rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
+                    <span class="ml-3 text-toned">Searching...</span>
                 </div>
-                <div v-if="searched" class="hidden md:flex md:justify-between">
-                    <span>Average Temperature:</span>
-                    <span data-testid="avg-temp">{{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}</span>
-                </div>
+                <!-- Show results only when search is complete and not loading -->
+                <template v-else-if="searched">
+                    <div class="flex justify-between">
+                        <span>Number of Results:</span>
+                        <span data-testid="num-results">{{ props.results.count }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Average Temperature:</span>
+                        <span data-testid="avg-temp">
+                            {{ avgTempConverted.toFixed(1) }}°{{ props.temperatureUnit }}
+                        </span>
+                    </div>
+                </template>
             </div>
         </div>
         <div class="flex-grow result-component"></div>
@@ -117,8 +136,8 @@ defineExpose({
             <button
                 data-testid="download-icon"
                 @click="emit('download')"
-                :disabled="!canDownload || !searched || props.filtersOutOfSync"
-                class="flex items-center justify-center md:min-h-0 md:min-w-0 w-25 h-25 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200 disabled:cursor-not-allowed disabled:text-gray-400 enabled:cursor-pointer enabled:text-gray-800 enabled:hover:text-gray-600"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
+                class="flex items-center justify-center md:min-h-0 md:min-w-0 w-25 h-25 max-h-25 max-w-25 stroke-current stroke-[1.25] mb-4 transition-colors duration-200 disabled:cursor-not-allowed disabled:text-dimmed enabled:cursor-pointer enabled:text-muted enabled:hover:text-main"
             >
                 <ArrowDownTrayIcon class="w-full h-full" />
             </button>
@@ -127,7 +146,7 @@ defineExpose({
                 <select
                     data-testid="format"
                     v-model="modelFormat"
-                    class="flex-1 border rounded bg-white px-3 py-2"
+                    class="flex-1 border rounded bg-default px-3 py-2 cursor-pointer"
                     :disabled="!canDownload"
                 >
                     <option value="csv">CSV</option>
@@ -137,13 +156,25 @@ defineExpose({
                 </select>
             </div>
             <button
-                @click="emit('download')"
-                :disabled="!canDownload || !searched || props.filtersOutOfSync"
-                class="w-11/12 md:w-9/12 py-3 text-white rounded-2xl font-semibold text-lg"
+                @click="emit('show-on-map')"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
+                class="w-11/12 md:w-9/12 py-3 text-default rounded-2xl font-semibold text-lg mb-2"
                 :class="
-                    canDownload && searched && !props.filtersOutOfSync
-                        ? 'bg-main cursor-pointer hover:bg-[#0098c4]'
-                        : 'bg-gray-300 cursor-not-allowed'
+                    canDownload && searched && !props.filtersOutOfSync && !props.isLoading
+                        ? 'bg-main cursor-pointer hover:bg-[#007ea4]'
+                        : 'bg-accented cursor-not-allowed'
+                "
+            >
+                See Results on Map
+            </button>
+            <button
+                @click="emit('download')"
+                :disabled="!canDownload || !searched || props.filtersOutOfSync || props.isLoading"
+                class="w-11/12 md:w-9/12 py-3 text-default rounded-2xl font-semibold text-lg"
+                :class="
+                    canDownload && searched && !props.filtersOutOfSync && !props.isLoading
+                        ? 'bg-main cursor-pointer hover:bg-[#007ea4]'
+                        : 'bg-accented cursor-not-allowed'
                 "
             >
                 Download
@@ -151,12 +182,12 @@ defineExpose({
             <Modal data-testid="export-failed-modal" :visible="props.showModal" @close="emit('close-modal')">
                 <h2 class="text-lg font-semibold mb-4">Export Failed</h2>
                 <div class="flex items-center mt-4 gap-2">
-                    <button
+                    <UButton
                         @click="emit('close-modal')"
-                        class="flex-1 bg-main text-white mr-2 px-4 py-2 rounded hover:cursor-pointer hover:bg-primary-light"
+                        class="flex-1 bg-main text-default mr-2 px-4 py-2 rounded hover:cursor-pointer justify-center"
                     >
                         Okay
-                    </button>
+                    </UButton>
                 </div>
             </Modal>
         </div>
@@ -166,7 +197,6 @@ defineExpose({
 @media (max-height: 500px) {
     .result-component {
         padding: 0.5rem !important;
-        overflow-y: visible !important;
         height: auto !important;
     }
 

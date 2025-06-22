@@ -1,12 +1,10 @@
-[**frontend**](../README.md)
-
-***
-
-[frontend](../README.md) / CampaignLogic
-
 # CampaignLogic
 
 ## Functions
+```{eval-rst}
+.. toctree::
+   :maxdepth: 1
 
-- [formatDateTime](functions/formatDateTime.md)
-- [updateCountdown](functions/updateCountdown.md)
+   functions/formatDateTime.md
+   functions/updateCountdown.md
+```

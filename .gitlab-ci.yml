@@ -24,8 +24,8 @@ build_backend_image:
   # Log in to Docker registry and build the image
   script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v0.2-backend .
-    - docker push $CI_REGISTRY_IMAGE:v0.2-backend
+    - docker build -f dockerfile.backend -t $CI_REGISTRY_IMAGE:v1.0-backend .
+    - docker push $CI_REGISTRY_IMAGE:v1.0-backend
 
 # Build Docker Image for Frontend
 build_frontend_image:
@@ -42,12 +42,12 @@ build_frontend_image:
   # Log in to Docker registry and build the image
   script:
     - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
-    - docker build -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v0.2-frontend .
-    - docker push $CI_REGISTRY_IMAGE:v0.2-frontend
+    - docker build -f dockerfile.frontend -t $CI_REGISTRY_IMAGE:v1.0-frontend .
+    - docker push $CI_REGISTRY_IMAGE:v1.0-frontend
 
 # Setup for operations on the frontend
 .frontend_setup: &frontend_setup
-  image: $CI_REGISTRY_IMAGE:v0.2-frontend
+  image: $CI_REGISTRY_IMAGE:v1.0-frontend
   before_script:
     - cd frontend
     - ln -s /dependencies/node_modules ./node_modules
@@ -84,6 +84,8 @@ backend_unit_tests:
   services:
     - name: postgis/postgis:latest
       alias: postgis
+    - name: redis:latest
+      alias: redis
   variables:
     POSTGRES_DB: postgis
     POSTGRES_USER: postgueser
@@ -92,7 +94,7 @@ backend_unit_tests:
     POSTGRES_HOST_AUTH_METHOD: trust
     POSTGRES_PORT: 5432
   stage: testing
-  image: $CI_REGISTRY_IMAGE:v0.2-backend
+  image: $CI_REGISTRY_IMAGE:v1.0-backend
   script:
     - cd backend
     - python -m coverage run --source="./" --branch --omit "*/migrations/*","*/__init__.py","*/tests/*","tests.py" manage.py test

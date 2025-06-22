@@ -6,6 +6,8 @@ import { nextTick } from "vue";
 const mockMeasurements1 = ["23.0", "25.0", "24.5", "26.0"];
 const mockMeasurements2 = ["28.0", "30.0", "29.5", "31.0"];
 
+setActivePinia(createPinia());
+
 vi.mock("../../../../src/composables/Analysis/DataVisualizationLogic", () => ({
     getGraphData: vi.fn(),
     drawHistogramWithKDE: vi.fn(),
@@ -17,6 +19,7 @@ import {
     drawHistogramWithKDE,
     drawComparisonGraph,
 } from "../../../../src/composables/Analysis/DataVisualizationLogic";
+import { createPinia, setActivePinia } from "pinia";
 
 describe("DataAnalyticsCompare good weather tests", () => {
     let wrapper: VueWrapper<any>;
@@ -31,10 +34,19 @@ describe("DataAnalyticsCompare good weather tests", () => {
             return Promise.resolve([]);
         });
 
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
+
         wrapper = mount(DataAnalyticsCompare, {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
+                month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -42,10 +54,6 @@ describe("DataAnalyticsCompare good weather tests", () => {
 
     afterEach(() => {
         vi.clearAllMocks();
-    });
-
-    it("renders the component with correct title", () => {
-        expect(wrapper.find("h1").text()).toContain("Compare Distributions");
     });
 
     it("renders all three accordion sections", () => {
@@ -58,16 +66,14 @@ describe("DataAnalyticsCompare good weather tests", () => {
     });
 
     it("has overlaid section open by default", () => {
-        const overlaidContent = wrapper.find('[data-testid="overlaid-content"]');
-        // Check if the overlaid section is visible (not hidden by v-if)
         expect(wrapper.vm.isOpen("overlaid")).toBe(true);
     });
 
     it("calls getGraphData for both groups on mount", async () => {
         await nextTick();
 
-        expect(getGraphData).toHaveBeenCalledWith("group1-wkt");
-        expect(getGraphData).toHaveBeenCalledWith("group2-wkt");
+        expect(getGraphData).toHaveBeenCalledWith("group1-wkt", "0");
+        expect(getGraphData).toHaveBeenCalledWith("group2-wkt", "0");
         expect(getGraphData).toHaveBeenCalledTimes(2);
     });
 
@@ -161,16 +167,8 @@ describe("DataAnalyticsCompare good weather tests", () => {
         // Wait for the watch effect and setTimeout
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        expect(getGraphData).toHaveBeenCalledWith("new-group1-wkt");
-        expect(getGraphData).toHaveBeenCalledWith("new-group2-wkt");
-    });
-
-    it("emits close when the close button is clicked", async () => {
-        const closeButton = wrapper.find("h1 button");
-        await closeButton.trigger("click");
-
-        expect(wrapper.emitted()).toHaveProperty("close");
-        expect(wrapper.emitted("close")!.length).toBe(1);
+        expect(getGraphData).toHaveBeenCalledWith("new-group1-wkt", "0");
+        expect(getGraphData).toHaveBeenCalledWith("new-group2-wkt", "0");
     });
 
     it("handles multiple accordion sections being open simultaneously", async () => {
@@ -219,10 +217,19 @@ describe("DataAnalyticsCompare bad weather tests", () => {
             return Promise.reject(new Error("Network error"));
         });
 
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
+
         wrapper = mount(DataAnalyticsCompare, {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
+                month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -250,6 +257,8 @@ describe("DataAnalyticsCompare bad weather tests", () => {
             props: {
                 group1WKT: "",
                 group2WKT: "",
+                month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -259,7 +268,7 @@ describe("DataAnalyticsCompare bad weather tests", () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
 
         // getGraphData should return empty arrays for empty WKT
-        expect(getGraphData).toHaveBeenCalledWith("");
+        expect(getGraphData).toHaveBeenCalledWith("", "0");
     });
 
     it("handles partial failures when one group fails", async () => {
@@ -276,6 +285,8 @@ describe("DataAnalyticsCompare bad weather tests", () => {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
+                month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -306,6 +317,13 @@ describe("DataAnalyticsCompare edge cases", () => {
             }
             return Promise.resolve([]);
         });
+
+        vi.mock("../../../src/stores/ExportStore", () => ({
+            useExportStore: () => ({
+                filters: {},
+                hasSearched: false,
+            }),
+        }));
     });
 
     afterEach(() => {
@@ -317,6 +335,8 @@ describe("DataAnalyticsCompare edge cases", () => {
             props: {
                 group1WKT: "single-value-wkt",
                 group2WKT: "single-value-wkt",
+                month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -337,6 +357,8 @@ describe("DataAnalyticsCompare edge cases", () => {
             props: {
                 group1WKT: "large-dataset-wkt",
                 group2WKT: "large-dataset-wkt",
+                month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
@@ -357,21 +379,23 @@ describe("DataAnalyticsCompare edge cases", () => {
             props: {
                 group1WKT: "group1-wkt",
                 group2WKT: "group2-wkt",
+                month: "0",
+                fromExport: false,
             },
             stubs: ["XMarkIcon", "ChevronDownIcon", "ChevronUpIcon"],
         });
 
         // Rapidly change props multiple times
-        await wrapper.setProps({ group1WKT: "new1", group2WKT: "new2" });
-        await wrapper.setProps({ group1WKT: "newer1", group2WKT: "newer2" });
-        await wrapper.setProps({ group1WKT: "newest1", group2WKT: "newest2" });
+        await wrapper.setProps({ group1WKT: "new1", group2WKT: "new2", month: "0" });
+        await wrapper.setProps({ group1WKT: "newer1", group2WKT: "newer2", month: "0" });
+        await wrapper.setProps({ group1WKT: "newest1", group2WKT: "newest2", month: "0" });
 
         await nextTick();
         // Wait for all setTimeout calls to complete
         await new Promise((resolve) => setTimeout(resolve, 200));
 
         // Should have been called with the final prop values
-        expect(getGraphData).toHaveBeenCalledWith("newest1");
-        expect(getGraphData).toHaveBeenCalledWith("newest2");
+        expect(getGraphData).toHaveBeenCalledWith("newest1", "0");
+        expect(getGraphData).toHaveBeenCalledWith("newest2", "0");
     });
 });

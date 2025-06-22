@@ -9,6 +9,9 @@ import {
 } from "../../composables/Export/useFilters";
 import { useSearch } from "../../composables/Export/useSearch";
 import { type Filters } from "../../composables/Export/usePresets";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 // Define the emits for the component
 const emit = defineEmits(["search"]);
@@ -17,7 +20,7 @@ const emit = defineEmits(["search"]);
 const selectedContinents = ref<string[]>([]);
 const selectedCountries = ref<string[]>([]);
 const selectedWaterSources = ref<string[]>([]);
-const temperatureEnabled = ref(false);
+const temperatureEnabled = ref(true);
 const temperature = reactive<TemperatureFilter>({
     from: "",
     to: "",
@@ -199,7 +202,7 @@ watch([countryDropdownOpen], clearSearchOnClose);
  * @returns {void}
  */
 onMounted(() => {
-    reset();
+    if (route.query.fromMap !== "1") reset();
     calculateDropdownHeight();
     window.addEventListener("resize", calculateDropdownHeight);
     document.addEventListener("mousedown", handleClickOutside);
@@ -233,7 +236,7 @@ function reset() {
     selectedContinents.value = [];
     selectedCountries.value = [];
     selectedWaterSources.value = [];
-    temperatureEnabled.value = false;
+    temperatureEnabled.value = true;
     temperature.from = "";
     temperature.to = "";
     temperature.unit = "C";
@@ -281,6 +284,8 @@ function applyFilters(filters: Filters) {
             temperature.from = temp.from?.toString() || "";
             temperature.to = temp.to?.toString() || "";
             temperature.unit = temp.unit || "C";
+        } else {
+            temperatureEnabled.value = false;
         }
     }
 
@@ -319,12 +324,12 @@ defineExpose({
 </script>
 
 <template>
-    <div class="bg-light p-6 rounded-lg flex flex-col h-full max-h-full panel-component" ref="filterPanelRef">
+    <div class="bg-muted p-6 rounded-lg flex flex-col h-screen max-h-full" ref="filterPanelRef">
         <!-- Filter Header -->
         <div class="font-bold text-lg mb-2 shrink-0">Filter By</div>
 
         <!-- Scrollable Filter Content Area -->
-        <div class="overflow-y-scroll flex-grow flex flex-col pr-6 mb-4 panel-subcomponent" ref="scrollableAreaRef">
+        <div class="overflow-y-auto flex-grow flex flex-col pr-6 mb-4" ref="scrollableAreaRef">
             <!-- Location: two‑column grid -->
             <div class="mb-2">
                 <div class="font-semibold mb-1">Location</div>
@@ -572,7 +577,7 @@ defineExpose({
                             min="0"
                             max="212"
                             placeholder="Min temperature"
-                            class="w-full border rounded bg-white px-3 py-2"
+                            class="w-full border rounded bg-default px-3 py-2"
                         />
                     </div>
 
@@ -585,7 +590,7 @@ defineExpose({
                             min="0"
                             max="212"
                             placeholder="Max temperature"
-                            class="w-full border rounded bg-white px-3 py-2"
+                            class="w-full border rounded bg-default px-3 py-2"
                         />
                     </div>
 
@@ -601,11 +606,15 @@ defineExpose({
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm mb-1">From</label>
-                        <input type="date" v-model="dateRange.from" class="w-full border rounded bg-white px-3 py-2" />
+                        <input
+                            type="date"
+                            v-model="dateRange.from"
+                            class="w-full border rounded bg-default px-3 py-2"
+                        />
                     </div>
                     <div>
                         <label class="block text-sm mb-1">To</label>
-                        <input type="date" v-model="dateRange.to" class="w-full border rounded bg-white px-3 py-2" />
+                        <input type="date" v-model="dateRange.to" class="w-full border rounded bg-default px-3 py-2" />
                     </div>
                     <p v-if="!dateRangeValid" class="text-red-600 text-sm col-span-1 md:col-span-2 -mt-2">
                         Date range is invalid.
@@ -619,36 +628,28 @@ defineExpose({
                 <div class="space-y-2">
                     <p v-if="!slotsNonOverlapping" class="text-red-600 text-sm">Time slots must not overlap.</p>
                     <div v-for="(slot, i) in times" :key="i" class="mb-2">
-                        <!-- Mobile: Remove button above From field -->
-                        <div class="flex items-center justify-between md:hidden mb-1">
-                            <label class="block text-sm">From</label>
-                            <button @click="removeSlot(i)" class="p-1 text-gray-700 hover:text-gray-900">
-                                <MinusIcon class="h-5 w-5" />
-                            </button>
-                        </div>
-
                         <!-- Time input fields with equal width -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-2 gap-4">
                             <!-- From input -->
                             <div>
-                                <label class="sr-only md:not-sr-only block text-sm mb-1">From:</label>
+                                <label class="block text-sm mb-1">From:</label>
                                 <input
                                     type="time"
                                     v-model="slot.from"
-                                    class="w-full border rounded bg-white px-3 py-2"
+                                    class="w-full border rounded bg-default px-3 py-2"
                                 />
                             </div>
                             <div class="relative">
-                                <label class="sr-only md:not-sr-only block text-sm mb-1">To:</label>
+                                <label class="block text-sm mb-1">To:</label>
                                 <div class="flex items-center gap-2">
                                     <input
                                         type="time"
                                         v-model="slot.to"
-                                        class="w-full border rounded bg-white px-3 py-2"
+                                        class="w-full border rounded bg-default px-3 py-2"
                                     />
                                     <button
                                         @click="removeSlot(i)"
-                                        class="cursor-pointer absolute right-0 top-[-0.6rem] p-1 text-gray-700 hover:text-gray-900"
+                                        class="cursor-pointer absolute right-0 top-[-0.6rem] p-1 text-default hover:text-gray-900"
                                     >
                                         <MinusIcon class="h-5 w-5" />
                                     </button>
@@ -661,7 +662,7 @@ defineExpose({
                     <button
                         v-if="times.length < 3"
                         @click="addSlot"
-                        class="cursor-pointer flex items-center text-gray-700 hover:text-gray-900 mt-2"
+                        class="cursor-pointer flex items-center hover:text-toned text-dimmed mt-2"
                     >
                         <PlusIcon class="h-5 w-5 mr-1" />
                         Add time slot
@@ -674,7 +675,7 @@ defineExpose({
         <div class="flex justify-center space-x-4 mt-auto shrink-0">
             <button
                 @click="reset"
-                class="cursor-pointer px-6 py-2 border border-gray-300 rounded-2xl hover:bg-gray-100 font-semibold text-lg"
+                class="cursor-pointer px-6 py-2 border border-gray-300 rounded-2xl hover:bg-accented font-semibold text-lg"
             >
                 Reset
             </button>
@@ -684,8 +685,8 @@ defineExpose({
                 :disabled="!tempRangeValid || !dateRangeValid || !allSlotsValid || !slotsNonOverlapping"
                 :class="
                     tempRangeValid && dateRangeValid && allSlotsValid && slotsNonOverlapping
-                        ? 'bg-main cursor-pointer hover:bg-[#0098c4]'
-                        : 'bg-gray-300 cursor-not-allowed'
+                        ? 'bg-main cursor-pointer hover:bg-[#007ea4]'
+                        : 'bg-accented cursor-not-allowed'
                 "
                 class="px-12 py-2 text-white rounded-2xl font-semibold text-lg"
             >
@@ -696,57 +697,6 @@ defineExpose({
 </template>
 
 <style>
-@media (max-height: 500px) {
-    .panel-component {
-        padding: 0.5rem !important;
-        overflow-y: visible !important;
-        height: auto !important;
-        margin-bottom: 1% !important;
-    }
-
-    .panel-subcomponent {
-        overflow-y: visible !important;
-        margin-bottom: 0.25rem !important;
-    }
-
-    .panel-component .font-bold {
-        font-size: 1rem !important;
-        margin-bottom: 0.5rem !important;
-        line-height: 1.25rem;
-    }
-
-    .panel-component .font-semibold {
-        font-size: 0.875rem !important;
-        margin-bottom: 0.25rem !important;
-    }
-
-    .panel-component label.block.text-sm {
-        font-size: 0.75rem !important;
-        margin-bottom: 0.25rem !important;
-    }
-
-    .panel-component .mb-2 {
-        margin-bottom: 0.25rem !important;
-    }
-    .panel-component .mb-4 {
-        margin-bottom: 0.5rem !important;
-    }
-
-    .panel-component input[type="text"],
-    .panel-component input[type="number"],
-    .panel-component input[type="date"],
-    .panel-component input[type="time"] {
-        padding: 0.25rem 0.5rem !important;
-        font-size: 0.75rem !important;
-    }
-
-    .panel-component .multiselect-custom-wrapper,
-    .panel-component .multiselect-custom-dropdown {
-        padding: 0.25rem !important;
-        font-size: 0.75rem !important;
-    }
-}
-
 .multiselect-custom-wrapper {
     width: 100%;
     min-height: 38px;
@@ -755,7 +705,7 @@ defineExpose({
     align-items: center;
     position: relative;
     cursor: pointer;
-    background-color: white;
+    background-color: var(--background-color-default);
     user-select: none;
 }
 
@@ -786,7 +736,7 @@ defineExpose({
     top: 100%;
     left: 0;
     width: 100%;
-    background-color: white;
+    background-color: var(--background-color-default);
     border: 1px solid #e2e8f0;
     border-radius: 0.375rem;
     margin-top: 4px;
@@ -800,13 +750,13 @@ defineExpose({
 .multiselect-select-all {
     padding: 8px 16px;
     cursor: pointer;
-    color: #2c3e50;
+    color: var(--text-color-toned);
     font-weight: 600;
     border-bottom: 1px solid #e8e8e8;
 }
 
 .multiselect-select-all:hover {
-    background-color: #f8f8f8;
+    background-color: var(--background-color-elevated);
 }
 
 .multiselect-options {
@@ -821,11 +771,11 @@ defineExpose({
 }
 
 .multiselect-option:hover {
-    background-color: #f7fafc;
+    background-color: var(--background-color-accented);
 }
 
 .multiselect-option-selected {
-    background-color: #ebf8ff;
+    background-color: var(--background-color-elevated);
 }
 
 .multiselect-option-checkbox {

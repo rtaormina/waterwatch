@@ -46,7 +46,7 @@
             "tabs": {
                 "room": {
                     "title": "Room Thermometer",
-                    "text": "If you are using a thermometer that measures room temperature, place the sensor (bulb at the bottom) into the water stream. Wait at least 20 seconds and read the temperature. Accuracy is +/-0.5C°.",
+                    "text": "If you are using a thermometer that measures room temperature, place the sensor (bulb at the bottom) into the water stream. Wait at least 20 seconds and read the temperature. Accuracy is +/-0.5°C.",
                     "caption": "Example of a room thermometer"
                 },
                 "infrared": {
@@ -63,7 +63,7 @@
         },
         "step4": {
             "title": "Step 4",
-            "text": "Enter the reading on WATERWATCH!"
+            "text": "Enter the reading on WATERWATCH! See the instructions on how to use the WATERWATCH website or app for more information on how to enter your measurement."
         },
         "conclusion": {
             "title": "",
@@ -88,10 +88,13 @@
         },
         "map": {
             "title": "Navigating the Map",
-            "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. To see data analysis, click the graph icon in the bottom left.",
+            "text1": "This tutorial will be covering how to navigate the WATERWATCH map. \n\nNavigate to the map page by selecting 'Map' using the menu bar. You can zoom in or zoom out by selecting the + and - buttons on the top left of the page. To get more information on a certain hexagon, click the hexagon desired. All map operations can be found in by pressing the three dots on the top right of the map. There are 4 different map operations. From left to right: view global analysis, map settings, select multiple hexagons, and compare hexagons. In global analysis you will find a chart displaying all measurements on the map. In map settings you can toggle between coloring the map based on temperature or number of measurements. You can also select what time range you would like the map to display. Select multiple hexagons allows you to select a group of hexagons and view analysis for those specific hexagons. Comparing hexagons allows you to select two groups of hexagons and shows the distribution of both groups to allow easy comparison.",
             "text2": "\n\nTo see the map legend, click the button in the top right. ",
             "caption1": "Data Analysis Button",
-            "caption2": "Map Legend"
+            "caption2": "Map Menu Button",
+            "caption3": "Map Settings and Legend Button",
+            "caption4": "Select Hexagons Button",
+            "caption5": "Compare Hexagons Button"
         },
         "export": {
             "title": "Exporting Data",
@@ -112,25 +115,18 @@
             "title": "How to Use the WATERWATCH Mobile App",
             "text": "Welcome to the tutorial page for using the WATERWATCH mobile app! The WATERWATCH app was created for researchers and citizen scientists to report water quality measurements and gather data offline. In this tutorial you will learn how to download the app and add your first measurement. This guide is designed for first-time users and experienced researchers looking to get the most out of the WATERWATCH app."
         },
-        "step1": {
-            "title": "",
-            "text": ""
-        },
-        "step2": {
-            "title": "",
-            "text": ""
-        },
-        "step3": {
-            "title": "",
-            "text": ""
+        "measurement":{
+            "title": "Recording Measurement Data",
+            "text1": "The first section of the app is the measurement data section. In this section you can fill out basic measurement details such as the measurement location and the water source.",
+            "caption1": "Measurement Data Section",
+            "text2": "The second section of the app is the temperature measurement section. In this section you can fill out the type of thermometer and the temperature reading. You can also fill out the time waited for the thermometer to stabilize. \n\nMake sure to double check the values that you record before hitting submit. If you cannot hit the submit button, check that you have filled in all of the required fields with the appropriate values! \n\nIf you would like to reset the form, you can select 'Clear'. Once you have completed the form, select 'Submit'.",
+            "caption2": "Temperature Measurement Section",
+            "text3": "To record the time waited you can use the timer button pictured. To change the recorded duration, spin the knob to the desired time waited. Once you have selected the time waited, select 'Done'.",
+            "caption3": "Time Waited Button"
         },
         "conclusion": {
-            "title": "",
-            "text": ""
-        },
-        "next-steps": {
-            "title": "",
-            "text": ""
+            "title": "Conclusion",
+            "text": "Thank you for taking the time to follow this tutorial on how to use the WATERWATCH mobile app! With the help of researchers and citizen scientists like you, WATERWATCH is able to gather important water data to support scientific research. If you have any questions, feel free to contact the team via email."
         }
     },
     "api": {

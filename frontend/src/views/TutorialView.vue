@@ -1,11 +1,9 @@
 <template>
     <div>
-        <div class="w-full flex flex-col-reverse md:flex-row items-start mb-4 px-4 md:px-8 tutorial">
-            <!-- <div class="w-full md:w-auto text-center"> -->
+        <div class="items-center w-full flex flex-col-reverse md:flex-row items-start mb-4 px-4 md:px-8 tutorial">
             <div class="flex-grow md:w-auto min-w-0 w-full max-w-full">
-                <!-- How to Take Temperature Measurement -->
-
                 <TextTabs :items="tutorials" v-model="page" class="w-full text-left overflow-y-hidden">
+                    <!-- How to Take Temperature Measurement -->
                     <template #Measurements>
                         <TextSection :title="t('measurement.introduction.title')">
                             <p>{{ t("measurement.introduction.text") }}</p>
@@ -263,39 +261,18 @@
                         </TextSectionFlex>
                         <TextSectionFlex :title="t('website.map.title')">
                             <template #left>
-                                <figure class="w-full max-w-sm mx-auto">
-                                    <img
-                                        src="@/assets/images/data-analysis.png"
-                                        alt="Data analysis button"
-                                        class="w-full h-auto rounded shadow"
-                                    />
-                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
-                                        {{ t("website.map.caption1") }}
-                                    </figcaption>
-                                </figure>
+                                <UCarousel v-slot="{ item }" dots :items="pictures" class="w-full mb-4">
+                                    <figure class="w-full">
+                                        <img :src="item.src" :alt="item.caption" class="w-full h-auto rounded shadow" />
+                                        <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                            {{ item.caption }}
+                                        </figcaption>
+                                    </figure>
+                                </UCarousel>
                             </template>
                             <template #right>
                                 <TextSubSection>
                                     <p class="whitespace-pre-line">{{ t("website.map.text1") }}</p>
-                                </TextSubSection>
-                            </template>
-                        </TextSectionFlex>
-                        <TextSectionFlex>
-                            <template #left>
-                                <figure class="w-full max-w-sm mx-auto">
-                                    <img
-                                        src="@/assets/images/graph-legend.png"
-                                        alt="Graph legend"
-                                        class="w-full h-auto rounded shadow"
-                                    />
-                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
-                                        {{ t("website.map.caption2") }}
-                                    </figcaption>
-                                </figure>
-                            </template>
-                            <template #right>
-                                <TextSubSection>
-                                    <p class="whitespace-pre-line">{{ t("website.map.text2") }}</p>
                                 </TextSubSection>
                             </template>
                         </TextSectionFlex>
@@ -359,29 +336,68 @@
                         <TextSection :title="t('app.introduction.title')">
                             <p>{{ t("app.introduction.text") }}</p>
                         </TextSection>
-                        <TextSectionSplit>
+                        <TextSectionFlex :title="t('app.measurement.title')">
                             <template #left>
-                                <TextSubSection :title="t('app.step1.title')">
-                                    <p>{{ t("app.step1.text") }}</p>
-                                </TextSubSection>
-                                <TextSubSection :title="t('app.step2.title')">
-                                    <p>{{ t("app.step2.text") }}</p>
-                                </TextSubSection>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/images/measurement-mobile.png"
+                                        alt="Measurement data entry screen"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("app.measurement.caption1") }}
+                                    </figcaption>
+                                </figure>
                             </template>
-
-                            <TextSubSection :title="t('app.step3.title')">
-                                <p>{{ t("app.step3.text") }}</p>
-                            </TextSubSection>
                             <template #right>
-                                <USkeleton class="w-full aspect-video"></USkeleton>
+                                <TextSubSection>
+                                    <p>{{ t("app.measurement.text1") }}</p>
+                                </TextSubSection>
                             </template>
-                        </TextSectionSplit>
+                        </TextSectionFlex>
+                        <TextSectionFlex>
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/images/temp-mobile.png"
+                                        alt="Measurement temperature entry screen"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("app.measurement.caption2") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p>{{ t("app.measurement.text2") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+
+                        <TextSectionFlex>
+                            <template #left>
+                                <figure class="w-full max-w-sm mx-auto">
+                                    <img
+                                        src="@/assets/images/duration-mobile.png"
+                                        alt="Measurement temperature entry screen"
+                                        class="w-full h-auto rounded shadow"
+                                    />
+                                    <figcaption class="mt-2 text-sm text-center text-gray-500">
+                                        {{ t("app.measurement.caption3") }}
+                                    </figcaption>
+                                </figure>
+                            </template>
+                            <template #right>
+                                <TextSubSection>
+                                    <p>{{ t("app.measurement.text3") }}</p>
+                                </TextSubSection>
+                            </template>
+                        </TextSectionFlex>
+
                         <TextSection :title="t('app.conclusion.title')">
                             <TextSubSection>
                                 <p>{{ t("app.conclusion.text") }}</p>
-                            </TextSubSection>
-                            <TextSubSection :title="t('app.next-steps.title')">
-                                <p>{{ t("app.next-steps.text") }}</p>
                             </TextSubSection>
                         </TextSection>
                     </template>
@@ -467,7 +483,7 @@
                 </TextTabs>
             </div>
             <LanguageSwitcher
-                class="w-full mt-2 md:mt-0 md:w-auto md:ml-4 border border-main rounded p-2 text-center"
+                class="w-full mt-2 md:mt-1 md:w-auto md:ml-4 border border-main rounded md:p-1 p-2 text-center"
             />
         </div>
     </div>
@@ -475,21 +491,23 @@
 
 <script setup lang="ts">
 /**
- * TutorialsView
- *
  * Renders a set of tutorial pages (Measurements, Website, Mobile App, API)
  * using tab navigation and sectional content components.
  */
 defineOptions({ name: "TutorialsView" });
 import { computed, ref } from "vue";
 import TextSection from "../components/Text/Section.vue";
-import TextSectionSplit from "../components/Text/SectionSplit.vue";
 import TextSubSection from "../components/Text/SubSection.vue";
 import TextTabs from "../components/Text/Tabs.vue";
 import TextSectionFlex from "../components/Text/SectionFlex.vue";
 import { useI18n } from "vue-i18n";
 import LanguageSwitcher from "../components/LanguageSwitcher.vue";
 import MarkdownIt from "markdown-it";
+import mapMenuImg from "@/assets/images/map-menu.png";
+import dataAnalysisImg from "@/assets/images/data-analysis.png";
+import mapSettingsImg from "@/assets/images/map-settings.png";
+import mapSelectImg from "@/assets/images/map-select.png";
+import mapCompareImg from "@/assets/images/map-compare.png";
 
 const { t } = useI18n();
 const md = new MarkdownIt({ html: true, linkify: true, typographer: true });
@@ -522,6 +540,28 @@ const thermometer = ref<string>("room");
 const apiMeasurement = ref<string>("requestAdd");
 const apiExport = ref<string>("requestExport");
 
+const pictures = [
+    {
+        src: mapMenuImg,
+        caption: t("website.map.caption2"),
+    },
+    {
+        src: dataAnalysisImg,
+        caption: t("website.map.caption1"),
+    },
+    {
+        src: mapSettingsImg,
+        caption: t("website.map.caption3"),
+    },
+    {
+        src: mapSelectImg,
+        caption: t("website.map.caption4"),
+    },
+    {
+        src: mapCompareImg,
+        caption: t("website.map.caption5"),
+    },
+];
 const tutorials = computed(() => [
     {
         label: t("labels.measurement"),

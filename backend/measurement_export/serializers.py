@@ -2,14 +2,13 @@
 
 import logging
 from datetime import UTC
+from decimal import Decimal
 
 from measurements.metrics import METRIC_MODELS
 from measurements.models import Measurement
 from rest_framework import serializers
 
 from measurement_export.models import Preset
-
-from .utils import lookup_location
 
 logger = logging.getLogger("WATERWATCH")
 
@@ -18,7 +17,7 @@ class MeasurementSerializer(serializers.ModelSerializer):
     """Serializer for Measurement model instances.
 
     This serializer includes a custom `location` field that represents the GEOS Point location as latitude and
-    longitude.
+    longitude. It has been optimized to avoid N+1 queries by using pre-computed location data.
 
     Parameters
     ----------
@@ -28,26 +27,25 @@ class MeasurementSerializer(serializers.ModelSerializer):
     Attributes
     ----------
     location : SerializerMethodField
-        Returns a dict with `latitude` and `longitude` extracted from the model's GEOS Point field.
+        Uses DB-annotated 'latitude'/'longitude' if available.
     country : SerializerMethodField
-        Returns the country name for the measurement's location using reverse geocoding.
+        Uses DB-annotated 'country' if available.
     continent : SerializerMethodField
-        Returns the continent name for the measurement's location using reverse geocoding.
+        Uses DB-annotated 'continent' if available.
     metrics : SerializerMethodField
-        Returns a list of dictionaries, each containing the metric type and its associated data.
-        Each dictionary corresponds to a related Metric instance.
+        Collects metric data for included metrics.
 
     Methods
     -------
     get_location(obj)
         Extracts latitude and longitude from `obj.location` and returns them in a dictionary.
     get_country(obj)
-        Uses reverse geocoding to get the country name for the measurement's location.
+        Gets the country name from pre-computed location data to avoid database queries.
     get_continent(obj)
-        Uses reverse geocoding to get the continent name for the measurement's location.
+        Gets the continent name from pre-computed location data to avoid database queries.
     get_metrics(obj)
         Iterates through all subclasses of the Metric model and collects their data if they are related
-        to the current measurement instance.
+        to the current measurement instance. Optimized for performance.
     """
 
     timestamp = serializers.DateTimeField(default_timezone=UTC, read_only=True)
@@ -99,10 +97,16 @@ class MeasurementSerializer(serializers.ModelSerializer):
             - `latitude` (float): Latitude component of the location.
             - `longitude` (float): Longitude component of the location.
         """
-        return {
-            "latitude": obj.location.y,
-            "longitude": obj.location.x,
-        }
+        """
+        Return latitude/longitude dict, preferring annotated values.
+        """
+        lat = getattr(obj, "latitude", None)
+        lon = getattr(obj, "longitude", None)
+        if lat is None or lon is None:
+            # fallback to GEOS Point
+            lon = obj.location.x
+            lat = obj.location.y
+        return {"latitude": lat, "longitude": lon}
 
     def get_flag(self, obj):
         """Flip the flag value.
@@ -123,52 +127,71 @@ class MeasurementSerializer(serializers.ModelSerializer):
         return not obj.flag
 
     def get_country(self, obj):
-        """Get the country name for the measurement's location.
+        """Return annotated country or fallback.
 
-        Performs a reverse geocoding lookup using the measurement's latitude and longitude
-        to determine which country polygon contains the point.
+        This method retrieves the country associated with the measurement's location.
 
         Parameters
         ----------
         obj : Measurement
             The model instance being serialized. `obj.location` is expected
-            to be a GEOS Point (x = lon, y = lat).
+            to be a GEOS Point with x (longitude) and y (latitude) attributes.
 
         Returns
         -------
-        str or None
-            The name of the country containing the measurement location, or None
-            if the point is outside any known country polygon (e.g., international waters).
+        str
+            The country name associated with the measurement's location.
+            It first checks for an annotated country, then looks up in a pre-computed
+            location map, and finally performs a reverse geocoding lookup if necessary.
         """
-        info = lookup_location(lat=obj.location.y, lon=obj.location.x)
-        return info["country"]
+        if hasattr(obj, "country"):
+            return obj.country
+        # fallback if still using location_map
+        loc_map = self.context.get("location_map", {})
+        key = (obj.location.x, obj.location.y)
+        if key in loc_map:
+            return loc_map[key].get("country")
+        # last resort: reverse-geocode
+        from .utils import lookup_location
+
+        logger.warning("Fallback reverse-geocode for %s", obj.id)
+        return lookup_location(lat=obj.location.y, lon=obj.location.x)["country"]
 
     def get_continent(self, obj):
-        """Get the continent name for the measurement's location.
+        """Return annotated continent or fallback.
 
-        Performs a reverse geocoding lookup using the measurement's latitude and longitude
-        to determine which continent polygon contains the point.
+        This method retrieves the continent associated with the measurement's location.
 
         Parameters
         ----------
         obj : Measurement
             The model instance being serialized. `obj.location` is expected
-            to be a GEOS Point (x = lon, y = lat).
+            to be a GEOS Point with x (longitude) and y (latitude) attributes.
 
         Returns
         -------
-        str or None
-            The name of the continent containing the measurement location, or None
-            if the point is outside any known polygon (e.g., international waters).
+        str
+            The continent name associated with the measurement's location.
+            It first checks for an annotated continent, then looks up in a pre-computed
+            location map, and finally performs a reverse geocoding lookup if necessary.
         """
-        info = lookup_location(lat=obj.location.y, lon=obj.location.x)
-        return info["continent"]
+        if hasattr(obj, "continent"):
+            return obj.continent
+        loc_map = self.context.get("location_map", {})
+        key = (obj.location.x, obj.location.y)
+        if key in loc_map:
+            return loc_map[key].get("continent")
+        from .utils import lookup_location
+
+        logger.warning("Fallback reverse-geocode for %s", obj.id)
+        return lookup_location(lat=obj.location.y, lon=obj.location.x)["continent"]
 
     def get_metrics(self, obj):
         """Get all metrics associated with the measurement.
 
         Iterates through all subclasses of the Metric model and collects
         their data if they are related to the current measurement instance.
+        Optimized for performance with better type handling.
 
         Parameters
         ----------
@@ -183,7 +206,6 @@ class MeasurementSerializer(serializers.ModelSerializer):
             Each dictionary corresponds to a related Metric instance.
         """
         metrics_data = []
-
         included_metrics = self.context.get("included_metrics", [])
 
         for metric_cls in METRIC_MODELS:
@@ -191,23 +213,30 @@ class MeasurementSerializer(serializers.ModelSerializer):
             if attr not in included_metrics:
                 continue
 
+            # Use getattr with None default to avoid attribute errors
             inst = getattr(obj, attr, None)
             if not inst:
                 continue
 
-            data = {"metric_type": metric_cls.__name__.lower()}
+            data = {"metric_type": attr}
+
+            # Get all field values efficiently
             for field in metric_cls._meta.fields:
                 name = field.name
                 if name in ("id", "measurement"):
                     continue
-                value = getattr(inst, name)
-                # Convert Decimal to float
-                if hasattr(value, "quantize"):
-                    value = float(value)
-                # Convert Duration to seconds
-                if hasattr(value, "total_seconds"):
-                    value = value.total_seconds()
-                data[name] = value
+
+                value = getattr(inst, name, None)
+
+                # Optimize type conversions
+                if value is None:
+                    data[name] = None
+                elif isinstance(value, Decimal):
+                    data[name] = float(value)
+                elif hasattr(value, "total_seconds"):  # Duration
+                    data[name] = value.total_seconds()
+                else:
+                    data[name] = value
 
             metrics_data.append(data)
 

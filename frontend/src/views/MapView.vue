@@ -16,134 +16,129 @@
                 .
             </p>
             <div class="flex items-center mt-4 gap-2">
-                <button
+                <UButton
+                    type="button"
+                    aria-label="open map menu"
                     data-testid="view-button"
                     @click="firstTime = false"
-                    class="flex-1 bg-main text-white px-4 py-2 rounded mr-2 hover:bg-primary-light hover:cursor-pointer"
+                    class="flex-1 bg-main text-white justify-center text-xl px-4 py-2 rounded mr-2 hover:cursor-pointer"
                 >
                     View Map
-                </button>
+                </UButton>
             </div>
         </Modal>
     </div>
     <div class="w-full h-full flex flex-col p-0 m-0">
-        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" class="bg-white" />
+        <CampaignBannerComponent v-if="campaigns.length" :campaigns="campaigns" />
 
         <div class="w-full h-full flex flex-row">
-            <div
-                v-if="viewAnalytics || addMeasurement || showCompareAnalytics"
-                class="analytics-panel left-0 top-[64px] md:top-0 bottom-0 md:bottom-auto w-screen md:w-3/5 fixed md:relative h-[calc(100vh-64px)] md:h-auto overflow-y-auto md:overflow-visible bg-white z-10"
-            >
-                <MeasurementComponent v-if="addMeasurement" @close="handleCloseAll" />
-                <DataAnalyticsComponent v-if="viewAnalytics" :location="hexLocation" @close="handleCloseAll" />
-
-                <DataAnalyticsCompare
-                    v-if="showCompareAnalytics"
-                    :group1WKT="group1WKT"
-                    :group2WKT="group2WKT"
-                    @close="handleCloseAll"
-                />
-            </div>
             <div class="relative w-full h-full">
-                <ComparisonBar
-                    v-if="compareMode"
-                    :mode="comparePhaseString"
-                    :phaseNum="comparePhaseNum"
-                    :group1Count="group1HexCount"
-                    :group2Count="group2HexCount"
-                    @cancel="exitCompareMode"
-                    @previous="goToPhase1"
-                    @next="goToPhase2"
-                    @compare="goToPhase3"
-                    @restart="goToPhase1"
-                    @exit="exitCompareMode"
-                />
+                <SideBar
+                    v-model:open="showCompareAnalytics"
+                    :settings="{ modal: false, overlay: false, dismissible: false }"
+                    title="Compare Distributions"
+                    @close="handleCloseAll"
+                >
+                    <template #content>
+                        <DataAnalyticsCompare
+                            :group1WKT="group1WKT"
+                            :group2WKT="group2WKT"
+                            :month="month"
+                            :fromExport="false"
+                        />
+                    </template>
+                </SideBar>
+                <SideBar
+                    v-model:open="viewAnalytics"
+                    :settings="{ modal: false, overlay: false, dismissible: false }"
+                    title="Data Analytics"
+                    @close="handleCloseAll"
+                >
+                    <template #content>
+                        <DataAnalyticsComponent :location="hexLocation" :month="month" :fromExport="false" />
+                    </template>
+                </SideBar>
+
                 <SelectBar
-                    v-if="selectMode"
-                    :count="count"
-                    @cancel-select="exitSelectMode"
-                    @select="handleSelectContinue"
+                    v-if="selectMode || compareMode"
+                    :style="
+                        viewAnalytics || showCompareAnalytics
+                            ? 'left: var(--container-lg); transform: none; margin-left: 2%;'
+                            : ''
+                    "
+                    :rightButton="selectBarRight"
+                    :rightButtonDisabled="selectBarRightButtonDisabled"
+                    :leftButton="selectBarLeft"
+                    :centerLabel="centerLabel"
                 />
+
                 <HexMap
                     ref="hexMapRef"
                     :colors="colors"
                     :data="data"
-                    :colorScale="scale"
-                    :selectMult="selectMult && !compareMode"
+                    :selectMode="selectMode"
                     :compareMode="compareMode"
                     :activePhase="comparePhaseNum"
-                    :colorByTemp="colorByTemp"
+                    :month="month"
+                    :fromExport="false"
                     @click="showLegend = false"
                     @hex-click="handleHexClick"
                     @hex-select="handleSelect"
                     @hex-group-select="handleGroupSelect"
                     @open-details="handleOpenAnalysis"
                 />
+
                 <div
-                    class="absolute top-4 right-4 flex align-center z-20 justify-center gap-4"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    class="flex flex-row-reverse items-center z-20 justify-center gap-4 absolute top-4 right-4"
+                    :class="{ 'hidden md:block': viewAnalytics || addMeasurement || compareMode || selectMode }"
                 >
-                    <button class="bg-main rounded-md p-1 text-white hover:cursor-pointer" @click="enterCompareMode">
-                        <ScaleIcon class="w-10 h-10" />
-                    </button>
-                    <button
-                        class="text-white hover:cursor-pointer"
-                        :class="[selectMult ? 'bg-light rounded-md p-1' : 'bg-main rounded-md p-1']"
-                        @click="enterSelectMode"
-                    >
-                        <SquaresPlusIcon class="w-10 h-10" />
-                    </button>
-                    <button
-                        class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                        @click="
-                            addMeasurement = false;
-                            viewAnalytics = false;
-                            showLegend = !showLegend;
-                        "
-                    >
-                        <AdjustmentsVerticalIcon class="w-10 h-10" />
-                    </button>
+                    <MapMenu :menuItems="menuItems" @open="handleOpenClose" />
                 </div>
 
                 <Legend
-                    v-if="showLegend"
-                    class="absolute z-40 mt-1 h-auto"
-                    :class="legendClasses"
+                    v-show="showLegend"
+                    class="absolute z-40 mt-0.95 h-auto"
+                    :class="[
+                        legendClasses,
+                        { 'hidden md:block': viewAnalytics || addMeasurement || compareMode || selectMode },
+                    ]"
                     :colors="colors"
-                    :scale="scale"
-                    :colorByTemp="colorByTemp"
-                    @close="handleCloseAll"
-                    @switch="handleSwitch"
+                    :fromExport="false"
                     @update="updateMapFilters"
                 />
             </div>
 
             <div class="fixed left-4 bottom-5 flex align-center z-20 justify-center gap-4">
-                <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                    @click="
-                        addMeasurement = true;
-                        viewAnalytics = false;
-                        showLegend = false;
-                    "
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                >
-                    <PlusCircleIcon class="w-10 h-10" />
-                </button>
-                <button
-                    class="bg-main rounded-md p-1 text-white hover:cursor-pointer"
-                    @click="showGlobalAnalytics"
-                    v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
-                >
-                    <ChartBarIcon class="w-10 h-10" />
-                </button>
+                <SideBar v-model:open="addMeasurement" title="Record Measurement" @close="handleCloseAll">
+                    <template #content>
+                        <MeasurementComponent
+                            @submitMeasurement="
+                                () => {
+                                    refresh = !refresh;
+                                    handleCloseAll();
+                                }
+                            "
+                        />
+                    </template>
+                    <MenuButton
+                        icon="i-heroicons-plus-circle"
+                        tooltip="Add a Measurement"
+                        data-testid="add-measurement-button"
+                        :handler="
+                            () => {
+                                addMeasurement = true;
+                            }
+                        "
+                        v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"
+                    />
+                </SideBar>
             </div>
         </div>
     </div>
 </template>
 
 <style>
-@media (max-height: 500px), (max-width: 768px) and (orientation: landscape) {
+@media (max-width: 768px) and (orientation: landscape) {
     .analytics-panel {
         width: 100% !important;
     }
@@ -152,38 +147,39 @@
 
 <script setup lang="ts">
 /**
- * MapView
- *
  * Displays the campaign banner, measurement input form, and a hex map of sample data.
  * Provides a button to add new measurements when not in adding mode.
  */
 defineOptions({ name: "DashboardView" });
-import { PlusCircleIcon } from "@heroicons/vue/24/outline";
-import HexMap from "../components/HexMap.vue";
+
 import { ref, onMounted, computed, nextTick } from "vue";
-import MeasurementComponent from "../components/MeasurementComponent.vue";
-import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
-import * as L from "leaflet";
-import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import { asyncComputed } from "@vueuse/core";
-import Legend from "../components/Legend.vue";
-import { AdjustmentsVerticalIcon } from "@heroicons/vue/24/outline";
-import { ChartBarIcon } from "@heroicons/vue/24/outline";
-import { SquaresPlusIcon } from "@heroicons/vue/24/outline";
-import { ScaleIcon } from "@heroicons/vue/24/outline";
+import axios from "axios";
+import Cookies from "universal-cookie";
+import * as L from "leaflet";
+
+import CampaignBannerComponent from "../components/CampaignBannerComponent.vue";
+import HexMap from "../components/HexMap.vue";
+import MapMenu from "../components/MenuItems/MapMenu.vue";
+import MenuButton from "../components/MenuItems/MenuButton.vue";
+import Legend from "../components/MenuItems/Legend.vue";
+import SelectBar from "../components/MenuItems/SelectBar.vue";
+import MeasurementComponent from "../components/MeasurementComponent.vue";
+import DataAnalyticsComponent from "../components/Analysis/DataAnalyticsComponent.vue";
 import DataAnalyticsCompare from "../components/Analysis/DataAnalyticsCompare.vue";
-import ComparisonBar from "../components/Analysis/ComparisonBar.vue";
-import SelectBar from "../components/Analysis/SelectBar.vue";
 
+const cookies = new Cookies();
+
+const open = ref(false);
 const hexMapRef = ref<InstanceType<typeof HexMap> | null>(null);
-
+const colors = ref(["#3183D4", "#E0563A"]);
+const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
+const campaigns = ref([]);
 const firstTime = ref(false);
-const viewAnalytics = ref(false);
+
 const addMeasurement = ref(false);
 const showLegend = ref(false);
-const selectMult = ref(false);
-const colorByTemp = ref(true);
-const campaigns = ref([]);
+const viewAnalytics = ref(false);
 const hexIntermediary = ref<string>("");
 const hexLocation = ref<string>("");
 type Location = {
@@ -191,55 +187,73 @@ type Location = {
     longitude: number;
 };
 
-const compareMode = ref(false);
 const selectMode = ref(false);
-const comparePhaseString = ref<"phase1" | "phase2" | "phase3">("phase1");
-const comparePhaseNum = computed<1 | 2 | null>(() => {
-    if (comparePhaseString.value === "phase1") return 1;
-    if (comparePhaseString.value === "phase2") return 2;
-    return null;
-});
+const count = ref(0);
+
+const compareMode = ref(false);
+const comparePhaseNum = ref<1 | 2 | null>(null);
 const group1WKT = ref("");
 const group2WKT = ref("");
-const group1HexCount = ref(0);
-const group2HexCount = ref(0);
-const count = ref(0);
-const showCompareAnalytics = ref(false);
 const group1Corners = ref<Array<L.LatLng[]>>([]);
 const group2Corners = ref<Array<L.LatLng[]>>([]);
-const range = ref<string | string[]>("Past 30 Days");
+const showCompareAnalytics = ref(false);
+
+const selectBarLeft = ref({
+    label: "Cancel",
+    onButtonClick: exitSelectMode,
+});
+
+const selectBarRight = ref({
+    label: "Select",
+    onButtonClick: handleSelectContinue,
+});
+
+const centerLabel = ref("Select group 1");
+
+const selectBarRightButtonDisabled = computed(() => {
+    if (selectMode.value) return count.value <= 0;
+    if (compareMode.value) return comparePhaseNum.value == 1 ? group1WKT.value === "" : group2WKT.value === "";
+    return false;
+});
+
+const range = ref<number[]>([0]);
 const month = ref<string>("0");
-const items = [
-    "Past 30 Days",
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+const refresh = ref(false);
+
+const menuItems = [
+    {
+        icon: "i-heroicons-adjustments-vertical",
+        tooltip: "Map Settings",
+        handler: toggleLegend,
+        testid: "map-settings-button",
+    },
+    {
+        icon: "i-heroicons-chart-bar",
+        tooltip: "Show Global Analytics",
+        handler: showGlobalAnalytics,
+        testid: "global-analytics-button",
+    },
+    {
+        icon: "i-heroicons-squares-plus",
+        tooltip: "Select Multiple Hexagons",
+        handler: enterSelectMode,
+        testid: "select-multiple-hexagons-button",
+    },
+    {
+        icon: "i-heroicons-scale",
+        tooltip: "Compare Hexagon Groups",
+        handler: enterCompareMode,
+        testid: "comparing-hexagons-button",
+    },
 ];
 
 /**
- * Handles filtering observations by time
- *
- * @param timeRange the time range of measurements to include in the hexmap
- * @returns {void}
+ * Toggles the visibility of the legend in the map view.
  */
-function updateMapFilters(timeRange: string | string[]) {
-    if (Array.isArray(timeRange)) {
-        const months = (timeRange as string[]).map((label) => items.indexOf(label)).filter((i) => i > 0);
-        month.value = months.join(",");
-    } else {
-        const idx = items.indexOf(timeRange as string);
-        month.value = "" + idx;
-    }
-    range.value = timeRange;
+function toggleLegend() {
+    addMeasurement.value = false;
+    viewAnalytics.value = false;
+    showLegend.value = !showLegend.value;
 }
 
 /**
@@ -249,35 +263,42 @@ function updateMapFilters(timeRange: string | string[]) {
  */
 function showGlobalAnalytics() {
     hexLocation.value = "";
-    viewAnalytics.value = true;
+
+    if (viewAnalytics.value || showCompareAnalytics.value) {
+        viewAnalytics.value = false;
+        setTimeout(() => {
+            viewAnalytics.value = true;
+        }, 300);
+    } else {
+        viewAnalytics.value = true;
+    }
+
+    showCompareAnalytics.value = false;
     addMeasurement.value = false;
+    showLegend.value = false;
+    compareMode.value = false;
+    selectMode.value = false;
 }
 
-/**
- * Handles the switch between temperature and count color modes in the legend.
- */
-function handleSwitch() {
-    colorByTemp.value = !colorByTemp.value;
-    scale.value = colorByTemp.value ? [10, 40] : [0, 50];
-}
+// === Functions to handle select mode === //
 
 /**
- * Handles the click event on a hexagon in the map.
+ * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
  *
  * @returns {void}
  */
-function handleHexClick() {
-    addMeasurement.value = false;
-}
+function enterSelectMode() {
+    setSelectBarProps("Cancel", exitSelectMode, "Select", handleSelectContinue, "Select Hexagons");
 
-/**
- * Handles clicking from hexagon analysis to 'see details'
- * @param location the data of the hexagon clicked
- * @returns {void}
- */
-function handleOpenAnalysis(location: string) {
-    hexLocation.value = location;
-    viewAnalytics.value = true;
+    viewAnalytics.value = false;
+    showCompareAnalytics.value = false;
+
+    selectMode.value = true;
+    compareMode.value = false;
+
+    addMeasurement.value = false;
+    showLegend.value = false;
+    count.value = 0;
 }
 
 /**
@@ -301,20 +322,6 @@ function handleSelectContinue() {
 }
 
 /**
- * Enters select multiple hexagon mode, resets necessary states and prepares for hexagon selection
- *
- * @returns {void}
- */
-function enterSelectMode() {
-    selectMode.value = true;
-    selectMult.value = true;
-    addMeasurement.value = false;
-    showLegend.value = false;
-    compareMode.value = false;
-    count.value = 0;
-}
-
-/**
  * Exits select multiple hexagon mode, resets necessary states
  *
  * @returns {void}
@@ -322,29 +329,10 @@ function enterSelectMode() {
 function exitSelectMode() {
     selectMode.value = false;
     viewAnalytics.value = false;
-    selectMult.value = false;
     count.value = 0;
 }
 
-/**
- * Handles the close event for the sidebar components.
- *
- * @returns {void}
- */
-function handleCloseAll() {
-    viewAnalytics.value = false;
-    addMeasurement.value = false;
-    selectMult.value = false;
-    showLegend.value = false;
-
-    // If we close from DataAnalyticsCompare, also exit compareMode
-    showCompareAnalytics.value = false;
-    if (compareMode.value) {
-        exitCompareMode();
-    } else if (selectMode.value) {
-        exitSelectMode();
-    }
-}
+// === Functions to handle compare mode === //
 
 /**
  * Enters compare mode, resetting all necessary states and preparing for group selection.
@@ -352,67 +340,26 @@ function handleCloseAll() {
  * @returns {void}
  */
 function enterCompareMode() {
+    setSelectBarProps("Cancel", exitCompareMode, "Next group", goToPhase2, "Select group 1");
+
     compareMode.value = true;
-    comparePhaseString.value = "phase1";
+    selectMode.value = false;
+
+    hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
+    comparePhaseNum.value = 1;
+
+    showCompareAnalytics.value = false;
+    viewAnalytics.value = false;
+
+    // Clear all selections
     group1WKT.value = "";
     group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
     group1Corners.value = [];
     group2Corners.value = [];
     viewAnalytics.value = false;
     addMeasurement.value = false;
     showLegend.value = false;
-    selectMult.value = false;
     showCompareAnalytics.value = false;
-
-    // **Immediately re‐enable `selectMult` so Phase 1 hex‐clicks work**
-    // We use setTimeout to let Vue finish the re‐render in phase1 first.
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
-}
-
-/**
- * Exits compare mode, resetting all states and clearing selections.
- *
- * @returns {void}
- */
-function exitCompareMode() {
-    hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
-    compareMode.value = false;
-    comparePhaseString.value = "phase1";
-    group1WKT.value = "";
-    group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
-    showCompareAnalytics.value = false;
-    selectMult.value = false;
-    group1Corners.value = [];
-    group2Corners.value = [];
-}
-
-/**
- * Navigates to Phase 1 of the comparison process, resetting all selections and states.
- * This function is called when the user wants to start a new comparison from scratch.
- *
- * @returns {void}
- */
-function goToPhase1() {
-    hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
-    comparePhaseString.value = "phase1";
-    showCompareAnalytics.value = false;
-    // Clear all selections
-    group1WKT.value = "";
-    group2WKT.value = "";
-    group1HexCount.value = 0;
-    group2HexCount.value = 0;
-    group1Corners.value = [];
-    group2Corners.value = [];
-    selectMult.value = false;
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
 }
 
 /**
@@ -422,11 +369,8 @@ function goToPhase1() {
  * @returns {void}
  */
 function goToPhase2() {
-    comparePhaseString.value = "phase2";
-    selectMult.value = false;
-    setTimeout(() => {
-        selectMult.value = true;
-    }, 30);
+    setSelectBarProps("Previous group", enterCompareMode, "Compare", goToPhase3, "Select group 2");
+    comparePhaseNum.value = 2;
 }
 
 /**
@@ -436,7 +380,9 @@ function goToPhase2() {
  * @returns {void}
  */
 function goToPhase3() {
-    comparePhaseString.value = "phase3";
+    setSelectBarProps("Restart", enterCompareMode, "Exit", exitCompareMode, "Comparing");
+
+    comparePhaseNum.value = null;
     showCompareAnalytics.value = true;
 
     nextTick(() => {
@@ -449,6 +395,23 @@ function goToPhase3() {
 }
 
 /**
+ * Exits compare mode, resetting all states and clearing selections.
+ *
+ * @returns {void}
+ */
+function exitCompareMode() {
+    hexMapRef.value?.phase3Highlight({ corners1: [], corners2: [] });
+    compareMode.value = false;
+    comparePhaseNum.value = null;
+    group1WKT.value = "";
+    group2WKT.value = "";
+    showCompareAnalytics.value = false;
+    selectMode.value = false;
+    group1Corners.value = [];
+    group2Corners.value = [];
+}
+
+/**
  * Handles the selection of a group in the comparison process.
  * This function is called when the user selects a group for comparison.
  *
@@ -458,12 +421,118 @@ function goToPhase3() {
 function handleGroupSelect(payload: { wkt: string; phase: number; cornersList: Array<L.LatLng[]> }) {
     if (payload.phase === 1) {
         group1WKT.value = payload.wkt;
-        group1HexCount.value = (payload.wkt.match(/\(\(/g) || []).length;
         group1Corners.value = payload.cornersList;
     } else {
         group2WKT.value = payload.wkt;
-        group2HexCount.value = (payload.wkt.match(/\(\(/g) || []).length;
         group2Corners.value = payload.cornersList;
+    }
+}
+
+/**
+ * Sets the properties for the select bar component.
+ * @param leftLabel the label for the left button
+ * @param leftButtonClick the handler for the left button click
+ * @param rightLabel the label for the right button
+ * @param rightButtonClick the handler for the right button click
+ * @param centerLabelText the center label text
+ * @returns {void}
+ */
+function setSelectBarProps(
+    leftLabel: string,
+    leftButtonClick: () => void,
+    rightLabel: string,
+    rightButtonClick: () => void,
+    centerLabelText: string,
+) {
+    selectBarLeft.value = {
+        label: leftLabel,
+        onButtonClick: leftButtonClick,
+    };
+
+    selectBarRight.value = {
+        label: rightLabel,
+        onButtonClick: rightButtonClick,
+    };
+
+    centerLabel.value = centerLabelText;
+}
+
+// ======================================== //
+
+/**
+ * Handle open and close of map menu
+ *
+ * @return {void}
+ */
+function handleOpenClose() {
+    if (open.value) {
+        showLegend.value = false;
+        open.value = false;
+    } else {
+        showLegend.value = false;
+        open.value = true;
+    }
+}
+
+/**
+ * Handles filtering observations by time
+ *
+ * @param timeRange the time range of measurements to include in the hexmap
+ * @returns {void}
+ */
+function updateMapFilters(timeRange: number[]) {
+    range.value = timeRange;
+    month.value = "";
+    for (let i = 0; i < range.value.length; i++) {
+        month.value += `${range.value[i]},`;
+    }
+    month.value = month.value.substring(0, month.value.length - 1);
+}
+
+/**
+ * Handles the click event on a hexagon in the map.
+ *
+ * @returns {void}
+ */
+function handleHexClick() {
+    addMeasurement.value = false;
+}
+
+/**
+ * Handles clicking from hexagon analysis to 'see details'
+ * @param location the data of the hexagon clicked
+ * @returns {void}
+ */
+function handleOpenAnalysis(location: string) {
+    hexLocation.value = location;
+    if (viewAnalytics.value || showCompareAnalytics.value) {
+        viewAnalytics.value = false;
+        console.log("entered");
+        setTimeout(() => {
+            viewAnalytics.value = true;
+        }, 300);
+    } else {
+        viewAnalytics.value = true;
+    }
+}
+
+/**
+ * Handles the close event for the sidebar components.
+ *
+ * @returns {void}
+ */
+function handleCloseAll() {
+    viewAnalytics.value = false;
+    addMeasurement.value = false;
+    selectMode.value = false;
+    showLegend.value = false;
+
+    // If we close from DataAnalyticsCompare, also exit compareMode
+    showCompareAnalytics.value = false;
+    if (compareMode.value) {
+        exitCompareMode();
+    } else if (selectMode.value) {
+        exitSelectMode();
     }
 }
 
@@ -488,10 +557,16 @@ type MeasurementResponseDataPoint = {
 
 // Fetches aggregated measurement data from the API and formats it for the HexMap component
 const data = asyncComputed(async (): Promise<MeasurementData[]> => {
-    const res = await fetch(`/api/measurements/aggregated?month=${month.value}`);
+    refresh.value = !refresh.value; // Trigger re-fetching when refresh changes
+    const res = await axios.post("/api/measurements/aggregated/", range.value ? { month: range.value } : {}, {
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": cookies.get("csrftoken"),
+        },
+    });
 
-    if (!res.ok) throw new Error(`Status: ${res.status}`);
-    const data = await res.json();
+    if (res.status !== 200) throw new Error(`Status: ${res.status}`);
+    const data = res.data;
 
     return data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),
@@ -501,11 +576,6 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
         count: measurement.count,
     }));
 }, [] as MeasurementData[]);
-
-// color, styling, and scale values for hexagon visualization
-const colors = ref(["#3183D4", "#E0563A"]);
-const scale = ref<[number, number]>([10, 40]);
-const legendClasses = computed(() => ["top-[4.5rem]", "right-4", "w-72"]);
 
 /**
  * Fetches active campaigns based on the user's location

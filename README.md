@@ -22,6 +22,10 @@ Once the html has been built, open the file `/docs/_build/html/index.html` to vi
 
 ## Installation
 
+> **Important**
+> -------------
+> In order to properly install the application first download the country dataset from [https://waterwatch.tudelft.nl/countries.sql](https://waterwatch.tudelft.nl/countries.sql). Move the sql file into the assets folder of the project.
+
 ### Development
 
 Requirements before install:
@@ -42,6 +46,12 @@ Researcher
     -username: researcher
     -password: researcher
 
+Create and activate the python virtual environment with the following commands:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
 ### Production
 Requirements before install:
 - docker
@@ -60,14 +70,16 @@ After installation the project will run at [localhost](http://127.0.0.1/).
 
 
 There are two standard users after executing the script.
-Admin
-    -username: admin
-    -password: admin
-Researcher
-    -username: researcher
-    -password: researcher
 
-> Important in order to protect user accounts in the production environment make sure to change these passwords immediatly after running the script.
+Admin
+- username: admin
+- password: admin
+
+Researcher
+- username: researcher
+- password: researcher
+
+> Important in order to protect user accounts in the production environment make sure to change these passwords immediately after running the script.
 
 ## Running Tests
 
@@ -96,6 +108,15 @@ In case you want to reset the test database to its initial state, run:
 ```bash
 docker exec backend python manage.py test
 ```
+
+### Performance tests
+To run tests, while to project is running in a Docker container, run the following command in the backend folder:
+
+```bash
+locust --host http://localhost --class-picker
+```
+
+Following this you can go to [localhost:8089](http://localhost:8089) to conduct the tests in the Locust GUI.
 
 ## Support
 
@@ -182,7 +203,7 @@ After pre-commit is installed, to create the commit hook:
 ```bash
 pre-commit install
 ```
-This makes sure that the pre-commit hooks will be run before commiting.
+This makes sure that the pre-commit hooks will be run before committing.
 
 > For more information visit our [Contribution Guide](https://waterwatch.tudelft.nl/docs/contribution_guide.html).
 

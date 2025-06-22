@@ -29,7 +29,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", default=0)
+DEBUG = os.getenv("DJANGO_DEBUG", default=0) == "True"
 
 # should be a list of host/domain names that this Django site can serve.
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", default="localhost").split(",")
@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     "measurements",
     "measurement_collection",
     "measurement_analysis",
-    "measurement_export",
+    "measurement_export.apps.MeasurementExportConfig",
     "campaigns",
     "api",
     "rest_framework",
@@ -99,6 +99,12 @@ DATABASES = {
         "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="mypassword"),
         "HOST": os.getenv("POSTGRES_HOST", default="localhost"),
         "PORT": os.getenv("POSTGRES_PORT", default="5432"),
+        "CONN_MAX_AGE": int(os.getenv("DJANGO_CONN_MAX_AGE", "300")),
+        "CONN_HEALTH_CHECKS": True,
+        "OPTIONS": {
+            "connect_timeout": int(os.getenv("DJANGO_CONNECT_TIMEOUT", "30")),
+            "sslmode": "prefer",
+        },
     }
 }
 
@@ -129,10 +135,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "/api/static/"
-STATIC_ROOT = Path(BASE_DIR) / "static"
-MEDIA_URL = "/api/media/"
-MEDIA_ROOT = Path(BASE_DIR) / "media"
+STATIC_URL = "/static/api/"
+STATIC_ROOT = Path(BASE_DIR) / "static" / "api"
+MEDIA_URL = "/media/api/"
+MEDIA_ROOT = Path(BASE_DIR) / "media" / "api"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -190,6 +196,23 @@ LOGGING = {
             else ["console"],
             "level": "DEBUG",
             "propagate": True,
+        },
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    },
+    "location_cache": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
 }

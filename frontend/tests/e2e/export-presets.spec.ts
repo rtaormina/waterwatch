@@ -1,446 +1,476 @@
-import { test, expect, Page } from "@playwright/test";
-import { AddPresetOpts, AddMeasurementOpts, addMeasurement } from "./utils";
+import { test as base, expect, Page, BrowserContext } from "@playwright/test";
+import { AddPresetOpts } from "./utils";
 
 const url = "http://localhost/";
 
-test.describe("Basic Presets Tests", () => {
-    test("should display the search bar", async ({ page }) => {
-        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
-        const searchInput = page.getByTestId("search-input");
-        await expect(searchInput).toBeVisible();
-        await expect(searchInput).toHaveAttribute("placeholder", "Search for presets...");
-        const clearSearchButton = page.getByTestId("clear-search-bar-button");
-        await expect(clearSearchButton).toBeVisible();
-        await expect(clearSearchButton).toHaveClass(/cursor-pointer/);
-        const searchButton = page.getByTestId("search-bar-button");
-        await expect(searchButton).toBeVisible();
-        await expect(searchButton).toHaveClass(/cursor-pointer/);
-    });
+let storageState: any;
+let sharedContext: BrowserContext;
 
-    test("should open and close the preset dropdown", async ({ page }) => {
-        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
-        const searchInput = page.getByTestId("search-input");
-        searchInput.click();
-        const presetDropdown = page.getByTestId("preset-dropdown");
-        await expect(presetDropdown).toBeVisible();
-        await page.click("body"); // Click outside to close the dropdown
-        await expect(presetDropdown).toBeHidden();
-    });
-
-    test("clear search button should clear the search input", async ({ page }) => {
-        await page.goto(url + "export", { waitUntil: "domcontentloaded" });
-        const searchInput = page.getByTestId("search-input");
-        await searchInput.fill("Test Preset");
-        const clearSearchButton = page.getByTestId("clear-search-bar-button");
-        await clearSearchButton.click();
-        await expect(searchInput).toHaveValue("");
-    });
-
-    test("should disable search bar button when temperature validation fails", async ({ page }) => {
-        await interceptDataForExportPage(page, false);
-
-        const searchBarButton = page.getByTestId("search-bar-button");
-
-        // Enable temperature with invalid range
-        await page.getByRole("checkbox", { name: "Temperature" }).first().check();
-
-        const minTempInput = page.locator('input[placeholder="Min temperature"]');
-        const maxTempInput = page.locator('input[placeholder="Max temperature"]');
-
-        await minTempInput.fill("50");
-        await maxTempInput.fill("25");
-
-        await expect(searchBarButton).toBeDisabled();
-
-        // Fix the temperature range
-        await minTempInput.fill("25");
-        await maxTempInput.fill("50");
-        await expect(searchBarButton).toBeEnabled();
-    });
-
-    test("should disable search bar button when date validation fails", async ({ page }) => {
-        await interceptDataForExportPage(page, false);
-
-        const searchBarButton = page.getByTestId("search-bar-button");
-
-        // Enable date with invalid range
-        const fromDateInput = page.locator('input[type="date"]').first();
-        const toDateInput = page.locator('input[type="date"]').nth(1);
-
-        await fromDateInput.fill("2024-12-31");
-        await toDateInput.fill("2024-01-01");
-
-        await expect(searchBarButton).toBeDisabled();
-
-        // Fix the date range
-        await fromDateInput.fill("2024-01-01");
-        await toDateInput.fill("2024-12-31");
-        await expect(searchBarButton).toBeEnabled();
-    });
-
-    test("should disable search bar button when time validation fails", async ({ page }) => {
-        await interceptDataForExportPage(page, false);
-
-        const searchBarButton = page.getByTestId("search-bar-button");
-        const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
-        await addTimeSlotButton.click();
-        const fromTimeInput = page.locator('input[type="time"]').first();
-        const toTimeInput = page.locator('input[type="time"]').nth(1);
-        await fromTimeInput.fill("15:00");
-        await toTimeInput.fill("10:00");
-        await expect(searchBarButton).toBeDisabled();
-        // Fix the time range
-        await fromTimeInput.fill("10:00");
-        await toTimeInput.fill("15:00");
-        await expect(searchBarButton).toBeEnabled();
-    });
-
-    test("should disable search bar button when timeslots overlap", async ({ page }) => {
-        await interceptDataForExportPage(page, false);
-
-        const searchBarButton = page.getByTestId("search-bar-button");
-        const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
-        await addTimeSlotButton.click();
-        const firstFromTime = page.locator('input[type="time"]').first();
-        const firstToTime = page.locator('input[type="time"]').nth(1);
-        await firstFromTime.fill("10:00");
-        await firstToTime.fill("12:00");
-        await addTimeSlotButton.click();
-        const secondFromTime = page.locator('input[type="time"]').nth(2);
-        const secondToTime = page.locator('input[type="time"]').nth(3);
-        await secondFromTime.fill("11:00");
-        await secondToTime.fill("13:00");
-        await expect(searchBarButton).toBeDisabled();
-
-        await secondFromTime.fill("12:00");
-        await secondToTime.fill("15:00");
-        await expect(searchBarButton).toBeDisabled();
-
-        // Fix the overlapping times
-        await secondFromTime.fill("13:00");
-        await secondToTime.fill("15:00");
-        await expect(searchBarButton).toBeEnabled();
-    });
-});
-
-test.describe("Preset Creation and Application Test", () => {
-    test.describe.configure({ mode: "serial" });
-
-    const presetOneContinent: AddPresetOpts = {
-        name: "One Continent",
-        description: "Preset for one continent.",
-        isPublic: true,
-        filters: {
-            continents: ["Asia"],
-        },
-    };
-
-    const presetAllContinents: AddPresetOpts = {
-        name: "All Continents",
-        description: "Preset for all continents.",
-        isPublic: true,
-        filters: {
-            continents: ["All"],
-        },
-    };
-
-    const presetOneContinentAllCountries: AddPresetOpts = {
-        name: "All Countries",
-        description: "Preset for all countries.",
-        isPublic: true,
-        filters: {
-            continents: ["Asia"],
-            countries: ["All"],
-        },
-    };
-
-    const presetOneContinentOneCountry: AddPresetOpts = {
-        name: "One Country",
-        description: "Preset for one country.",
-        isPublic: true,
-        filters: {
-            continents: ["Asia"],
-            countries: ["India"],
-        },
-    };
-
-    const presetAllContinentsAllCountries: AddPresetOpts = {
-        name: "All Continents All Countries",
-        description: "Preset for all continents and all countries.",
-        isPublic: true,
-        filters: {
-            continents: ["All"],
-            countries: ["All"],
-        },
-    };
-
-    const presetOneWaterSource: AddPresetOpts = {
-        name: "One Water Source",
-        description: "Preset for one water source.",
-        isPublic: true,
-        filters: {
-            waterSources: ["Rooftop Tank"],
-        },
-    };
-
-    const presetAllWaterSources: AddPresetOpts = {
-        name: "All Water Sources",
-        description: "Preset for all water sources.",
-        isPublic: true,
-        filters: {
-            waterSources: ["All"],
-        },
-    };
-
-    const presetTemperatureRangeOnlyFrom: AddPresetOpts = {
-        name: "Temperature Range Only From",
-        description: "Preset for temperature range with only 'from' value.",
-        isPublic: true,
-        filters: {
-            temperatureEnabled: true,
-            temperatureRange: [10, null],
-            temperatureUnit: "C",
-        },
-    };
-
-    const presetTemperatureRangeOnlyTo: AddPresetOpts = {
-        name: "Temperature Range Only To",
-        description: "Preset for temperature range with only 'to' value.",
-        isPublic: true,
-        filters: {
-            temperatureEnabled: true,
-            temperatureRange: [null, 30],
-            temperatureUnit: "C",
-        },
-    };
-
-    const presetTemperatureRangeCelsius: AddPresetOpts = {
-        name: "Temperature Range Celsius",
-        description: "Preset for temperature range.",
-        isPublic: true,
-        filters: {
-            temperatureEnabled: true,
-            temperatureRange: [10, 40],
-            temperatureUnit: "C",
-        },
-    };
-
-    const presetTemperatureRangeFahrenheit: AddPresetOpts = {
-        name: "Temperature Range Fahrenheit",
-        description: "Preset for temperature range.",
-        isPublic: true,
-        filters: {
-            temperatureEnabled: true,
-            temperatureRange: [50, 100],
-            temperatureUnit: "F",
-        },
-    };
-
-    const presetDateRangeOnlyFrom: AddPresetOpts = {
-        name: "Date Range Only From",
-        description: "Preset for date range with only 'from' date.",
-        isPublic: true,
-        filters: {
-            dateRange: ["2024-01-01", null],
-        },
-    };
-
-    const presetDateRangeOnlyTo: AddPresetOpts = {
-        name: "Date Range Only To",
-        description: "Preset for date range with only 'to' date.",
-        isPublic: true,
-        filters: {
-            dateRange: [null, "2024-12-31"],
-        },
-    };
-
-    const presetDateRange: AddPresetOpts = {
-        name: "Date Range",
-        description: "Preset for date range.",
-        isPublic: true,
-        filters: {
-            dateRange: ["2024-01-01", "2024-12-31"],
-        },
-    };
-
-    const presetOneTimeSlot: AddPresetOpts = {
-        name: "One Time Slot",
-        description: "Preset for one time slot.",
-        isPublic: true,
-        filters: {
-            timeSlots: [{ start: "08:00", end: "10:00" }],
-        },
-    };
-
-    const presetTimeSlotsMixed: AddPresetOpts = {
-        name: "Time Slots Mixed",
-        description: "Preset for time slots with mixed start and end times.",
-        isPublic: true,
-        filters: {
-            timeSlots: [
-                { start: null, end: "10:00" },
-                { start: "14:00", end: null },
-            ],
-        },
-    };
-
-    const presetsTimeSlots: AddPresetOpts = {
-        name: "Time Slots",
-        description: "Preset for time slots.",
-        isPublic: true,
-        filters: {
-            timeSlots: [
-                { start: "06:00", end: "12:00" },
-                { start: "13:00", end: "19:00" },
-                { start: "20:00", end: "22:00" },
-            ],
-        },
-    };
-
-    const presetOptsAllFilters: AddPresetOpts = {
-        name: "All Filters",
-        description: "This is a test preset for export functionality.",
-        isPublic: true,
-        filters: {
-            continents: ["Europe"],
-            countries: ["Netherlands"],
-            waterSources: ["Well"],
-            temperatureEnabled: true,
-            temperatureRange: [10, 30],
-            temperatureUnit: "C",
-            dateRange: ["2025-01-01", "2025-12-31"],
-            timeSlots: [
-                { start: "08:00", end: "10:00" },
-                { start: "14:00", end: "16:00" },
-                { start: "18:00", end: "20:00" },
-            ],
-        },
-    };
-
-    test.beforeEach(async ({ page }) => {
-        await adminLogin(page);
-        await deleteAllPresets(page);
-    });
-
-    test("no presets should be displayed initially", async ({ page }) => {
-        await interceptDataForExportPage(page, false);
-        const searchInput = page.getByTestId("search-input");
-        await searchInput.click();
-        const presetList = page.getByTestId("preset-item");
-        await expect(presetList).toHaveCount(0);
-        const emptyStateIcon = page.getByTestId("empty-state-icon");
-        await expect(emptyStateIcon).toBeVisible();
-        const noPresetsMessage = page.getByTestId("no-presets-message");
-        await expect(noPresetsMessage).toBeVisible();
-    });
-
-    test("added public preset should be displayed in the list", async ({ page }) => {
-        await addPreset(page, presetOptsAllFilters);
-        await interceptDataForExportPage(page, false);
-        const searchInput = page.getByTestId("search-input");
-        await searchInput.click();
-        const presetList = page.getByTestId("preset-item");
-        await expect(presetList).toHaveCount(1);
-        const presetItem = presetList.first();
-        await expect(presetItem).toContainText(presetOptsAllFilters.name);
-        await expect(presetItem).toContainText(presetOptsAllFilters.description);
-    });
-
-    test("should apply one continent filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetOneContinent);
-    });
-
-    test("should apply all continents filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetAllContinents);
-    });
-
-    test("should apply one continent and all countries filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetOneContinentAllCountries);
-    });
-
-    test("should apply one continent and one country filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetOneContinentOneCountry);
-    });
-
-    test("should apply all continents and all countries filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetAllContinentsAllCountries);
-    });
-
-    test("should apply one water source filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetOneWaterSource);
-    });
-
-    test("should apply all water sources filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetAllWaterSources);
-    });
-
-    test("should apply temperature range only from filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetTemperatureRangeOnlyFrom);
-    });
-
-    test("should apply temperature range only to filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetTemperatureRangeOnlyTo);
-    });
-
-    test("should apply temperature range in Celsius", async ({ page }) => {
-        await addPresetAndVerify(page, presetTemperatureRangeCelsius);
-    });
-
-    test("should apply temperature range in Fahrenheit", async ({ page }) => {
-        await addPresetAndVerify(page, presetTemperatureRangeFahrenheit);
-    });
-
-    test("should apply date range only from filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetDateRangeOnlyFrom);
-    });
-
-    test("should apply date range only to filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetDateRangeOnlyTo);
-    });
-
-    test("should apply date range filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetDateRange);
-    });
-
-    test("should apply one time slot filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetOneTimeSlot);
-    });
-
-    test("should apply mixed time slots filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetTimeSlotsMixed);
-    });
-
-    test("should apply multiple time slots filter", async ({ page }) => {
-        await addPresetAndVerify(page, presetsTimeSlots);
-    });
-
-    test("should apply all filters in a single preset", async ({ page }) => {
-        await addPresetAndVerify(page, presetOptsAllFilters);
-    });
-
-    test("should display multiple searchable presets in the list", async ({ page }) => {
-        await addPreset(page, presetTemperatureRangeFahrenheit);
-        await addPreset(page, presetDateRangeOnlyFrom);
-        await addPreset(page, presetDateRangeOnlyTo);
-        await addPreset(page, presetDateRange);
-        await interceptDataForExportPage(page, false);
-        const searchInput = page.getByTestId("search-input");
-        await searchInput.click();
-        const presetList = page.getByTestId("preset-item");
-        await expect(presetList).toHaveCount(4); // Should match the number of presets added
-        await searchInput.fill("Date");
-        await expect(presetList).toHaveCount(3); // Should match the number of presets with "Date" in the name
-        // Assert that the preset list contains the expected presets in any order
-        const expectedPresets = [presetDateRangeOnlyFrom.name, presetDateRangeOnlyTo.name, presetDateRange.name];
-        for (const presetName of expectedPresets) {
-            const presetItem = presetList.locator(`text=${presetName}`).first();
-            await expect(presetItem).toBeVisible();
+// Create a new test fixture that uses the shared context
+const test = base.extend<{ page: Page }>({
+    page: async ({ browser }, use) => {
+        if (!sharedContext) {
+            sharedContext = await browser.newContext({ storageState });
         }
-        await searchInput.fill(""); // Clear the search input
-        await expect(presetList).toHaveCount(4); // Should return to the original count
-    });
+        const page = await sharedContext.newPage();
+        await use(page);
+        await page.close();
+    },
 });
 
+test.beforeAll(async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    await adminLogin(page);
+    await interceptDataForExportPage(page);
+
+    storageState = await ctx.storageState();
+    await ctx.close();
+});
+
+test.afterAll(async () => {
+    await sharedContext?.close();
+});
+
+test.describe("Export Presets Tests", () => {
+    test.describe("Basic Presets Tests", () => {
+        test("should display the search bar", async ({ page }) => {
+            await page.goto(url + "export", { waitUntil: "domcontentloaded" });
+            const searchInput = page.getByTestId("search-input");
+            await expect(searchInput).toBeVisible();
+            await expect(searchInput).toHaveAttribute("placeholder", "Search for presets...");
+            const clearSearchButton = page.getByTestId("clear-search-bar-button");
+            await expect(clearSearchButton).toBeVisible();
+            await expect(clearSearchButton).toHaveClass(/cursor-pointer/);
+            const searchButton = page.getByTestId("search-bar-button");
+            await expect(searchButton).toBeVisible();
+            await expect(searchButton).toHaveClass(/cursor-pointer/);
+        });
+
+        test("should open and close the preset dropdown", async ({ page }) => {
+            await page.goto(url + "export", { waitUntil: "domcontentloaded" });
+            const searchInput = page.getByTestId("search-input");
+            searchInput.click();
+            const presetDropdown = page.getByTestId("preset-dropdown");
+            await expect(presetDropdown).toBeVisible();
+            await page.click("body"); // Click outside to close the dropdown
+            await expect(presetDropdown).toBeHidden();
+        });
+
+        test("clear search button should clear the search input", async ({ page }) => {
+            await page.goto(url + "export", { waitUntil: "domcontentloaded" });
+            const searchInput = page.getByTestId("search-input");
+            await searchInput.fill("Test Preset");
+            const clearSearchButton = page.getByTestId("clear-search-bar-button");
+            await clearSearchButton.click();
+            await expect(searchInput).toHaveValue("");
+        });
+
+        test("should disable search bar button when temperature validation fails", async ({ page }) => {
+            await interceptDataForExportPage(page, false);
+
+            const searchBarButton = page.getByTestId("search-bar-button");
+
+            // Enable temperature with invalid range
+            await page.getByRole("checkbox", { name: "Temperature" }).first().check();
+
+            const minTempInput = page.locator('input[placeholder="Min temperature"]');
+            const maxTempInput = page.locator('input[placeholder="Max temperature"]');
+
+            await minTempInput.fill("50");
+            await maxTempInput.fill("25");
+
+            await expect(searchBarButton).toBeDisabled();
+
+            // Fix the temperature range
+            await minTempInput.fill("25");
+            await maxTempInput.fill("50");
+            await expect(searchBarButton).toBeEnabled();
+        });
+
+        test("should disable search bar button when date validation fails", async ({ page }) => {
+            await interceptDataForExportPage(page, false);
+
+            const searchBarButton = page.getByTestId("search-bar-button");
+
+            // Enable date with invalid range
+            const fromDateInput = page.locator('input[type="date"]').first();
+            const toDateInput = page.locator('input[type="date"]').nth(1);
+
+            await fromDateInput.fill("2024-12-31");
+            await toDateInput.fill("2024-01-01");
+
+            await expect(searchBarButton).toBeDisabled();
+
+            // Fix the date range
+            await fromDateInput.fill("2024-01-01");
+            await toDateInput.fill("2024-12-31");
+            await expect(searchBarButton).toBeEnabled();
+        });
+
+        test("should disable search bar button when time validation fails", async ({ page }) => {
+            await interceptDataForExportPage(page, false);
+
+            const searchBarButton = page.getByTestId("search-bar-button");
+            const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
+            await addTimeSlotButton.click();
+            const fromTimeInput = page.locator('input[type="time"]').first();
+            const toTimeInput = page.locator('input[type="time"]').nth(1);
+            await fromTimeInput.fill("15:00");
+            await toTimeInput.fill("10:00");
+            await expect(searchBarButton).toBeDisabled();
+            // Fix the time range
+            await fromTimeInput.fill("10:00");
+            await toTimeInput.fill("15:00");
+            await expect(searchBarButton).toBeEnabled();
+        });
+
+        test("should disable search bar button when timeslots overlap", async ({ page }) => {
+            await interceptDataForExportPage(page, false);
+
+            const searchBarButton = page.getByTestId("search-bar-button");
+            const addTimeSlotButton = page.locator("button", { hasText: "Add time slot" });
+            await addTimeSlotButton.click();
+            const firstFromTime = page.locator('input[type="time"]').first();
+            const firstToTime = page.locator('input[type="time"]').nth(1);
+            await firstFromTime.fill("10:00");
+            await firstToTime.fill("12:00");
+            await addTimeSlotButton.click();
+            const secondFromTime = page.locator('input[type="time"]').nth(2);
+            const secondToTime = page.locator('input[type="time"]').nth(3);
+            await secondFromTime.fill("11:00");
+            await secondToTime.fill("13:00");
+            await expect(searchBarButton).toBeDisabled();
+
+            await secondFromTime.fill("12:00");
+            await secondToTime.fill("15:00");
+            await expect(searchBarButton).toBeDisabled();
+
+            // Fix the overlapping times
+            await secondFromTime.fill("13:00");
+            await secondToTime.fill("15:00");
+            await expect(searchBarButton).toBeEnabled();
+        });
+    });
+
+    test.describe("Preset Creation and Application Test", () => {
+        test.describe.configure({ mode: "serial" });
+
+        const presetOneContinent: AddPresetOpts = {
+            name: "One Continent",
+            description: "Preset for one continent.",
+            isPublic: true,
+            filters: {
+                continents: ["Asia"],
+            },
+        };
+
+        const presetAllContinents: AddPresetOpts = {
+            name: "All Continents",
+            description: "Preset for all continents.",
+            isPublic: true,
+            filters: {
+                continents: ["All"],
+            },
+        };
+
+        const presetOneContinentAllCountries: AddPresetOpts = {
+            name: "All Countries",
+            description: "Preset for all countries.",
+            isPublic: true,
+            filters: {
+                continents: ["Asia"],
+                countries: ["All"],
+            },
+        };
+
+        const presetOneContinentOneCountry: AddPresetOpts = {
+            name: "One Country",
+            description: "Preset for one country.",
+            isPublic: true,
+            filters: {
+                continents: ["Asia"],
+                countries: ["India"],
+            },
+        };
+
+        const presetAllContinentsAllCountries: AddPresetOpts = {
+            name: "All Continents All Countries",
+            description: "Preset for all continents and all countries.",
+            isPublic: true,
+            filters: {
+                continents: ["All"],
+                countries: ["All"],
+            },
+        };
+
+        const presetOneWaterSource: AddPresetOpts = {
+            name: "One Water Source",
+            description: "Preset for one water source.",
+            isPublic: true,
+            filters: {
+                waterSources: ["Rooftop Tank"],
+            },
+        };
+
+        const presetAllWaterSources: AddPresetOpts = {
+            name: "All Water Sources",
+            description: "Preset for all water sources.",
+            isPublic: true,
+            filters: {
+                waterSources: ["All"],
+            },
+        };
+
+        const presetTemperatureRangeOnlyFrom: AddPresetOpts = {
+            name: "Temperature Range Only From",
+            description: "Preset for temperature range with only 'from' value.",
+            isPublic: true,
+            filters: {
+                temperatureEnabled: true,
+                temperatureRange: [10, null],
+                temperatureUnit: "C",
+            },
+        };
+
+        const presetTemperatureRangeOnlyTo: AddPresetOpts = {
+            name: "Temperature Range Only To",
+            description: "Preset for temperature range with only 'to' value.",
+            isPublic: true,
+            filters: {
+                temperatureEnabled: true,
+                temperatureRange: [null, 30],
+                temperatureUnit: "C",
+            },
+        };
+
+        const presetTemperatureRangeCelsius: AddPresetOpts = {
+            name: "Temperature Range Celsius",
+            description: "Preset for temperature range.",
+            isPublic: true,
+            filters: {
+                temperatureEnabled: true,
+                temperatureRange: [10, 40],
+                temperatureUnit: "C",
+            },
+        };
+
+        const presetTemperatureRangeFahrenheit: AddPresetOpts = {
+            name: "Temperature Range Fahrenheit",
+            description: "Preset for temperature range.",
+            isPublic: true,
+            filters: {
+                temperatureEnabled: true,
+                temperatureRange: [50, 100],
+                temperatureUnit: "F",
+            },
+        };
+
+        const presetDateRangeOnlyFrom: AddPresetOpts = {
+            name: "Date Range Only From",
+            description: "Preset for date range with only 'from' date.",
+            isPublic: true,
+            filters: {
+                dateRange: ["2024-01-01", null],
+            },
+        };
+
+        const presetDateRangeOnlyTo: AddPresetOpts = {
+            name: "Date Range Only To",
+            description: "Preset for date range with only 'to' date.",
+            isPublic: true,
+            filters: {
+                dateRange: [null, "2024-12-31"],
+            },
+        };
+
+        const presetDateRange: AddPresetOpts = {
+            name: "Date Range",
+            description: "Preset for date range.",
+            isPublic: true,
+            filters: {
+                dateRange: ["2024-01-01", "2024-12-31"],
+            },
+        };
+
+        const presetOneTimeSlot: AddPresetOpts = {
+            name: "One Time Slot",
+            description: "Preset for one time slot.",
+            isPublic: true,
+            filters: {
+                timeSlots: [{ start: "08:00", end: "10:00" }],
+            },
+        };
+
+        const presetTimeSlotsMixed: AddPresetOpts = {
+            name: "Time Slots Mixed",
+            description: "Preset for time slots with mixed start and end times.",
+            isPublic: true,
+            filters: {
+                timeSlots: [
+                    { start: null, end: "10:00" },
+                    { start: "14:00", end: null },
+                ],
+            },
+        };
+
+        const presetsTimeSlots: AddPresetOpts = {
+            name: "Time Slots",
+            description: "Preset for time slots.",
+            isPublic: true,
+            filters: {
+                timeSlots: [
+                    { start: "06:00", end: "12:00" },
+                    { start: "13:00", end: "19:00" },
+                    { start: "20:00", end: "22:00" },
+                ],
+            },
+        };
+
+        const presetOptsAllFilters: AddPresetOpts = {
+            name: "All Filters",
+            description: "This is a test preset for export functionality.",
+            isPublic: true,
+            filters: {
+                continents: ["Europe"],
+                countries: ["Netherlands"],
+                waterSources: ["Well"],
+                temperatureEnabled: true,
+                temperatureRange: [10, 30],
+                temperatureUnit: "C",
+                dateRange: ["2025-01-01", "2025-12-31"],
+                timeSlots: [
+                    { start: "08:00", end: "10:00" },
+                    { start: "14:00", end: "16:00" },
+                    { start: "18:00", end: "20:00" },
+                ],
+            },
+        };
+
+        test.beforeEach(async ({ page }) => {
+            await adminLogin(page);
+            await deleteAllPresets(page);
+        });
+
+        test("no presets should be displayed initially", async ({ page }) => {
+            await interceptDataForExportPage(page, false);
+            const searchInput = page.getByTestId("search-input");
+            await searchInput.click();
+            const presetList = page.getByTestId("preset-item");
+            await expect(presetList).toHaveCount(0);
+            const emptyStateIcon = page.getByTestId("empty-state-icon");
+            await expect(emptyStateIcon).toBeVisible();
+            const noPresetsMessage = page.getByTestId("no-presets-message");
+            await expect(noPresetsMessage).toBeVisible();
+        });
+
+        test("added public preset should be displayed in the list", async ({ page }) => {
+            await addPreset(page, presetOptsAllFilters);
+            await interceptDataForExportPage(page, false);
+            const searchInput = page.getByTestId("search-input");
+            await searchInput.click();
+            const presetList = page.getByTestId("preset-item");
+            await expect(presetList).toHaveCount(1);
+            const presetItem = presetList.first();
+            await expect(presetItem).toContainText(presetOptsAllFilters.name);
+            await expect(presetItem).toContainText(presetOptsAllFilters.description);
+        });
+
+        test("should apply one continent filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetOneContinent);
+        });
+
+        test("should apply all continents filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetAllContinents);
+        });
+
+        test("should apply one continent and all countries filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetOneContinentAllCountries);
+        });
+
+        test("should apply one continent and one country filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetOneContinentOneCountry);
+        });
+
+        test("should apply all continents and all countries filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetAllContinentsAllCountries);
+        });
+
+        test("should apply one water source filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetOneWaterSource);
+        });
+
+        test("should apply all water sources filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetAllWaterSources);
+        });
+
+        test("should apply temperature range only from filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetTemperatureRangeOnlyFrom);
+        });
+
+        test("should apply temperature range only to filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetTemperatureRangeOnlyTo);
+        });
+
+        test("should apply temperature range in Celsius", async ({ page }) => {
+            await addPresetAndVerify(page, presetTemperatureRangeCelsius);
+        });
+
+        test("should apply temperature range in Fahrenheit", async ({ page }) => {
+            await addPresetAndVerify(page, presetTemperatureRangeFahrenheit);
+        });
+
+        test("should apply date range only from filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetDateRangeOnlyFrom);
+        });
+
+        test("should apply date range only to filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetDateRangeOnlyTo);
+        });
+
+        test("should apply date range filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetDateRange);
+        });
+
+        test("should apply one time slot filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetOneTimeSlot);
+        });
+
+        test("should apply mixed time slots filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetTimeSlotsMixed);
+        });
+
+        test("should apply multiple time slots filter", async ({ page }) => {
+            await addPresetAndVerify(page, presetsTimeSlots);
+        });
+
+        test("should apply all filters in a single preset", async ({ page }) => {
+            await addPresetAndVerify(page, presetOptsAllFilters);
+        });
+
+        test("should display multiple searchable presets in the list", async ({ page }) => {
+            await addPreset(page, presetTemperatureRangeFahrenheit);
+            await addPreset(page, presetDateRangeOnlyFrom);
+            await addPreset(page, presetDateRangeOnlyTo);
+            await addPreset(page, presetDateRange);
+            await interceptDataForExportPage(page, false);
+            const searchInput = page.getByTestId("search-input");
+            await searchInput.click();
+            const presetList = page.getByTestId("preset-item");
+            await expect(presetList).toHaveCount(4); // Should match the number of presets added
+            await searchInput.fill("Date");
+            await expect(presetList).toHaveCount(3); // Should match the number of presets with "Date" in the name
+            // Assert that the preset list contains the expected presets in any order
+            const expectedPresets = [presetDateRangeOnlyFrom.name, presetDateRangeOnlyTo.name, presetDateRange.name];
+            for (const presetName of expectedPresets) {
+                const presetItem = presetList.locator(`text=${presetName}`).first();
+                await expect(presetItem).toBeVisible();
+            }
+            await searchInput.fill(""); // Clear the search input
+            await expect(presetList).toHaveCount(4); // Should return to the original count
+        });
+    });
+});
 /**
  * Add a preset and verify its application.
  *
@@ -556,11 +586,11 @@ async function verifyPresetApplication(page: Page, presetOpts: AddPresetOpts) {
     }
 
     // Temperature Filter
-    const tempEnabled = presetOpts.filters.temperatureEnabled ?? false;
-    const temperatureCheckbox = page.getByLabel("Temperature");
+    const tempEnabled = presetOpts.filters.temperatureEnabled ?? true;
+    const temperatureCheckbox = page.getByRole("checkbox", { name: "Temperature" });
     if (tempEnabled) {
         // It should be checked
-        await expect(temperatureCheckbox).toBeChecked();
+        await expect(temperatureCheckbox).toHaveAttribute("aria-checked", "true");
 
         // Verify unit button: either "°C" or "°F" has the selected classes
         const unit = presetOpts.filters.temperatureUnit ?? "C";
@@ -590,7 +620,7 @@ async function verifyPresetApplication(page: Page, presetOpts: AddPresetOpts) {
             await expect(maxInput).toHaveValue(""); // If no maxTemp, it should be empty
         }
     } else {
-        await expect(temperatureCheckbox).not.toBeChecked();
+        await expect(temperatureCheckbox).toHaveAttribute("aria-checked", "false");
         // Ensure the unit buttons are not visible (since v-if="temperatureEnabled")
         await expect(page.locator("button:has-text('°C')")).toBeHidden();
         await expect(page.locator("button:has-text('°F')")).toBeHidden();
@@ -742,7 +772,6 @@ async function addPreset(page: Page, opts: AddPresetOpts) {
             }
         }
         if (opts.filters.temperatureEnabled) {
-            await page.getByRole("checkbox", { name: "Enable temperature filter" }).check();
             if (opts.filters.temperatureRange) {
                 if (opts.filters.temperatureRange[0] !== null && opts.filters.temperatureRange[0] !== undefined) {
                     await page
@@ -758,6 +787,8 @@ async function addPreset(page: Page, opts: AddPresetOpts) {
             if (opts.filters.temperatureUnit) {
                 await page.getByLabel("Unit:", { exact: true }).selectOption(opts.filters.temperatureUnit);
             }
+        } else {
+            await page.getByRole("checkbox", { name: "Enable temperature filter" }).check();
         }
         if (opts.filters.dateRange) {
             if (opts.filters.dateRange[0] !== null && opts.filters.dateRange[0] !== undefined) {

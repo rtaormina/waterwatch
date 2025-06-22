@@ -2,9 +2,17 @@ import { flushPromises, mount, VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 const fakeFetch = vi.fn();
 vi.stubGlobal("fetch", fakeFetch);
+
 import MeasurementComponent from "../../../../src/components/MeasurementComponent.vue";
 import { ref } from "vue";
 import { DateTime } from "luxon";
+import * as L from "leaflet";
+
+vi.mock("@nuxt/ui/runtime/composables/useToast", () => ({
+    useToast: () => ({
+        add: vi.fn(),
+    }),
+}));
 
 const pushMock = vi.fn();
 vi.mock("vue-router", () => ({
@@ -29,29 +37,54 @@ describe("postData", () => {
     let wrapper;
 
     beforeEach(() => {
+        vi.mock("@vuepic/vue-datepicker", () => ({
+            default: {
+                name: "VueDatePicker",
+                template: '<input data-testid="vue-datepicker" />',
+                props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+                emits: ["update:modelValue"],
+            },
+        }));
+        vi.mock("./Measurement/MeasurementBlock.vue", () => ({
+            default: {
+                name: "MeasurementBlock",
+                template: `
+            <div>
+                <slot></slot>
+            </div>
+        `,
+            },
+        }));
+        vi.mock("@vuepic/vue-datepicker/dist/main.css", () => ({}));
+
         wrapper = mount(MeasurementComponent, {
             global: {
                 stubs: {
                     LocationFallback: {
                         template: '<div data-testid="stub-map"></div>',
                     },
+                    VueDatePicker: {
+                        template: '<input data-testid="vue-datepicker" />',
+                        props: ["modelValue", "enableTimePicker", "timePickerInline", "maxDate", "placeholder", "dark"],
+                        emits: ["update:modelValue"],
+                    },
                 },
             },
         });
-        wrapper.vm.tempUnit = "C";
-        wrapper.vm.selectedMetrics = ["temperature"];
-        wrapper.vm.formData.water_source = "river";
-        wrapper.vm.formData.temperature.sensor = "analog";
-        wrapper.vm.formData.temperature.value = 2.0;
-        wrapper.vm.formData.temperature.time_waited = "00:01:15";
-        wrapper.vm.formData.location = {
-            type: "Point",
-            coordinates: [0, 0],
+        wrapper.vm.data = {
+            location: L.latLng(0, 0),
+            waterSource: "network",
+            temperature: {
+                sensor: "analog thermometer",
+                value: 20,
+                unit: "C",
+                time_waited: {
+                    minutes: 10,
+                    seconds: 5,
+                },
+            },
+            selectedMetrics: ["temperature"],
         };
-        wrapper.vm.tempVal = "20";
-        wrapper.vm.time.mins = "10";
-        wrapper.vm.time.sec = "05";
-        wrapper.vm.userLoc = { lng: 0, lat: 0 };
         wrapper.vm.showModal = ref(false);
         wrapper.vm.cookies = { get: () => "test-token" };
     });
@@ -81,7 +114,7 @@ describe("postData", () => {
         await wrapper.vm.postData();
         await flushPromises();
 
-        expect(errorSpy).toHaveBeenCalledWith("error with adding measurement");
+        expect(errorSpy).toHaveBeenCalledWith("Error with adding measurement");
         expect(wrapper.vm.router.push).not.toHaveBeenCalled();
 
         errorSpy.mockRestore();
@@ -131,9 +164,9 @@ describe("postData", () => {
                 type: "Point",
                 coordinates: [0, 0],
             },
-            water_source: "river",
+            water_source: "network",
             temperature: {
-                sensor: "analog",
+                sensor: "analog thermometer",
                 value: 20,
                 time_waited: "00:10:05",
             },
@@ -169,227 +202,31 @@ describe("MeasurementComponent.vue clear/post", () => {
     });
 
     it("clear() should reset all fields to their initial state", async () => {
-        wrapper.vm.formData.water_source = "well";
-        wrapper.vm.tempVal = "25";
-        wrapper.vm.time.mins = "10";
-        wrapper.vm.selectedMetrics = ["temperature"];
-        wrapper.vm.tempUnit = "F";
-
+        const initialData = {
+            location: L.latLng(0, 0),
+            waterSource: undefined,
+            temperature: {
+                sensor: undefined,
+                value: undefined,
+                unit: "C",
+                time_waited: {
+                    minutes: undefined,
+                    seconds: undefined,
+                },
+            },
+            selectedMetrics: ["temperature"],
+            time: {
+                localDate: undefined,
+                localTime: undefined,
+            },
+        };
+        wrapper.vm.defaultData = initialData;
         wrapper.vm.clear();
 
-        expect(wrapper.vm.formData.water_source).toBe("");
-        expect(wrapper.vm.tempVal).toBe("");
-        expect(wrapper.vm.time.mins).toBe("");
-        expect(wrapper.vm.selectedMetrics).toEqual([]);
-        expect(wrapper.vm.tempUnit).toBe("C");
-    });
-});
-
-/**
- * Test for MeasurementComponent.vue time handlers
- * This test suite checks the functionality of the time input handlers in the MeasurementComponent.
- */
-describe("MeasurementComponent.vue time handlers", () => {
-    let wrapper: VueWrapper<any>;
-
-    beforeEach(() => {
-        wrapper = mount(MeasurementComponent, {
-            global: {
-                stubs: {
-                    LocationFallback: {
-                        template: '<div data-testid="stub-map"></div>',
-                    },
-                },
-            },
-        });
-        pushMock.mockReset();
-        fakeFetch.mockReset();
-    });
-
-    afterEach(() => {
-        vi.useRealTimers();
-        vi.clearAllMocks;
-    });
-
-    function makeKeyboardEvent(key: string, value: string) {
-        return {
-            key,
-            target: { value, replace: String.prototype.replace },
-            preventDefault: vi.fn(),
-        } as unknown as KeyboardEvent;
-    }
-
-    it("handleKeyPress emits update:modelValue for valid digit", () => {
-        const ev = makeKeyboardEvent("7", "1");
-        wrapper.vm.handleKeyPress(ev);
-        expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions && emissions.length).toBe(1);
-        expect(emissions && emissions[0][0]).toBe("17");
-    });
-
-    it("handleKeyPress emits for multiple key presses", () => {
-        const ev = makeKeyboardEvent("2", "");
-        wrapper.vm.handleKeyPress(ev);
-        const ev2 = makeKeyboardEvent("3", "2");
-        wrapper.vm.handleKeyPress(ev2);
-        expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions && emissions.length).toBe(2);
-        expect(emissions && emissions[0][0]).toBe("2");
-        expect(emissions && emissions[1][0]).toBe("23");
-    });
-
-    it("handleKeyPress blocks out of range digit", () => {
-        const ev = makeKeyboardEvent("2", "6");
-        wrapper.vm.handleKeyPress(ev);
-        expect(wrapper.emitted("update:modelValue")).toBeFalsy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions).toBeFalsy();
-    });
-
-    it("handleKeyPress blocks negative", () => {
-        const ev = makeKeyboardEvent(".", "-");
-        wrapper.vm.handleKeyPress(ev);
-        expect(wrapper.emitted("update:modelValue")).toBeFalsy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions).toBeFalsy();
-    });
-
-    it("handleKeyPress blocks non-digits", () => {
-        const ev = makeKeyboardEvent("a", "1");
-        wrapper.vm.handleKeyPress(ev);
-        expect(wrapper.emitted("update:modelValue")).toBeFalsy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions).toBeFalsy();
-    });
-
-    it("handlePaste emits for valid paste", () => {
-        const ev = {
-            clipboardData: { getData: () => "42" },
-            preventDefault: vi.fn(),
-        } as unknown as ClipboardEvent;
-        wrapper.vm.handlePaste(ev);
-        expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions && emissions.length).toBe(1);
-        expect(emissions && emissions[0][0]).toBe("42");
-    });
-
-    it("handlePaste blocks non-digit paste", () => {
-        const prevent = vi.fn();
-        const ev = {
-            clipboardData: { getData: () => "abc" },
-            preventDefault: prevent,
-        } as unknown as ClipboardEvent;
-        wrapper.vm.handlePaste(ev);
-        expect(prevent).toHaveBeenCalled();
-    });
-
-    it("handlePaste blocks out-of-range paste", () => {
-        const prevent = vi.fn();
-        const ev = {
-            clipboardData: { getData: () => "99" },
-            preventDefault: prevent,
-        } as unknown as ClipboardEvent;
-        wrapper.vm.handlePaste(ev);
-        expect(prevent).toHaveBeenCalled();
-    });
-
-    it("handleInput emits for valid input", () => {
-        const ev = { target: { value: "58" }, preventDefault: vi.fn() } as unknown as Event;
-        wrapper.vm.handleInput(ev);
-        expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions && emissions.length).toBe(1);
-        expect(emissions && emissions[0][0]).toBe("58");
-    });
-
-    it("handleInput blocks invalid input", () => {
-        const prevent = vi.fn();
-        const ev = { target: { value: "60" }, preventDefault: prevent } as unknown as Event;
-        wrapper.vm.handleInput(ev);
-        expect(prevent).toHaveBeenCalled();
-    });
-});
-
-/**
- * Test for MeasurementComponent.vue temperature handler
- * This test suite checks the functionality of the temperature input handlers in the MeasurementComponent.
- */
-describe("MeasurementComponent.vue temperature handler", () => {
-    let wrapper: VueWrapper<any>;
-
-    beforeEach(() => {
-        wrapper = mount(MeasurementComponent, {
-            global: {
-                stubs: {
-                    LocationFallback: {
-                        template: '<div data-testid="stub-map"></div>',
-                    },
-                },
-            },
-        });
-
-        pushMock.mockReset();
-        fakeFetch.mockReset();
-    });
-
-    afterEach(() => {
-        vi.useRealTimers();
-        vi.clearAllMocks;
-    });
-
-    function makeTempEvent(key: string, value: string) {
-        return {
-            key,
-            target: { value, replace: String.prototype.replace },
-        } as unknown as KeyboardEvent;
-    }
-
-    it("handleTempPress allows digit within 0-212", () => {
-        const ev = makeTempEvent("1", "20");
-        wrapper.vm.handleTempPress(ev);
-        expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions && emissions.length).toBe(1);
-        expect(emissions && emissions[0][0]).toBe("201");
-    });
-
-    it("handleTempPress allows multiple key presses", () => {
-        const ev = makeTempEvent("4", "");
-        wrapper.vm.handleTempPress(ev);
-        const ev2 = makeTempEvent("3", "4");
-        wrapper.vm.handleTempPress(ev2);
-        expect(wrapper.emitted("update:modelValue")).toBeTruthy();
-        const emissions = wrapper.emitted("update:modelValue");
-        expect(emissions && emissions.length).toBe(2);
-        expect(emissions && emissions[0][0]).toBe("4");
-        expect(emissions && emissions[1][0]).toBe("43");
-    });
-
-    it("handleTempPress blocks beyond 212", () => {
-        const prevent = vi.fn();
-        const ev = makeTempEvent("3", "71");
-        Object.assign(ev, { preventDefault: prevent });
-        wrapper.vm.handleTempPress(ev);
-        expect(prevent).toHaveBeenCalled();
-    });
-
-    it("handleTempPress blocks second decimal point", () => {
-        const prevent = vi.fn();
-        const ev = makeTempEvent(".", "1.2");
-        Object.assign(ev, { preventDefault: prevent });
-        wrapper.vm.handleTempPress(ev);
-        expect(prevent).toHaveBeenCalled();
-    });
-
-    it("handleTempPress blocks minus sign", () => {
-        const prevent = vi.fn();
-        const ev = makeTempEvent("-", "");
-        Object.assign(ev, { preventDefault: prevent });
-        wrapper.vm.handleTempPress(ev);
-        expect(prevent).toHaveBeenCalled();
+        expect(wrapper.vm.data.location).toEqual(initialData.location);
+        expect(wrapper.vm.data.waterSource).toEqual(initialData.waterSource);
+        expect(wrapper.vm.data.temperature).toEqual(initialData.temperature);
+        expect(wrapper.vm.data.selectedMetrics).toEqual(initialData.selectedMetrics);
     });
 });
 
@@ -410,7 +247,9 @@ describe("MeasurementComponent.vue postDataCheck", () => {
                 },
             },
         });
-
+        wrapper.vm.TemperatureMetricComponent = ref({
+            verify: vi.fn(() => true),
+        });
         pushMock.mockReset();
         fakeFetch.mockReset();
     });
@@ -420,15 +259,21 @@ describe("MeasurementComponent.vue postDataCheck", () => {
         vi.clearAllMocks;
     });
 
-    it("shows modal without temperature included", () => {
-        wrapper.vm.postDataCheck();
-        expect(wrapper.vm.showModal).toBe(true);
-        expect(wrapper.vm.modalMessage).toBe("Are you sure you would like to submit this measurement?");
-    });
-
     it("shows modal with temperature in Celsius", () => {
-        wrapper.vm.tempUnit = "C";
-        wrapper.vm.tempVal = "25";
+        wrapper.vm.data = {
+            location: L.latLng(0, 0),
+            waterSource: undefined,
+            temperature: {
+                sensor: undefined,
+                value: 25,
+                unit: "C",
+                time_waited: {
+                    minutes: undefined,
+                    seconds: undefined,
+                },
+            },
+            selectedMetrics: ["temperature"],
+        };
         wrapper.vm.selectedMetrics = ["temperature"];
         wrapper.vm.postDataCheck();
         expect(wrapper.vm.showModal).toBe(true);
@@ -436,8 +281,20 @@ describe("MeasurementComponent.vue postDataCheck", () => {
     });
 
     it("shows modal with temperature in Fahrenheit", () => {
-        wrapper.vm.tempUnit = "F";
-        wrapper.vm.tempVal = "77";
+        wrapper.vm.data = {
+            location: L.latLng(0, 0),
+            waterSource: undefined,
+            temperature: {
+                sensor: undefined,
+                value: 25,
+                unit: "C",
+                time_waited: {
+                    minutes: undefined,
+                    seconds: undefined,
+                },
+            },
+            selectedMetrics: ["temperature"],
+        };
         wrapper.vm.selectedMetrics = ["temperature"];
         wrapper.vm.postDataCheck();
         expect(wrapper.vm.showModal).toBe(true);
@@ -445,8 +302,20 @@ describe("MeasurementComponent.vue postDataCheck", () => {
     });
 
     it("shows modal with temperature out of range in Celsius", () => {
-        wrapper.vm.tempUnit = "C";
-        wrapper.vm.tempVal = "50";
+        wrapper.vm.data = {
+            location: L.latLng(0, 0),
+            waterSource: undefined,
+            temperature: {
+                sensor: undefined,
+                value: 50,
+                unit: "C",
+                time_waited: {
+                    minutes: undefined,
+                    seconds: undefined,
+                },
+            },
+            selectedMetrics: ["temperature"],
+        };
         wrapper.vm.selectedMetrics = ["temperature"];
         wrapper.vm.postDataCheck();
         expect(wrapper.vm.showModal).toBe(true);
@@ -454,8 +323,20 @@ describe("MeasurementComponent.vue postDataCheck", () => {
     });
 
     it("shows modal with temperature out of range in Fahrenheit", () => {
-        wrapper.vm.tempUnit = "F";
-        wrapper.vm.tempVal = "120";
+        wrapper.vm.data = {
+            location: L.latLng(0, 0),
+            waterSource: undefined,
+            temperature: {
+                sensor: undefined,
+                value: 120,
+                unit: "F",
+                time_waited: {
+                    minutes: undefined,
+                    seconds: undefined,
+                },
+            },
+            selectedMetrics: ["temperature"],
+        };
         wrapper.vm.selectedMetrics = ["temperature"];
         wrapper.vm.postDataCheck();
         expect(wrapper.vm.showModal).toBe(true);

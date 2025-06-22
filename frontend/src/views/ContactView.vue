@@ -20,7 +20,7 @@
                     . This helps us keep track of all reported issues and prioritize them accordingly. For more
                     information on how to report issues, please refer to our
                     <a
-                        href="https://waterwatch.tudelft.nl/docs/contribution_guide.html"
+                        href="https://waterwatch.tudelft.nl/docs/development/contribution_guide.html"
                         target="_blank"
                         rel="noopener noreferrer"
                     >
@@ -35,8 +35,6 @@
 
 <script setup lang="ts">
 /**
- * ContactView
- *
  * This component renders the “Contact WATERWATCH” page.
  * It displays simple contact information and instructions.
  */

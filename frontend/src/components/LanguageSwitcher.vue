@@ -1,5 +1,5 @@
 <template>
-    <select v-model="locale">
+    <select v-model="locale" class="bg-default">
         <option v-for="loc in locales" :key="loc" :value="loc">
             {{ loc.toUpperCase() }}
         </option>
