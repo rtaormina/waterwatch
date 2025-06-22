@@ -123,6 +123,7 @@
                     <MenuButton
                         icon="i-heroicons-plus-circle"
                         tooltip="Add a Measurement"
+                        data-testid="add-measurement-button"
                         :handler="
                             () => {
                                 addMeasurement = true;
@@ -220,7 +221,12 @@ const month = ref<string>("0");
 const refresh = ref(false);
 
 const menuItems = [
-    { icon: "i-heroicons-adjustments-vertical", tooltip: "Map Settings", handler: toggleLegend },
+    {
+        icon: "i-heroicons-adjustments-vertical",
+        tooltip: "Map Settings",
+        handler: toggleLegend,
+        testid: "map-settings-button",
+    },
     {
         icon: "i-heroicons-chart-bar",
         tooltip: "Show Global Analytics",

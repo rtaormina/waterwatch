@@ -120,6 +120,7 @@
 
         <div>
             <USelect
+                data-testid="time-range-select"
                 v-model="internalValue"
                 :items="items"
                 :multiple="isMulti"
