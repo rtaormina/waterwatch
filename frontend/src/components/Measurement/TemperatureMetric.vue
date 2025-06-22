@@ -101,9 +101,9 @@ function verifySensor(): boolean {
 function verifyTemperature(): boolean {
     const temperature = modelValue.value;
     if (!temperature.value && temperature.value !== 0) {
-        errors.value.value = "Temperature value is required";
+        errors.value.value = "Temperature value is required.";
     } else if (!temperature.unit) {
-        errors.value.value = "Temperature unit is required";
+        errors.value.value = "Temperature unit is required.";
     } else if (temperature.unit === "C" && (temperature.value >= 100 || temperature.value <= 0)) {
         errors.value.value = "Temperature value must be between 0°C and 100°C";
     } else if (temperature.unit === "F" && (temperature.value > 212 || temperature.value < 32)) {
@@ -122,7 +122,7 @@ function verifyTemperature(): boolean {
 function verifyTimeWaited(): boolean {
     const time = modelValue.value.time_waited;
     if (!time.minutes && !time.seconds) {
-        errors.value.time_waited = "Time waited is required";
+        errors.value.time_waited = "Time waited is required.";
     } else if (
         (time.minutes && (time.minutes < 0 || time.minutes > 59)) ||
         (time.seconds && (time.seconds < 0 || time.seconds > 59))

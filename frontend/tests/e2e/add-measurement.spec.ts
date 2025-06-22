@@ -8,17 +8,67 @@ test.describe("Add Measurement Tests", () => {
     // Go to map page and open the add measurement sidebar
     test.beforeEach(async ({ page }) => {
         await page.goto(url, { waitUntil: "domcontentloaded" });
+        await clickButton(page, "view-button");
         await clickButton(page, "add-measurement-button");
     });
 
-    test("Add a measurement with valid data", async ({ page }) => {
-        await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "21.4", true, "2", "0");
-        await clickButton(page, "submit-measurement-button");
+    test.describe("Good Weather Tests", () => {
+        test("Add a measurement with normal data", async ({ page }) => {
+            // Fill out the measurement form and submit
+            await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "21.4", true, "2", "0");
+            await clickButton(page, "submit-measurement-button");
 
-        expect(page.getByTestId("add-measurement-modal-message")).toHaveText("Are you sure you would like to submit this measurement?");
+            // Check that the confirmation modal appears
+            expect(page.getByTestId("add-measurement-modal-message")).toHaveText("Are you sure you would like to submit this measurement?");
 
-        await clickButton(page, "submit-modal-button");
-        await expectToastToAppear(page, "Measurement successfully submitted!");
+            // Click the submit button and expect a success toast
+            await clickButton(page, "submit-modal-button");
+            expect(page.locator('text="Measurement successfully submitted!"')).toHaveCount(1);
+
+            // Wait for page to refresh and check sidebar is closed
+            await Promise.all([
+                page.waitForURL(url, { waitUntil: "domcontentloaded" }),
+                expect(page.locator('text="Record Measurement"')).toHaveCount(0)
+            ]);
+
+            // Check that the measurement appears on the map
+            const hexagons = page.locator('path.hexbin-hexagon');
+            await expect(hexagons).toHaveCount(1);
+        });
+
+        test("Add a measurement with very high data", async ({ page }) => {
+            // Fill out the measurement form and submit
+            await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "60.4", true, "2", "0");
+            await clickButton(page, "submit-measurement-button");
+
+            // Check that the confirmation modal appears
+            expect(page.getByTestId("add-measurement-modal-message")).toHaveText("Are you sure you would like to submit the temperature value 60.4°C?");
+
+            // Click the submit button and expect a success toast
+            await clickButton(page, "submit-modal-button");
+            expect(page.locator('text="Measurement successfully submitted!"')).toHaveCount(1);
+
+            // Wait for page to refresh and check sidebar is closed
+            await Promise.all([
+                page.waitForURL(url, { waitUntil: "domcontentloaded" }),
+                expect(page.locator('text="Record Measurement"')).toHaveCount(0)
+            ]);
+
+            // Check that the measurement appears on the map
+            const hexagons = page.locator('path.hexbin-hexagon');
+            await expect(hexagons).toHaveCount(1);
+        });
+    });
+
+    test.describe("Bad Weather Tests", () => {
+        test("Try to add a measurement with no data", async ({ page }) => {
+            await clickButton(page, "submit-measurement-button");
+            expect(page.locator('text="Please fill in all required fields."')).toHaveCount(1);
+            expect(page.locator('text="Water source is required."')).toHaveCount(1);
+            expect(page.locator('text="Sensor type is required."')).toHaveCount(1);
+            expect(page.locator('text="Temperature value is required."')).toHaveCount(1);
+            expect(page.locator('text="Time waited is required."')).toHaveCount(1);
+        });
     });
 
 });
@@ -35,21 +85,12 @@ test.describe("Add Measurement Tests", () => {
  * @returns {Promise<void>}
  */
 async function fillOutMeasurementForm(page: Page, waterSource: string, sensorType: string, tempValue: string, celsius: boolean, timeWaitedMin: string, timeWaitedSec: string) {
-    await selectFromDropdown(page, "water-source-dropdown", waterSource);
-    await selectFromDropdown(page, "sensor-type-dropdown", sensorType);
-    await fillOutTextField(page, "temperature-value-input", tempValue);
+    await selectFromDropdown(page, "select-water-source", waterSource);
+    await selectFromDropdown(page, "sensor-type", sensorType);
+    await fillOutTextField(page, "temp-val", tempValue);
     (celsius)
-        ? await clickButton(page, "celsius-checkbox")
-        : await clickButton(page, "fahrenheit-checkbox");
-    await fillOutTextField(page, "time-waited-min-input", timeWaitedMin);
-    await fillOutTextField(page, "time-waited-sec-input", timeWaitedSec);
+        ? await page.getByTestId('temp-unit').getByText('°C').click()
+        : await page.getByTestId('temp-unit').getByText('°F').click();
+    await fillOutTextField(page, "time-waited-mins", timeWaitedMin);
+    await fillOutTextField(page, "time-waited-sec", timeWaitedSec);
 };
-
-/**
- * Checks if a toast message appears.
- * @param page the current page
- * @param message the message of the toast
- */
-async function expectToastToAppear(page: Page, message: string) {
-    await expect(page.getByText(message)).toBeVisible();
-}
