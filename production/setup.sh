@@ -18,7 +18,7 @@ echo "Pushing Docker images to registry..."
 docker compose -f docker-compose.prod.stack.yaml push
 # Deploy stack
 echo "Deploying Docker stack..."
-docker stack deploy -c docker-compose.prod.stack.yaml production --prune --detach=false
+export $(grep -v '^#' .env | xargs) && docker stack config -c docker-compose.prod.stack.yaml | docker stack deploy -c - production --prune --detach=false
 
 echo "Waiting for deployment to complete..."
 sleep 2  # Wait for services to start

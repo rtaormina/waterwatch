@@ -15,7 +15,7 @@ docker compose -f docker-compose.prod.stack.yaml push
 
 # Deploy stack
 echo "Deploying Docker stack..."
-docker stack deploy -c docker-compose.prod.stack.yaml production --prune --detach=false
+export $(grep -v '^#' .env | xargs) && docker stack config -c docker-compose.prod.stack.yaml | docker stack deploy -c - production --prune --detach=false
 
 # Wait for deployment to complete
 echo "Waiting for deployment to complete..."

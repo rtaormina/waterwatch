@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import PageNotFound from "../../../src/views/PageNotFound.vue";
+import PageNotFound from "../../../src/views/ErrorPages/PageNotFound.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 let router;
