@@ -127,7 +127,19 @@ class MeasurementSerializer(serializers.ModelSerializer):
         return not obj.flag
 
     def get_country(self, obj):
-        """Return country using FK relationship when available."""
+        """Return country using FK relationship when available.
+
+        Parameters
+        ----------
+        obj : Measurement
+            The model instance being serialized. `obj.location_ref` is expected
+            to be a foreign key relationship to a Location model that has a country_name field.
+
+        Returns
+        -------
+        str or None
+            The country name if available, otherwise None.
+        """
         # First try the annotated country
         if hasattr(obj, "country"):
             return obj.country
@@ -139,7 +151,19 @@ class MeasurementSerializer(serializers.ModelSerializer):
         return None
 
     def get_continent(self, obj):
-        """Return continent using FK relationship when available."""
+        """Return continent using FK relationship when available.
+
+        Parameters
+        ----------
+        obj : Measurement
+            The model instance being serialized. `obj.location_ref` is expected
+            to be a foreign key relationship to a Location model that has a continent field.
+
+        Returns
+        -------
+        str or None
+            The continent name if available, otherwise None.
+        """
         # First try the annotated continent
         if hasattr(obj, "continent"):
             return obj.continent
