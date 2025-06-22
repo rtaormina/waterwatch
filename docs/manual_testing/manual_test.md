@@ -39,7 +39,7 @@ In this section provide the related epic, issue, or requirement that the bug rel
 ## Manual Test Records
 ```{eval-rst}
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    index.md
 ```
