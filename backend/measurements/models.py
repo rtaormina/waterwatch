@@ -127,11 +127,11 @@ class Temperature(models.Model):
 
         constraints = [
             models.CheckConstraint(
-                check=models.Q(value__gte=0),
+                check=models.Q(value__gt=0),
                 name="temperature_value_greater_than_zero",
             ),
             models.CheckConstraint(
-                check=models.Q(value__lte=100),
+                check=models.Q(value__lt=100),
                 name="temperature_value_less_than_100",
             ),
             models.UniqueConstraint(fields=["measurement"], name="unique_measurement_id"),
