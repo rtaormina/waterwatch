@@ -8,14 +8,30 @@ import { beforeAll, afterAll, vi, describe, it, expect } from "vitest";
 import { DateTime } from "luxon";
 import * as L from "leaflet";
 
+
 describe("validateTemp Tests", () => {
     it("accepts valid temp value", async () => {
-        expect(validateTempRange("0", "C")).toBe(true);
-        expect(validateTempRange("100", "C")).toBe(true);
-        expect(validateTempRange("101", "C")).toBe(false);
-        expect(validateTempRange("32", "F")).toBe(true);
-        expect(validateTempRange("212", "F")).toBe(true);
-        expect(validateTempRange("213", "F")).toBe(false);
+        // Valid values (should return false for no error)
+        expect(validateTempRange("50", "C")).toBe(true);
+        expect(validateTempRange("86", "F")).toBe(true);
+
+        // Boundary tests - values AT the boundaries (should be invalid with strict inequalities)
+        expect(validateTempRange("0", "C")).toBe(false);   // exactly 0°C - invalid
+        expect(validateTempRange("100", "C")).toBe(false); // exactly 100°C - invalid
+        expect(validateTempRange("32", "F")).toBe(false);  // exactly 32°F (0°C) - invalid
+        expect(validateTempRange("212", "F")).toBe(false); // exactly 212°F (100°C) - invalid
+
+        // Values just inside the boundaries (should be valid)
+        expect(validateTempRange("0.1", "C")).toBe(true);  // just above 0°C - valid
+        expect(validateTempRange("99.9", "C")).toBe(true); // just below 100°C - valid
+        expect(validateTempRange("32.1", "F")).toBe(true); // just above 32°F - valid
+        expect(validateTempRange("211.9", "F")).toBe(true); // just below 212°F - valid
+
+        // Values outside the boundaries (should be invalid)
+        expect(validateTempRange("-1", "C")).toBe(false);   // below 0°C - invalid
+        expect(validateTempRange("101", "C")).toBe(false);  // above 100°C - invalid
+        expect(validateTempRange("31", "F")).toBe(false);   // below 32°F - invalid
+        expect(validateTempRange("213", "F")).toBe(false);  // above 212°F - invalid
     });
 });
 
