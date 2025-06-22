@@ -220,6 +220,7 @@ defineExpose({
                 class="flex-1 border bg-default text-md border-primary justify-center text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer"
                 @click="clear"
                 label="Clear"
+                data-testid="clear-form-button"
             />
             <UButton
                 type="submit"

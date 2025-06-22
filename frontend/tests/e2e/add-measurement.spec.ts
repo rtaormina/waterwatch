@@ -86,6 +86,28 @@ test.describe("Add Measurement Tests", () => {
             const hexagons = page.locator('path.hexbin-hexagon');
             await expect(hexagons).toHaveCount(1);
         });
+
+        test("Clear button clears the form", async ({ page }) => {
+            // Fill out the measurement form
+            await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "21.4", true, "2", "0");
+            await clickButton(page, "clear-form-button");
+
+            // Check that the form is cleared
+            expect(page.locator('text="Network"')).toHaveCount(0);
+            expect(page.locator('text="Analog Thermometer"')).toHaveCount(0);
+            await expect(page.locator('text="21.4"')).toHaveCount(0);
+
+            // Click on submit button to ensure error texts appear then clear them
+            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "clear-form-button");
+
+            //Confirm that the error messages disappear
+            expect(page.locator('text="Please fill in all required fields."')).toHaveCount(0);
+            expect(page.locator('text="Water source is required."')).toHaveCount(0);
+            expect(page.locator('text="Sensor type is required."')).toHaveCount(0);
+            expect(page.locator('text="Temperature value is required."')).toHaveCount(0);
+            expect(page.locator('text="Time waited is required."')).toHaveCount(0);
+        });
     });
 
     test.describe("Bad Weather Tests", () => {
