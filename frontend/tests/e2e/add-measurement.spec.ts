@@ -16,7 +16,7 @@ test.describe("Add Measurement Tests", () => {
         test("Add a measurement with normal data", async ({ page }) => {
             // Fill out the measurement form and submit
             await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "21.4", true, "2", "0");
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
 
             // Check that the confirmation modal appears
             expect(page.getByTestId("add-measurement-modal-message")).toHaveText("Are you sure you would like to submit this measurement?");
@@ -39,7 +39,7 @@ test.describe("Add Measurement Tests", () => {
         test("Add a measurement with very high data", async ({ page }) => {
             // Fill out the measurement form and submit
             await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "60.4", true, "2", "0");
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
 
             // Check that the confirmation modal appears
             expect(page.getByTestId("add-measurement-modal-message")).toHaveText("Are you sure you would like to submit the temperature value 60.4°C?");
@@ -63,7 +63,7 @@ test.describe("Add Measurement Tests", () => {
             // Fill out the measurement form and submit
             await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "21.4", true, "2", "0");
             await moveToCoordinates(page, 53.0, 4.0);
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
 
             // Check that the confirmation modal appears
             expect(page.getByTestId("add-measurement-modal-message")).toHaveText("Are you sure you would like to submit this measurement?");
@@ -98,7 +98,7 @@ test.describe("Add Measurement Tests", () => {
             await expect(page.locator('text="21.4"')).toHaveCount(0);
 
             // Click on submit button to ensure error texts appear then clear them
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
             await clickButton(page, "clear-form-button");
 
             //Confirm that the error messages disappear
@@ -113,7 +113,7 @@ test.describe("Add Measurement Tests", () => {
     test.describe("Bad Weather Tests", () => {
         test("Try to add a measurement with no data", async ({ page }) => {
             // CLick the submit button without filling out the form
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
 
             //Confirm that the error messages appear
             expect(page.locator('text="Please fill in all required fields."')).toHaveCount(1);
@@ -127,7 +127,7 @@ test.describe("Add Measurement Tests", () => {
             // Partially fill out the measurement form and submit
             await selectFromDropdown(page, "select-water-source", "Network");
             await fillOutTextField(page, "temp-val", "21.4");
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
 
             //Confirm that the error messages appear
             expect(page.locator('text="Please fill in all required fields."')).toHaveCount(1);
@@ -142,22 +142,22 @@ test.describe("Add Measurement Tests", () => {
         test("Try to fill out incorrect temperature", async ({ page }) => {
             // Fill out too high temperature
             await fillOutTextField(page, "temp-val", "100");
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
             await expect(page.locator('text="Temperature value must be between 0°C and 100°C."')).toHaveCount(1);
 
             // Check that the error message disappears when a valid temperature is entered
             await fillOutTextField(page, "temp-val", "99.9");
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
             await expect(page.locator('text="Temperature value must be between 0°C and 100°C."')).toHaveCount(0);
 
             // Fill out too low temperature
             await fillOutTextField(page, "temp-val", "0");
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
             await expect(page.locator('text="Temperature value must be between 0°C and 100°C."')).toHaveCount(1);
 
             // Check that the error message disappears when a valid temperature is entered
             await fillOutTextField(page, "temp-val", "0.1");
-            await clickButton(page, "submit-measurement-button");
+            await clickButton(page, "submit-measurement");
             await expect(page.locator('text="Temperature value must be between 0°C and 100°C."')).toHaveCount(0);
         });
     });
