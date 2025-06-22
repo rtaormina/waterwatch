@@ -8,8 +8,6 @@ test.describe("Map Analysis Comparing Hexagons", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto(url, { waitUntil: "domcontentloaded" });
 
-        await page.waitForTimeout(2500);
-
         //create measurement 1
         await addMeasurement(
             page,
@@ -25,8 +23,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
                     value: 30,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
         //create measurement 2
@@ -44,13 +41,10 @@ test.describe("Map Analysis Comparing Hexagons", () => {
                     value: 10,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
-        await page.goto(url, { waitUntil: "domcontentloaded" });
-
-
+        await clickButton(page, "view-button");
     });
 
     test("compare 2 hexagons", async ({ page }) => {
@@ -186,8 +180,7 @@ test.describe("Map Analysis Comparing Hexagons", () => {
                     value: 30,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
         //go back to map
@@ -327,8 +320,7 @@ test.describe("Map Analysis Select Multiple Hexagons", () => {
                     value: 30,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
         //navigate to map
