@@ -98,7 +98,10 @@
                 <Legend
                     v-show="showLegend"
                     class="absolute z-40 mt-0.95 h-auto"
-                    :class="legendClasses"
+                    :class="[
+                        legendClasses,
+                        { 'hidden md:block': viewAnalytics || addMeasurement || compareMode || selectMode },
+                    ]"
                     :colors="colors"
                     :fromExport="false"
                     @update="updateMapFilters"
