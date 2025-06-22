@@ -1,5 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
-import { clickButton, selectFromDropdown, fillOutTextField } from "./utils";
+import { clickButton, selectFromDropdown, fillOutTextField, moveToCoordinates, zoomToLevel } from "./utils";
 
 const url = "http://localhost/";
 
@@ -53,6 +53,34 @@ test.describe("Add Measurement Tests", () => {
                 page.waitForURL(url, { waitUntil: "domcontentloaded" }),
                 expect(page.locator('text="Record Measurement"')).toHaveCount(0)
             ]);
+
+            // Check that the measurement appears on the map
+            const hexagons = page.locator('path.hexbin-hexagon');
+            await expect(hexagons).toHaveCount(1);
+        });
+
+        test("Add a measurement with manual location set", async ({ page }) => {
+            // Fill out the measurement form and submit
+            await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "21.4", true, "2", "0");
+            await moveToCoordinates(page, 53.0, 4.0);
+            await clickButton(page, "submit-measurement-button");
+
+            // Check that the confirmation modal appears
+            expect(page.getByTestId("add-measurement-modal-message")).toHaveText("Are you sure you would like to submit this measurement?");
+
+            // Click the submit button and expect a success toast
+            await clickButton(page, "submit-modal-button");
+            expect(page.locator('text="Measurement successfully submitted!"')).toHaveCount(1);
+
+            // Wait for page to refresh and check sidebar is closed
+            await Promise.all([
+                page.waitForURL(url, { waitUntil: "domcontentloaded" }),
+                expect(page.locator('text="Record Measurement"')).toHaveCount(0)
+            ]);
+
+            // Find measurement
+            await zoomToLevel(page, 12);
+            await moveToCoordinates(page, 53.0, 4.0);
 
             // Check that the measurement appears on the map
             const hexagons = page.locator('path.hexbin-hexagon');
