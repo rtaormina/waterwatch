@@ -136,6 +136,10 @@ class UtilsTestCase(TestCase):
         """Set up for each test."""
         # Clear cache to ensure clean state
         cache.clear()
+        from django.core.cache import caches
+
+        # Clear the specific cache used for location geometries
+        caches["location_cache"].clear()
         # Reset global state
         import measurement_export.utils as utils_module
 

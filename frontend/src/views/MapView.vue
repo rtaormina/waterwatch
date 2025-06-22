@@ -171,6 +171,7 @@
                                 viewAnalytics = false;
                                 showLegend = false;
                             "
+                            data-testid="add-measurement-button"
                             type="button"
                             aria-label="add measurement"
                             v-if="!viewAnalytics && !addMeasurement && !compareMode && !selectMode"

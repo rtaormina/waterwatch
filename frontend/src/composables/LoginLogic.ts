@@ -1,6 +1,7 @@
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import Cookies from "universal-cookie";
+import { useSession } from "./useSession";
 
 export const loggedIn = ref(false);
 
@@ -10,6 +11,7 @@ export const loggedIn = ref(false);
 export function useLogin() {
     const router = useRouter();
     const cookies = new Cookies();
+    const session = useSession();
 
     const formData = reactive({
         username: "",
@@ -58,8 +60,12 @@ export function useLogin() {
         } catch (err: unknown) {
             console.error("Network error during logout:", err);
         } finally {
-            // in all cases, clear our local state
+            // Clear local state and invalidate session
             loggedIn.value = false;
+            session.invalidateSession();
+
+            // Force a fresh session fetch to clear any cached data
+            await session.refreshSession();
             router.push({ name: "Map" });
         }
     }
@@ -71,21 +77,11 @@ export function useLogin() {
      */
     async function isLoggedIn() {
         try {
-            const res = await fetch("/api/whoami/", {
-                method: "GET",
-                credentials: "same-origin",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": cookies.get("csrftoken"),
-                },
-            });
-            const data = await res.json();
-            // your whoami_view returns either {isAuthenticated: false}
-            // or {username: 'foo'}.  We treat presence of username as “true”.
-            loggedIn.value = !!data.username || data.isAuthenticated === true;
-            return loggedIn.value;
+            const isAuth = await session.isAuthenticated();
+            loggedIn.value = isAuth;
+            return isAuth;
         } catch (err) {
-            console.error("whoami failed", err);
+            console.error("isLoggedIn check failed", err);
             loggedIn.value = false;
             return false;
         }
@@ -97,7 +93,10 @@ export function useLogin() {
     const handleSubmit = async () => {
         showError.value = false;
         try {
-            const response = await fetch("api/login/", {
+            // Ensure session is initialized (CSRF token is set) before attempting login
+            await session.initializeSession();
+
+            const response = await fetch("/api/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -115,8 +114,12 @@ export function useLogin() {
 
             if (data.detail === "Successfully logged in.") {
                 loggedIn.value = true;
-                const groups = data.groups || [];
 
+                // Refresh session data to get updated user information
+                const updatedSession = await session.refreshSession();
+
+                // Use the session data for routing decisions
+                const groups = updatedSession.groups || [];
                 if (groups.includes("researcher")) {
                     router.push({ name: "Export" });
                 } else {
