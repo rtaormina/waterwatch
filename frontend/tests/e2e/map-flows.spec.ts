@@ -32,8 +32,7 @@ test.describe("Map user flows", () => {
                     value: 30,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
         //create measurement 2
@@ -51,8 +50,7 @@ test.describe("Map user flows", () => {
                     value: 10,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
         await page.goto(url, { waitUntil: "domcontentloaded" });
@@ -67,8 +65,6 @@ test.describe("Map user flows", () => {
         //select water source
         await page.getByTestId("select-water-source").click();
         await page.locator("text=Well").click();
-
-        //maybe scroll??
 
         //select sensor
         await page.getByTestId("sensor-type").click();
@@ -87,9 +83,6 @@ test.describe("Map user flows", () => {
 
         //click pop up submit button
         await clickButton(page, "submit-button");
-
-        //refresh the page to ensure the measurement is saved
-        // await page.reload({ waitUntil: "domcontentloaded" });
 
         //zoom in to the map
         await zoomToLevel(page, 10);
@@ -149,8 +142,7 @@ test.describe("Map legend tests", () => {
                     value: 30,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
         //create measurement 2
@@ -168,8 +160,7 @@ test.describe("Map legend tests", () => {
                     value: 10,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
         await addMeasurement(
@@ -186,15 +177,14 @@ test.describe("Map legend tests", () => {
                     value: 19,
                     time_waited: 5,
                 },
-            },
-            url,
+            }
         );
 
         await page.goto(url, { waitUntil: "domcontentloaded" });
     });
 
     test("open legend and toggle date range", async ({ page }) => {
-
+        await page.waitForTimeout(1000);
         await zoomToLevel(page, 10);
 
         moveToCoordinates(page, 52.0, 4.0);
