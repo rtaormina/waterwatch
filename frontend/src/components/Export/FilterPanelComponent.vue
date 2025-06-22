@@ -284,6 +284,8 @@ function applyFilters(filters: Filters) {
             temperature.from = temp.from?.toString() || "";
             temperature.to = temp.to?.toString() || "";
             temperature.unit = temp.unit || "C";
+        } else {
+            temperatureEnabled.value = false;
         }
     }
 

@@ -181,64 +181,65 @@ defineExpose({
 <template>
     <Block title="Temperature">
         <!-- Sensor Type -->
-        <div class="flex-1 items-start gap-4 mb-4">
-            <div class="flex flex-col">
-                <UFormField class="xs:flex xs:items-center xs:gap-4" :error="errors.sensor" label="Sensor Type">
-                    <USelect
-                        data-testid="sensor-type"
-                        :items="sensorOptions"
-                        value-key="value"
-                        v-model="modelValue.sensor"
-                        class="w-60"
-                        :ui="{
-                            content: 'z-10',
-                        }"
-                    />
-                </UFormField>
+        <div class="flex md:flex-row flex-col items-baseline justify-between mb-6 gap-4">
+            <label class="text-sm font-medium mt-2">Sensor Type</label>
+            <div class="md:w-60 w-full">
+                <USelect
+                    data-testid="sensor-type"
+                    :items="sensorOptions"
+                    value-key="value"
+                    v-model="modelValue.sensor"
+                    class="w-full"
+                    :ui="{ content: 'z-10' }"
+                />
+                <div v-if="errors.sensor" class="text-red-500 text-sm mt-1">{{ errors.sensor }}</div>
             </div>
         </div>
 
         <!-- Temperature Value + Unit -->
-        <UFormField class="xs:flex xs:items-center xs:gap-4" :error="errors.value" label="Temperature Value">
-            <div class="flex items-center gap-4">
-                <UInput
-                    data-testid="temp-val"
-                    id="temp-val"
-                    v-model="modelValue.value"
-                    type="text"
-                    @keydown="handleTempPress"
-                    @input="handleInput"
-                    ref="tempRef"
-                    placeholder="e.g. 24.3"
-                    class="min-w-16 max-w-20"
-                    aria-label="Temperature value input"
-                />
-
-                <URadioGroup
-                    data-testid="temp-unit"
-                    v-model="modelValue.unit"
-                    :items="[
-                        { label: '°C', value: 'C' },
-                        { label: '°F', value: 'F' },
-                    ]"
-                    value-key="value"
-                    color="primary"
-                    orientation="horizontal"
-                    variant="table"
-                    default-value="C"
-                    indicator="hidden"
-                    :ui="{
-                        item: 'p-2',
-                    }"
-                ></URadioGroup>
+        <div class="flex md:flex-row flex-col items-start justify-between mb-6 gap-4">
+            <label class="text-sm font-medium mt-2">Temperature Value</label>
+            <div class="md:w-60 w-full">
+                <div class="flex md:flex-row flex-row items-center gap-4">
+                    <UInput
+                        data-testid="temp-val"
+                        id="temp-val"
+                        v-model="modelValue.value"
+                        type="text"
+                        @keydown="handleTempPress"
+                        @input="handleInput"
+                        ref="tempRef"
+                        placeholder="e.g. 24.3"
+                        class="flex-1"
+                        aria-label="Temperature value input"
+                    />
+                    <URadioGroup
+                        data-testid="temp-unit"
+                        v-model="modelValue.unit"
+                        :items="[
+                            { label: '°C', value: 'C' },
+                            { label: '°F', value: 'F' },
+                        ]"
+                        value-key="value"
+                        color="primary"
+                        orientation="horizontal"
+                        variant="table"
+                        default-value="C"
+                        indicator="hidden"
+                        :ui="{ item: 'p-2 cursor-pointer hover:bg-primary/10' }"
+                    ></URadioGroup>
+                </div>
+                <div v-if="errors.value" class="text-red-500 text-sm mt-1">{{ errors.value }}</div>
             </div>
-        </UFormField>
+        </div>
 
         <!-- Time waited -->
-        <div class="flex items-center gap-2">
-            <UFormField class="xs:flex xs:items-center xs:gap-4" :error="errors.time_waited" label="Time waited">
-                <DurationInput v-model="modelValue.time_waited" />
-            </UFormField>
+        <div class="flex md:flex-row flex-col items-start justify-between gap-4">
+            <label class="text-sm font-medium mt-1">Time Waited</label>
+            <div class="md:w-60 w-full">
+                <DurationInput v-model="modelValue.time_waited" class="w-full" />
+                <div v-if="errors.time_waited" class="text-red-500 text-sm mt-1">{{ errors.time_waited }}</div>
+            </div>
         </div>
     </Block>
 </template>

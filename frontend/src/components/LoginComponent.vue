@@ -71,7 +71,7 @@ defineExpose({
 
                     <!-- Turn into email link once email address exists -->
                     <p class="text-center text-sm text-toned">
-                        Don’t have an account? Send an email to
+                        Don't have an account? Send an email to
                         <b>waterwatch@tudelft.nl</b>
                         to register!
                         <!-- <a href="#" class="font-semibold text-black hover:underline">waterwatch@tudelft.nl</a> -->

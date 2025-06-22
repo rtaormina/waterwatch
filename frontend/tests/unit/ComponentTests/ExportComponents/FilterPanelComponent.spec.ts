@@ -580,6 +580,8 @@ describe("FilterPanelComponent - Preset Application", () => {
             const filtersWithoutTemp = {
                 measurements: {
                     waterSources: ["Ocean"],
+                    temperature: {
+                    }
                 },
             };
 
