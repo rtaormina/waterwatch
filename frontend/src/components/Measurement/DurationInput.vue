@@ -79,7 +79,7 @@ defineExpose({
 </script>
 
 <template>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center w-full gap-4">
         <UInput
             data-testid="time-waited-mins"
             id="time-waited_min"
@@ -92,13 +92,13 @@ defineExpose({
             placeholder="00"
             type="number"
             ref="minsRef"
-            class="w-24 rounded px-2 py-1"
+            class="flex-1"
             :ui="{
                 trailing: 'pointer-events-none',
             }"
             aria-label="Time waited in minutes"
         >
-            <template #trailing><span class="mr-2">min</span></template>
+            <template #trailing><span>min</span></template>
         </UInput>
         <UInput
             data-testid="time-waited-sec"
@@ -112,13 +112,13 @@ defineExpose({
             placeholder="00"
             type="number"
             ref="secRef"
-            class="w-24 rounded px-2 py-1"
+            class="flex-1"
             :ui="{
                 trailing: 'pointer-events-none',
             }"
             aria-label="Time waited in seconds"
         >
-            <template #trailing><span class="mr-2">sec</span></template>
+            <template #trailing><span>sec</span></template>
         </UInput>
     </div>
 </template>

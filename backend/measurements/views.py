@@ -57,7 +57,7 @@ def measurement_view(request):
     return HttpResponseNotAllowed(["GET", "POST"])
 
 
-def get_all_measurements(_request):
+def get_all_measurements(request):
     """Export all measurements with related metrics, campaigns, and user info.
 
     Parameters
@@ -70,6 +70,10 @@ def get_all_measurements(_request):
     JsonResponse
         JSON response containing measurements with related metrics and campaigns.
     """
+    user = request.user
+    if not user.groups.filter(name="researcher").exists() and not user.is_superuser and not user.is_staff:
+        return JsonResponse({"error": "Forbidden: insufficient permissions"}, status=403)
+
     # Start with our base queryset
     qs = build_base_queryset(ordered=True)
     # Add geographic annotations and prepare complete data
@@ -85,7 +89,16 @@ def measurement_search(request):
     Parameters
     ----------
     request : HttpRequest
-        The HTTP request object.
+        The HTTP request object containing JSON data with optional:
+        - month: Month parameter for temporal filtering
+        - boundary_geometry: WKT of a polygon to filter measurements within that area
+        - water_sources: List of water sources to filter by
+        - temperature: Dictionary with 'min' and 'max' values to filter measurements by temperature
+        - date_range: Dictionary with 'start' and 'end' dates to filter measurements by date
+        - time_slots: List of time slots to filter measurements by time
+        - location: Dictionary with 'country' and 'continent' to filter measurements by location
+        - format: Optional export format (csv, json, xml, geojson, map-format, analysis-format)
+        - measurements_included: List of metric types to include in the export
 
     Returns
     -------
@@ -157,8 +170,8 @@ def temperature_view(request):
     ----------
     request : HttpRequest
         The HTTP request object containing JSON data with optional:
-        - boundary_geometry: GeoJSON polygon to filter by location
         - month: Month parameter for temporal filtering
+        - boundary_geometry: WKT of a polygon to filter measurements within that area
 
     Returns
     -------
