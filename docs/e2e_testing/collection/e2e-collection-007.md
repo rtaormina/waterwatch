@@ -1,14 +1,14 @@
 ## Test Case ID
-`E2E-ADD_MEASUREMENT-005`
+`E2E-COLLECTION-007`
 
 ## Title
-Try to add a measurement with no data
+Try to fill out incorrect temperature
 
 ## Tested By
 `Erik Koprivanacz`
 
 ## Test Description
-Tries to add a measurement without any data filled out and checks if the error messages correctly show up
+Checks if the correct error messages show up when trying to enter too low or too high temperature values.
 
 ## Preconditions
 
@@ -16,12 +16,15 @@ Tries to add a measurement without any data filled out and checks if the error m
 1. Go to home page
 2. Close first time visitor pop up
 3. Click on add measurement button
-4. Click on submit button
+4. Fill out 100 for temperature
+5. Fill out 99.9 for temperature
+6. Fill out 0 for temperature
+7. Fill out for 0.1 for temperature
 
 ## Test Data
 
 ## Expected Result
-The measurement isn't submitted and the appropriate errors show up
+The appropriate error messages show up for 100 and 0, and they disappear when filling out a valid value
 
 ## Browser(s) Tested
 - Chromium

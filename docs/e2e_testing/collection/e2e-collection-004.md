@@ -1,5 +1,5 @@
 ## Test Case ID
-`E2E-ADD_MEASUREMENT-004`
+`E2E-COLLECTION-004`
 
 ## Title
 Clear button clears the form
@@ -45,4 +45,3 @@ The clear button clears the filled out data, then it clears the errors that show
 `/frontend/tests/e2e/add-measurement.spec.ts`
 
 ## Additional Notes
-It is currently failing, however there is fixed on another branch already so no fixes were implemented here.

@@ -4,6 +4,6 @@
 
    export/index.md
    map/index.md
-   add_measurement/index.md
+   collection/index.md
 
 ```

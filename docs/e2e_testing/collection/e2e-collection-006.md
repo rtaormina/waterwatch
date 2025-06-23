@@ -1,17 +1,16 @@
 ## Test Case ID
-`E2E-ADD_MEASUREMENT-002`
+`E2E-COLLECTION-006`
 
 ## Title
-Add a measurement with very high data
+Try to add a measurement with some data
 
 ## Tested By
 `Erik Koprivanacz`
 
 ## Test Description
-Adds a measurement with outlier data, checks if the confirmation pop up contains the right text, and checks if the measurement appears on the map.
+Tries to fill out the form partially, but still expects errors to pop up
 
 ## Preconditions
-There are no other measurements in the database
 
 ## Test Steps
 1. Go to home page
@@ -19,17 +18,14 @@ There are no other measurements in the database
 3. Click on add measurement button
 4. Fill out the form with the data below
 5. Click on submit button
-6. Click confirm
 
 ## Test Data
 - Water Source: Network
-- Sensor Type: Analog Thermometer
-- Water Temperature: 60.4
+- Water Temperature: 21.4
 - Celsius
-- Time Waited: 2min
 
 ## Expected Result
-The measurement gets added without problem
+The measurement isn't submitted and the appropriate errors show up
 
 ## Browser(s) Tested
 - Chromium
