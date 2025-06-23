@@ -15,7 +15,7 @@ import { createPinia } from "pinia";
 import { useSession } from "./composables/useSession";
 
 const session = useSession();
-await session.initializeSession();
+session.initializeSession();
 
 // mount the app
 createApp(App).use(ui).use(router).use(i18n).component("VueDatePicker", VueDatePicker).use(createPinia()).mount("#app");
