@@ -96,8 +96,9 @@
                         Mekelweg 5, 2628 CD Delft, The Netherlands
                         <br />
                         <strong>Contact:</strong>
-                        <a href="mailto:r.taormina@tudelft.nl">r.taormina@tudelft.nl</a>
+                        <a href="mailto:r.taormina@tudelft.nl" class="text-blue-600 underline">r.taormina@tudelft.nl</a>
                     </p>
+                    <br />
 
                     <ol class="list-decimal list-inside ml-6 space-y-8">
                         <li>
@@ -195,12 +196,14 @@
                             <p>
                                 We may update this policy from time to time. The latest version will always be available
                                 at
-                                <em>waterwatch.tudelft.nl/about</em>
+                                <a href="https://waterwatch.tudelft.nl/about" class="text-blue-600 underline">
+                                    waterwatch.tudelft.nl/about
+                                </a>
                                 .
                             </p>
                         </li>
                     </ol>
-
+                    <br />
                     <p class="mt-2"><em>Effective date: June 20, 2025</em></p>
                 </TextSection>
             </template>
