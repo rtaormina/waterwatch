@@ -191,6 +191,7 @@ defineExpose({
                     v-model="modelValue.sensor"
                     class="w-full"
                     :ui="{ content: 'z-10' }"
+                    aria-label="Sensor type input"
                 />
                 <div v-if="errors.sensor" class="text-red-500 text-sm mt-1">{{ errors.sensor }}</div>
             </div>

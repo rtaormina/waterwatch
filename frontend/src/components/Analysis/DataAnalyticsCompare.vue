@@ -130,7 +130,7 @@ watch(
 </script>
 
 <template>
-    <div class="max-w-screen-md mx-auto space-y-2">
+    <div class="w-full mx-auto space-y-2">
         <!-- Overlaid KDEs Accordion Item -->
         <div class="border border-muted rounded-lg">
             <button
