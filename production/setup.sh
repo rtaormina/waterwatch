@@ -48,6 +48,9 @@ docker exec "$DATABASE" psql -U admin -d pg4django -f countries.sql
 
 # Run migrations
 echo "Running migrations..."
+docker compose exec backend python manage.py makemigrations measurement_export
+docker compose exec backend python manage.py migrate measurement_export
+
 docker exec "$BACKEND" python manage.py makemigrations
 docker exec "$BACKEND" python manage.py migrate
 

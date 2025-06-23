@@ -14,16 +14,16 @@ const mockUseFilters = {
     },
     loadLocations: vi.fn(),
     allCountries: ["Japan", "China", "India", "France", "Germany", "Italy"],
-    continentPlaceholder: "Select continents",
-    countryPlaceholder: "Select countries",
+    continentPlaceholder: "Select regions",
+    countryPlaceholder: "Select subregions",
     toggleContinent: vi.fn(),
     toggleCountry: vi.fn(),
     toggleAllContinents: vi.fn(),
     toggleAllCountries: vi.fn(),
     toggleWaterSource: vi.fn(),
     toggleAllWaterSources: vi.fn(),
-    formatContinentSelectionText: () => "2 continents selected",
-    formatCountrySelectionText: () => "3 countries selected",
+    formatContinentSelectionText: () => "2 regions selected",
+    formatCountrySelectionText: () => "3 subregions selected",
     waterSources: ["Network", "Rooftop Tank", "Well", "Other"],
     loadWaterSources: vi.fn(),
     formatWaterSourceSelectionText: () => "2 water sources selected",
@@ -123,7 +123,7 @@ describe("FilterPanelComponent.vue - country filtering UI", () => {
         expect((wrapper.vm as any).countryDropdownOpen).toBe(true);
         const searchInput = wrapper.findAll('[data-testid="continent-placeholder"]')[0];
         expect(searchInput.exists()).toBe(true);
-        expect(searchInput.text()).toBe("Select continents");
+        expect(searchInput.text()).toBe("Select regions");
         await nextTick();
 
         const filteredOptions = wrapper.findAll('[data-testid="continent-options"] .multiselect-option');
@@ -147,7 +147,7 @@ describe("FilterPanelComponent.vue - country filtering UI", () => {
 
         expect(wrapper.vm.selectedContinents).toContain("Asia");
         expect(wrapper.vm.selectedContinents).toContain("Europe");
-        expect(displayText.text()).toBe("2 continents selected");
+        expect(displayText.text()).toBe("2 regions selected");
 
         await thirdOption.trigger("click");
         await wrapper.vm.$nextTick();
@@ -165,9 +165,9 @@ describe("FilterPanelComponent.vue - country filtering UI", () => {
         expect((wrapper.vm as any).countryDropdownOpen).toBe(true);
         const searchInput = wrapper.findAll('[data-testid="country-placeholder"]')[0];
         expect(searchInput.exists()).toBe(true);
-        expect(searchInput.text()).toBe("Select countries");
+        expect(searchInput.text()).toBe("Select subregions");
         await nextTick();
-        const searchbar = wrapper.find('input[placeholder="Search countries..."]');
+        const searchbar = wrapper.find('input[placeholder="Search subregions..."]');
         expect(searchInput.exists()).toBe(true);
         await searchbar.setValue("J");
         const filteredOptions = wrapper.findAll('[data-testid="country-options"] .multiselect-option');
@@ -193,13 +193,13 @@ describe("FilterPanelComponent.vue - country filtering UI", () => {
 
         expect(wrapper.vm.selectedCountries).not.toContain("China");
         expect(wrapper.vm.selectedCountries).not.toContain("Finland");
-        expect(displayText.text()).toBe("4 countries selected");
+        expect(displayText.text()).toBe("4 subregions selected");
 
         await thirdOption.trigger("click");
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.selectedCountries).not.toContain("China");
-        expect(displayText.text()).toBe("5 countries selected");
+        expect(displayText.text()).toBe("5 subregions selected");
     });
 
     it("opens the water sources dropdown, allows for selection and deselection", async () => {

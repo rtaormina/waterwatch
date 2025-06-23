@@ -336,7 +336,7 @@ defineExpose({
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Continent multi‑select -->
                     <div>
-                        <label class="block text-sm font-medium mb-1">Continent</label>
+                        <label class="block text-sm font-medium mb-1">Region</label>
                         <div class="relative" ref="continentWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleContinentDropdown">
                                 <span
@@ -390,7 +390,7 @@ defineExpose({
                                 </div>
 
                                 <div v-if="continents.length === 0" class="multiselect-no-options">
-                                    No continents found.
+                                    No regions found.
                                 </div>
                             </div>
                         </div>
@@ -398,7 +398,7 @@ defineExpose({
 
                     <!-- Country multi‑select -->
                     <div>
-                        <label class="block text-sm font-medium mb-1">Country</label>
+                        <label class="block text-sm font-medium mb-1">Subregion</label>
                         <div class="relative" ref="countryWrapperRef">
                             <div class="multiselect-custom-wrapper rounded border" @click="toggleCountryDropdown">
                                 <span
@@ -425,7 +425,7 @@ defineExpose({
                                     <input
                                         type="text"
                                         v-model="countrySearchQuery"
-                                        placeholder="Search countries..."
+                                        placeholder="Search subregions..."
                                         class="w-full px-3 py-2 border rounded text-sm"
                                         @click.stop
                                     />
@@ -438,9 +438,9 @@ defineExpose({
                                 </div>
 
                                 <div v-if="allCountries.length === 0" class="multiselect-no-options">
-                                    No countries available.
+                                    No subregions available.
                                     <br />
-                                    Please select a continent first.
+                                    Please select a region first.
                                 </div>
 
                                 <div v-else data-testid="country-options" class="multiselect-options">

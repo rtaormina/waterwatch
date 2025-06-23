@@ -127,64 +127,52 @@ class MeasurementSerializer(serializers.ModelSerializer):
         return not obj.flag
 
     def get_country(self, obj):
-        """Return annotated country or fallback.
-
-        This method retrieves the country associated with the measurement's location.
+        """Return country using FK relationship when available.
 
         Parameters
         ----------
         obj : Measurement
-            The model instance being serialized. `obj.location` is expected
-            to be a GEOS Point with x (longitude) and y (latitude) attributes.
+            The model instance being serialized. `obj.location_ref` is expected
+            to be a foreign key relationship to a Location model that has a country_name field.
 
         Returns
         -------
-        str
-            The country name associated with the measurement's location.
-            It first checks for an annotated country, then looks up in a pre-computed
-            location map, and finally performs a reverse geocoding lookup if necessary.
+        str or None
+            The country name if available, otherwise None.
         """
+        # First try the annotated country
         if hasattr(obj, "country"):
             return obj.country
-        # fallback if still using location_map
-        loc_map = self.context.get("location_map", {})
-        key = (obj.location.x, obj.location.y)
-        if key in loc_map:
-            return loc_map[key].get("country")
-        # last resort: reverse-geocode
-        from .utils import lookup_location
 
-        logger.warning("Fallback reverse-geocode for %s", obj.id)
-        return lookup_location(lat=obj.location.y, lon=obj.location.x)["country"]
+        # Then try the foreign key relationship
+        if obj.location_ref:
+            return obj.location_ref.country_name
+
+        return None
 
     def get_continent(self, obj):
-        """Return annotated continent or fallback.
-
-        This method retrieves the continent associated with the measurement's location.
+        """Return continent using FK relationship when available.
 
         Parameters
         ----------
         obj : Measurement
-            The model instance being serialized. `obj.location` is expected
-            to be a GEOS Point with x (longitude) and y (latitude) attributes.
+            The model instance being serialized. `obj.location_ref` is expected
+            to be a foreign key relationship to a Location model that has a continent field.
 
         Returns
         -------
-        str
-            The continent name associated with the measurement's location.
-            It first checks for an annotated continent, then looks up in a pre-computed
-            location map, and finally performs a reverse geocoding lookup if necessary.
+        str or None
+            The continent name if available, otherwise None.
         """
+        # First try the annotated continent
         if hasattr(obj, "continent"):
             return obj.continent
-        loc_map = self.context.get("location_map", {})
-        key = (obj.location.x, obj.location.y)
-        if key in loc_map:
-            return loc_map[key].get("continent")
-        from .utils import lookup_location
 
-        logger.warning("Fallback reverse-geocode for %s", obj.id)
-        return lookup_location(lat=obj.location.y, lon=obj.location.x)["continent"]
+        # Then try the foreign key relationship
+        if obj.location_ref:
+            return obj.location_ref.continent
+
+        return None
 
     def get_metrics(self, obj):
         """Get all metrics associated with the measurement.
