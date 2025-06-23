@@ -4,5 +4,6 @@
 
    export/index.md
    map/index.md
-   
+   collection/index.md
+
 ```

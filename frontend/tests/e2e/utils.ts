@@ -68,7 +68,7 @@ export async function clickButton(page: Page, testId: string) {
  * @param testId the test ID of the dropdown
  * @param option the option to select from the dropdown
  */
-async function selectFromDropdown(page:Page, testId: string, option: string) {
+export async function selectFromDropdown(page:Page, testId: string, option: string) {
     await page.getByTestId(testId).click();
     await page.waitForSelector(`text=${option}`);
     await page.locator(`text=${option}`).click();
@@ -80,7 +80,7 @@ async function selectFromDropdown(page:Page, testId: string, option: string) {
  * @param testId the test ID of the text field
  * @param value the text to fill in the field
  */
-async function fillOutTextField(page: Page, testId: string, value: string) {
+export async function fillOutTextField(page: Page, testId: string, value: string) {
     await page.getByTestId(testId).fill(value);
 }
 
@@ -126,7 +126,7 @@ export async function moveToCoordinates(page: Page, latitude: number, longitude:
  */
 export async function clickNthHexagonOnMap(page: Page, n: number) {
     await page.waitForSelector("path.hexbin-grid", { state: "visible" });
-            await page.locator("path.hexbin-grid").nth(n).click();
+    await page.locator("path.hexbin-grid").nth(n).click();
 }
 
 /**
@@ -137,11 +137,11 @@ export async function clearMeasurements(page: Page) {
     // Navigate to admin page
     await page.goto("localhost/admin")
     await page.waitForLoadState('networkidle')
-            
+
     // Fill login form
     await page.fill('input[name="username"]', "admin")
     await page.fill('input[name="password"]', "admin")
-            
+
     // Submit form
     await page.click('input[type="submit"]')
     await page.waitForLoadState('networkidle')
@@ -159,11 +159,11 @@ export async function clearMeasurements(page: Page) {
     }else{
         return
     }
-    
+
     // Select delete action from dropdown
     const actionSelect = page.locator('select[name="action"]')
     await actionSelect.selectOption('delete_selected')
-    
+
     // Click Go button
     await page.click('button[name="index"]')
     await page.waitForLoadState('networkidle')
@@ -173,7 +173,7 @@ export async function clearMeasurements(page: Page) {
     // If the confirm button is not found, scroll down to load it
     if ((await confirmButton.count()) === 0) {
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        await page.waitForTimeout(1000) 
+        await page.waitForTimeout(1000)
         confirmButton = page.locator('input[type="submit"]')
         // If the confirm button is still not found, return
         if(await confirmButton.count() === 0) {
@@ -182,6 +182,7 @@ export async function clearMeasurements(page: Page) {
     // Delete the measurements
     await confirmButton.click()
     await page.waitForLoadState('networkidle')
+    }
 }
 
 export interface AddPresetOpts {

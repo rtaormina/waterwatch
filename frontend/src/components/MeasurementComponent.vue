@@ -242,6 +242,7 @@ defineExpose({
                 class="flex-1 border bg-default text-md border-primary justify-center text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer"
                 @click="clear"
                 label="Clear"
+                data-testid="clear-form-button"
             />
             <UButton
                 type="submit"
@@ -254,7 +255,7 @@ defineExpose({
             <!-- Modal markup unchanged -->
             <Modal :visible="showModal" @close="showModal = false">
                 <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
-                <p>{{ modalMessage }}</p>
+                <p data-testid="add-measurement-modal-message">{{ modalMessage }}</p>
                 <div class="flex items-center mt-4 gap-2">
                     <UButton
                         @click="showModal = false"
@@ -262,7 +263,7 @@ defineExpose({
                         label="Cancel"
                     />
                     <UButton
-                        data-testid="submit-button"
+                        data-testid="submit-modal-button"
                         @click="postData"
                         class="flex-1 justify-center bg-primary text-inverted px-4 py-2 rounded mr-2 hover:cursor-pointer"
                         label="Submit"

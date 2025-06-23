@@ -7,6 +7,12 @@ import { getLocateControl, initializeMap } from "../composables/LocationFallback
 import * as L from "leaflet";
 import { onMounted, useTemplateRef } from "vue";
 
+declare global {
+    interface Window {
+        leafletMap: L.Map;
+    }
+}
+
 const location = defineModel<L.LatLng>("location", {
     required: true,
 });
@@ -27,6 +33,7 @@ onMounted(() => {
     }
     // Initialize the map
     const map: L.Map = initializeMap(mapElement.value, location);
+    window.leafletMap = map;
 
     // Allow the user to click on the map to set the location
     map.on("click", (ev: L.LeafletMouseEvent) => {

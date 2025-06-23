@@ -18,6 +18,8 @@ const test = base.extend<{ page: Page }>({
     },
 });
 
+test.describe.configure({ mode: 'serial' });
+
 test.beforeAll(async ({ browser }) => {
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
