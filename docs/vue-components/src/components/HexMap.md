@@ -7,11 +7,11 @@
 | center      |             | TSTypeReference | -      |         |
 | data        |             | Array           | -      |         |
 | colors      |             | Array           | -      |         |
-| colorScale  |             | tuple           | -      |         |
-| selectMult  |             | boolean         | -      |         |
-| colorByTemp |             | boolean         | -      |         |
+| selectMode  |             | boolean         | -      |         |
 | compareMode |             | boolean         | -      |         |
 | activePhase |             | union           | -      |         |
+| month       |             | string          | -      |         |
+| fromExport  |             | boolean         | -      |         |
 
 ## Events
 

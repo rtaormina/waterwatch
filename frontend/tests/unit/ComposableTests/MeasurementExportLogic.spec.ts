@@ -744,7 +744,7 @@ describe("useFilters", () => {
         expect(filters.formatContinentSelectionText()).toBe("North America");
 
         selectedContinents.value = ["North America", "Europe"];
-        expect(filters.formatContinentSelectionText()).toBe("2 continents selected");
+        expect(filters.formatContinentSelectionText()).toBe("2 regions selected");
 
         selectedWaterSources.value = ["Network", "Well"];
         expect(filters.formatWaterSourceSelectionText()).toBe("Network and Well");
@@ -944,7 +944,7 @@ describe("useFilters", () => {
 
         selectedContinents.value = [];
         await nextTick();
-        expect(filters.continentPlaceholder.value).toBe("Select continents");
+        expect(filters.continentPlaceholder.value).toBe("Select regions");
 
         selectedContinents.value = ["North America"];
         await nextTick();

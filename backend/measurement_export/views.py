@@ -8,6 +8,7 @@ import os
 from campaigns.models import Campaign
 from django.contrib.gis.geos.error import GEOSException
 from django.core.cache import cache
+from django.db import models
 from django.db.models import Avg, Count
 from django.db.models.expressions import RawSQL
 from django.http import HttpResponse, JsonResponse
@@ -22,13 +23,11 @@ from .factories import get_strategy
 from .models import Location, Preset
 from .serializers import PresetSerializer
 from .utils import (
-    _build_inclusion_query,
+    apply_location_filter,
     filter_by_date_range,
     filter_by_time_slots,
     filter_by_water_sources,
     filter_measurement_by_temperature,
-    initialize_location_geometries,
-    optimize_location_filtering,
 )
 
 load_dotenv()
@@ -122,7 +121,7 @@ def build_base_queryset(ordered=False):
         A queryset with all base optimizations applied
     """
     related_fields = [model.__name__.lower() for model in METRIC_MODELS]
-    qs = Measurement.objects.select_related("user", *related_fields).prefetch_related("campaigns")
+    qs = Measurement.objects.select_related("user", "location_ref", *related_fields).prefetch_related("campaigns")
 
     if ordered:
         qs = qs.order_by("id")
@@ -133,9 +132,8 @@ def build_base_queryset(ordered=False):
 def apply_location_annotations(queryset):
     """Apply geographic annotations to include country, continent, and coordinates.
 
-    This function performs the complex spatial join with the Location table and adds
-    computed latitude/longitude fields. The spatial join uses ST_Contains to find
-    which location polygon contains each measurement point.
+    This function uses the location_ref foreign key relationship to get country and continent,
+    and extracts coordinates from the Point geometry.
 
     Parameters
     ----------
@@ -147,20 +145,11 @@ def apply_location_annotations(queryset):
     QuerySet
         Queryset with geographic fields: country, continent, latitude, longitude
     """
-    measurement_table = Measurement._meta.db_table
-    location_table = Location._meta.db_table
-
-    return queryset.extra(
-        tables=[location_table],
-        # This WHERE clause acts as our JOIN condition - find locations that contain each measurement
-        where=[f"ST_Contains({location_table}.geom, {measurement_table}.location)"],
-        # Select additional fields from the joined Location table
-        select={
-            "country": f"{location_table}.country_name",
-            "continent": f"{location_table}.continent",
-        },
-    ).annotate(
-        # Extract longitude and latitude from the PostGIS Point geometry
+    return queryset.annotate(
+        # Use the foreign key relationship
+        country=models.F("location_ref__country_name"),
+        continent=models.F("location_ref__continent"),
+        # Extract coordinates from the Point geometry
         longitude=RawSQL("ST_X(location)", []),
         latitude=RawSQL("ST_Y(location)", []),
     )
@@ -547,10 +536,7 @@ def _build_location_set(data):
 
         def qs_loc():
             qs = Measurement.objects.all()
-            initialize_location_geometries()
-            strategy = optimize_location_filtering(continents, countries)
-            inc_q = _build_inclusion_query(strategy)
-            return qs.filter(inc_q) if inc_q else qs
+            return apply_location_filter(qs, data)
 
         sets.append(_get_or_build_id_list(key, qs_loc))
     return sets

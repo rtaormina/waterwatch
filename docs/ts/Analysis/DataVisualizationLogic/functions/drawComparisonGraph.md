@@ -2,7 +2,7 @@
 
 > **drawComparisonGraph**(`el`, `vals1`, `vals2`, `options?`): `void`
 
-Defined in: src/composables/Analysis/DataVisualizationLogic.ts:247
+Defined in: src/composables/Analysis/DataVisualizationLogic.ts:306
 
 Draws two semi‐transparent histograms (Group 1 + Group 2) plus their overlaid KDE curves.
 

@@ -99,7 +99,7 @@
         "export": {
             "title": "Exporting Data",
             "text1": "This tutorial will be covering how to export data.",
-            "disclaimer": " \nYou must be logged in to access export functionality.",
+            "disclaimer": " \nYou must be logged in as a researcher or admin to access export functionality.",
             "text2": " \nNavigate to 'Data' using the menu bar. This will take you to a page where you can select the export type and filters on the data you will be exporting. \n\nIf you would like to export the entire dataset, click 'Search' and select the desired file type in the dropdown. Then click 'Download'.",
             "text3": "\n\nTo set filters, select the desired choices from the dropdown or fill in the desired fields and click 'Search' to apply the filters. If you would like to reset the filters, click 'Reset'.",
             "caption1": "Download and File Type Selection",

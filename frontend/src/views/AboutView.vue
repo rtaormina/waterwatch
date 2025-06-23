@@ -95,16 +95,19 @@
                         <strong>Address:</strong>
                         Mekelweg 5, 2628 CD Delft, The Netherlands
                         <br />
-                        <strong>Contact:</strong>
-                        <a href="mailto:r.taormina@tudelft.nl">r.taormina@tudelft.nl</a>
+                        <strong>Contact:&nbsp;</strong>
+                        <a href="mailto:r.taormina@tudelft.nl" class="text-blue-600 underline">r.taormina@tudelft.nl</a>
                     </p>
+                    <br />
 
                     <ol class="list-decimal list-inside ml-6 space-y-8">
                         <li>
                             <strong>What We Collect</strong>
                             <p>
                                 We collect the geolocation of your device (“location data”) when you visit
-                                <em>waterwatch.tudelft.nl</em>
+                                <a href="https://waterwatch.tudelft.nl" class="text-blue-600 underline">
+                                    waterwatch.tudelft.nl
+                                </a>
                                 . No user accounts or personal identifiers (names, emails) are linked to this data.
                             </p>
                         </li>
@@ -133,7 +136,9 @@
                             <p>
                                 We retain location data indefinitely, unless you request deletion. All requests should
                                 be sent to
-                                <a href="mailto:r.taormina@tudelft.nl">r.taormina@tudelft.nl</a>
+                                <a href="mailto:r.taormina@tudelft.nl" class="text-blue-600 underline">
+                                    r.taormina@tudelft.nl
+                                </a>
                                 .
                             </p>
                         </li>
@@ -163,7 +168,9 @@
                             </ul>
                             <p>
                                 To exercise these rights, contact us at
-                                <a href="mailto:r.taormina@tudelft.nl">r.taormina@tudelft.nl</a>
+                                <a href="mailto:r.taormina@tudelft.nl" class="text-blue-600 underline">
+                                    r.taormina@tudelft.nl
+                                </a>
                                 .
                             </p>
                         </li>
@@ -181,7 +188,7 @@
                                 <li>All data transmissions occur over HTTPS (TLS-encrypted in transit).</li>
                                 <li>
                                     Data is stored on secure servers managed by Delft University of Technology, using
-                                    Django’s built‑in authentication and permission system to restrict access.
+                                    Django's built‑in authentication and permission system to restrict access.
                                 </li>
                                 <li>
                                     Regular backups and security audits are performed to ensure data integrity and
@@ -195,12 +202,14 @@
                             <p>
                                 We may update this policy from time to time. The latest version will always be available
                                 at
-                                <em>waterwatch.tudelft.nl/about</em>
+                                <a href="https://waterwatch.tudelft.nl/about" class="text-blue-600 underline">
+                                    waterwatch.tudelft.nl/about
+                                </a>
                                 .
                             </p>
                         </li>
                     </ol>
-
+                    <br />
                     <p class="mt-2"><em>Effective date: June 20, 2025</em></p>
                 </TextSection>
             </template>

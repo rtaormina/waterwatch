@@ -113,13 +113,13 @@ function verifySensor(): boolean {
 function verifyTemperature(): boolean {
     const temperature = modelValue.value;
     if (!temperature.value && temperature.value !== 0) {
-        errors.value.value = "Temperature value is required";
+        errors.value.value = "Temperature value is required.";
     } else if (!temperature.unit) {
-        errors.value.value = "Temperature unit is required";
+        errors.value.value = "Temperature unit is required.";
     } else if (temperature.unit === "C" && (temperature.value >= 100 || temperature.value <= 0)) {
-        errors.value.value = "Temperature value must be between 0°C and 100°C";
+        errors.value.value = "Temperature value must be between 0°C and 100°C.";
     } else if (temperature.unit === "F" && (temperature.value > 212 || temperature.value < 32)) {
-        errors.value.value = "Temperature value must be between 32°F and 212°F";
+        errors.value.value = "Temperature value must be between 32°F and 212°F.";
     } else {
         errors.value.value = false;
     }
@@ -134,12 +134,12 @@ function verifyTemperature(): boolean {
 function verifyTimeWaited(): boolean {
     const time = modelValue.value.time_waited;
     if (!time.minutes && !time.seconds) {
-        errors.value.time_waited = "Time waited is required";
+        errors.value.time_waited = "Time waited is required.";
     } else if (
         (time.minutes && (time.minutes < 0 || time.minutes > 59)) ||
         (time.seconds && (time.seconds < 0 || time.seconds > 59))
     ) {
-        errors.value.time_waited = "Time waited must be between 00:00 and 59:59";
+        errors.value.time_waited = "Time waited must be between 00:00 and 59:59.";
     } else {
         errors.value.time_waited = false;
     }
@@ -191,6 +191,7 @@ defineExpose({
                     v-model="modelValue.sensor"
                     class="w-full"
                     :ui="{ content: 'z-10' }"
+                    aria-label="Sensor type input"
                 />
                 <div v-if="errors.sensor" class="text-red-500 text-sm mt-1">{{ errors.sensor }}</div>
             </div>

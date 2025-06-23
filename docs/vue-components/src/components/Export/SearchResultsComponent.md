@@ -19,6 +19,7 @@
 | update:format |            |
 | download      |            |
 | close-modal   |            |
+| show-on-map   |            |
 
 ## Expose
 

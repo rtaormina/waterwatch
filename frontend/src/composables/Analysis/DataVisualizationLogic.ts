@@ -122,8 +122,6 @@ export async function getGraphDataExportMapView(
         format: "analysis-format",
     };
 
-    console.log("Right endpoint called");
-
     const res = await fetch("/api/measurements/search/", {
         method: "POST",
         headers: {

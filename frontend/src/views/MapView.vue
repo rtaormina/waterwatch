@@ -66,6 +66,7 @@
                             ? 'left: var(--container-lg); transform: none; margin-left: 2%;'
                             : ''
                     "
+                    :class="[{ 'hidden md:block': viewAnalytics || addMeasurement || showCompareAnalytics }]"
                     :rightButton="selectBarRight"
                     :rightButtonDisabled="selectBarRightButtonDisabled"
                     :leftButton="selectBarLeft"
@@ -507,7 +508,6 @@ function handleOpenAnalysis(location: string) {
     hexLocation.value = location;
     if (viewAnalytics.value || showCompareAnalytics.value) {
         viewAnalytics.value = false;
-        console.log("entered");
         setTimeout(() => {
             viewAnalytics.value = true;
         }, 300);

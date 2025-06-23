@@ -2,7 +2,7 @@
 
 > **kernelEpanechnikov**(`bandwidth`): (`v`) => `number`
 
-Defined in: src/composables/Analysis/DataVisualizationLogic.ts:10
+Defined in: src/composables/Analysis/DataVisualizationLogic.ts:15
 
 Creates an Epanechnikov kernel function with a specified bandwidth.
 

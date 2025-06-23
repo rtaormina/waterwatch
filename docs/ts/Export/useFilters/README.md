@@ -17,5 +17,5 @@
 .. toctree::
    :maxdepth: 1
 
-   functions/useFilters.m
+   functions/useFilters.md
 ```

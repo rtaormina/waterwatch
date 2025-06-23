@@ -11,4 +11,5 @@ This is a list of all composables in the application.
    MeasurementCollectionLogic/README
    PermissionsLogic/README
    useSession/README
+   Analysis/DataVisualizationLogic/README
 ```

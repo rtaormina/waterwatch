@@ -239,22 +239,23 @@ defineExpose({
             class="/* mobile: pinned row */ z-10 flex gap-2 bg-default p-4 shadow fixed bottom-0 left-0 w-full /* md+ : revert to static, original margins & width */ md:relative md:bottom-auto md:left-auto md:w-auto md:bg-transparent md:p-0 md:shadow-none md:mb-6 md:max-w-screen-md md:mx-auto md:mt-6"
         >
             <UButton
-                class="flex-1 border bg-default text-md border-primary justify-center text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer"
+                class="flex-1 border bg-default text-md border-primary justify-center text-default px-4 py-2 rounded hover:bg-accented hover:cursor-pointer md:mb-4"
                 @click="clear"
                 label="Clear"
+                data-testid="clear-form-button"
             />
             <UButton
                 type="submit"
                 data-testid="submit-measurement"
                 @click="submitData"
-                class="flex-1 px-4 py-2 rounded text-inverted justify-center text-md bg-primary hover:cursor-pointer"
+                class="flex-1 px-4 py-2 rounded text-inverted justify-center text-md bg-primary hover:cursor-pointer md:mb-4"
                 label="Submit"
             />
 
             <!-- Modal markup unchanged -->
             <Modal :visible="showModal" @close="showModal = false">
                 <h2 class="text-lg font-semibold mb-4">Confirm Submission</h2>
-                <p>{{ modalMessage }}</p>
+                <p data-testid="add-measurement-modal-message">{{ modalMessage }}</p>
                 <div class="flex items-center mt-4 gap-2">
                     <UButton
                         @click="showModal = false"
@@ -262,7 +263,7 @@ defineExpose({
                         label="Cancel"
                     />
                     <UButton
-                        data-testid="submit-button"
+                        data-testid="submit-modal-button"
                         @click="postData"
                         class="flex-1 justify-center bg-primary text-inverted px-4 py-2 rounded mr-2 hover:cursor-pointer"
                         label="Submit"
