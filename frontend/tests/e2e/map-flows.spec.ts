@@ -18,6 +18,7 @@ test.describe("Map user flows", () => {
         await clearMeasurements(page);
 
         await page.goto(url, { waitUntil: "domcontentloaded" });
+        await clickButton(page, "view-button");
 
         //create measurement 1
         await addMeasurement(

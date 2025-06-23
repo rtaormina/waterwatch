@@ -113,7 +113,7 @@ test.describe("Add Measurement Tests", () => {
             await clickButton(page, "clear-form-button");
 
             //Confirm that the error messages disappear
-            expect(page.locator('text="Please fill in all required fields."')).toHaveCount(0);
+            await expect(page.locator('text="Please fill in all required fields."')).toHaveCount(0);
             expect(page.locator('text="Water source is required."')).toHaveCount(0);
             expect(page.locator('text="Sensor type is required."')).toHaveCount(0);
             expect(page.locator('text="Temperature value is required."')).toHaveCount(0);
