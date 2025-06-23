@@ -45,6 +45,7 @@ const data = ref<MeasurementData>(defaultData);
 
 interface VerifiableComponent {
     verify: () => boolean;
+    clearErrors?: () => void;
 }
 const TemperatureMetricComponent = useTemplateRef<VerifiableComponent>("TemperatureMetric");
 const MeasurementBlock = useTemplateRef<VerifiableComponent>("MeasurementBlock");
@@ -53,7 +54,28 @@ const MeasurementBlock = useTemplateRef<VerifiableComponent>("MeasurementBlock")
  * Clears the form from all values.
  */
 function clear() {
-    data.value = defaultData;
+    Object.assign(data.value, {
+        location: L.latLng(0, 0),
+        waterSource: undefined,
+        temperature: {
+            sensor: undefined,
+            value: undefined,
+            unit: "C",
+            time_waited: {
+                minutes: undefined,
+                seconds: undefined,
+            },
+        },
+        selectedMetrics: ["temperature"],
+        time: {
+            localDate: undefined,
+            localTime: undefined,
+        },
+    });
+
+    selectedMetrics.value = ["temperature"];
+    MeasurementBlock.value?.clearErrors?.();
+    TemperatureMetricComponent.value?.clearErrors?.();
 }
 
 /**
@@ -182,7 +204,7 @@ defineExpose({
 </script>
 
 <template>
-    <SideBar title="Record Measurement" @close="emit('close')">
+    <div>
         <div class="flex-1 pb-16 md:pb-0">
             <!-- Measurement block -->
             <MeasurementBasisBlock
@@ -249,5 +271,5 @@ defineExpose({
                 </div>
             </Modal>
         </div>
-    </SideBar>
+    </div>
 </template>

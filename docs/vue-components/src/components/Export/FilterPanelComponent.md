@@ -50,18 +50,18 @@
 
 ### tempRangeValid
 
-> Validation flags for search enable/disable
+> Validation flag for temperature range for search
 
 ### dateRangeValid
 
->
+> Validation flag for date range for search
 
 ### allSlotsValid
 
->
+> Validation flag for time slots for search
 
 ### slotsNonOverlapping
 
->
+> Validation flag for overlapping time slots for search
 
 ---

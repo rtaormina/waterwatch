@@ -129,6 +129,61 @@ export async function clickNthHexagonOnMap(page: Page, n: number) {
     await page.locator("path.hexbin-grid").nth(n).click();
 }
 
+/**
+ * Navigate to admin page and clear all measurements
+ * @param page the current page
+ */
+export async function clearMeasurements(page: Page) {
+    // Navigate to admin page
+    await page.goto("localhost/admin")
+    await page.waitForLoadState('networkidle')
+
+    // Fill login form
+    await page.fill('input[name="username"]', "admin")
+    await page.fill('input[name="password"]', "admin")
+
+    // Submit form
+    await page.click('input[type="submit"]')
+    await page.waitForLoadState('networkidle')
+
+    // Navigate to measurements admin page
+    await page.goto("localhost/admin/measurements/measurement/")
+    await page.waitForLoadState('networkidle')
+
+    // Select all measurements
+    const selectAllCheckbox = page.locator('thead th.action-checkbox-column input')
+
+    // Check that there are measurements to delete
+    if (await selectAllCheckbox.count() > 0){
+        await selectAllCheckbox.check()
+    }else{
+        return
+    }
+
+    // Select delete action from dropdown
+    const actionSelect = page.locator('select[name="action"]')
+    await actionSelect.selectOption('delete_selected')
+
+    // Click Go button
+    await page.click('button[name="index"]')
+    await page.waitForLoadState('networkidle')
+
+    // Confirm deletion
+    let confirmButton = page.locator('input[type="submit"]')
+    // If the confirm button is not found, scroll down to load it
+    if ((await confirmButton.count()) === 0) {
+        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        await page.waitForTimeout(1000)
+        confirmButton = page.locator('input[type="submit"]')
+        // If the confirm button is still not found, return
+        if(await confirmButton.count() === 0) {
+            return
+    }
+    // Delete the measurements
+    await confirmButton.click()
+    await page.waitForLoadState('networkidle')
+}
+
 export interface AddPresetOpts {
     name: string; // e.g. "My Preset"
     description: string; // e.g. "A description of my preset"

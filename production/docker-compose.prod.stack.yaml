@@ -23,6 +23,12 @@ services:
       - idle_in_transaction_session_timeout=${POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT}
       - -c
       - statement_timeout=${POSTGRES_STATEMENT_TIMEOUT}
+      - -c
+      - work_mem=${POSTGRES_WORK_MEM}
+      - -c
+      - maintenance_work_mem=${POSTGRES_MAINTENANCE_WORK_MEM}
+      - -c
+      - effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE}
 
   django_backend_app:
     container_name: django_backend_app

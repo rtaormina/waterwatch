@@ -81,7 +81,16 @@ const resetErrorAfterFirstVerify = (() => {
     };
 })();
 
+/**
+ * Clears all error states in this component.
+ * @return {void}
+ */
+function clearErrors(): void {
+    error.value = false;
+}
+
 defineExpose({
     verify,
+    clearErrors,
 });
 </script>

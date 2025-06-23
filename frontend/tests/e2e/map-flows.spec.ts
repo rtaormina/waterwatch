@@ -1,8 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { addMeasurement, clickButton, clickNthHexagonOnMap, moveToCoordinates, zoomToLevel } from "./utils";
+import { addMeasurement, clickButton, clickNthHexagonOnMap, moveToCoordinates, zoomToLevel, clearMeasurements } from "./utils";
 
 const url = "http://localhost/";
-
+// Make the tests run sequentially to avoid race conditions
+test.describe.configure({ mode: 'serial' });
 test.use({
   // allow geolocation to be used in the tests
   permissions: ["geolocation"],
@@ -13,6 +14,9 @@ test.use({
 test.describe("Map user flows", () => {
 
     test.beforeEach(async ({ page }) => {
+        // Clear measurements before each test
+        await clearMeasurements(page);
+
         await page.goto(url, { waitUntil: "domcontentloaded" });
 
         //create measurement 1
@@ -107,9 +111,6 @@ test.describe("Map user flows", () => {
         //assert the details page is loaded
         await expect(page.locator('text="Data Analytics"')).toBeVisible();
 
-        //close the details page
-        await clickButton(page, "close-global-analytics");
-
         //assert that the pop up is closed
         await expect(page.locator('text="See Details"')).not.toBeVisible();
 
@@ -118,6 +119,9 @@ test.describe("Map user flows", () => {
 
 test.describe("Map legend tests", () => {
     test.beforeEach(async ({ page }) => {
+        // Clear measurements before each test
+        await clearMeasurements(page);
+
         await page.goto(url, { waitUntil: "domcontentloaded" });
 
         await page.waitForTimeout(2500);

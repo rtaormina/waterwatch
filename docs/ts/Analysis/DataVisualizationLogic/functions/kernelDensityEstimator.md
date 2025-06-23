@@ -2,7 +2,7 @@
 
 > **kernelDensityEstimator**(`kernel`, `X`): (`V`) => \[`number`, `number`\][]
 
-Defined in: src/composables/Analysis/DataVisualizationLogic.ts:28
+Defined in: src/composables/Analysis/DataVisualizationLogic.ts:33
 
 Creates a kernel density estimator function.
 

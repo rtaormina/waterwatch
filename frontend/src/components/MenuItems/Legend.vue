@@ -137,7 +137,7 @@
 <script setup lang="ts">
 import { InformationCircleIcon } from "@heroicons/vue/24/outline";
 import { computed, ref } from "vue";
-import { useLegendStore } from "../stores/LegendStore";
+import { useLegendStore } from "../../stores/LegendStore";
 
 const legendStore = useLegendStore();
 const props = defineProps<{

@@ -8,6 +8,7 @@ npx typedoc \
   --entryPointStrategy expand \
   --excludeExternals \
   --readme none \
+  --hideBreadcrumbs \
   src/composables \
   --out ../docs/ts
 
@@ -25,7 +26,7 @@ cd ../vue-views
 
 (
   echo "# Vue Views"
-  echo "this is a list of all Vue views in the application."
+  echo "This is a list of all Vue views in the application."
   echo "\```\```\```{eval-rst}"
   echo ".. toctree::"
   echo "   :maxdepth: 4"
@@ -40,7 +41,7 @@ cd ../vue-components
 
 (
   echo "# Vue Components"
-  echo "this is a list of all Vue components in the application."
+  echo "This is a list of all Vue components in the application."
   echo "\```\```\```{eval-rst}"
   echo ".. toctree::"
   echo "   :maxdepth: 4"

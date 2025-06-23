@@ -80,6 +80,18 @@ const errors = ref<TemperatureMetricErrors>({
 });
 
 /**
+ * Clears all error states in this component.
+ * @return {void}
+ */
+function clearErrors(): void {
+    errors.value = {
+        sensor: false,
+        value: false,
+        time_waited: false,
+    };
+}
+
+/**
  * Verifies the validity of the Sensor field.
  *
  * @returns {boolean} True if Sensor field is valid, false otherwise.
@@ -162,6 +174,7 @@ function verify(): boolean {
 
 defineExpose({
     verify,
+    clearErrors,
 });
 </script>
 
