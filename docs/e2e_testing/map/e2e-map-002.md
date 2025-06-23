@@ -7,7 +7,7 @@
 Apply Time Range Filters to Map
 
 ## Tested By
-`stella`
+`Stella`
 
 ## Test Description
 Add measurements in different months and open the legend to toggle the months of measurements being shown.
@@ -21,7 +21,7 @@ Two measurements:
     - latitude: 52.0,
     - longitude: 4.0,
     - waterSource: "well",
-    - temperature: 
+    - temperature:
         - sensor: "Analog Thermometer",
         - value: 30,
         - time_waited: 5,
@@ -32,11 +32,11 @@ Two measurements:
     - latitude: 52.0,
     - longitude: 4.0,
     - waterSource: "well",
-    - temperature: 
+    - temperature:
         - sensor: "Analog Thermometer",
         - value: 10,
         - time_waited: 5,
-        
+
 - Measurement 3:
     - timestamp: "2025-05-26T14:30:00Z",
     - localDate: "2025-03-26",
@@ -44,11 +44,11 @@ Two measurements:
     - latitude: 52.0,
     - longitude: 4.0,
     - waterSource: "well",
-    - temperature: 
+    - temperature:
         - sensor: "Analog Thermometer",
         - value: 19,
         - time_waited: 5,
-    
+
 
 ## Test Steps
 1. Add precondition measurements

@@ -1,16 +1,16 @@
-# End-to-End Test Map 001
+# End-to-End Test Analysis 001
 
 ## Test Case ID
-`E2E-MAP-001`
+`E2E-ANALYSIS-001`
 
 ## Title
-Add a Measurement and View Hexagon Details
+Compare hexagons
 
 ## Tested By
-`Stella and Pieter`
+`Pieter`
 
 ## Test Description
-Add a measurement manually. Select the hexagon that the measurement should be added in and ensure that the summary statistics shown are correct. Select view details to ensure that global stats open.
+Add 2 measurements, then open the compare hexagons menu and select the added hexagons for comparing, then check if stats are correct
 
 ## Preconditions
 Two measurements:
@@ -42,16 +42,17 @@ Two measurements:
 ## Test Steps
 1. Add precondition measurements.
 2. Navigate to map page.
-3. Click add measurement.
-4. Fill in the test data.
-5. Select submit and click submit on the modal.
-6. Navigate to the hexagon at 52,4 latitude longitude.
-7. Select hexagon.
-8. Verify that the summary statistics are correct.
-9. Select 'see details'.
-10. Confirm analysis page is open.
-11. Close analysis page.
-12. Verify that summary statistics are also closed.
+3. Click open menu.
+4. Click compare hexagons.
+5. Zoom to right level
+6. Move to correct coordinates.
+7. Click on the first hexagon.
+8. Confirm that it is selected.
+9. Click next group.
+10. Move and click on other hexagon.
+11. Click compare.
+12. Assert that compare menu and the graph pops up.
+13. Check that closing works
 
 ## Test Data
 Location: latitude 52 longitude 4
@@ -61,17 +62,17 @@ Temperature: 20
 Time waited: 5 minutes
 
 ## Expected Result
-The hexagon should have min of 10 degrees, max 30, and average 25. It should say that there are 3 measurements present.
+The comparison graph should work
 
 ## Browser(s) Tested
 Chromium and Firefox
 
 ## Related Requirement / User Story
-#103
+#129
 
 ## Attachments
 
 ## Related Test File
-`/frontend/tests/e2e/map-flows.spec.ts`
+`/frontend/tests/e2e/map-analysis.spec.ts`
 
 ## Additional Notes
