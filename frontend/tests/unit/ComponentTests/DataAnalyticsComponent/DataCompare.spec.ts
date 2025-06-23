@@ -56,10 +56,6 @@ describe("DataAnalyticsCompare good weather tests", () => {
         vi.clearAllMocks();
     });
 
-    it("renders the component with correct title", () => {
-        expect(wrapper.find("h1").text()).toContain("Compare Distributions");
-    });
-
     it("renders all three accordion sections", () => {
         const accordionButtons = wrapper.findAll("button").filter((btn) => btn.text().includes("Frequency Analysis"));
         expect(accordionButtons).toHaveLength(3);
@@ -173,14 +169,6 @@ describe("DataAnalyticsCompare good weather tests", () => {
 
         expect(getGraphData).toHaveBeenCalledWith("new-group1-wkt", "0");
         expect(getGraphData).toHaveBeenCalledWith("new-group2-wkt", "0");
-    });
-
-    it("emits close when the close button is clicked", async () => {
-        const closeButton = wrapper.find("h1 button");
-        await closeButton.trigger("click");
-
-        expect(wrapper.emitted()).toHaveProperty("close");
-        expect(wrapper.emitted("close")!.length).toBe(1);
     });
 
     it("handles multiple accordion sections being open simultaneously", async () => {

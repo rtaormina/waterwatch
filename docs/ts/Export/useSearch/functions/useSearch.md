@@ -2,7 +2,7 @@
 
 > **useSearch**(): `object`
 
-Defined in: src/composables/Export/useSearch.ts:37
+Defined in: src/composables/Export/useSearch.ts:36
 
 Composable for searching measurements with various filters.
 
@@ -12,38 +12,11 @@ user-defined filters, and returns the results including count and average temper
 ## Returns
 
 An object containing:
-- `hasSearched`: A computed property indicating if a search has been performed.
 - `isLoading`: A computed property indicating if a search is currently in progress.
 - `results`: A computed property containing the search results (count and average temperature).
 - `searchMeasurements`: A method to perform the search with given parameters.
 - `resetSearch`: A method to reset the search state.
 - `flattenSearchParams`: A utility method to flatten nested search parameters for API requests.
-
-### flattenSearchParams()
-
-> **flattenSearchParams**: (`params`) => `Record`\<`string`, `string` \| `string`[] \| `undefined`\>
-
-Flattens the nested search parameters for use in API requests.
-This function converts the structured search parameters into a flat object
-suitable for URL query parameters.
-
-#### Parameters
-
-##### params
-
-[`MeasurementSearchParams`](../interfaces/MeasurementSearchParams.md)
-
-The search parameters to flatten.
-
-#### Returns
-
-`Record`\<`string`, `string` \| `string`[] \| `undefined`\>
-
-A flat object containing the search parameters.
-
-### hasSearched
-
-> **hasSearched**: `ComputedRef`\<`boolean`\>
 
 ### isLoading
 
