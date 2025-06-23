@@ -507,7 +507,6 @@ function handleOpenAnalysis(location: string) {
     hexLocation.value = location;
     if (viewAnalytics.value || showCompareAnalytics.value) {
         viewAnalytics.value = false;
-        console.log("entered");
         setTimeout(() => {
             viewAnalytics.value = true;
         }, 300);

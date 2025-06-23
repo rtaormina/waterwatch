@@ -9,7 +9,7 @@
                 {{ title }}
             </h1>
             <p v-if="subtitle" class="text-2xl text-muted mb-6">{{ subtitle }}</p>
-            <p v-if="description" class="text-dimmed mb-8">{{ description }}</p>
+            <p v-if="description" class="text-dimmed mb-8 mx-10">{{ description }}</p>
         </div>
 
         <div class="flex flex-col sm:flex-row mx-12 gap-4 justify-center">
