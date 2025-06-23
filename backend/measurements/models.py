@@ -19,6 +19,8 @@ class Measurement(models.Model):
         Datetime for when the measurement was taken
     location : Point
         Point containing the latitude and longitude of where the measurement was taken
+    location_ref : Location, optional
+        Computed reference to the Location that contains this measurement point
     flag : bool, default = True
         Flag for if the measurement is suspicious in any way
     water_source : str
@@ -39,6 +41,14 @@ class Measurement(models.Model):
     local_date = models.DateField(default=timezone.now)
     local_time = models.TimeField(default=timezone.now)
     location = geomodels.PointField(srid=4326)
+    location_ref = models.ForeignKey(
+        "measurement_export.Location",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Computed reference to location containing this measurement point",
+    )
     flag = models.BooleanField(default=True)
     water_source = models.CharField(max_length=255, choices=list(water_source_choices.items()))
     campaigns = models.ManyToManyField(Campaign, blank=True)
@@ -51,10 +61,45 @@ class Measurement(models.Model):
             models.Index(fields=["local_date"]),
             models.Index(fields=["local_time"]),
             models.Index(fields=["local_date", "local_time"]),
+            models.Index(fields=["location_ref"]),
         ]
 
     def __str__(self):
         return f"Measurement: {self.timestamp} - {self.location} - {self.water_source}"
+
+    def save(self, *args, **kwargs):
+        """Override save to compute location_ref automatically using lookup_location."""
+        # Only compute location_ref if it's not already set or if location changed
+        if not self.location_ref or (self.pk and self._state.fields_cache.get("location") != self.location):
+            self.location_ref = self._compute_location_ref()
+        super().save(*args, **kwargs)
+
+    def _compute_location_ref(self):
+        """Compute the location reference using the cached lookup_location function."""
+        if not self.location:
+            return None
+
+        # Import here to avoid circular imports
+        from measurement_export.models import Location
+        from measurement_export.utils import lookup_location
+
+        try:
+            # Extract coordinates from the Point geometry
+            lat = self.location.y
+            lon = self.location.x
+
+            # Use the cached lookup_location function
+            location_info = lookup_location(lat, lon)
+
+            if location_info.get("country") and location_info.get("continent"):
+                # Try to find the exact Location record
+                return Location.objects.filter(
+                    country_name=location_info["country"], continent=location_info["continent"]
+                ).first()
+            return None  # noqa: TRY300
+        except Exception:
+            # Handle any lookup errors gracefully
+            return None
 
 
 class Temperature(models.Model):
@@ -82,11 +127,11 @@ class Temperature(models.Model):
 
         constraints = [
             models.CheckConstraint(
-                check=models.Q(value__gte=0),
+                check=models.Q(value__gt=0),
                 name="temperature_value_greater_than_zero",
             ),
             models.CheckConstraint(
-                check=models.Q(value__lte=100),
+                check=models.Q(value__lt=100),
                 name="temperature_value_less_than_100",
             ),
             models.UniqueConstraint(fields=["measurement"], name="unique_measurement_id"),

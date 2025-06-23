@@ -38,8 +38,12 @@ class EndpointTests(TestCase):
             c.execute("DELETE FROM locations;")
             c.execute("""
                 INSERT INTO locations (country_name, continent, geom)
-                VALUES ('Netherlands','Europe',
-                  ST_GeomFromText('POLYGON((0 0,10 0,10 10,0 10,0 0))',4326)
+                VALUES (
+                'Netherlands','Europe',
+                ST_GeomFromText(
+                    'MULTIPOLYGON(((0 0,10 0,10 10,0 10,0 0)))',
+                    4326
+                )
                 );
             """)
 
@@ -73,8 +77,10 @@ class EndpointTests(TestCase):
         assert r.status_code == 200
         assert r.json() == {"Europe": ["Netherlands"]}
 
-        with connection.cursor() as c:
-            c.execute("DELETE FROM locations;")
+        from measurement_export.models import Location
+
+        Location.objects.all().delete()
+
         r2 = self.client.get("/api/locations/")
         assert r2.json() == {}
 
@@ -83,7 +89,7 @@ class EndpointTests(TestCase):
         r = self.client.get("/api/measurements/", user=self.staff)
         assert r.status_code == 200
         arr = r.json()
-        assert {m["id"] for m in arr} == {self.inside.id}
+        assert {m["id"] for m in arr} == {self.inside.id, self.outside.id}
         for field in (
             "id",
             "timestamp",
@@ -180,7 +186,7 @@ class HelperFunctionTests(TestCase):
                   id SERIAL PRIMARY KEY,
                   country_name VARCHAR(100),
                   continent VARCHAR(100),
-                  geom geometry(Polygon,4326)
+                  geom geometry(MultiPolygon,4326)
                 );
             """)
             c.execute("DELETE FROM locations;")

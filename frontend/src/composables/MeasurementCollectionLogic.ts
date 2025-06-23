@@ -78,11 +78,11 @@ export type MeasurementData = {
  */
 export function validateTempRange(val: string, tempUnit: string) {
     if (tempUnit === "C") {
-        if (Number(val) < 0 || Number(val) > 100) {
+        if (Number(val) <= 0 || Number(val) >= 100) {
             return false;
         }
     } else if (tempUnit === "F") {
-        if (Number(val) < 32 || Number(val) > 212) {
+        if (Number(val) <= 32 || Number(val) >= 212) {
             return false;
         }
     }

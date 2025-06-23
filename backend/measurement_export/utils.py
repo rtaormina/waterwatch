@@ -91,7 +91,8 @@ def clear_location_cache():
 def lookup_location(lat: float, lon: float) -> dict:
     """Lookup the location by reverse geocoding the latitude and longitude.
 
-    Uses PostGIS reverse geocoding and the countries table to infer the location.
+    Uses cached geometries and PostGIS operations to infer the location efficiently.
+    This function leverages the location cache for better performance.
 
     Parameters
     ----------
@@ -107,11 +108,25 @@ def lookup_location(lat: float, lon: float) -> dict:
         - `country` (str): Corresponding country
         - `continent` (str): Corresponding continent
     """
+    # Use location cache for coordinate lookups
+    location_cache = caches["location_cache"]
+    cache_key = f"coord_lookup:{lat:.6f}:{lon:.6f}"
+
+    cached_result = location_cache.get(cache_key)
+    if cached_result is not None:
+        return cached_result
+
+    # First try database lookup using PostGIS
     pt = Point(lon, lat, srid=4326)
     match = Location.objects.filter(geom__contains=pt).first()
-    if not match:
-        return {"country": None, "continent": None}
-    return {"country": match.country_name, "continent": match.continent}
+
+    result = {"country": None, "continent": None}
+    if match:
+        result = {"country": match.country_name, "continent": match.continent}
+
+    # Cache the result
+    location_cache.set(cache_key, result, location_cache_timeout)
+    return result
 
 
 def apply_measurement_filters(data, qs):
@@ -131,8 +146,6 @@ def apply_measurement_filters(data, qs):
     QuerySet
         The filtered queryset of measurements.
     """
-    initialize_location_geometries()
-
     # Temperature filter
     qs = filter_by_water_sources(qs, data)
     qs = filter_measurement_by_temperature(qs, data)
@@ -144,7 +157,7 @@ def apply_measurement_filters(data, qs):
     qs = filter_by_time_slots(qs, data)
 
     # Location filter
-    return apply_optimized_location_filter(qs, data)
+    return apply_location_filter(qs, data)
 
 
 def filter_by_water_sources(qs, data):
@@ -318,135 +331,8 @@ def filter_by_time_slots(qs, data):
     return qs
 
 
-def analyze_continent_selection_efficiency(continent, selected_countries, all_countries_in_continent):
-    """
-    Determine the most efficient filtering strategy for a single continent.
-
-    This is the core optimization logic. For each continent, we decide whether it's
-    more efficient to:
-    1. Include the entire continent (if all countries are selected)
-    2. Include specific countries only (if few countries are selected)
-
-    Parameters
-    ----------
-    continent : str
-        The continent name
-    selected_countries : set
-        Set of selected countries from this continent
-    all_countries_in_continent : set
-        Set of all countries in this continent
-
-    Returns
-    -------
-    dict
-        Strategy for this continent with keys:
-        - 'type': 'full_continent' or 'include_countries'
-        - 'continent': continent name (if using continent-level filtering)
-        - 'countries_to_include': list of countries to include (if any)
-    """
-    total_countries = len(all_countries_in_continent)
-    selected_count = len(selected_countries)
-    # If all countries in this continent are selected, just filter by continent
-    # This is the most efficient case - one geometric operation instead of many
-    if selected_count == total_countries:
-        return {"type": "full_continent", "continent": continent}
-
-    # Use inclusion strategy: include only the selected countries
-    # This is best when selecting a small subset of countries
-    return {"type": "include_countries", "countries_to_include": list(selected_countries)}
-
-
-def optimize_location_filtering(selected_continents, selected_countries):
-    """Analyze the relationship between selected continents and countries to determine filtering strategy.
-
-    Since countries must belong to selected continents, we can analyze each continent
-    independently and combine the strategies.
-
-    Parameters
-    ----------
-    selected_continents : list
-        List of selected continent names
-    selected_countries : list
-        List of selected country names (must belong to selected continents)
-
-    Returns
-    -------
-    dict
-        Optimization strategy with keys:
-        - 'continent_filters': list of continents to filter by
-        - 'country_include_filters': list of countries to include
-    """
-    if not selected_continents:
-        return {"continent_filters": [], "country_include_filters": []}
-
-    # Get the mapping of continents to their countries
-    continent_countries = _MAPPING
-
-    # Convert to sets for efficient operations
-    selected_countries_set = set(selected_countries)
-
-    # Key insight: If no countries are selected, we want ALL countries from the selected continents
-    # This means we should treat each selected continent as if all its countries were selected
-    countries_were_specified = bool(selected_countries)
-
-    # Analyze each selected continent independently
-    continent_filters = []
-    country_include_filters = []
-
-    for continent in selected_continents:
-        if continent not in continent_countries:
-            # Skip unknown continents
-            continue
-
-        all_countries_in_continent = continent_countries[continent]
-
-        if countries_were_specified:
-            # Normal case: specific countries were selected
-            selected_from_continent = selected_countries_set & all_countries_in_continent
-
-            # Skip continents with no selected countries
-            if not selected_from_continent:
-                continue
-        else:
-            # Special case: no countries specified means we want all countries from this continent
-            selected_from_continent = all_countries_in_continent
-
-        # Determine the best strategy for this continent
-        strategy = analyze_continent_selection_efficiency(
-            continent, selected_from_continent, all_countries_in_continent
-        )
-
-        # Apply the strategy
-        if strategy["type"] == "full_continent":
-            continent_filters.append(strategy["continent"])
-
-        elif strategy["type"] == "include_countries":
-            country_include_filters.extend(strategy["countries_to_include"])
-
-    return {
-        "continent_filters": continent_filters,
-        "country_include_filters": country_include_filters,
-    }
-
-
-def _build_inclusion_query(strategy):
-    inclusion_query = Q()
-    for continent in strategy["continent_filters"]:
-        geom = _CONTINENT_GEOMS.get(continent)
-        if geom:
-            inclusion_query |= Q(location__within=geom)
-    for country in strategy["country_include_filters"]:
-        geom = _COUNTRY_GEOMS.get(country)
-        if geom:
-            inclusion_query |= Q(location__within=geom)
-    return inclusion_query
-
-
-def apply_optimized_location_filter(qs, data):
-    """Apply location filtering using the optimized strategy.
-
-    This function replaces the separate continent and country filtering with
-    a single, optimized approach that eliminates redundant geometric operations.
+def apply_location_filter(qs, data):
+    """Apply location filtering using the location_ref field for efficient queries.
 
     Parameters
     ----------
@@ -458,7 +344,7 @@ def apply_optimized_location_filter(qs, data):
     Returns
     -------
     QuerySet
-        Filtered queryset with optimized location constraints
+        Filtered queryset with location constraints
     """
     continents = data.get("location[continents]", [])
     countries = data.get("location[countries]", [])
@@ -476,12 +362,36 @@ def apply_optimized_location_filter(qs, data):
     if not continents and not countries:
         return qs
 
-    # Get the optimized filtering strategy
-    strategy = optimize_location_filtering(continents, countries)
+    initialize_location_geometries()
 
-    # Build and apply inclusion query
-    inclusion_query = _build_inclusion_query(strategy)
-    if inclusion_query:
-        qs = qs.filter(inclusion_query)
+    if not _validate_countries_for_continents(continents, countries):
+        return qs
+
+    if continents:
+        qs = qs.filter(location_ref__continent__in=continents)
+    if countries:
+        qs = qs.filter(location_ref__country_name__in=countries)
 
     return qs
+
+
+def _validate_countries_for_continents(continents, countries):
+    if countries:
+        if not continents:
+            logger.error("Countries specified but no continents provided. Location filtering is invalid.")
+            return False
+
+        valid_countries_for_continents = set()
+        for continent in continents:
+            if continent in _MAPPING:
+                valid_countries_for_continents.update(_MAPPING[continent])
+
+        invalid_countries = set(countries) - valid_countries_for_continents
+        if invalid_countries:
+            logger.error(
+                "Countries %s do not belong to any of the specified continents %s. Location filtering is invalid.",
+                list(invalid_countries),
+                continents,
+            )
+            return False
+    return True
