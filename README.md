@@ -1,4 +1,3 @@
-
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 
 #  WATERWATCH
@@ -11,7 +10,14 @@ In order to see the documentation during development make sure that sphinx is in
 ```bash
 python -m pip install -r requirements/dev-requirements.txt
 ```
-Then after running the project using the installation steps below the documentation can be accessed by going to ['/docs'](http://127.0.0.1/docs).
+
+For generating front-end documentation run `./generate_doc.sh`. If there are errors you may need to run:
+```bash
+npm install --save-dev typedoc
+```
+
+Then after running the project using the installation steps below, the documentation can be accessed by going to ['/docs'](http://127.0.0.1/docs).
+
 
 Alternatively, navigate to the docs directory and run the following:
 ```bash
@@ -47,6 +53,8 @@ Researcher
     -password: researcher
 
 Create and activate the python virtual environment with the following commands:
+
+Linux:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -79,7 +87,9 @@ Researcher
 - username: researcher
 - password: researcher
 
-> Important in order to protect user accounts in the production environment make sure to change these passwords immediately after running the script.
+> **Important**
+> -------------
+> In order to protect user accounts in the production environment make sure to change these passwords immediately after running the script.
 
 ## Running Tests
 
@@ -165,9 +175,10 @@ Following this you can go to [localhost:8089](http://localhost:8089) to conduct 
     dos2unix test-reset-db.sh
     ./test-reset-db.sh
     ```
-> For more troubleshooting steps visit [Troubleshooting](https://waterwatch.tudelft.nl/docs/troubleshooting.html)
+> For more troubleshooting steps visit [Troubleshooting](https://waterwatch.tudelft.nl/docs/development/troubleshooting.html)
 
 ## Contributing
+
 To avoid having to run individual installation commands, run:
 ```bash
 python -m pip install -r requirements/dev-requirements.txt
@@ -178,10 +189,6 @@ For python files, [numpy documentation style](https://numpydoc.readthedocs.io/en
 
 For files containing typescript, [TypeDoc style](https://typedoc.org/) must be used.
 
-For generating front-end documentation run ./generate_doc.sh, for this you need to first run
-```bash
-npm install --save-dev typedoc
-```
 
 ### Style-checking
 To ensure consistent code style, contributors will need [ruff](https://docs.astral.sh/ruff/) installed. This can be done by running
@@ -205,7 +212,7 @@ pre-commit install
 ```
 This makes sure that the pre-commit hooks will be run before committing.
 
-> For more information visit our [Contribution Guide](https://waterwatch.tudelft.nl/docs/contribution_guide.html).
+> For more information visit our [Contribution Guide](https://waterwatch.tudelft.nl/docs/development/contribution_guide.html).
 
 
 ## License

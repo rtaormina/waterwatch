@@ -152,6 +152,17 @@ class MeasurementSerializer(GeoFeatureModelSerializer):
         dict
             The validated data.
         """
+        # Check if at least one metric is provided
+        has_metrics = False
+        for metric_cls in METRIC_MODELS:
+            attr = metric_cls.__name__.lower()
+            if data.get(attr):
+                has_metrics = True
+                break
+
+        if not has_metrics:
+            raise serializers.ValidationError("At least one metric must be provided with the measurement.")
+
         # Set flag if temperature is out of range
         temperature_data = data.get("temperature")
         if temperature_data and temperature_data.get("value") > 40.0:
@@ -229,8 +240,6 @@ def apply_measurement_filters(data, qs):
     QuerySet
         The filtered queryset of measurements.
     """
-    initialize_location_geometries()
-
     # Temperature filter
     qs = filter_by_water_sources(qs, data)
     qs = filter_measurement_by_temperature(qs, data)
@@ -279,15 +288,13 @@ Import `filter_measurement_by_metric` at the top of the file:
 
 ```python
 from .utils import (
-    _build_inclusion_query,
+    apply_location_filter,
     filter_by_date_range,
     filter_by_time_slots,
     filter_by_water_sources,
     filter_measurement_by_temperature,
     # add here
     filter_measurement_by_metric,
-    initialize_location_geometries,
-    optimize_location_filtering,
 )
 ```
 
@@ -780,6 +787,68 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     newMetric: measurement.avg_new_metric, // Add the new metric here
     count: measurement.count,
   }));
+}, [] as MeasurementData[]);
+```
+
+##### ExportMapView.vue
+Change the `MeasurementData` and `MeasurementResponseDataPoint` types as well as in the `data` const in `frontend/src/views/ExportMapView.vue` to include the new metric, replacing `newMetric` with the name of your metric:
+
+```typescript
+/**
+ * Fetches measurements from the API and formats them for the HexMap component.
+ * The data is fetched asynchronously and transformed into a format suitable for the map.
+ */
+type MeasurementData = {
+  point: L.LatLng;
+  temperature: number;
+  minTemp: number;
+  maxTemp: number;
+  newMetric: number; // Add the new metric here
+  // Add any additional fields as necessary
+  count: number;
+};
+type MeasurementResponseDataPoint = {
+  location: { latitude: number; longitude: number };
+  avgTemperature: number;
+  minTemperature: number;
+  maxTemperature: number;
+  avgNewMetric: number; // Add the new metric here
+  // Add any additional fields as necessary
+  count: number;
+};
+
+// Fetches aggregated measurement data from the API and formats it for the HexMap component
+const data = asyncComputed(async (): Promise<MeasurementData[]> => {
+    const filters = JSON.parse(JSON.stringify(exportStore.filters));
+    const bodyData = {
+        ...flattenSearchParams(filters),
+        month: month.value,
+        format: "map-format", // Add format to the body
+    };
+
+    const res = await axios.post("/api/measurements/search/", bodyData, {
+        headers: {
+            "X-CSRFToken": cookies.get("csrftoken"),
+            "Content-Type": "application/json",
+        },
+        withCredentials: true,
+    });
+
+    if (res.status !== 200) throw new Error(`Status: ${res.status}`);
+    const data = res.data;
+
+    const formated = data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
+        point: L.latLng(measurement.location.latitude, measurement.location.longitude),
+        temperature: measurement.avg_temperature,
+        minTemp: measurement.min_temperature,
+        maxTemp: measurement.max_temperature,
+        newMetric: measurement.avg_new_metric, // Add the new metric here
+        count: measurement.count,
+    }));
+
+    console.log(formated);
+
+    return formated;
 }, [] as MeasurementData[]);
 ```
 
@@ -1802,47 +1871,25 @@ const errors = ref<NewMetricErrors>({
 
 <template>
     <Block title="New Metric">
-        <!-- Sensor Type -->
-        <div class="flex-1 items-start gap-4 mb-4">
-            <div class="flex flex-col">
-                <UFormField class="xs:flex xs:items-center xs:gap-4" :error="errors.sensor" label="Sensor Type">
-                    <USelect
-                        data-testid="sensor-type"
-                        :items="sensorOptions"
-                        value-key="value"
-                        v-model="modelValue.sensor"
-                        class="w-60"
-                        :ui="{
-                            content: 'z-10',
-                        }"
-                    />
-                </UFormField>
-            </div>
-        </div>
-
         <!-- New Metric Value -->
-        <UFormField class="xs:flex xs:items-center xs:gap-4" :error="errors.value" label="New Metric Value">
-            <div class="flex items-center gap-4">
-                <UInput
-                    data-testid="new-metric-val"
-                    id="new-metric-val"
-                    v-model="modelValue.value"
-                    type="text"
-                    @keydown="handleNewMetricPress"
-                    @input="handleInput"
-                    ref="newMetricRef"
-                    placeholder="e.g. 24.3"
-                    class="min-w-16 max-w-20"
-                    aria-label="New metric value input"
-                />
+        <div class="flex md:flex-row flex-col items-start justify-between mb-6 gap-4">
+            <label class="text-sm font-medium mt-2">New Metric Value</label>
+            <div class="md:w-60 w-full">
+                <div class="flex md:flex-row flex-row items-center gap-4">
+                    <UInput
+                        data-testid="new-metric-val"
+                        id="new-metric-val"
+                        v-model="modelValue.value"
+                        type="text"
+                        @keydown="handleNewMetricPress"
+                        @input="handleInput"
+                        ref="newMetricRef"
+                        placeholder="e.g. 24.3"
+                        class="flex-1"
+                        aria-label="New Metric value input"
+                    />
+                </div>
             </div>
-        </UFormField>
-
-        <!-- Time waited -->
-        <div class="flex items-center gap-2">
-            <UFormField class="xs:flex xs:items-center xs:gap-4" :error="errors.time_waited" label="Time waited">
-                <DurationInput v-model="modelValue.time_waited" />
-            </UFormField>
         </div>
     </Block>
 </template>
@@ -1861,7 +1908,6 @@ const metricOptions: MetricOptions = [
     { label: "New Metric", value: "newMetric" },
 ];
 
-// Add new metric to the default data
 const defaultData: MeasurementData = {
     location: L.latLng(0, 0),
     waterSource: undefined,
@@ -1878,20 +1924,83 @@ const defaultData: MeasurementData = {
         value: undefined,
         // Add any additional fields as necessary
     },
-    selectedMetrics: ["temperature"],
+    selectedMetrics: ["temperature", "newMetric"],
     time: {
         localDate: undefined,
         localTime: undefined,
     },
 };
 
+const data = ref<MeasurementData>(defaultData);
+
+interface VerifiableComponent {
+    verify: () => boolean;
+    clearErrors?: () => void;
+}
 const TemperatureMetricComponent = useTemplateRef<VerifiableComponent>("TemperatureMetric");
-// Add the new metric component
-const NewMetricComponent = useTemplateRef<VerifiableComponent>("NewMetric");
+const NewMetricComponent = useTemplateRef<VerifiableComponent>("NewMetric"); // Reference to the new metric component
+const MeasurementBlock = useTemplateRef<VerifiableComponent>("MeasurementBlock");
+
+/**
+ * Clears the form from all values.
+ */
+function clear() {
+    Object.assign(data.value, {
+        location: L.latLng(0, 0),
+        waterSource: undefined,
+        temperature: {
+            sensor: undefined,
+            value: undefined,
+            unit: "C",
+            time_waited: {
+                minutes: undefined,
+                seconds: undefined,
+            },
+        },
+        newMetric: {
+            value: undefined,
+            // Add any additional fields as necessary
+        },
+        selectedMetrics: ["temperature", "newMetric"],
+        time: {
+            localDate: undefined,
+            localTime: undefined,
+        },
+    });
+
+    selectedMetrics.value = ["temperature", "newMetric"];
+    MeasurementBlock.value?.clearErrors?.();
+    TemperatureMetricComponent.value?.clearErrors?.();
+    NewMetricComponent.value?.clearErrors?.(); // Clear errors for the new metric component
+}
+
+// Script continues...
 </script>
 
 <template>
-    <!-- Existing template code for the measurement component -->
+    <!-- Template starts... -->
+    <div>
+        <div class="flex-1 pb-16 md:pb-0">
+            <!-- Measurement block -->
+            <MeasurementBasisBlock
+                v-model:location="data.location"
+                v-model:water-source="data.waterSource"
+                v-model:time="data.time"
+                :water-source-options="waterSourceOptions"
+                ref="MeasurementBlock"
+            ></MeasurementBasisBlock>
+
+            <!-- Metric block -->
+            <Block title="Metric Type">
+                <UCheckboxGroup
+                    data-testid="metric-checkbox"
+                    v-model="selectedMetrics"
+                    :items="metricOptions"
+                    color="primary"
+                    legend="Metric Type"
+                />
+            </Block>
+
             <!-- Temperature Metric (if selected) -->
             <TemperatureMetric
                 v-if="selectedMetrics.includes('temperature')"
@@ -1907,6 +2016,8 @@ const NewMetricComponent = useTemplateRef<VerifiableComponent>("NewMetric");
                 :sensor-options="sensorOptions"
                 ref="NewMetric"
             />
+        </div>
+        <!-- Template continues... -->
 </template>
 ```
 

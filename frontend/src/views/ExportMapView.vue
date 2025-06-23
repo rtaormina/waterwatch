@@ -441,7 +441,6 @@ function handleOpenAnalysis(location: string) {
     hexLocation.value = location;
     if (viewAnalytics.value || showCompareAnalytics.value) {
         viewAnalytics.value = false;
-        console.log("entered");
         setTimeout(() => {
             viewAnalytics.value = true;
         }, 300);
@@ -516,7 +515,7 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
     if (res.status !== 200) throw new Error(`Status: ${res.status}`);
     const data = res.data;
 
-    const formated = data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
+    const formatted = data.measurements.map((measurement: MeasurementResponseDataPoint) => ({
         point: L.latLng(measurement.location.latitude, measurement.location.longitude),
         temperature: measurement.avg_temperature,
         min: measurement.min_temperature,
@@ -524,8 +523,6 @@ const data = asyncComputed(async (): Promise<MeasurementData[]> => {
         count: measurement.count,
     }));
 
-    console.log(formated);
-
-    return formated;
+    return formatted;
 }, [] as MeasurementData[]);
 </script>
