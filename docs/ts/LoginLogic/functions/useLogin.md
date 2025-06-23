@@ -2,7 +2,7 @@
 
 > **useLogin**(): `object`
 
-Defined in: src/composables/LoginLogic.ts:10
+Defined in: src/composables/LoginLogic.ts:11
 
 Function to handle login/logout logic
 

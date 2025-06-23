@@ -13,5 +13,6 @@
 .. toctree::
    :maxdepth: 1
 
+   functions/flattenSearchParams.md
    functions/useSearch.md
 ```

@@ -1,21 +1,17 @@
-# SideBar
+# MenuButton
 
 ## Props
 
 | Prop name | Description | Type   | Values | Default |
 | --------- | ----------- | ------ | ------ | ------- |
-| title     |             | string | -      |         |
+| icon      |             | string | -      |         |
+| tooltip   |             | string | -      |         |
+| label     |             | string | -      |         |
 
 ## Events
 
 | Event name | Properties | Description |
 | ---------- | ---------- | ----------- |
-| close      |            |
-
-## Slots
-
-| Name    | Description | Bindings |
-| ------- | ----------- | -------- |
-| default |             |          |
+| click      |            |
 
 ---

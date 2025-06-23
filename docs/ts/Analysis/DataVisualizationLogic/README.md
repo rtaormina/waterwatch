@@ -1,9 +1,3 @@
-[**frontend**](../../README.md)
-
-***
-
-[frontend](../../README.md) / Analysis/DataVisualizationLogic
-
 # Analysis/DataVisualizationLogic
 
 ## Functions
@@ -12,5 +6,6 @@
 - [drawComparisonGraph](functions/drawComparisonGraph.md)
 - [drawHistogramWithKDE](functions/drawHistogramWithKDE.md)
 - [getGraphData](functions/getGraphData.md)
+- [getGraphDataExportMapView](functions/getGraphDataExportMapView.md)
 - [kernelDensityEstimator](functions/kernelDensityEstimator.md)
 - [kernelEpanechnikov](functions/kernelEpanechnikov.md)

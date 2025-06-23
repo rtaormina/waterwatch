@@ -2,4 +2,4 @@
 
 > `const` **loggedIn**: `Ref`\<`boolean`, `boolean`\>
 
-Defined in: src/composables/LoginLogic.ts:5
+Defined in: src/composables/LoginLogic.ts:6

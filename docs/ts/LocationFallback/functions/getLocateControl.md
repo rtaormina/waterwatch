@@ -2,7 +2,7 @@
 
 > **getLocateControl**(`location`, `opts?`): `LocateControl`
 
-Defined in: src/composables/LocationFallback.ts:124
+Defined in: src/composables/LocationFallback.ts:125
 
 Creates a custom Leaflet control for locating the user's position.
 
