@@ -35,6 +35,7 @@
                             ? 'left: var(--container-lg); transform: none; margin-left: 2%;'
                             : ''
                     "
+                    :class="[{ 'hidden md:block': viewAnalytics || addMeasurement || showCompareAnalytics }]"
                     :rightButton="selectBarRight"
                     :rightButtonDisabled="selectBarRightButtonDisabled"
                     :leftButton="selectBarLeft"

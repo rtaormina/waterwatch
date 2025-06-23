@@ -11,7 +11,7 @@
             >
                 {{ props.leftButton.label }}
             </UButton>
-            <span class="font-semibold text-highlighted md:text-lg text-sm whitespace-nowrap">
+            <span class="mx-2 font-semibold text-highlighted md:text-lg text-sm whitespace-nowrap">
                 {{ props.centerLabel }}
             </span>
             <UButton
