@@ -178,7 +178,7 @@ paths:
         - measurements
       summary: Search measurements
       description: |
-        Perform a filtered search over measurements.   Supports filtering by date range, location (continents & countries), water‑source, temperature range, included metrics, and time windows.
+        Perform a filtered search over measurements.   Supports filtering by date range, location (regions & subregions), water‑source, temperature range, included metrics, and time windows.
       requestBody:
         required: true
         content:
@@ -203,6 +203,10 @@ paths:
               'measurements[temperature][from]': 5
               'measurements[temperature][to]': 10
               times: '[{"from":"08:00","to":"13:00"}]'
+              month: [1,2,3]
+              boundary_geometry:
+                'POLYGON((7.883103 51.399206, 7.883103 47.989922, 3.316172 46.195042))'
+              format: 'geojson'
       responses:
         '200':
           description: Search results
@@ -226,18 +230,7 @@ paths:
               $ref: '#/components/schemas/TemperatureRequest'
             example:
               boundary_geometry:
-                type: Polygon
-                coordinates:
-                  - - - 4.88
-                      - 52.36
-                    - - 4.9
-                      - 52.36
-                    - - 4.9
-                      - 52.38
-                    - - 4.88
-                      - 52.38
-                    - - 4.88
-                      - 52.36
+                'POLYGON((7.883103 51.399206, 7.883103 47.989922, 3.316172 46.195042))'
               month:
                 - 0
                 - 6
@@ -293,16 +286,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericDetail'
-                example:
-                  detail: Successfully logged out.
+              example:
+                detail: Successfully logged out.
         '400':
           description: User not logged in
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GenericDetail'
-                example:
-                  detail: You're not logged in.
+              example:
+                detail: You're not logged in.
   /api/session/:
     get:
       tags:
@@ -310,7 +303,7 @@ paths:
       summary: Check authentication status (sets CSRF cookie)
       responses:
         '200':
-          description: Current auth state
+          description: Authentication state, with CSRF cookie set
           content:
             application/json:
               schema:
@@ -445,6 +438,8 @@ paths:
             schema:
               $ref: '#/components/schemas/AggregatedRequest'
             example:
+              boundary_geometry:
+                'POLYGON((7.883103 51.399206, 7.883103 47.989922, 3.316172 46.195042))'
               month:
                 - 6
                 - 7
@@ -527,11 +522,10 @@ components:
           type: string
         filters:
           type: object
-          additionalProperties:
-            type: string
+          additionalProperties: true
           description: Arbitrary key/value filter parameters
         created_by:
-          type: integer
+          type: string
         created_at:
           type: string
           format: date-time
@@ -573,13 +567,7 @@ components:
         times:
           type: string
           description: JSON‑encoded array of time‑window objects
-      required:
-        - 'dateRange[from]'
-        - 'dateRange[to]'
-    AggregatedRequest:
-      type: object
-      properties:
-        month:
+        'month':
           oneOf:
             - type: integer
             - type: array
@@ -587,6 +575,24 @@ components:
                 type: integer
           description: |
             Month number (1–12) or 0 for last 30 days; or list thereof.
+        'boundary_geometry':
+          $ref: '#/components/schemas/GeoJSON'
+      required:
+        - 'dateRange[from]'
+        - 'dateRange[to]'
+    AggregatedRequest:
+      type: object
+      properties:
+        'month':
+          oneOf:
+            - type: integer
+            - type: array
+              items:
+                type: integer
+          description: |
+            Month number (1–12) or 0 for last 30 days; or list thereof.
+        'boundary_geometry':
+          $ref: '#/components/schemas/GeoJSON'
     AggregatedMeasurement:
       type: object
       required:
@@ -617,6 +623,14 @@ components:
           type: number
         max_temperature:
           type: number
+        month:
+          oneOf:
+            - type: integer
+            - type: array
+              items:
+                type: integer
+        boundary_geometry:
+          $ref: '#/components/schemas/GeoJSON'
     AggregatedMeasurementsResponse:
       type: object
       required:
@@ -661,7 +675,8 @@ components:
           type: string
         temperature:
           nullable: true
-          $ref: '#/components/schemas/TemperatureDetail'
+          allOf:
+            - $ref: '#/components/schemas/TemperatureDetail'
     MeasurementPayload:
       type: object
       required:
@@ -686,7 +701,8 @@ components:
           type: string
         temperature:
           nullable: true
-          $ref: '#/components/schemas/TemperatureDetail'
+          allOf:
+            - $ref: '#/components/schemas/TemperatureDetail'
     TemperatureRequest:
       type: object
       properties:
@@ -720,10 +736,10 @@ components:
       properties:
         type:
           type: string
+          enum: [Point, LineString, Polygon, MultiPoint, MultiLineString, MultiPolygon]
         coordinates:
           type: array
-          items:
-            type: number
+          items: {}
     ErrorResponse:
       type: object
       properties:
@@ -756,10 +772,42 @@ components:
           type: string
     SessionResponse:
       type: object
+      required:
+        - isAuthenticated
+        - user
+        - groups
       properties:
         isAuthenticated:
           type: boolean
+          description: Whether the user is currently authenticated.
           example: false
+        user:
+          nullable: true
+          description: >
+            When authenticated, the object with basic user info;
+            otherwise `null`.
+          oneOf:
+            - $ref: '#/components/schemas/UserInfo'
+            - type: 'null'
+        groups:
+          type: array
+          description: >
+            List of group names the user belongs to. Includes virtual
+            `"admin"` if `is_superuser` and `"staff"` if `is_staff`.
+          items:
+            type: string
+          example:
+            - users
+            - staff
+    UserInfo:
+      type: object
+      required:
+        - username
+      properties:
+        username:
+          type: string
+          description: The unique username of the authenticated user.
+          example: johndoe
     WhoAmIResponse:
       type: object
       properties:
@@ -820,6 +868,6 @@ components:
           type: string
           format: date-time
         region:
-          oneOf:
+          nullable: true
+          allOf:
             - $ref: '#/components/schemas/GeoJSON'
-            - type: object
