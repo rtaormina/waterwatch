@@ -1,12 +1,14 @@
 import { test, expect, Page } from "@playwright/test";
-import { clickButton, selectFromDropdown, fillOutTextField, moveToCoordinates, zoomToLevel } from "./utils";
+import { clickButton, selectFromDropdown, fillOutTextField, moveToCoordinates, zoomToLevel, clearMeasurements } from "./utils";
 
 const url = "http://localhost/";
 
+test.describe.configure({ mode: 'serial' });
 test.describe("Add Measurement Tests", () => {
 
     // Go to map page and open the add measurement sidebar
     test.beforeEach(async ({ page }) => {
+        await clearMeasurements(page);
         await page.goto(url, { waitUntil: "domcontentloaded" });
         await clickButton(page, "view-button");
         await clickButton(page, "add-measurement-button");
@@ -60,9 +62,18 @@ test.describe("Add Measurement Tests", () => {
         });
 
         test("Add a measurement with manual location set", async ({ page }) => {
-            // Fill out the measurement form and submit
+            // Convert to pixel coordinates inside the map
+            const point = await page.evaluate(([lat, lng]) => {
+                const map = window.leafletMap;
+                const pixel = map.latLngToContainerPoint([lat, lng]);
+                return { x: pixel.x, y: pixel.y };
+            }, [52.0, 4.0]);
+
+            // Click on the map at those pixel coordinates
+            await page.locator('.map').nth(1).click({ position: { x: point.x, y: point.y } });
+
+            // Fill out the measurement form
             await fillOutMeasurementForm(page, "Network", "Analog Thermometer", "21.4", true, "2", "0");
-            await moveToCoordinates(page, 53.0, 4.0);
             await clickButton(page, "submit-measurement");
 
             // Check that the confirmation modal appears
@@ -80,7 +91,7 @@ test.describe("Add Measurement Tests", () => {
 
             // Find measurement
             await zoomToLevel(page, 12);
-            await moveToCoordinates(page, 53.0, 4.0);
+            await moveToCoordinates(page, 52.0, 4.0);
 
             // Check that the measurement appears on the map
             const hexagons = page.locator('path.hexbin-hexagon');

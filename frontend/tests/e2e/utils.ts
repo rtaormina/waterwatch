@@ -182,6 +182,7 @@ export async function clearMeasurements(page: Page) {
     // Delete the measurements
     await confirmButton.click()
     await page.waitForLoadState('networkidle')
+    }
 }
 
 export interface AddPresetOpts {

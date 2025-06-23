@@ -124,8 +124,6 @@ test.describe("Map legend tests", () => {
 
         await page.goto(url, { waitUntil: "domcontentloaded" });
 
-        await page.waitForTimeout(2500);
-
         //create measurement 1
         await addMeasurement(
             page,
@@ -178,8 +176,6 @@ test.describe("Map legend tests", () => {
                 },
             }
         );
-
-        await page.goto(url, { waitUntil: "domcontentloaded" });
     });
 
     test("open legend and toggle date range", async ({ page }) => {
