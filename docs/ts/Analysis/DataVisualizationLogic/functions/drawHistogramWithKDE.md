@@ -2,7 +2,7 @@
 
 > **drawHistogramWithKDE**(`el`, `data`, `barColor`, `lineColor`, `options?`): `void`
 
-Defined in: src/composables/Analysis/DataVisualizationLogic.ts:96
+Defined in: src/composables/Analysis/DataVisualizationLogic.ts:155
 
 Draws a single‐group histogram with an overlaid KDE curve.
 

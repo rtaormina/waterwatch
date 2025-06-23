@@ -12,4 +12,8 @@
 
 > Verifies the validity of the temperature measurement fields.
 
+### clearErrors
+
+> Clears all error states in this component.
+
 ---

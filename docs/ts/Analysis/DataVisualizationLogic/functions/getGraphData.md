@@ -1,21 +1,27 @@
 # Function: getGraphData()
 
-> **getGraphData**(`wkt`): `Promise`\<`number`[]\>
+> **getGraphData**(`location?`, `month?`): `Promise`\<`number`[]\>
 
-Defined in: src/composables/Analysis/DataVisualizationLogic.ts:69
+Defined in: src/composables/Analysis/DataVisualizationLogic.ts:75
 
-Fetches measurement data (as an array of numbers) from a WKT boundary.
+Fetches numeric values for the given location and returns them.
 
 ## Parameters
 
-### wkt
+### location?
 
 `string`
 
-A Well‐Known Text string representing the boundary geometry.
+The location for the measurements.
+
+### month?
+
+`string`
+
+The month for which to fetch the measurements.
 
 ## Returns
 
 `Promise`\<`number`[]\>
 
-A promise that resolves to an array of numeric values.
+the numeric values for the temperatures

@@ -1,5 +1,5 @@
 # Type Alias: TemperatureSensor
 
-> **TemperatureSensor** = `"analog thermomether"` \| `"digital thermomether"` \| `"infrared thermomether"` \| `"other"`
+> **TemperatureSensor** = `"analog thermometer"` \| `"digital thermometer"` \| `"infrared thermometer"` \| `"other"`
 
 Defined in: src/composables/MeasurementCollectionLogic.ts:4
