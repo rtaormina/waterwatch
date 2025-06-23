@@ -1,16 +1,16 @@
-# End-to-End Test Map 001
+# End-to-End Test Analysis 002
 
 ## Test Case ID
-`E2E-MAP-001`
+`E2E-ANALYSIS-003`
 
 ## Title
-Add a Measurement and View Hexagon Details
+Select multiple hexagons
 
 ## Tested By
-`Stella and Pieter`
+`Pieter`
 
 ## Test Description
-Add a measurement manually. Select the hexagon that the measurement should be added in and ensure that the summary statistics shown are correct. Select view details to ensure that global stats open.
+Add 2 measurements, then use select multiple hexagons to select both
 
 ## Preconditions
 Two measurements:
@@ -40,18 +40,9 @@ Two measurements:
 
 
 ## Test Steps
-1. Add precondition measurements.
-2. Navigate to map page.
-3. Click add measurement.
-4. Fill in the test data.
-5. Select submit and click submit on the modal.
-6. Navigate to the hexagon at 52,4 latitude longitude.
-7. Select hexagon.
-8. Verify that the summary statistics are correct.
-9. Select 'see details'.
-10. Confirm analysis page is open.
-11. Close analysis page.
-12. Verify that summary statistics are also closed.
+1. Open select multiple hexagons
+2. Confirm that it opens select multiple hexagons
+3. Confirm that closing works.
 
 ## Test Data
 Location: latitude 52 longitude 4
@@ -61,17 +52,17 @@ Temperature: 20
 Time waited: 5 minutes
 
 ## Expected Result
-The hexagon should have min of 10 degrees, max 30, and average 25. It should say that there are 3 measurements present.
+Select multiple hexagons should work
 
 ## Browser(s) Tested
 Chromium and Firefox
 
 ## Related Requirement / User Story
-#103
+#130
 
 ## Attachments
 
 ## Related Test File
-`/frontend/tests/e2e/map-flows.spec.ts`
+`/frontend/tests/e2e/map-analysis.spec.ts`
 
 ## Additional Notes
