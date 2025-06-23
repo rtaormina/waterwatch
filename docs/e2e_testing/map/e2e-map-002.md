@@ -7,7 +7,7 @@
 Apply Time Range Filters to Map
 
 ## Tested By
-`Stella`
+`stella`
 
 ## Test Description
 Add measurements in different months and open the legend to toggle the months of measurements being shown.
