@@ -33,6 +33,9 @@ docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET max_conn
 docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET idle_in_transaction_session_timeout = '${POSTGRES_IDLE_IN_TRANSACTION_SESSION_TIMEOUT}';"
 docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET statement_timeout = '${POSTGRES_STATEMENT_TIMEOUT}';"
 docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET tcp_keepalives_idle = '${POSTGRES_TCP_KEEPALIVES_IDLE}';"
+docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET work_mem = '${POSTGRES_WORK_MEM}';"
+docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET maintenance_work_mem = '${POSTGRES_MAINTENANCE_WORK_MEM}';"
+docker exec "$DATABASE" psql -U admin -d pg4django -c "ALTER SYSTEM SET effective_cache_size = '${POSTGRES_EFFECTIVE_CACHE_SIZE}';"
 
 # Reload PostgreSQL to apply the new settings
 echo "Reloading PostgreSQL configuration..."
@@ -45,6 +48,9 @@ docker exec "$DATABASE" psql -U admin -d pg4django -f countries.sql
 
 # Run migrations
 echo "Running migrations..."
+docker compose exec backend python manage.py makemigrations measurement_export
+docker compose exec backend python manage.py migrate measurement_export
+
 docker exec "$BACKEND" python manage.py makemigrations
 docker exec "$BACKEND" python manage.py migrate
 

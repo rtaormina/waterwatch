@@ -2,7 +2,7 @@
 
 > **createSVGContainer**(`el`, `width`, `height`, `margin`): `Selection`\<`SVGGElement`, `unknown`, `null`, `undefined`\>
 
-Defined in: src/composables/Analysis/DataVisualizationLogic.ts:48
+Defined in: src/composables/Analysis/DataVisualizationLogic.ts:53
 
 Utility: Creates an SVG container and a top‐level <g> group translated by the margins.
 

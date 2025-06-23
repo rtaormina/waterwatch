@@ -7,7 +7,7 @@
 Add a Measurement and View Hexagon Details
 
 ## Tested By
-`stella and pieter`
+`Stella and Pieter`
 
 ## Test Description
 Add a measurement manually. Select the hexagon that the measurement should be added in and ensure that the summary statistics shown are correct. Select view details to ensure that global stats open.
@@ -21,11 +21,11 @@ Two measurements:
     - latitude: 52.0,
     - longitude: 4.0,
     - waterSource: "well",
-    - temperature: 
+    - temperature:
         - sensor: "Analog Thermometer",
         - value: 30,
         - time_waited: 5,
-        
+
 - Measurement 2:
     - timestamp: "2025-05-26T14:30:00Z",
     - localDate: "2025-05-26",
@@ -33,11 +33,11 @@ Two measurements:
     - latitude: 52.0,
     - longitude: 4.0,
     - waterSource: "well",
-    - temperature: 
+    - temperature:
         - sensor: "Analog Thermometer",
         - value: 10,
         - time_waited: 5,
-        
+
 
 ## Test Steps
 1. Add precondition measurements.

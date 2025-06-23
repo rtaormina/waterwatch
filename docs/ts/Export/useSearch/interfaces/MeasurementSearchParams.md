@@ -1,6 +1,6 @@
 # Interface: MeasurementSearchParams
 
-Defined in: src/composables/Export/useSearch.ts:7
+Defined in: src/composables/Export/useSearch.ts:8
 
 ## Properties
 
@@ -8,7 +8,7 @@ Defined in: src/composables/Export/useSearch.ts:7
 
 > `optional` **dateRange**: [`DateRangeFilter`](../../useFilters/interfaces/DateRangeFilter.md)
 
-Defined in: src/composables/Export/useSearch.ts:11
+Defined in: src/composables/Export/useSearch.ts:12
 
 ***
 
@@ -16,7 +16,7 @@ Defined in: src/composables/Export/useSearch.ts:11
 
 > `optional` **location**: [`LocationFilter`](../../useFilters/interfaces/LocationFilter.md)
 
-Defined in: src/composables/Export/useSearch.ts:9
+Defined in: src/composables/Export/useSearch.ts:10
 
 ***
 
@@ -24,7 +24,7 @@ Defined in: src/composables/Export/useSearch.ts:9
 
 > `optional` **measurements**: [`MeasurementFilter`](../../useFilters/interfaces/MeasurementFilter.md)
 
-Defined in: src/composables/Export/useSearch.ts:10
+Defined in: src/composables/Export/useSearch.ts:11
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: src/composables/Export/useSearch.ts:10
 
 > `optional` **query**: `string`
 
-Defined in: src/composables/Export/useSearch.ts:8
+Defined in: src/composables/Export/useSearch.ts:9
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: src/composables/Export/useSearch.ts:8
 
 > `optional` **times**: [`TimeSlot`](../../useFilters/interfaces/TimeSlot.md)[]
 
-Defined in: src/composables/Export/useSearch.ts:12
+Defined in: src/composables/Export/useSearch.ts:13

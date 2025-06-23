@@ -46,10 +46,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "measurement_export.apps.MeasurementExportConfig",
     "measurements",
     "measurement_collection",
     "measurement_analysis",
-    "measurement_export.apps.MeasurementExportConfig",
     "campaigns",
     "api",
     "rest_framework",
@@ -99,13 +99,11 @@ DATABASES = {
         "PASSWORD": os.getenv("POSTGRES_PASSWORD", default="mypassword"),
         "HOST": os.getenv("POSTGRES_HOST", default="localhost"),
         "PORT": os.getenv("POSTGRES_PORT", default="5432"),
+        "CONN_MAX_AGE": int(os.getenv("DJANGO_CONN_MAX_AGE", "300")),
+        "CONN_HEALTH_CHECKS": True,
         "OPTIONS": {
-            "pool": {
-                "min_size": int(os.getenv("DJANGO_POOL_MIN_SIZE", "5")),
-                "max_size": int(os.getenv("DJANGO_POOL_MAX_SIZE", "20")),
-                "timeout": int(os.getenv("DJANGO_POOL_TIMEOUT", "60")),
-            },
             "connect_timeout": int(os.getenv("DJANGO_CONNECT_TIMEOUT", "30")),
+            "sslmode": "prefer",
         },
     }
 }

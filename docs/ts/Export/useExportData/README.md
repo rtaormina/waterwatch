@@ -5,5 +5,5 @@
 .. toctree::
    :maxdepth: 1
 
-   functions/userExportData.md
+   functions/useExportData.md
 ```

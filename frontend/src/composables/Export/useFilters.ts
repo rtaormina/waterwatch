@@ -77,8 +77,8 @@ export function useFilters(
             .flatMap((c) => toValue(countriesByContinent)[c] || [])
             .sort((a, b) => a.localeCompare(b)),
     );
-    const continentPlaceholder = computed(() => (toValue(selectedContinents).length ? "" : "Select continents"));
-    const countryPlaceholder = computed(() => (toValue(selectedCountries).length ? "" : "Select countries"));
+    const continentPlaceholder = computed(() => (toValue(selectedContinents).length ? "" : "Select regions"));
+    const countryPlaceholder = computed(() => (toValue(selectedCountries).length ? "" : "Select subregions"));
 
     /**
      * Toggles the presence of an item in a list.
@@ -112,7 +112,7 @@ export function useFilters(
         const n = toValue(selectedContinents).length;
         if (n === 0) return "";
         if (n === 1) return toValue(selectedContinents)[0];
-        return `${n} continents selected`;
+        return `${n} regions selected`;
     }
 
     /**
@@ -124,7 +124,7 @@ export function useFilters(
         const n = toValue(selectedCountries).length;
         if (n === 0) return "";
         if (n === 1) return toValue(selectedCountries)[0];
-        return `${n} countries selected`;
+        return `${n} subregions selected`;
     }
 
     // Measurement filter logic

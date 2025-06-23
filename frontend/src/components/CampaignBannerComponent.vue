@@ -48,7 +48,7 @@ onUnmounted(() => {
                 <h2 class="text-base font-semibold items-center">
                     {{ campaigns[0].name }}
                 </h2>
-                <p v-if="timeLeft" class="text-sm text-gray-700 mt-1">Campaign ends in: {{ timeLeft }}</p>
+                <p v-if="timeLeft" class="text-sm text-muted mt-1">Campaign ends in: {{ timeLeft }}</p>
             </div>
         </div>
     </div>

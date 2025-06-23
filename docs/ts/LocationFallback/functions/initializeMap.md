@@ -2,7 +2,7 @@
 
 > **initializeMap**(`mapElement`, `location`): `Map`
 
-Defined in: src/composables/LocationFallback.ts:75
+Defined in: src/composables/LocationFallback.ts:76
 
 Initializes a Leaflet map on the specified HTML element, centers it at the given location,
 adds an OpenStreetMap tile layer, and places a marker at the location.
