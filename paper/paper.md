@@ -62,8 +62,9 @@ WaterWatch adopts a layered, loosely coupled Model-View-Controller (MVC) design 
 ## Frameworks & Technologies
 WaterWatch’s web stack pairs a responsive, lightweight front-end with a geospatially focused back-end. A Vue 3 single-page application delivers the user interface. The back-end API layer is built on Django 4.2, whose Object-Relational Mapping, security middleware, and admin interface ensure maintainable server logic. Interactive mapping relies on Leaflet for basemap rendering, while D3.js generates hex-bin overlays and analytic charts. Measurement records are stored in PostgreSQL with PostGIS, providing spatial indexes and SQL functions for hex-grid aggregation and privacy-preserving coordinate rounding (~100 meters).
 
-##Key features
- | Category            | Functionality |  
+## Key features
+ 
+| Category            | Functionality |  
 |---------------------|---------------|  
 | **Data collection** | Anonymous or authenticated upload; client-side range check of drinking-water data (0–100 °C); optional GPS or map-click location; step-by-step thermometer tutorial. |  
 | **Visualisation**   | Global hex-bin map with zoom-adaptive bin size; colour scales for mean temperature or sample count; side-by-side region comparison. |  
