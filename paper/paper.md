@@ -75,7 +75,7 @@ WaterWatch’s web stack pairs a responsive, lightweight front-end with a geospa
 ![WaterWatch web interface showcasing the interactive map for a test example and data analytics across two groups of hexagons.\label{fig:Fig_2}](Fig_2.png)
 
 # AI usage disclosure
-OpenAI generative AI tools were used for minor language editing of this manuscript.
+Generative AI tools from OpenAI were used for minor language editing of this manuscript.
 
 # Acknowledgements  
 We thank **Ivo van Kreveld** and **Alexandra Marcu** from Delft University of Technology for their support and continuous feedback during development.
